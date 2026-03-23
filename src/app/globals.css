@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+html,
+:host,
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  overflow: hidden;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  margin: 0;
+}
+
+@keyframes float-up-fade {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+.animate-val-up {
+  animation: float-up-fade 1.5s ease-out forwards;
+}
+
+/* 進度條：透過 CSS 變數控制動態寬度，避免 inline style */
+.progress-bar {
+  width: var(--progress, 0%);
+}
+
+/* 慢速旋轉動畫（2 秒一圈），避免 inline style */
+.spin-slow {
+  animation-duration: 2s;
+}
+
+/* 法庭判決區：標籤漂浮動畫（緩慢上下飄動） */
+@keyframes courtFloatTag {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0, -8px);
+  }
+}
+
+/* 動態漂浮標籤類別，使用 CSS 變數避免內嵌樣式 */
+.court-float-tag {
+  top: var(--top);
+  left: var(--left);
+  opacity: var(--opacity);
+  transform: rotate(var(--rotate));
+  animation: courtFloatTag var(--duration) ease-in-out var(--delay) infinite;
+}
+
+/* 漂浮標籤細節設定 (GEMINI.md §6) */
+.court-float-tag:nth-child(1) {
+  --top: 8%;
+  --left: 5%;
+  --delay: 0s;
+  --duration: 4s;
+  --rotate: -12deg;
+  --opacity: 0.06;
+}
+.court-float-tag:nth-child(2) {
+  --top: 25%;
+  --left: 70%;
+  --delay: 1.2s;
+  --duration: 5s;
+  --rotate: 8deg;
+  --opacity: 0.05;
+}
+.court-float-tag:nth-child(3) {
+  --top: 55%;
+  --left: 15%;
+  --delay: 0.6s;
+  --duration: 4.5s;
+  --rotate: 15deg;
+  --opacity: 0.07;
+}
+.court-float-tag:nth-child(4) {
+  --top: 75%;
+  --left: 60%;
+  --delay: 2s;
+  --duration: 3.8s;
+  --rotate: -6deg;
+  --opacity: 0.04;
+}
+.court-float-tag:nth-child(5) {
+  --top: 40%;
+  --left: 85%;
+  --delay: 1.8s;
+  --duration: 5.5s;
+  --rotate: 20deg;
+  --opacity: 0.06;
+}
+.court-float-tag:nth-child(6) {
+  --top: 10%;
+  --left: 45%;
+  --delay: 0.3s;
+  --duration: 4.2s;
+  --rotate: -18deg;
+  --opacity: 0.05;
+}
+.court-float-tag:nth-child(7) {
+  --top: 65%;
+  --left: 35%;
+  --delay: 2.5s;
+  --duration: 3.5s;
+  --rotate: 10deg;
+  --opacity: 0.08;
+}
+.court-float-tag:nth-child(8) {
+  --top: 85%;
+  --left: 80%;
+  --delay: 1s;
+  --duration: 4.8s;
+  --rotate: -8deg;
+  --opacity: 0.04;
+}
+
+/* 全域縮放容器：透過 CSS 變數控制，避免 inline style */
+.scale-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  width: var(--width, 1440px);
+  height: var(--height, 960px);
+}
+
+/* 手動補強標準 line-clamp 屬性以滿足 IDE 相容性檢查 */
+.line-clamp-standard-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.line-clamp-standard-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Courtroom Circular Timer */
+.circular-timer-circle {
+  transition:
+    stroke-dashoffset 1s linear,
+    stroke 0.3s ease;
+}

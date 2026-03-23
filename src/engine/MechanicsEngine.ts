@@ -1,0 +1,219 @@
+/**
+ * 遊戲底層數值運算中心
+ * 負責處理扣款打折、名聲懲罰、法庭法官貪婪偏好，以及何時會被警方大起訴的機率核心
+ */
+
+import type { Player, JudgePersonality, BribeItem } from '../types/game';
+import { roundUp } from './MathEngine';
+import {
+  applyAccountantCourtDiscount,
+  applyPRCourtDiscount,
+  isBetImmune,
+  getPRAutoRP,
+  getCTOAutoIncome,
+  calculateTrustTransfer,
+} from './RoleEngine';
+
+// ============================================================
+// §1-2 信用不合格 (收益補丁)
+// ============================================================
+
+/**
+ * 名聲(RP)進帳結算
+ * 如果玩家已經臭名昭彰 (名聲 < 50)，名聲收益會被系統殘酷打折。
+ * 象徵著一旦喪失社會公信力，要洗白是非常困難的。
+ */
+export function calculateActualRPGain(player: Player, baseGain: number): number {
+  if (baseGain <= 0) return baseGain; // 負向扣除不受此減半懲罰影響 (往下掉一樣快)
+  if (player.rp < 50) {
+    return roundUp(baseGain * 0.5); // 收益砍半
+  }
+  return baseGain;
+}
+
+// ============================================================
+// §1-3 起訴機率公式
+// ============================================================
+
+/**
+ * 起訴通緝值計算 (法院盯上你的機率)
+ * 混合了本局的新罪、往年的舊帳，甚至連你做過的公益名聲都能拿來抵銷罪孽。
+ * 但如果你是個長期的慣犯，系統還會強制拉高你的「被起訴保底機率」。
+ */
+export function getIndictmentChance(player: Player, currentTurn: number = 1): number {
+  const sources = player.blackMaterialSources || [];
+  // 累加出現役的總黑材料數 (BM)
+  const totalBM = sources.reduce((sum, s) => sum + s.count, 0);
+
+  // 安全機制：如果玩家身上乾乾淨淨沒有任何黑材料，
+  // 警方就絕對拿你沒轍 (起訴率 0%)，保障乖乖牌玩家。
+  if (totalBM === 0) return 0;
+
+  // 分離出「本回合剛產生熱騰騰的黑料 (高權重)」與「往期留下來的舊帳 (低權重)」
+  const newBM = sources.filter((s) => s.turn === currentTurn).reduce((sum, s) => sum + s.count, 0);
+  const oldBM = sources.filter((s) => s.turn < currentTurn).reduce((sum, s) => sum + s.count, 0);
+  const totalTags = player.totalTagsCount || 0; // 生涯累積標籤作為名聲隱性負債
+
+  // 綜合結算：(新罪*3.5倍) + (舊罪*0.8倍) + (累積犯罪標籤*0.2) - (名望折抵)
+  const baseProb = newBM * 3.5 + oldBM * 0.8 + totalTags * 0.2 - (player.rp - 50) * 0.5;
+
+  // 違法階梯：為防止老玩家依仗資金洗白，歷史犯罪次數過多的法外狂徒將面臨越來越高的基礎發跡底線
+  let floor = 0;
+  if (totalTags > 0) {
+    floor = Math.min(100, Math.ceil(totalTags / 40) * 10);
+  }
+
+  // 回傳前抹除小數點，並確保機率介於 0% 到 100% 之間
+  const rawProb = Math.floor(baseProb);
+  return Math.max(floor, Math.min(100, rawProb));
+}
+
+// ============================================================
+// 法庭處罰與賄賂好感度處理
+// ============================================================
+
+/**
+ * 賄賂契合度死定矩陣 (Scale 1-10)
+ * 記錄五種法官人格對於不同走小門贈禮的受賄喜好度評分。5分為極愛，1分為厭惡。
+ */
+export const BRIBE_MATRIX: Record<JudgePersonality, Record<BribeItem, number>> = {
+  traditionalist: { antique: 5, crypto: 1, art: 4, wine: 3, intel: 2 }, // 傳統派愛古董
+  algorithmic: { antique: 1, crypto: 5, art: 3, wine: 2, intel: 4 }, // 科技派愛加密貨幣
+  elegant: { antique: 4, crypto: 2, art: 5, wine: 4, intel: 1 }, // 貴族派愛藝術收藏
+  pragmatic: { antique: 2, crypto: 4, art: 1, wine: 5, intel: 3 }, // 務實派愛名酒豪飲
+  power_broker: { antique: 3, crypto: 3, art: 2, wine: 1, intel: 5 }, // 軍閥派愛軍事情報
+};
+
+/** 提取賄賂好感度得分的純函式 */
+export function getBribeScore(judge: JudgePersonality, item: BribeItem): number {
+  return BRIBE_MATRIX[judge][item] || 0;
+}
+
+/**
+ * 法庭敗訴大失血結算：
+ * 一旦被法官判決有罪，會面臨殘酷的剝奪：
+ * 1. 罰款以當初不法獲利的 3 倍起跳。
+ * 2. 如果是法院常客 (累犯)，罰款會翻到 6 倍之多！
+ * 3. 高級公關或會計師幫你擋煞。
+ */
+export function calculateConvictionPenalty(
+  player: Player,
+  netIncome: number,
+  currentTurn: number = 999 // 預設 999 防呆，避免沒傳到的地方炸掉
+): {
+  fine: number;
+  rpLoss: number;
+} {
+  // 防呆：無法判斷的收入預設歸 0
+  const safeIncome = netIncome || 0;
+  // 前 5 回合敗訴 (包含 5 回合)，只罰該案件淨獲利的 1 倍作為保護期
+  const baseMultiplier = currentTurn <= 5 ? 1.0 : 3.0;
+  // 1. 基礎罰金計算: 本次查獲不法所得的指定倍率
+  let fine = roundUp(safeIncome * baseMultiplier);
+
+  // 2. 檢查玩家生涯進出法庭的黑歷史
+  const trials = player.totalTrials || 0;
+  let trialMultiplier = 1.0;
+  if (trials >= 7)
+    trialMultiplier = 6.0; // 社會毒瘤，6倍殺無赦
+  else if (trials >= 4) trialMultiplier = 3.0; // 屢教不改，3倍殺
+
+  // 初步相乘累犯常數
+  fine = roundUp(fine * trialMultiplier);
+  const baseRPLoss = 20; // 法庭敗訴的鐵則：不管你有多少錢，固定暴跌 20 RP 名聲
+
+  // 計算因開局特權（守法良民/或是關說送禮）所獲得的特別永續折扣
+  const fineMultiplier = 1.0 - (player.startBonusFineReduction || 0);
+
+  // 將保護傘折扣套用回最終罰款上
+  fine = roundUp(fine * fineMultiplier);
+
+  // 3. 檢查玩家自身聘用的人才，看是否有高級專業人士可以出來擋災
+  fine = applyAccountantCourtDiscount(player, fine);
+  const rpLoss = applyPRCourtDiscount(player, baseRPLoss);
+
+  return { fine, rpLoss };
+}
+
+export interface BetResult {
+  gGain: number; // 現金增減 (萬 G)
+  ipGain: number; // 人脈點數獎勵 (IP)
+  rpGain: number; // 社會信用名聲增減 (RP)
+}
+
+/**
+ * 旁聽席的賭博：
+ * 當別人在受審時，你可以下注押他會不會坐牢。
+ * 雖然猜中有人才點數，但猜錯可是會被沒收 100 萬元保證金的！
+ */
+export function settleBet(
+  player: Player,
+  betChoice: 'win' | 'lose' | 'none',
+  actualResult: boolean
+): BetResult {
+  // 良民不參與賭博，全身而退
+  if (betChoice === 'none') return { gGain: 0, ipGain: 0, rpGain: 0 };
+
+  // 判定其賭盤選擇是否與法庭結論相同
+  const isCorrect =
+    (betChoice === 'win' && actualResult) || (betChoice === 'lose' && !actualResult);
+
+  // 猜中有人才點數，統一給予 30 IP
+  if (isCorrect) return { gGain: 0, ipGain: 30, rpGain: 0 };
+
+  // 如果猜錯，先檢查玩家有沒有裝配免死公關天賦 (LV3)
+  if (isBetImmune(player)) return { gGain: 0, ipGain: 0, rpGain: 0 };
+
+  // 沒有防護罩的輸家被扣除 10 點名聲 (RP)
+  // 此扣除將在 store 結算時，被公關部長 (LV1) 的技能再次折抵。
+  return { gGain: 0, ipGain: 0, rpGain: -10 };
+}
+
+/**
+ * 當玩家按下結束回合時執行。
+ * 負責發放高級人才的被動薪水、結算守法天數，並把多餘的錢偷偷塞進海外信託。
+ */
+export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Player> {
+  const updates: Partial<Player> = {};
+  // 先擷取當前狀態以便運算推疊
+  let finalG = player.g;
+  let finalRP = player.rp;
+  let finalTrust = player.trustFund;
+
+  // 1. 人資天賦檢查 - 公關 (PR) LV3：動用媒體帶風向，每回合免費自動 +5 RP
+  const rpPerTurn = getPRAutoRP(player);
+  if (rpPerTurn > 0) finalRP += rpPerTurn;
+
+  // 2. 人資天賦檢查 - 技術長 (CTO) LV3：靠自動化黑客網路腳本印鈔，每回合免費自動 +100 萬 G
+  const gPerTurn = getCTOAutoIncome(player);
+  if (gPerTurn > 0) finalG += gPerTurn;
+
+  // 3. 清白回合計數更新 (§4-2)
+  // 檢查該玩家在「這整回合之中」是否有染指任何最新觸發的犯罪標籤
+  const hasCrimeThisTurn = player.tags.some(
+    (t) => t.isCrime && t.turn === currentTurn && !t.isResolved
+  );
+  // 若該局有犯案，連續無犯罪紀錄歸零；若無犯案，則增加計數 (Streak Bonus)
+  const newConsecutiveCleanTurns = hasCrimeThisTurn ? 0 : (player.consecutiveCleanTurns || 0) + 1;
+  updates.consecutiveCleanTurns = newConsecutiveCleanTurns;
+
+  // 4. 人資天賦檢查 - 會計師 (Accountant) LV3：合法避稅網路與信託金轉移機制
+  // 隨著連續做乖寶寶的回合增加 (Streak Bonus)，會計師能將越來越龐大的現金轉入不可被法院追繳的海外信託
+  const tempPlayer = { ...player, consecutiveCleanTurns: newConsecutiveCleanTurns };
+  const trustAmount = calculateTrustTransfer(tempPlayer);
+  if (trustAmount > 0) {
+    // 扣除手邊暴露危險的流動金，轉入信託保險箱
+    finalG -= trustAmount;
+    finalTrust += trustAmount;
+  }
+
+  // 5. AP 行動力重置：回合結束時，除非玩家已經出局，否則 AP 強度補回上限 5 點供下一輪運用
+  updates.ap = player.isBankrupt ? player.ap : 5;
+
+  // 紀錄封裝
+  updates.g = finalG;
+  updates.rp = finalRP;
+  updates.trustFund = finalTrust;
+
+  return updates;
+}
