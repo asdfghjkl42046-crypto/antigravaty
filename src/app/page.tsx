@@ -158,7 +158,7 @@ export default function Home() {
         const lawCase = (option as { lawCaseIds?: string[] }).lawCaseIds?.[0]
           ? LAW_CASES_DB[(option as { lawCaseIds?: string[] }).lawCaseIds![0]]
           : null;
-        let baseDesc = option.desc || option.label || `執行選項 ${optIdx}`;
+        let baseDesc = option.label || `執行選項 ${optIdx}`;
         if (baseDesc.endsWith('。')) {
           baseDesc = baseDesc.slice(0, -1);
         }
@@ -167,7 +167,7 @@ export default function Home() {
         const fullOptionDesc =
           lawCase && (option.type === 'B' || option.type === 'C')
             ? `${baseDesc}，並透過『${lawCase.surface_term}』確保利益。`
-            : option.desc || option.label || `執行選項 ${optIdx}`;
+            : option.label || `執行選項 ${optIdx}`;
 
         // 一切都安排妥當了！把準備好的提案送上檯面，就等老闆你的一句「簽字執行」。
         setPendingScan({

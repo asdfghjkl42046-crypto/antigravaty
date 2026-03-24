@@ -17,9 +17,7 @@ import {
   initializeGameSession,
   PlayerConfig,
 } from '../engine/GameEngine';
-import {
-  getCTOAntiTheftCount,
-} from '../engine/RoleEngine';
+import { getCTOAntiTheftCount } from '../engine/RoleEngine';
 
 export type { PlayerConfig };
 

@@ -47,14 +47,7 @@ async function testActionFlow() {
   for (const idx of [1, 2, 3] as const) {
     const opt = dCard[idx] as CardOption;
     if (opt?.succ && 'bm' in opt.succ && opt.succ.bm) {
-      trapRes = await performAction(
-        dummyPlayer,
-        dCardId,
-        idx,
-        dummyPlayer.lastHash,
-        'skip',
-        1
-      );
+      trapRes = await performAction(dummyPlayer, dCardId, idx, dummyPlayer.lastHash, 'skip', 1);
       break;
     }
   }
