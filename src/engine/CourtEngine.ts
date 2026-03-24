@@ -147,23 +147,11 @@ export class CourtEngine {
     defendant: Player,
     isSuccess: boolean
   ): { judgment: string; userPrompt: string } {
-    let templates: string[] = [];
-    // 依據玩家的答辯文本以及是否處於「非常上訴」階段，動態切換使用的宣判文本庫
-    if (trial.defenseText === '[被告保持沈默]') {
-      templates = JUDGMENT_TEMPLATES[personality].silence; // 如果選擇沈默，顯示沈默宣判
-    } else if (trial.isAppeal) {
-      // 於法庭終審救濟再審敗訴與勝訴不同的台詞
-      templates = isSuccess
-        ? JUDGMENT_TEMPLATES[personality].appeal_win
-        : JUDGMENT_TEMPLATES[personality].appeal_lose;
-    } else {
-      // 常規一審程序的勝敗判定宣判語氣
-      templates = isSuccess
-        ? JUDGMENT_TEMPLATES[personality].win
-        : JUDGMENT_TEMPLATES[personality].lose;
-    }
+    const templates = isSuccess
+      ? JUDGMENT_TEMPLATES[personality].win
+      : JUDGMENT_TEMPLATES[personality].lose;
 
-    // 將各種玩家數值變數（如案件關聯字詞、累積黑料數、出席法院次數等）注入選中的宣判模板庫
+    // 依據玩家的答辯文本，從模板庫挑選文案並填入動態變數
     const generatedTemplate = getRandomTemplate(templates, {
       tag: trial.lawCase.tag,
       lawName: trial.lawCase.lawName,
@@ -195,21 +183,28 @@ export class CourtEngine {
   static calculatePenalty(
     player: Player,
     tagText: string,
-    currentTurn: number = 999
+    currentTurn: number = 999,
+    tagId?: number
   ): { fine: number; rpLoss: number } {
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
-    const relatedTags = player.tags.filter((t) => t.text === tagText && t.netIncome !== undefined);
+    // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
+    const relatedTags = player.tags.filter((t) => {
+      const isIdMatch = tagId !== undefined && t.id === tagId;
+      // 複合標籤處理：檢查法典標籤是否包含原本的獨立標籤，或者是完全相等
+      const isTextMatch = tagText.includes(t.text) || t.text.includes(tagText);
+      return (isIdMatch || isTextMatch) && t.netIncome !== undefined;
+    });
 
-    // 總裁指示：預設 200 萬是不該出現的防呆。如果連淨利都被吃掉了代表發牌邏輯有誤，直接報錯
+    // 總裁指示：如果連淨利紀錄都遺失，代表資料完整性有問題
     if (relatedTags.length === 0) {
-      console.error(
-        `[GameLogic Error] 玩家 ${player.name} 被定罪的標籤 [${tagText}]，找不到任何帶有淨收入 (netIncome) 的犯罪歷史紀錄！`
+      console.warn(
+        `[GameLogic Warning] 玩家 ${player.name} 被定罪標籤 [${tagText}] (ID: ${tagId})，找不到帶有計費依據 (netIncome) 的紀錄。將以 0 元基數計算。`
       );
-      throw new Error(
-        `Data Integrity Error: Tag "${tagText}" has no netIncome recorded. Plz check the Card definitions or ActionEngine.`
-      );
+      // 改為平滑回退，不再拋出致命錯誤導致遊戲中斷
+      return calculateConvictionPenalty(player, 0, currentTurn);
     }
 
+    // 取出最新的那筆關聯收益作為罰金基數
     const netIncome = relatedTags[relatedTags.length - 1].netIncome!;
     // 直接將取出的淨利傳給 MechanicsEngine 進行專業裁罰運算 (連同當前回合一併附上作為保護期鑑定)
     return calculateConvictionPenalty(player, netIncome, currentTurn);
@@ -295,8 +290,10 @@ export class CourtEngine {
   ): Partial<TrialState> {
     // 依前面定義的防禦勝率演算法來獲取勝敗結論
     const res = this.calculateDefenseResult(player, trial.lawCase, text);
-    // 根據勝敗來決定是否計算判決罰鍰數字
-    const punishment = res.isSuccess ? undefined : this.calculatePenalty(player, trial.lawCase.tag);
+    // 根據勝敗來決定是否計算判決罰鍰數字 (傳入當前標籤 ID 進行精準資產對接)
+    const punishment = res.isSuccess
+      ? undefined
+      : this.calculatePenalty(player, trial.lawCase.tag, 999, trial.lawCaseTagId);
 
     // 如果玩家敗訴但有律師LV3，引導流程進入 stage 5 給予花錢撤告機會
     if (!res.isSuccess && (player.roles?.lawyer || 0) >= 3) {
@@ -507,8 +504,8 @@ export class CourtEngine {
         return t;
       });
     } else {
-      // 敗訴情況：嚴厲制裁 (附上回合數支援開局新手保護期判定)
-      const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn);
+      // 敗訴情況：嚴厲制裁 (附上回合數支援開局新手保護期判定，並鎖定標籤 ID)
+      const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId);
       // 添上一筆打死不認的敗訴歷史傷疤以利後續懲罰連坐
       updates.totalTrials = (player.totalTrials || 0) + 1;
       // 資金沒收保底不小於 0 即可

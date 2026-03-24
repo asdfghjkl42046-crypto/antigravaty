@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, useSyncExternalStore, useCallback } from '
 import { useGameStore } from '@/store/gameStore';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { LAW_CASES_DB } from '../data/laws/LawCasesDB';
-import { AlertTriangle, Camera, ChevronRight, Check, Gift } from 'lucide-react';
+import { AlertTriangle, Camera, ChevronRight, Check, Gift, LogOut, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import ActionCard from '@/components/ActionCard';
 import QrScanner from '@/components/QrScanner';
 import Courtroom from '@/components/Courtroom';
@@ -16,6 +17,7 @@ import PlayerSidebar from '@/components/PlayerSidebar';
 import EndingScreen from '@/components/EndingScreen';
 import TabNavigation from '@/components/TabNavigation';
 import DebugPanel from '@/components/DebugPanel';
+import ErrorPopup from '@/components/ErrorPopup';
 import { GLOBAL_UI_TEXT } from '@/data/system/GlobalUI';
 import { CARD_UI_TEXT } from '@/data/cards/CardsDB';
 import { SYSTEM_MESSAGES } from '@/data/system/SystemMessages';
@@ -29,7 +31,7 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 定義本機開發版的基準 UI 解析度 (為支援各種平板與寬螢幕)
-  const baseWidth = 1440;
+  const baseWidth = 2400;
   const baseHeight = 1080; // V14.1 提高基準高度，讓 UI 邏輯在較矮視窗下能容納更多資訊並自動等比縮小
 
   // 1. 讀取現在遊戲世界的全局現況：這回合換誰爽？有人破產了嗎？
@@ -87,6 +89,7 @@ export default function Home() {
 
   // 4. 定義你現在看到的螢幕畫面設定（控制相機是否開啟、哪個分頁等）
   const [message, setMessage] = useState(SYSTEM_MESSAGES.READY); // 終端機模擬的單行狀態字
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // 錯誤彈窗訊息
   const [scanInput, setScanInput] = useState(''); // 直接手動輸入卡號的框體文字
   const [activeCardId, setActiveCardId] = useState<string | null>(null); // 若掃碼成功，這會被填入地點卡 UUID
   const [activeTab, setActiveTab] = useState<'scan' | 'hrshop' | 'log'>('scan'); // 左側三大功能分頁卡
@@ -105,6 +108,15 @@ export default function Home() {
     optionDescription: string;
     optionType: string;
   } | null>(null);
+
+  // 統一處理引擎回報的執行結果：成功進日誌，失敗進彈窗
+  const handleActionResult = useCallback((result: { success: boolean; message: string }) => {
+    if (result.success) {
+      setMessage(result.message);
+    } else {
+      setErrorMessage(result.message);
+    }
+  }, []);
 
   // 貪婪的兩難：當你面臨要「合法申報」還是「非法逃脫」的十字路口時，系統會暫存你的把柄資料。
   const [postActionData, setPostActionData] = useState<{
@@ -129,7 +141,7 @@ export default function Home() {
       // 系統特規攔截：卡牌背面的洗牌條碼 (不分大小寫)
       if (raw.toUpperCase() === 'RECARD') {
         const result = useGameStore.getState().redrawCards();
-        setMessage(result.message);
+        handleActionResult(result);
         return;
       }
 
@@ -144,13 +156,13 @@ export default function Home() {
 
         // 防外掛：竟然敢拿不存在大資料庫裡的廢卡糊弄系統，拒絕執行！
         if (!card) {
-          setMessage(SYSTEM_MESSAGES.INVALID_CARD_ID(cardId));
+          setErrorMessage(SYSTEM_MESSAGES.INVALID_CARD_ID(cardId));
           return;
         }
 
         const option = card[optIdx];
         if (!option) {
-          setMessage(SYSTEM_MESSAGES.INVALID_OPTION(optIdx));
+          setErrorMessage(SYSTEM_MESSAGES.INVALID_OPTION(optIdx));
           return;
         }
 
@@ -179,11 +191,11 @@ export default function Home() {
           optionDescription: fullOptionDesc,
           optionType: option.type,
         });
-        setMessage(SYSTEM_MESSAGES.SCAN_SUCCESS(cardId, optIdx));
+        handleActionResult({ success: true, message: SYSTEM_MESSAGES.SCAN_SUCCESS(cardId, optIdx) });
         return;
       }
 
-      setMessage(SYSTEM_MESSAGES.INVALID_CARD(raw));
+      setErrorMessage(SYSTEM_MESSAGES.INVALID_CARD(raw));
     },
     [pendingScan]
   );
@@ -228,7 +240,7 @@ export default function Home() {
     // 一般正常卡片就清除彈窗並正式呼叫 Zustand 連動底層 Engine 發起大屠殺結算
     setPendingScan(null);
     const result = await performAction(cardId, optionIndex as 1 | 2 | 3);
-    setMessage(result.message);
+    handleActionResult(result);
   };
 
   // 承上：二階段決策後置面板的兩種選擇（乖乖給政府抽稅合法申報 declare vs 惡意逃漏隱匿 skip）
@@ -238,7 +250,7 @@ export default function Home() {
     setPostActionData(null);
     // 把抉擇結果一起傳給 Engine 做歷史紀錄與制裁法理依據
     const result = await performAction(cardId, optionIndex, choice);
-    setMessage(result.message);
+    handleActionResult(result);
   };
 
   /** 如果玩家掃完條碼看到選項說明發現不妙，直接按取消。這不扣除任何資源，只算虛驚一場。 */
@@ -252,9 +264,10 @@ export default function Home() {
    */
   const handleAction = async (cardId: string, optIdx: 1 | 2 | 3) => {
     const card = CARDS_DB[cardId];
+    if (!card) return;
+
     const opt = card[optIdx];
-    const isCSeriesIllegal =
-      cardId.startsWith('C-') && (opt as { special?: string }).special === 'declareLogic';
+    const isCSeriesIllegal = cardId.startsWith('C-') && (opt as { special?: string }).special === 'declareLogic';
 
     if (isCSeriesIllegal && !postActionData) {
       setPostActionData({
@@ -269,7 +282,7 @@ export default function Home() {
 
     setActiveCardId(null);
     const result = await performAction(cardId, optIdx);
-    setMessage(result.message);
+    handleActionResult(result);
   };
 
   // 畫面載入中：等待舞台燈光跟圖層完全掛載上去前，先不要透露任何資訊。
@@ -280,7 +293,7 @@ export default function Home() {
       <div
         ref={containerRef}
         // 電影級響應式外框：能隨著你的個人螢幕無限彈性縮放的遊戲主視覺版圖。
-        className="scale-wrapper flex flex-col flex-1 w-full min-h-0 transition-transform duration-300 ease-out py-4 lg:py-6"
+        className="scale-wrapper flex flex-col flex-1 w-full min-h-0 transition-transform duration-300 ease-out"
       >
         {/* =============== 分歧一：遊戲破關或宣告倒閉 =============== */}
         {(phase === 'gameover' || phase === 'victory') && endingResult ? (
@@ -300,10 +313,7 @@ export default function Home() {
         ) : players.length === 0 ? (
           /* =============== 分歧三：各路人馬輸入角色名字與抽取開局路線的大廳 =============== */
           <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-y-auto">
-            <SetupScreen
-              onComplete={(configs) => initGame(configs)}
-              onBack={() => setShowModeSelect(true)}
-            />
+            <SetupScreen onComplete={(configs) => initGame(configs)} onBack={() => setShowModeSelect(true)} />
           </div>
         ) : (
           /* =============== 分歧四：所有事前準備就緒，進入正式遊戲大廳 =============== */
@@ -319,41 +329,63 @@ export default function Home() {
             )}
 
             {/* 螢幕正上方的全局橫幅：無情地播報現在是第幾回合，以及這場管事的法官是哪個個性。 */}
-            <GameHUD
-              turn={turn}
-              judgePersonality={judgePersonality}
-              onReset={resetGame}
-              onDebug={() => setShowDebug(true)}
-            />
+            <GameHUD turn={turn} judgePersonality={judgePersonality} onReset={resetGame} onDebug={() => setShowDebug(true)} />
 
-            {/* 畫面中下大塊切版開始 */}
-            <main className="flex-1 container mx-auto p-4 xl:p-8 flex gap-8 overflow-hidden min-h-0 relative z-10">
+            {/* 右上浮動控制台：結束回合與返回大廳 */}
+            <div className="fixed top-4 right-10 z-[100] flex items-center gap-4 p-2 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto">
+              {/* 回合計數：移至結束回合正左方 */}
+              <div className="flex flex-col items-center px-3">
+                <span className="text-[8px] uppercase tracking-widest text-slate-500 font-black leading-none mb-1">
+                  Round
+                </span>
+                <span
+                  className={cn(
+                    'text-xl font-black tracking-tighter',
+                    turn >= 45 ? 'text-red-400 animate-pulse' : turn >= 40 ? 'text-amber-400' : 'text-blue-400'
+                  )}
+                >
+                  {turn}/50
+                </span>
+              </div>
+
+              <div className="w-px h-8 bg-white/10" />
+
+              <button
+                onClick={endTurn}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <Zap size={18} />
+                {GLOBAL_UI_TEXT.COMMON.END_TURN}
+              </button>
+
+              <div className="w-px h-8 bg-white/10 mx-1" />
+
+              <button
+                onClick={resetGame}
+                title={GLOBAL_UI_TEXT.COMMON.BACK}
+                className="p-3 bg-white/5 hover:bg-red-500/20 border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-400 rounded-2xl transition-all"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
+
+            {/* 錯誤彈窗：無效卡片等錯誤以彈窗形式顯示 */}
+            <ErrorPopup message={errorMessage} onClose={() => setErrorMessage(null)} />
+
+            {/* 畫面中下大塊切版開始：內容區完全向上延展至頂端，實現全屏沈浸感 */}
+            <main className="flex-1 w-full max-w-[2332px] mx-auto px-4 pb-4 xl:px-8 xl:pb-8 flex gap-8 min-h-0 relative z-10">
               {/* 左側首腦陣列板：你能夠隨時在這裡死命關注對手口袋裡的地底資金，以及他們到底買了幾位會計師。 */}
               <PlayerSidebar players={players} currentPlayerIndex={currentPlayerIndex} />
 
               {/* 中間偏右巨大主視窗 */}
-              <div className="flex-1 space-y-6 flex flex-col min-w-0">
+              <div className="flex-1 flex flex-col min-w-0">
                 {/* 戰場切換樞紐：如果有人被告了，毫不留情地把右側辦公區砸碎，換上最殘酷的法庭辯論戰場！ */}
                 {phase === 'courtroom' ? (
                   <Courtroom />
                 ) : (
                   <>
-                    {/* 非法庭時期日常遊戲頭部：負責放小提示文字與最重要的「結束此回合」大紐 */}
-                    <header className="bg-black/40 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3 font-mono">
-                        <span className="text-blue-400 font-bold">&gt;</span>
-                        <span className="text-slate-200">{message}</span>
-                      </div>
-                      <button
-                        onClick={endTurn}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all"
-                      >
-                        {GLOBAL_UI_TEXT.COMMON.END_TURN}
-                      </button>
-                    </header>
-
-                    {/* 切換各種實體/虛擬行動面板頁籤的按鈕組 (掃碼/人才庫 等等) */}
-                    <div className="flex justify-start">
+                    {/* 分頁導航移至此處，取代原本的冗餘標題 */}
+                    <div className="w-fit mx-auto mb-8 p-1.5 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[32px] shadow-2xl animate-in fade-in slide-in-from-top-4 duration-700">
                       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
                     </div>
 
@@ -365,16 +397,10 @@ export default function Home() {
                         return (
                           <div className="flex flex-col gap-6 flex-1">
                             <section className="bg-white/5 border border-white/5 rounded-3xl p-6 text-center space-y-4">
-                              <h3 className="text-xl font-black tracking-tight">
-                                {GLOBAL_UI_TEXT.SCAN.TITLE}
-                              </h3>
+                              <h3 className="text-xl font-black tracking-tight">{GLOBAL_UI_TEXT.SCAN.TITLE}</h3>
                               {cameraMode ? (
                                 // 高耗能真實相機對接模組，利用 HTML5-QRCode 運作
-                                <QrScanner
-                                  active={cameraMode}
-                                  onScanSuccess={handleCameraScan}
-                                  onClose={() => setCameraMode(false)}
-                                />
+                                <QrScanner active={cameraMode} onScanSuccess={handleCameraScan} onClose={() => setCameraMode(false)} />
                               ) : (
                                 <div className="flex gap-2 max-w-md mx-auto">
                                   {/* 開啟實體相機的啟動鈕 */}
@@ -429,7 +455,7 @@ export default function Home() {
                         );
                       })()}
                     {/* 人才獵頭市場卡：有錢就能為所欲為，買下一整支高階律師或是公關團隊替你擋子彈。 */}
-                    {activeTab === 'hrshop' && <HRShop onMessage={setMessage} />}
+                    {activeTab === 'hrshop' && <HRShop onActionResult={handleActionResult} />}
 
                     {/* 第三分頁卡：保留給未來的開發中系統 */}
                     {activeTab === 'log' && (
@@ -448,31 +474,15 @@ export default function Home() {
             {postActionData && (
               <div className="fixed inset-0 z-[210] bg-black/90 backdrop-blur-md flex items-center justify-center p-6">
                 <div className="max-w-md w-full bg-slate-900 border border-slate-700/50 rounded-[32px] p-10 space-y-8 animate-in zoom-in-95">
-                  <h3 className="text-2xl font-black text-center text-white italic">
-                    {CARD_UI_TEXT.POST_ACTION.DECLARE_TITLE(postActionData.title)}
-                  </h3>
+                  <h3 className="text-2xl font-black text-center text-white italic">{CARD_UI_TEXT.POST_ACTION.DECLARE_TITLE(postActionData.title)}</h3>
                   <div className="space-y-3">
-                    <button
-                      onClick={() => handlePostAction('declare')}
-                      className="w-full p-6 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left"
-                    >
-                      <span className="text-lg font-black text-slate-200 block">
-                        {CARD_UI_TEXT.POST_ACTION.DECLARE_LABEL}
-                      </span>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {CARD_UI_TEXT.POST_ACTION.DECLARE_DESC}
-                      </p>
+                    <button onClick={() => handlePostAction('declare')} className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left">
+                      <span className="text-xl font-black text-slate-200 block">{CARD_UI_TEXT.POST_ACTION.DECLARE_LABEL}</span>
+                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">{CARD_UI_TEXT.POST_ACTION.DECLARE_DESC}</p>
                     </button>
-                    <button
-                      onClick={() => handlePostAction('skip')}
-                      className="w-full p-6 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left"
-                    >
-                      <span className="text-lg font-black text-slate-200 block">
-                        {CARD_UI_TEXT.POST_ACTION.SKIP_LABEL}
-                      </span>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {CARD_UI_TEXT.POST_ACTION.SKIP_DESC}
-                      </p>
+                    <button onClick={() => handlePostAction('skip')} className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left">
+                      <span className="text-xl font-black text-slate-200 block">{CARD_UI_TEXT.POST_ACTION.SKIP_LABEL}</span>
+                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">{CARD_UI_TEXT.POST_ACTION.SKIP_DESC}</p>
                     </button>
                   </div>
                 </div>
@@ -482,33 +492,21 @@ export default function Home() {
             {/* 常規確任動作窗：每次你逼逼逼掃完二維碼，它都會跳出來再三確認你懂不懂這按鈕有被抓的潛在風險 */}
             {pendingScan && (
               <div className="fixed inset-0 z-[220] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in">
-                <div className="max-w-md w-full bg-[#111418] border border-white/10 rounded-[40px] p-10 space-y-8 animate-in zoom-in-95">
-                  <div className="text-center space-y-2">
-                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
-                      {GLOBAL_UI_TEXT.SCAN.CONFIRM_TITLE}
-                    </p>
-                    <h3 className="text-2xl font-black text-white italic">
-                      {pendingScan.cardTitle}
-                    </h3>
+                <div className="max-w-4xl w-full bg-[#111418] border border-white/10 rounded-[40px] p-16 space-y-12 animate-in zoom-in-95">
+                  <div className="text-center space-y-4">
+                    <p className="text-xl font-black text-blue-500 uppercase tracking-widest">{GLOBAL_UI_TEXT.SCAN.CONFIRM_TITLE}</p>
+                    <h3 className="text-6xl font-black text-white italic">{pendingScan.cardTitle}</h3>
                   </div>
-                  <div className="p-6 bg-white/5 border border-white/5 rounded-3xl">
-                    <p className="text-sm font-medium text-slate-300">
-                      {pendingScan.optionDescription}
-                    </p>
+                  <div className="p-10 bg-white/5 border border-white/5 rounded-3xl">
+                    <p className="text-3xl font-medium text-slate-300 leading-relaxed">{pendingScan.optionDescription}</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-8">
                     {/* 取消一切沒事發生鈕 */}
-                    <button
-                      onClick={handleCancelScan}
-                      className="py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-bold text-slate-400 transition-all"
-                    >
+                    <button onClick={handleCancelScan} className="py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-black text-2xl text-slate-400 transition-all">
                       {GLOBAL_UI_TEXT.COMMON.CANCEL}
                     </button>
                     {/* 送出並等著被引擎隨機數宣判死刑的確認鈕 */}
-                    <button
-                      onClick={handleConfirmScan}
-                      className="py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95"
-                    >
+                    <button onClick={handleConfirmScan} className="py-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-2xl rounded-2xl shadow-lg transition-all active:scale-95">
                       {GLOBAL_UI_TEXT.SCAN.CONFIRM_BTN}
                     </button>
                   </div>
@@ -524,25 +522,17 @@ export default function Home() {
                     <div className="inline-flex p-5 rounded-3xl bg-amber-500 text-black shadow-lg rotate-12 mx-auto">
                       <Gift size={40} />
                     </div>
-                    <h3 className="text-3xl font-black text-amber-100 tracking-tight">
-                      {SYSTEM_MESSAGES.REWARD_OBTAINED}
-                    </h3>
+                    <h3 className="text-3xl font-black text-amber-100 tracking-tight">{SYSTEM_MESSAGES.REWARD_OBTAINED}</h3>
                   </div>
                   <div className="space-y-3">
                     {startNotifications.map((note, i) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-white/5 border border-white/10 rounded-2xl flex gap-3"
-                      >
-                        <Check size={14} className="text-amber-400 mt-1 shrink-0" />
-                        <p className="text-sm font-medium text-slate-200">{note}</p>
+                      <div key={i} className="p-6 bg-white/5 border border-white/10 rounded-2xl flex gap-4">
+                        <Check size={20} className="text-amber-400 mt-1 shrink-0" />
+                        <p className="text-xl font-black text-slate-200 leading-tight">{note}</p>
                       </div>
                     ))}
                   </div>
-                  <button
-                    onClick={clearStartNotifications}
-                    className="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-400 shadow-lg transition-all flex items-center justify-center gap-2"
-                  >
+                  <button onClick={clearStartNotifications} className="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-400 shadow-lg transition-all flex items-center justify-center gap-2">
                     {SYSTEM_MESSAGES.REWARD_CONFIRM} <ChevronRight size={20} />
                   </button>
                 </div>

@@ -19,29 +19,25 @@ interface TabNavigationProps {
 export default function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   // 將三大情報網的按鈕模組先行實例化註冊
   const TABS = [
-    { id: 'scan', label: GLOBAL_UI_TEXT.TABS.SCAN, icon: <MousePointer2 size={18} /> },
-    { id: 'hrshop', label: GLOBAL_UI_TEXT.TABS.HR, icon: <Users size={18} /> },
-    { id: 'log', label: GLOBAL_UI_TEXT.TABS.LOG, icon: <HistoryIcon size={18} /> },
+    { id: 'scan', label: GLOBAL_UI_TEXT.TABS.SCAN, icon: <MousePointer2 size={28} /> },
+    { id: 'hrshop', label: GLOBAL_UI_TEXT.TABS.HR, icon: <Users size={28} /> },
   ] as const;
 
   return (
     // 戰術膠囊底座：半透明磨砂包覆的科技感外殼
-    <div className="flex gap-2 p-1 bg-black/40 border border-white/10 rounded-2xl w-fit">
+    <div className="flex gap-3 p-2 bg-black/40 border border-white/10 rounded-3xl w-fit z-50">
       {/* 工廠流水線：透過陣列迴圈動態壓出這三顆戰術按鈕 */}
       {TABS.map((tab) => (
         <button
-          key={tab.id} // 給予 DOM 節點唯一的識別條碼，防止渲染錯亂
+          key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={cn(
-            'flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all text-sm whitespace-nowrap',
-            // 權力聚焦：如果這顆按鈕正是現在啟動的頻道，讓它發出充滿特權的科技藍光並彈起
+            'flex items-center gap-3 px-8 py-4 rounded-2xl font-black transition-all text-2xl whitespace-nowrap',
             activeTab === tab.id
               ? 'bg-blue-600 text-white shadow-lg'
-              : // 失寵的頻道：打入冷宮變成黯淡的灰色，只在游標滑過時給予微弱的回應
-                'text-slate-400 hover:text-white hover:bg-white/5'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
           )}
         >
-          {/* 圖文並茂的作戰指令代號 */}
           {tab.icon}
           {tab.label}
         </button>

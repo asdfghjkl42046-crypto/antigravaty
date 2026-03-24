@@ -212,23 +212,11 @@ export async function performAction(
   // 合法申報不需面臨隨機失敗檢定
   const skipRandomCheck = isDeclaration;
 
-  // 3. 系統報表敘事生成
+  // 3. 系統報表敘事生成與標籤處理
   if (isDeclaration) {
     message = `【安全申報】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
-  } else if (choice === 'skip') {
-    // 如果是略過(黑箱)行為，強制植入一段「隱匿金流」標籤
-    snapshots.push({
-      tag: '隱匿金流',
-      netIncome: bonusRewardG,
-      lawCaseIds: opt.lawCaseIds || [],
-      rpChange: baseRewardRP,
-      surface_term: opt.surface_term,
-      hidden_intent: opt.hidden_intent,
-      escape: opt.escape,
-    });
-    message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
   } else if (opt.tags && opt.tags.length > 0) {
-    // 記錄玩家該行為產生的相關資訊
+    // 優先記錄卡片定義的特定標籤 (如：妨害秘密、強制罪等)
     opt.tags.forEach((t: string) => {
       snapshots.push({
         tag: t,
@@ -240,6 +228,21 @@ export async function performAction(
         escape: opt.escape,
       });
     });
+    if (choice === 'skip') {
+      message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
+    }
+  } else if (choice === 'skip') {
+    // 僅在選擇略過且卡片「未定義」特定標籤時，才使用通用的「隱匿金流」標籤
+    snapshots.push({
+      tag: '隱匿金流',
+      netIncome: bonusRewardG,
+      lawCaseIds: opt.lawCaseIds || [],
+      rpChange: baseRewardRP,
+      surface_term: opt.surface_term,
+      hidden_intent: opt.hidden_intent,
+      escape: opt.escape,
+    });
+    message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
   }
 
   // 4. 行動機率(骰子檢定)判定

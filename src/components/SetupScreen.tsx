@@ -219,14 +219,23 @@ export default function SetupScreen({ onComplete, onBack }: SetupScreenProps) {
                             : 'bg-white/5 border-transparent hover:border-white/10'
                         )}
                       >
-                        <span
-                          className={cn(
-                            'font-black text-sm tracking-tight',
-                            currentPath === key ? 'text-blue-400' : 'text-slate-200'
-                          )}
-                        >
-                          {label}
-                        </span>
+                        <div className="flex flex-col text-left">
+                          {label.split('\n').map((line, i) => (
+                            <span
+                              key={i}
+                              className={cn(
+                                i === 0 ? 'text-base font-black whitespace-pre-wrap' : 'text-[11px] font-bold opacity-70',
+                                i === 0
+                                  ? currentPath === key
+                                    ? 'text-blue-400'
+                                    : 'text-slate-100'
+                                  : 'text-blue-300/80'
+                              )}
+                            >
+                              {line}
+                            </span>
+                          ))}
+                        </div>
                         {/* 蓋下鋼印的確切感：一個發著科技藍光的實心打勾符號 */}
                         {currentPath === key && (
                           <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500">

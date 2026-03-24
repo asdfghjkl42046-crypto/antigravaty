@@ -9,8 +9,8 @@ export const SETUP_TEXT = {
   SETUP_SUBTITLE: '請選擇參與本局對弈的企業家數量 (1-4人)',
   // 命運的交叉路口：選擇要對抗死板呆滯的腳本法官，還是要面對變化莫測、冷酷無情的 AI 大語言模型法官
   MODE_SELECT: {
-    TITLE_MAIN: '創業之路',
-    TITLE_SUB: '審判核心',
+    TITLE_MAIN: '創業冒險',
+    TITLE_SUB: '現代法律篇',
     PROMPT: '請選擇本局遊戲的法官模擬模式',
     WEBSITE_TITLE: '網站模式',
     WEBSITE_DESC: '使用固定戲劇性文案模板，無需等待 AI 生成',
@@ -35,14 +35,14 @@ export const SETUP_TEXT = {
     `恭喜！${name} 準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的獎勵！`,
 
   REGISTRATION_TITLE: '經營權登記',
-  AVOIDANCE_NOTICE: '請其餘閒雜人等迴避', // 確保背後沒有其他總裁在偷瞄底牌的警告標語
+  AVOIDANCE_NOTICE: '請其餘閒雜人等迴避', // 確保背後沒有他人在偷瞄底牌的警告標語
   SECRET_SETTING_PROMPT: '準備進行秘密設定',
   START_SETTING_BTN: '點擊開始設定',
 
-  // 企業登記表的預設水軍文字
-  NAME_LABEL: '企業名稱 / 創辦人',
+  // 企業登記表的預設文字
+  NAME_LABEL: '企業名稱',
   NAME_PLACEHOLDER: (idx: number) => `例如：九龍集團 (預設: 企業 ${idx + 1})`,
-  PATH_LABEL: '選擇起始路徑',
+  PATH_LABEL: '選擇開局天賦',
   PREP_MEANS_LABEL: '初始預備手段', // 例如行賄古董給老法官
   DEFAULT_BRIBE_NAME: '禮物', // 當找不到賄賂品對應標籤時的預設中文名稱
   DEFAULT_CORP_NAME: (idx: number) => `企業 ${idx + 1}`,
@@ -53,14 +53,14 @@ export const SETUP_TEXT = {
  * 將骯髒的黑白道數值（多金但萬人唾棄 vs 窮酸但清清白白）包裝成能擺在檯面上的商業敘事標籤。
  */
 export const START_PATH_LABELS: Record<StartPath, string> = {
-  normal: '資源穩健但法規嚴格', // 最安穩
-  backdoor: '靈活多變但伴隨風險', // 中等
-  blackbox: '資金雄厚但受人非議', // 最危險但也富裕
+  normal: '白手起家   (較佳社會信用)\n(起始資金100萬，名聲105)', // 最安穩
+  backdoor: '融資創業   (名聲略受損)\n(起始資金250萬，名聲90)', // 中等
+  blackbox: '家族企業   (社會評價較差)\n(起始資金400萬，名聲75)', // 最危險但也富裕
 };
 
 /** 階級代號的大白話翻譯 */
 export const START_PATH_NAMES: Record<StartPath, string> = {
-  normal: '正規開局',
-  backdoor: '政商後門',
-  blackbox: '黑箱作業',
+  normal: '白手起家',
+  backdoor: '融資創業',
+  blackbox: '家族企業',
 };

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card } from '../types/game';
 import { CARD_UI_TEXT } from '../data/cards/CardsDB';
-import { Gavel, Scale, MousePointer2 } from 'lucide-react';
+import { Gavel, Scale, MousePointer2, Zap } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -60,19 +60,19 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
       <div className="p-5 pb-2">
         <div className="flex justify-between items-start mb-2">
           {/* 機密代號區：標示這份文件屬於哪個堂口，以及它的出廠編碼 */}
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-white/10">
+          <span className="px-3 py-1 rounded-lg text-xl font-black uppercase tracking-wider bg-white/10">
             {typeNames} | {cardId}
           </span>
           <Gavel size={16} className="opacity-40" />
         </div>
 
         {/* 新聞頭條等級的巨大標題字串 */}
-        <h3 className="text-xl font-bold text-white mb-2 leading-tight">
+        <h3 className="text-3xl font-black text-white mb-4 leading-tight">
           {card.title || CARD_UI_TEXT.DEFAULT_TITLE}
         </h3>
 
         {/* 劇情交代區：為了不讓懶得看字的老闆抓狂，這裡強制把所有廢話裁剪到最多 3 行以內 */}
-        <p className="text-sm text-slate-300 line-clamp-3 line-clamp-standard-3 leading-relaxed min-h-[4.5rem]">
+        <p className="text-xl text-slate-300 font-medium line-clamp-3 line-clamp-standard-3 leading-relaxed min-h-[6rem]">
           {card.description || CARD_UI_TEXT.DEFAULT_DESC}
         </p>
       </div>
@@ -98,16 +98,24 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
             >
               <div className="flex justify-between items-center mb-1">
                 {/* 掩人耳目的糖衣包裝：讓這個骯髒的決議看起來像是在「做公益」或是「專案維護」 */}
-                <span className="text-xs font-bold px-1.5 py-0.5 rounded text-slate-300 bg-slate-800/50">
+                <span className="text-xl font-black px-3 py-1.5 rounded text-slate-300 bg-slate-800/50">
                   {CARD_UI_TEXT.DEFAULT_OPTION(idx)}
                 </span>
-                <div className="flex gap-2 items-center">
-                  {/* 未來可能用來放金幣或骷髏圖示的神秘預留空位 */}
+                <div className="flex gap-5 items-center text-xl font-black uppercase tracking-widest transition-colors text-purple-400 group-hover/btn:text-purple-300">
+                  <span className="flex items-center gap-2">
+                    <Zap size={14} className="fill-current" />
+                    {opt.ap || 1} AP
+                  </span>
+                  {opt.costG && (
+                    <span className="flex items-center gap-1 text-emerald-400 group-hover/btn:text-emerald-300">
+                      {opt.costG} G
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* 白話翻譯機：撕開糖衣，告訴老闆按下去實際上會扣多少體力、賺多少黑錢 */}
-              <p className="text-xs text-slate-300 line-clamp-2 line-clamp-standard-2">
+              <p className="text-2xl text-slate-100 font-black line-clamp-2 line-clamp-standard-2 leading-tight mt-1">
                 {opt.label || CARD_UI_TEXT.DEFAULT_ACTION_DESC}
               </p>
 
@@ -120,8 +128,8 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
 
       {/* 提案書頁尾封籤：放個天平圖示裝逼，時刻提醒你這場商戰步步驚心，充滿法律風險 */}
       <div className="px-5 py-3 bg-white/5 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-widest opacity-60">
-          <Scale size={12} />
+        <div className="flex items-center gap-3 text-xl font-black uppercase tracking-widest opacity-60">
+          <Scale size={20} />
           <span>{CARD_UI_TEXT.RISK_ASSESSMENT}</span>
         </div>
         <MousePointer2 size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />

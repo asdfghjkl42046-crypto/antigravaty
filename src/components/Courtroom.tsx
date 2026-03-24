@@ -120,18 +120,18 @@ export default function Courtroom() {
             <div>
               <h2 className="text-2xl font-black tracking-tight">{getStageTitle()}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-blue-400 font-bold uppercase tracking-widest text-[10px]">
+                <p className="text-blue-400 font-black uppercase tracking-[0.2em] text-xl">
                   {COURT_TEXT.COURT_NAME}
                 </p>
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                 {/* 顯示幕後操盤的 AI 法官是誰 (例如毒蛇老頭、貪婪政客) */}
                 {judgePersonality && (
-                  <p className="text-white/60 text-[10px] font-bold tracking-widest border-l border-white/20 pl-2">
+                  <p className="text-white/60 text-xl font-bold tracking-widest border-l border-white/20 pl-4">
                     {COURT_TEXT.JUDGE_PREFIX}
                     <span className="text-blue-400">
                       【{JUDGE_LABELS[judgePersonality as keyof typeof JUDGE_LABELS]?.judgeName}】
                     </span>
-                    <span className="text-white/40 ml-1">
+                    <span className="text-white/40 ml-2">
                       {JUDGE_LABELS[judgePersonality as keyof typeof JUDGE_LABELS]?.title}
                     </span>
                   </p>
@@ -147,7 +147,7 @@ export default function Courtroom() {
             )}
             {/* 標示今天的挨打苦主 */}
             <div className="text-right">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest block mb-1">
+              <span className="text-xl uppercase font-black text-slate-400 tracking-widest block mb-2">
                 {COURT_TEXT.DEFENDANT_LABEL}
               </span>
               <span className="text-xl font-black text-white px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 shrink-0">
@@ -193,8 +193,8 @@ export default function Courtroom() {
                 </div>
                 <div className="space-y-6 relative z-10">
                   {/* 控訴罪名標籤徽章 */}
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    <ShieldCheck size={14} /> {COURT_TEXT.PHASE_1.CHARGE_LABEL}
+                  <div className="inline-flex items-center gap-3 px-6 py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-xl font-black uppercase tracking-widest">
+                    <ShieldCheck size={18} /> {COURT_TEXT.PHASE_1.CHARGE_LABEL}
                     {trial.lawCase.tag}
                   </div>
                   {/* 使用超大字體顯示法院開庭傳召公文 */}
@@ -248,7 +248,7 @@ export default function Courtroom() {
                       {/* 這個人的名字與目前他的作答狀態 */}
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-bold flex items-center gap-2">{p?.name}</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <span className="text-xl font-black uppercase tracking-widest text-slate-400 bg-black/20 px-3 py-1 rounded-lg">
                           {isDone
                             ? COURT_TEXT.PHASE_2.SUBMITTED
                             : selectedIdx !== undefined
@@ -260,7 +260,7 @@ export default function Courtroom() {
                       {/* 還沒交卷，展開四大干預選項按鈕供他選定 */}
                       {!isDone && (
                         <div className="flex flex-col gap-3">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                          <div className="grid grid-cols-2 gap-4">
                             {BYSTANDER_OPTIONS.map((opt, i) => (
                               <button
                                 key={i}
@@ -268,7 +268,7 @@ export default function Courtroom() {
                                   setPendingInterventions((prev) => ({ ...prev, [bid]: i }));
                                 }}
                                 className={cn(
-                                  'px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 text-center border-2',
+                                  'px-6 py-5 rounded-2xl text-base font-black uppercase tracking-widest transition-all active:scale-95 text-center border-2 leading-tight',
                                   selectedIdx === i
                                     ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
                                     : 'bg-blue-600/10 border-blue-500/20 text-blue-400 hover:bg-blue-600/20'
@@ -339,7 +339,7 @@ export default function Courtroom() {
                       <div className="flex justify-between items-center mb-6">
                         <span className="font-bold uppercase tracking-widest">{p?.name}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          <span className="text-xl font-black uppercase tracking-widest text-slate-400 bg-black/20 px-3 py-1 rounded-lg">
                             {isDone
                               ? COURT_TEXT.PHASE_2.SUBMITTED
                               : currentLocalBet
@@ -356,39 +356,39 @@ export default function Courtroom() {
                           <button
                             onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'win' }))}
                             className={cn(
-                              'py-4 rounded-xl border font-bold transition-all flex flex-col items-center gap-2 text-[10px] uppercase tracking-widest',
+                              'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'win'
                                 ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg scale-105'
                                 : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
                             )}
                           >
-                            <TrendingUp size={20} />
+                            <TrendingUp size={24} />
                             {COURT_TEXT.PHASE_3.BET_WIN}
                           </button>
                           {/* 買他進牢房被重罰 (有罪) */}
                           <button
                             onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'lose' }))}
                             className={cn(
-                              'py-4 rounded-xl border font-bold transition-all flex flex-col items-center gap-2 text-[10px] uppercase tracking-widest',
+                              'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'lose'
                                 ? 'bg-red-500 border-red-400 text-white shadow-lg scale-105'
                                 : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20'
                             )}
                           >
-                            <TrendingDown size={20} />
+                            <TrendingDown size={24} />
                             {COURT_TEXT.PHASE_3.BET_LOSE}
                           </button>
                           {/* 人權律師不賭博 (略過) */}
                           <button
                             onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'none' }))}
                             className={cn(
-                              'py-4 rounded-xl border font-bold transition-all flex flex-col items-center gap-2 text-[10px] uppercase tracking-widest',
+                              'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'none'
                                 ? 'bg-slate-500 border-slate-400 text-white shadow-lg scale-105'
                                 : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
                             )}
                           >
-                            <MessageSquare size={20} />
+                            <MessageSquare size={24} />
                             {COURT_TEXT.PHASE_3.BET_SKIP}
                           </button>
                         </div>
@@ -466,14 +466,14 @@ export default function Courtroom() {
                       key={i}
                       onClick={() => setSelectedOption(i)}
                       className={cn(
-                        'w-full px-6 py-4 rounded-2xl border-2 text-left transition-all flex justify-between items-center group',
+                        'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex justify-between items-center group leading-relaxed',
                         selectedOption === i
                           ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
                           : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
                       )}
                     >
-                      <span className="font-bold">{label}</span>
-                      {selectedOption === i && <ShieldCheck size={20} />}
+                      <span className="text-xl font-black">{label}</span>
+                      {selectedOption === i && <ShieldCheck size={28} />}
                     </button>
                   ))}
                 </div>
@@ -671,20 +671,20 @@ export default function Courtroom() {
 
                 {/* 結尾損害報告書評估區：只有當他活該敗訴被宣告重罪時才繪製 */}
                 {!trial.isDefenseSuccess && trial.punishment && (
-                  <div className="w-full grid grid-cols-2 gap-4 max-w-sm">
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-                      <div className="text-[10px] font-black uppercase tracking-widest text-red-400/60 mb-1">
+                  <div className="w-full grid grid-cols-2 gap-6 max-w-sm">
+                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                      <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.FINE}
                       </div>
-                      <div className="text-2xl font-black text-red-400">
+                      <div className="text-5xl font-black text-red-400">
                         -{trial.punishment.fine} 萬 G {/* 失血金錢 */}
                       </div>
                     </div>
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-                      <div className="text-[10px] font-black uppercase tracking-widest text-red-400/60 mb-1">
+                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                      <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.RP_LOSS}
                       </div>
-                      <div className="text-2xl font-black text-red-400">
+                      <div className="text-5xl font-black text-red-400">
                         -{trial.punishment.rpLoss} RP {/* 社會名聲一落千丈 */}
                       </div>
                     </div>
