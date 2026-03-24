@@ -133,8 +133,8 @@ export default function Home() {
         return;
       }
 
-      // 紙牌身分驗證：必須符合系統註冊過的正規格式 (例: 投資卡A-01 的 第 1 個選項)
-      const qrMatch = raw.match(/^(.+)_([1-3])$/);
+      // 紙牌身分驗證：必須符合系統註冊過的正規格式 (例: A-01-1 代表 A-01 卡片之第 1 個選項)
+      const qrMatch = raw.match(/^(.+)-([1-3])$/);
 
       if (qrMatch) {
         // 從解析到的陣列位置挖出所需數值
@@ -392,7 +392,7 @@ export default function Home() {
                                     <input
                                       value={scanInput}
                                       onChange={(e) => setScanInput(e.target.value)}
-                                      placeholder={isApEmpty ? 'AP不夠' : 'A-01_2'}
+                                      placeholder={isApEmpty ? 'AP不夠' : 'A-01-1'}
                                       disabled={isApEmpty}
                                       className="flex-1 bg-black/50 border border-white/10 rounded-2xl px-4 font-mono text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                     />

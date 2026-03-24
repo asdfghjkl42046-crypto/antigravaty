@@ -5,7 +5,7 @@ async function testCourtSkills() {
   console.log('🧪 正在測試法庭防禦邏輯 (關鍵詞 & 王牌律師救濟)...');
 
   const player = await createInitialPlayer('測試企業', 'normal');
-  const lawCase = LAW_CASES_DB['LC-A01'];
+  const lawCase = LAW_CASES_DB['A-01-1'];
 
   // --- 測試 1: 關鍵詞自動勝訴 ---
   console.log('\n[測試 1] 關鍵詞自動勝訴判定:');
@@ -22,7 +22,7 @@ async function testCourtSkills() {
   console.log('\n[測試 2] 王牌律師 LV1 (首次判定不加成):');
   player.roles = { ...(player.roles || {}), lawyer: 1 };
   player.rp = 0;
-  // baseSurvival 为 0.25 (LC-A01)
+  // baseSurvival 为 0.25 (A-01-1)
   const result2 = CourtEngine.calculateDefenseResult(player, lawCase, '純屬巧合。');
   console.log(`  預計首次勝率: 0.25 (25%)`);
   console.log(`  實際結果: ${result2.isSuccess ? '✅ 勝訴' : '❌ 敗訴'} (率: ${result2.rate})`);

@@ -1,8 +1,8 @@
 import type { LawCase } from '../../types/game';
 
 export const LAWS_A: Record<string, LawCase> = {
-  'LC-A01': {
-    id: 'LC-A01',
+  'A-01-1': {
+    id: 'A-01-1',
     tag: '妨害電腦使用罪',
     lawName: '《刑法》第 360 條：無故以電腦程式干擾他人電腦，處 3 年以下徒刑或 10 萬元以下罰金',
     surface_term: '緊急維護授權入口',
