@@ -9,7 +9,6 @@ export const CARDS_A: Record<string, Card> = {
       type: 'C',
       label:
         '指使工程師在交付的系統中預留遠端後門，未來對方若持續拖欠尾款，你能隨時從遠端讓系統停擺。',
-      desc: '無故干擾電腦系統與惡意停機施壓',
       g: 350,
       rp: -15,
       bm: 3,
@@ -19,7 +18,6 @@ export const CARDS_A: Record<string, Card> = {
     2: {
       type: 'C',
       label: '私下將該系統中產出的去識別化用戶大數據，打包賣給長期合作的廣告代理商。',
-      desc: '未經授權非法販售會員個資與經營秘密',
       g: 400,
       rp: -15,
       bm: 3,

@@ -121,7 +121,6 @@ export type StartPath = 'normal' | 'backdoor' | 'blackbox';
 /** 選項基礎規格 */
 export interface BaseOption {
   label?: string; // UI 標題
-  desc?: string; // 選項描述敘事
   costCashPct?: number; // 法定規費比例：根據當前流動資產比例消耗 (0.05 = 5%)
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
   special?: string; // 邏輯擴充標籤：'sue' (強制起訴), 'declareLogic' (洗錢二階)

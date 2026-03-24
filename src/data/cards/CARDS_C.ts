@@ -24,7 +24,6 @@ export const CARDS_C: Record<string, Card> = {
     3: {
       type: 'C',
       label: '名義上捐贈 400 萬，但實際上是與特定仲介串通，將大部分款項洗回公司不記名帳戶。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -49,7 +48,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '斥資 400 萬聘請高端公關公司進行視覺包裝，透過行銷手段掩蓋污染細節，製造完美的環保假象。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -82,7 +80,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '動用 400 萬資金，透過多個人頭帳戶進行小額拆分捐贈，以規避獻金上限並維持與對方的深度關係。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -106,7 +103,6 @@ export const CARDS_C: Record<string, Card> = {
     1: {
       type: 'C',
       label: '投入 400 萬成立企業教育基金，透過假報帳目將部分資金挪用於高管的私人交際支出。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -155,7 +151,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '利用 400 萬贊助經費購入該藝術家的多件作品，並透過高估價值進行報帳，協助股東私下轉移資產。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -172,7 +167,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '提撥 400 萬建立緊急醫療救助基金，但實際上是與藥商串通，將過期或劣質的物資包裝成高價捐贈品抵稅。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -221,7 +215,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '斥資 400 萬製作大量充滿感官效果的海底生態廣告，宣稱公司已達成「塑膠中和」，實際並無實質減量行動。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',
@@ -246,7 +239,6 @@ export const CARDS_C: Record<string, Card> = {
       type: 'C',
       label:
         '捐款 400 萬給聯賽委員會，但要求委員會將部分款項以「顧問費」名義回扣給特定的政界公關。',
-      desc: '選擇「略過」才觸發洗錢判定。成功則資金回撥。',
       costG: 400,
       rp: 12,
       special: 'declareLogic',

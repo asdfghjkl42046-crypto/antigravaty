@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Card } from '../types/game';
-import { LAW_CASES_DB } from '../data/laws/LawCasesDB';
 import { CARD_UI_TEXT } from '../data/cards/CardsDB';
 import { Gavel, Scale, MousePointer2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -100,15 +99,7 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
               <div className="flex justify-between items-center mb-1">
                 {/* 掩人耳目的糖衣包裝：讓這個骯髒的決議看起來像是在「做公益」或是「專案維護」 */}
                 <span className="text-xs font-bold px-1.5 py-0.5 rounded text-slate-300 bg-slate-800/50">
-                  {(() => {
-                    const o = opt as { type?: string; lawCaseIds?: string[] };
-                    const lawCaseId = o.lawCaseIds?.[0]; // 擷取背後牽涉的起訴法條代號
-                    const lawCase = lawCaseId ? LAW_CASES_DB[lawCaseId] : null;
-                    // 狐狸尾巴藏好：如果這個選項會讓你惹上官司，我們就用包裝好的合法說詞來當大標題騙人
-                    if (lawCase) return lawCase.surface_term;
-                    // 沒惹事的話，就乖乖用原本建檔的公務名字
-                    return opt.label || CARD_UI_TEXT.DEFAULT_OPTION(idx);
-                  })()}
+                  {CARD_UI_TEXT.DEFAULT_OPTION(idx)}
                 </span>
                 <div className="flex gap-2 items-center">
                   {/* 未來可能用來放金幣或骷髏圖示的神秘預留空位 */}
@@ -117,17 +108,7 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
 
               {/* 白話翻譯機：撕開糖衣，告訴老闆按下去實際上會扣多少體力、賺多少黑錢 */}
               <p className="text-xs text-slate-300 line-clamp-2 line-clamp-standard-2">
-                {(() => {
-                  const o = opt as { type?: string; lawCaseIds?: string[] };
-                  const lawCaseId = o.lawCaseIds?.[0];
-                  const lawCase = lawCaseId ? LAW_CASES_DB[lawCaseId] : null;
-                  if (lawCase) {
-                    const actionLabel = opt.label || '執行此操作';
-                    // 話術大師上線：把原本寫得太直白的動作描述，加上這層法條糖衣包裝起來，讓玩家更有做壞事的沉浸感
-                    return CARD_UI_TEXT.LAW_CASE_ACTION(actionLabel, lawCase.surface_term);
-                  }
-                  return opt.desc || CARD_UI_TEXT.DEFAULT_ACTION_DESC;
-                })()}
+                {opt.label || CARD_UI_TEXT.DEFAULT_ACTION_DESC}
               </p>
 
               {/* 心機的互動特效：當你猶豫要不要按滑鼠游標飄過去時，右側會亮起一條像是刀鋒般的科技漸層光晕 */}
