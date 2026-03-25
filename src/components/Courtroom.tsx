@@ -14,6 +14,8 @@ import {
   TrendingUp,
   Shield,
   Zap,
+  Calculator,
+  Info,
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -672,21 +674,49 @@ export default function Courtroom() {
                 {/* 結尾損害報告書評估區：只有當他活該敗訴被宣告重罪時才繪製 */}
                 {!trial.isDefenseSuccess && trial.punishment && (
                   <div className="w-full grid grid-cols-2 gap-6 max-w-sm">
-                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
                       <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.FINE}
                       </div>
-                      <div className="text-5xl font-black text-red-400">
+                      <div className="text-4xl font-black text-red-400">
                         -{trial.punishment.fine} 萬 G {/* 失血金錢 */}
                       </div>
                     </div>
-                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
                       <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.RP_LOSS}
                       </div>
-                      <div className="text-5xl font-black text-red-400">
+                      <div className="text-4xl font-black text-red-400">
                         -{trial.punishment.rpLoss} RP {/* 社會名聲一落千丈 */}
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 罰金計算過程：顯眼地位於按鈕上方 */}
+                {!trial.isDefenseSuccess && trial.punishmentDetail && (
+                  <div className="w-full max-w-lg p-6 bg-black/40 border border-red-500/20 rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex items-center gap-2 mb-2 text-red-400/70">
+                      <Calculator size={14} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">
+                        罰金計算核算報告 (Calculation Report)
+                      </span>
+                    </div>
+                    <div className="text-sm font-mono text-slate-300 leading-relaxed text-left">
+                      {trial.punishmentDetail}
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-red-500/10 text-[11px] text-slate-400 space-y-1">
+                      <p className="flex items-center gap-1.5 italic">
+                        <Info size={12} className="opacity-50" />
+                        <span>罰金影響規約：</span>
+                      </p>
+                      <ul className="list-disc list-inside space-y-0.5 opacity-70">
+                        <li>1-5 回合為「新手保護期」，基礎罰金倍率僅 1.0x。</li>
+                        <li>第 6 回合起進入「標準罰則」，基礎罰金倍率提升至 3.0x。</li>
+                        <li>累犯紀錄第 4 次起罰金 3.0 倍加重，第 7 次起 6.0 倍加重。</li>
+                        <li>非常上訴敗訴將觸發額外 2.0x 處罰、利息加徵且無視折扣。</li>
+                      </ul>
                     </div>
                   </div>
                 )}

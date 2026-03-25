@@ -352,7 +352,13 @@ export default function Home() {
 
               <button
                 onClick={endTurn}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                disabled={phase === 'courtroom'}
+                className={cn(
+                  "px-6 py-3 font-black rounded-2xl shadow-lg transition-all flex items-center gap-2",
+                  phase === 'courtroom' 
+                    ? "bg-slate-700 text-slate-500 cursor-not-allowed opacity-50"
+                    : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 hover:scale-105 active:scale-95"
+                )}
               >
                 <Zap size={18} />
                 {GLOBAL_UI_TEXT.COMMON.END_TURN}

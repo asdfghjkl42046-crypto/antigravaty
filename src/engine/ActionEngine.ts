@@ -228,7 +228,7 @@ export async function performAction(
         escape: opt.escape,
       });
     });
-    if (choice === 'skip') {
+    if (choice === 'skip' && opt.type !== 'C') {
       message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
     }
   } else if (choice === 'skip') {
@@ -242,7 +242,9 @@ export async function performAction(
       hidden_intent: opt.hidden_intent,
       escape: opt.escape,
     });
-    message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
+    if (opt.type !== 'C') {
+      message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
+    }
   }
 
   // 4. 行動機率(骰子檢定)判定
@@ -313,7 +315,11 @@ export async function performAction(
           });
         });
       }
-      if (!message) message = `成功${opt.label || '計畫執行成功'}。`;
+      if (!message || message.startsWith(' (')) {
+        message = `【成功】${opt.label || '計畫執行成功'}。${message}`;
+      } else if (!message.includes('【成功】')) {
+        message = `【成功】${message}`;
+      }
     }
   } else {
     // 失敗的情況
@@ -345,7 +351,7 @@ export async function performAction(
     // E卡失敗獲得關鍵字sue，會觸發法庭階段
     message =
       opt.fail?.special === 'sue'
-        ? `【遭遇重案】${opt.label}: 被害人與公權力已介入，立即進入法庭！`
+        ? `【遭遇重案】${opt.label}: 公權力已介入，立即進入法庭！`
         : `【失敗】${opt.label}: 行動遭遇挫折。`;
   }
 

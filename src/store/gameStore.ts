@@ -373,7 +373,7 @@ export const useGameStore = create<GameStore>()(
         const def = get().players.find((p) => p.id === t.defendantId);
         if (!def) return;
 
-        const outcome = CourtEngine.determineDefenseOutcome(def, t, txt, get().judgeMode);
+        const outcome = CourtEngine.determineDefenseOutcome(def, t, txt, get().judgeMode, get().turn);
         set({ trial: { ...t, ...outcome } as NonNullable<GameStore['trial']> });
       },
 

@@ -328,6 +328,7 @@ export interface TrialState {
   extraAppealUsed?: boolean; // 本場法庭是否已申請非常上訴
   isAppeal?: boolean; // 非常上訴回合標記：用於套用 6.0x 嘲諷文案
   punishment?: { fine: number; rpLoss: number }; // 固定裁罰金額與名聲剝奪量
+  punishmentDetail?: string; // 罰金計算明細文本 (e.g. "300萬 - 20%折扣 = 240萬")
   isReady: boolean; // 操作權限鎖定標記 (倒數計時門檻)
   timer: number; // 各階段交互限時
   systemPrompt?: string; // AI Judge 情境注入存根

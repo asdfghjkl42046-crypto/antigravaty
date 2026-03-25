@@ -99,40 +99,76 @@ export function getBribeScore(judge: JudgePersonality, item: BribeItem): number 
 export function calculateConvictionPenalty(
   player: Player,
   netIncome: number,
-  currentTurn: number = 999 // 預設 999 防呆，避免沒傳到的地方炸掉
+  currentTurn: number = 999, // 預設 999 防呆，避免沒傳到的地方炸掉
+  isPreexisting: boolean = false, // 標記是否為開局既有的前科 (Turn 0)
+  isAppeal: boolean = false // 標記是否為非常上訴回合 (重審)
 ): {
   fine: number;
   rpLoss: number;
+  detail?: string;
 } {
   // 防呆：無法判斷的收入預設歸 0
   const safeIncome = netIncome || 0;
-  // 前 5 回合敗訴 (包含 5 回合)，只罰該案件淨獲利的 1 倍作為保護期
-  const baseMultiplier = currentTurn <= 5 ? 1.0 : 3.0;
-  // 1. 基礎罰金計算: 本次查獲不法所得的指定倍率
-  let fine = roundUp(safeIncome * baseMultiplier);
 
-  // 2. 檢查玩家生涯進出法庭的黑歷史
+  // 1. 強制倍率邏輯：如果是開局既有 (Turn 0)，強制套用 1.0x (單純吐回非法所得，不額外追絞)
+  // 否則，前 5 回合敗訴 (包含 5 回合)，只罰該案件淨獲利的 1 倍作為保護期；5回合後標準罰則為 3x
+  const isProtected = currentTurn <= 5;
+  const baseMultiplier = isPreexisting || isProtected ? 1.0 : 3.0;
+
+  // 基礎罰金計算: 本次查獲不法所得的指定倍率
+  let fineBeforeDiscount = roundUp(safeIncome * baseMultiplier);
+
+  // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加重 6 倍！)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
-  if (trials >= 7)
-    trialMultiplier = 6.0; // 社會毒瘤，6倍殺無赦
-  else if (trials >= 4) trialMultiplier = 3.0; // 屢教不改，3倍殺
+  
+  if (isAppeal) {
+    trialMultiplier = 2.0; // 上訴失敗，雙倍奉還
+  } else if (!isPreexisting) {
+    // 開局既有罪犯不重複加重 (除非上訴失敗)，正常遊戲案件則依累犯門檻提升
+    if (trials >= 7) trialMultiplier = 6.0;
+    else if (trials >= 4) trialMultiplier = 3.0;
+  }
 
-  // 初步相乘累犯常數
-  fine = roundUp(fine * trialMultiplier);
-  const baseRPLoss = 20; // 法庭敗訴的鐵則：不管你有多少錢，固定暴跌 20 RP 名聲
+  fineBeforeDiscount = roundUp(fineBeforeDiscount * trialMultiplier);
+  const baseRPLoss = 20;
 
-  // 計算因開局特權（守法良民/或是關說送禮）所獲得的特別永續折扣
-  const fineMultiplier = 1.0 - (player.startBonusFineReduction || 0);
+  // 3. 折扣與保護傘邏輯
+  // 核心平衡：如果是開局既有，強制跳過所有折扣。非常上訴也不予折扣以示嚴厲。
+  const discountRate = (isPreexisting || isAppeal) ? 0 : player.startBonusFineReduction || 0;
+  const fineMultiplier = 1.0 - discountRate;
 
   // 將保護傘折扣套用回最終罰款上
-  fine = roundUp(fine * fineMultiplier);
+  let fine = roundUp(fineBeforeDiscount * fineMultiplier);
 
-  // 3. 檢查玩家自身聘用的人才，看是否有高級專業人士可以出來擋災
-  fine = applyAccountantCourtDiscount(player, fine);
+  // 4. 檢查專業人士擋災 (如果是開局既有或上訴，會計師無法幫你擋掉)
+  fine = (isPreexisting || isAppeal) ? fine : applyAccountantCourtDiscount(player, fine);
   const rpLoss = applyPRCourtDiscount(player, baseRPLoss);
 
-  return { fine, rpLoss };
+  // 5. 拼湊計算明細說明文本 (讓玩家死個明白)
+  const trialCount = trials + 1;
+  const turnLabel = currentTurn === 0 ? '[開局前科]' : `[第 ${currentTurn} 回合]`;
+  const trialLabel = isAppeal ? '[非常上訴失利]' : `[第 ${trialCount} 次涉案]`;
+  const multiplierReason = (isPreexisting || isProtected) ? "(新手保護期 1.0x)" : "(標準倍率 3.0x)";
+
+  let detail = `${turnLabel} ${trialLabel} 不法所得(${safeIncome}萬) * ${multiplierReason}`;
+  
+  if (isAppeal) {
+    detail += ` * 上訴強制加重 2.0x (無視所有折扣)`;
+  } else if (trialMultiplier > 1) {
+    const reason = trials >= 7 ? "限制重案累犯" : "累犯倍率";
+    detail += ` * ${reason} ${trialMultiplier}倍`;
+  }
+  
+  const baseTotal = roundUp(fineBeforeDiscount);
+  
+  if (discountRate > 0) {
+    detail += ` = ${baseTotal}萬；減去開局特權-${Math.round(discountRate * 100)}%`;
+  }
+  
+  detail += ` 總計 = ${fine} 萬 G`;
+
+  return { fine, rpLoss, detail };
 }
 
 export interface BetResult {

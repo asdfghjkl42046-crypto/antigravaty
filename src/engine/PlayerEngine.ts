@@ -166,11 +166,13 @@ async function createPlayerFromConfig(
   let currentHash = genesis;
   const startId = Date.now();
 
-  // 計算每個前科標籤虛擬的「髒款入帳額」：若日後遭法院調查這起舊案，罰款 (基數*3) 將剛好吐回這筆錢
+  // 計算每個前科標籤虛擬的「髒款入帳額」：
+  // 核心平衡邏輯：為了達成「被告一次就回到 100 萬」的目標，
+  // 這裡直接將 totalBooty 作為每個標籤的 netIncome，並在 MechanicsEngine 套用 1.0x 倍率。
+  // 因為開局標籤共享同一個證據 ID (startId)，當一案宣告有罪後，相關證據會全數銷毀，
+  // 這樣能保證「第一案」就罰回正確總額，且「第二案」不會重複計算。
   const incomePerTag =
-    initialTagTexts.length > 0
-      ? roundUp(initialBooty / INITIAL_FINE_MULTIPLIER / initialTagTexts.length)
-      : 0;
+    initialTagTexts.length > 0 ? roundUp(initialBooty) : 0;
 
   // 遍歷該路徑天生帶來的標籤陣列，直接實例化寫入玩家的犯罪史
   for (const text of initialTagTexts) {

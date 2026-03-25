@@ -184,8 +184,9 @@ export class CourtEngine {
     player: Player,
     tagText: string,
     currentTurn: number = 999,
-    tagId?: number
-  ): { fine: number; rpLoss: number } {
+    tagId?: number,
+    isAppeal: boolean = false
+  ): { fine: number; rpLoss: number; detail?: string } {
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
     // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
     const relatedTags = player.tags.filter((t) => {
@@ -205,9 +206,14 @@ export class CourtEngine {
     }
 
     // 取出最新的那筆關聯收益作為罰金基數
-    const netIncome = relatedTags[relatedTags.length - 1].netIncome!;
-    // 直接將取出的淨利傳給 MechanicsEngine 進行專業裁罰運算 (連同當前回合一併附上作為保護期鑑定)
-    return calculateConvictionPenalty(player, netIncome, currentTurn);
+    const lastTag = relatedTags[relatedTags.length - 1];
+    const netIncome = lastTag.netIncome!;
+
+    // 判定是否為開局既有前科 (Turn 0)
+    const isPreexisting = lastTag.turn === 0;
+
+    // 直接將取出的淨利傳給 MechanicsEngine 進行專業裁罰運算
+    return calculateConvictionPenalty(player, netIncome, currentTurn, isPreexisting, isAppeal);
   }
 
   /**
@@ -286,14 +292,15 @@ export class CourtEngine {
     player: Player,
     trial: TrialState,
     text: string,
-    judgeMode: JudgeMode
+    judgeMode: JudgeMode,
+    currentTurn: number
   ): Partial<TrialState> {
     // 依前面定義的防禦勝率演算法來獲取勝敗結論
     const res = this.calculateDefenseResult(player, trial.lawCase, text);
     // 根據勝敗來決定是否計算判決罰鍰數字 (傳入當前標籤 ID 進行精準資產對接)
     const punishment = res.isSuccess
       ? undefined
-      : this.calculatePenalty(player, trial.lawCase.tag, 999, trial.lawCaseTagId);
+      : this.calculatePenalty(player, trial.lawCase.tag, currentTurn, trial.lawCaseTagId, trial.isAppeal || false);
 
     // 如果玩家敗訴但有律師LV3，引導流程進入 stage 5 給予花錢撤告機會
     if (!res.isSuccess && (player.roles?.lawyer || 0) >= 3) {
@@ -302,6 +309,7 @@ export class CourtEngine {
         finalSurvivalRate: res.rate, // 保存發生當時的機率留抵紀錄
         defenseText: text,
         punishment,
+        punishmentDetail: (punishment as any)?.detail,
         stage: 5, // 推進至「王牌律師撤告確認程序」
       };
     }
@@ -321,6 +329,7 @@ export class CourtEngine {
       finalSurvivalRate: res.rate,
       defenseText: text,
       punishment,
+      punishmentDetail: (punishment as any)?.detail,
       judgment: judge.judgment,
       userPrompt: judge.userPrompt,
       stage: 6,
