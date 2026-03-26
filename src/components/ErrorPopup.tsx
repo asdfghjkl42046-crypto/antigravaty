@@ -36,12 +36,8 @@ export default function ErrorPopup({ message, onClose }: ErrorPopupProps) {
 
           {/* 錯誤訊息文字 */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-black text-red-400 uppercase tracking-widest mb-2">
-              錯誤
-            </h3>
-            <p className="text-white font-bold text-base leading-relaxed">
-              {message}
-            </p>
+            <h3 className="text-lg font-black text-red-400 uppercase tracking-widest mb-2">錯誤</h3>
+            <p className="text-white font-bold text-base leading-relaxed">{message}</p>
           </div>
 
           {/* 手動關閉按鈕 */}

@@ -168,41 +168,41 @@ export default function HRShop({ onActionResult }: HRShopProps) {
                 </div>
 
                 {/* 簽署合約的下單按鈕：更有份量感的實體設計 */}
-                  <button
-                    onClick={() => handleUpgrade(role.key)}
-                    disabled={!canBuy || isMaxed}
-                    className={cn(
-                      'px-6 py-1.5 rounded-full font-black text-xl uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2',
-                      isMaxed
-                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
-                        : canBuy
-                          ? cn(
-                              'text-black animate-pulse',
-                              role.color === 'amber' &&
-                                'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]',
-                              role.color === 'pink' &&
-                                'bg-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.6)]',
-                              role.color === 'emerald' &&
-                                'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.6)]',
-                              role.color === 'blue' &&
-                                'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.6)]'
-                            )
-                          : cn(
-                              'cursor-not-allowed border',
-                              role.color === 'amber' &&
-                                'bg-amber-500/10 text-amber-500/50 border-amber-500/30',
-                              role.color === 'pink' &&
-                                'bg-pink-500/10 text-pink-500/50 border-pink-500/30',
-                              role.color === 'emerald' &&
-                                'bg-emerald-500/10 text-emerald-500/50 border-emerald-500/30',
-                              role.color === 'blue' &&
-                                'bg-blue-500/10 text-blue-500/50 border-blue-500/30'
-                            )
-                    )}
-                  >
-                    {isMaxed ? 'MAXED' : 'UPGRADE'}
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleUpgrade(role.key)}
+                  disabled={!canBuy || isMaxed}
+                  className={cn(
+                    'px-6 py-1.5 rounded-full font-black text-xl uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2',
+                    isMaxed
+                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
+                      : canBuy
+                        ? cn(
+                            'text-black animate-pulse',
+                            role.color === 'amber' &&
+                              'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]',
+                            role.color === 'pink' &&
+                              'bg-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.6)]',
+                            role.color === 'emerald' &&
+                              'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.6)]',
+                            role.color === 'blue' &&
+                              'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.6)]'
+                          )
+                        : cn(
+                            'cursor-not-allowed border',
+                            role.color === 'amber' &&
+                              'bg-amber-500/10 text-amber-500/50 border-amber-500/30',
+                            role.color === 'pink' &&
+                              'bg-pink-500/10 text-pink-500/50 border-pink-500/30',
+                            role.color === 'emerald' &&
+                              'bg-emerald-500/10 text-emerald-500/50 border-emerald-500/30',
+                            role.color === 'blue' &&
+                              'bg-blue-500/10 text-blue-500/50 border-blue-500/30'
+                          )
+                  )}
+                >
+                  {isMaxed ? 'MAXED' : 'UPGRADE'}
+                </button>
+              </div>
 
               {/* 核心技能清單：垂直條列式，強化立體感與去扁平化展示 */}
               <div className="flex-1 flex flex-col gap-2">

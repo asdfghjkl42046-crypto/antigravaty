@@ -96,7 +96,10 @@ import { throwNumericalCheckError } from './errors/EngineErrors';
 export function getWithdrawCaseCost(player: Player): { g: number; ip: number } {
   // 核心邊界防禦：防範資產數值損毀導致的規費計算失效
   if (player.g === undefined || Number.isNaN(player.g)) {
-    throwNumericalCheckError('RoleEngine.getWithdrawCaseCost', `玩家資金 (g) 為非法數值: ${player.g}`);
+    throwNumericalCheckError(
+      'RoleEngine.getWithdrawCaseCost',
+      `玩家資金 (g) 為非法數值: ${player.g}`
+    );
   }
   return {
     g: Math.max(100, roundUp(player.g * 0.2)),
@@ -232,10 +235,9 @@ export function getCTOAutoIncome(player: Player): number {
 }
 
 /**
- * 技術長 LV3：反制技 — 專利陷阱 (可疊加)
+ * 技術長 LV3：反制技 — 偵測人才市場 (倍率加成)
  * 當有對手在人才市場 (B類卡) 選擇挖角或剝削時，若場上有其他玩家具備此技能，
- * 該對手將會被自動掛載「專利侵權」標籤與黑材料。
- * 若多名對手擁有此技能，懲罰將重複觸發。
+ * 該對手所產生的所有犯罪標籤將依據技術長人數進行倍增（1 + N 倍）。
  */
 export function getCTOAntiTheftCount(allPlayers: Player[], currentPlayerId: string): number {
   // 計算除了當前行動者以外，有多少人裝備了 LV3 的 CTO

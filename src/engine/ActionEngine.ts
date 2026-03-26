@@ -78,7 +78,10 @@ export function sortTurnOrder(players: Player[], currentRound: number): Player[]
     const apA = Number(a.ap);
     const apB = Number(b.ap);
     if (Number.isNaN(apA) || Number.isNaN(apB)) {
-      throwNumericalCheckError('ActionEngine.sortTurnOrder', `偵測到 AP 為 NaN (A: ${a.ap}, B: ${b.ap})。`);
+      throwNumericalCheckError(
+        'ActionEngine.sortTurnOrder',
+        `偵測到 AP 為 NaN (A: ${a.ap}, B: ${b.ap})。`
+      );
     }
     if (apB !== apA) return apB - apA;
 
@@ -86,7 +89,10 @@ export function sortTurnOrder(players: Player[], currentRound: number): Player[]
     const assetsA = (a.g || 0) + (a.trustFund || 0);
     const assetsB = (b.g || 0) + (b.trustFund || 0);
     if (Number.isNaN(assetsA) || Number.isNaN(assetsB)) {
-      throwNumericalCheckError('ActionEngine.sortTurnOrder', `偵測到資產計算結果為 NaN (A: ${assetsA}, B: ${assetsB})。`);
+      throwNumericalCheckError(
+        'ActionEngine.sortTurnOrder',
+        `偵測到資產計算結果為 NaN (A: ${assetsA}, B: ${assetsB})。`
+      );
     }
     if (assetsB !== assetsA) return assetsB - assetsA;
 
@@ -122,7 +128,10 @@ export async function performAction(
   try {
     // 0. 輸入合法性預先檢查 (入参守門員)
     if (lastHash === undefined || lastHash === null) {
-      throwNumericalCheckError('ActionEngine.performAction', '傳入的 lastHash 雜湊鏈標頭非法(undefined/null)。');
+      throwNumericalCheckError(
+        'ActionEngine.performAction',
+        '傳入的 lastHash 雜湊鏈標頭非法(undefined/null)。'
+      );
     }
 
     const card = CARDS_DB[cardId];
@@ -158,24 +167,25 @@ export async function performAction(
         finalHash: lastHash,
         apRefunded: true, // 系統資料錯誤，不應扣除玩家 AP
         actionId,
-        log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'ERR_INVALID_OPT', timestamp },
+        log: {
+          playerId: player.id,
+          turn,
+          cardId,
+          optionIndex: optionIdx,
+          tags: 'ERR_INVALID_OPT',
+          timestamp,
+        },
       };
     }
 
     const updates: Partial<Player> = {};
     const snapshots: ActionResult['appliedTags'] = [];
 
-    // [CTO 反制技] 偵測人才市場的惡性競爭 (可疊加)
-    if (counterCTOCount > 0 && cardId.startsWith('B-') && (opt?.type === 'B' || opt?.type === 'C')) {
-      for (let i = 0; i < counterCTOCount; i++) {
-        snapshots.push({
-          tag: ['專利侵權'],
-          netIncome: 0,
-          lawCaseIds: ['B-COUNTER-PATENT'],
-          rpChange: -5,
-        });
-      }
-    }
+    // [CTO 反制技] 判定：偵測人才市場的惡性競爭
+    // 若場上有其他玩家擁有 CTO 角色，則本次行動的標籤獲取量將依人數加計 (1 + N) 倍
+    const isCTOContested =
+      counterCTOCount > 0 && cardId.startsWith('B-') && (opt?.type === 'B' || opt?.type === 'C');
+    const tagMultiplier = isCTOContested ? 1 + counterCTOCount : 1;
 
     // 檢查玩家是否正受到禁足管制 (例如被政府盯上)
     if (player.skipNextCard) {
@@ -249,29 +259,37 @@ export async function performAction(
       message = `【安全申報】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
     } else if (resolvedBaseTags.length > 0) {
       // 優先記錄從法條解析出的標籤
-      snapshots.push({
-        tag: resolvedBaseTags,
-        netIncome: bonusRewardG,
-        lawCaseIds: baseLawCaseIds,
-        rpChange: baseRewardRP,
-        surface_term: opt.surface_term,
-        hidden_intent: opt.hidden_intent,
-        escape: opt.escape,
-      });
+      for (let i = 0; i < tagMultiplier; i++) {
+        snapshots.push({
+          tag: resolvedBaseTags,
+          netIncome: bonusRewardG,
+          lawCaseIds: baseLawCaseIds,
+          rpChange: baseRewardRP,
+          surface_term: opt.surface_term,
+          hidden_intent: opt.hidden_intent,
+          escape: opt.escape,
+          multiplier: tagMultiplier,
+          multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
+        });
+      }
       if (choice === 'skip' && opt.type !== 'C') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
     } else if (choice === 'skip') {
       // 僅在選擇略過且未對應特定法律條文時，才使用通用的「隱匿金流」標籤
-      snapshots.push({
-        tag: ['隱匿金流'],
-        netIncome: bonusRewardG,
-        lawCaseIds: baseLawCaseIds,
-        rpChange: baseRewardRP,
-        surface_term: opt.surface_term,
-        hidden_intent: opt.hidden_intent,
-        escape: opt.escape,
-      });
+      for (let i = 0; i < tagMultiplier; i++) {
+        snapshots.push({
+          tag: ['隱匿金流'],
+          netIncome: bonusRewardG,
+          lawCaseIds: baseLawCaseIds.length > 0 ? baseLawCaseIds : ['A-03-3'],
+          rpChange: baseRewardRP,
+          surface_term: opt.surface_term,
+          hidden_intent: opt.hidden_intent,
+          escape: opt.escape,
+          multiplier: tagMultiplier,
+          multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
+        });
+      }
       if (opt.type !== 'C') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
@@ -298,14 +316,14 @@ export async function performAction(
       } else {
         // 檢定過關且未主動申報的黑箱路線
         // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
-        const succG = opt.succ?.g !== undefined ? opt.succ.g : (opt.g || 0);
-        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : (opt.rp || 0);
-        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : (opt.ip || 0);
-        
+        const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
+        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
+        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
+
         // 成功獲得的資金再次納入會計師進行額外分紅加成
         const bonusSuccG = applyAccountantBonus(player, cardId, succG);
-        const totalG = bonusSuccG; 
-        const totalRP = succRP; 
+        const totalG = bonusSuccG;
+        const totalRP = succRP;
 
         // 最終結算
         finalGChange = totalG - costToDeduct;
@@ -337,15 +355,17 @@ export async function performAction(
         const succLawCaseIds = opt.succ?.lawCaseIds || opt.lawCaseIds || [];
         const resolvedSuccTags = getResolvedTags(succLawCaseIds);
         if (resolvedSuccTags.length > 0) {
-          snapshots.push({
-            tag: resolvedSuccTags,
-            netIncome: totalG,
-            lawCaseIds: succLawCaseIds,
-            rpChange: finalRPChange,
-            surface_term: opt.surface_term,
-            hidden_intent: opt.hidden_intent,
-            escape: opt.escape,
-          });
+          for (let i = 0; i < tagMultiplier; i++) {
+            snapshots.push({
+              tag: resolvedSuccTags,
+              netIncome: totalG,
+              lawCaseIds: succLawCaseIds,
+              rpChange: finalRPChange,
+              surface_term: opt.surface_term,
+              hidden_intent: opt.hidden_intent,
+              escape: opt.escape,
+            });
+          }
         }
 
         // 銜接分發獎勵：若為 100% 成功，則隱藏【成功】標籤以避免 UI 彈窗
@@ -375,15 +395,17 @@ export async function performAction(
       const failLawCaseIds = opt.fail?.lawCaseIds || opt.lawCaseIds || [];
       const resolvedFailTags = getResolvedTags(failLawCaseIds);
       if (resolvedFailTags.length > 0) {
-        snapshots.push({
-          tag: resolvedFailTags,
-          netIncome: totalG,
-          lawCaseIds: failLawCaseIds,
-          rpChange: finalRPChange,
-          surface_term: opt.surface_term,
-          hidden_intent: opt.hidden_intent,
-          escape: opt.escape,
-        });
+        for (let i = 0; i < tagMultiplier; i++) {
+          snapshots.push({
+            tag: resolvedFailTags,
+            netIncome: totalG,
+            lawCaseIds: failLawCaseIds,
+            rpChange: finalRPChange,
+            surface_term: opt.surface_term,
+            hidden_intent: opt.hidden_intent,
+            escape: opt.escape,
+          });
+        }
       }
       // E卡失敗獲得關鍵字sue，會觸發法庭階段
       message =
@@ -498,9 +520,11 @@ export async function performAction(
     }
 
     // 將行動結果回傳給遊戲總控台
+    const multiplierLabel =
+      tagMultiplier > 1 ? ` (受其他玩家 CTO 影響，犯罪紀錄 x${tagMultiplier})` : '';
     return {
       success: finalSuccess,
-      message,
+      message: `${message}${multiplierLabel}`,
       updates,
       appliedTags: snapshots,
       hashedTags,
@@ -522,10 +546,10 @@ export async function performAction(
   } catch (err: any) {
     // [核爆處理]：透過 instanceof 對錯誤進行分類，提供玩家更有意義的修復建議。
     console.error(`[Fatal Action Engine Error]`, err);
-    
+
     let categoryPrefix = '🚫 系統嚴重錯誤';
     let suggestion = '請截圖並聯繫開發者。';
-    
+
     if (err.category === 'Data') {
       categoryPrefix = '📁 資料損毀錯誤';
       suggestion = '請嘗試重新整理網頁或重新啟動遊戲。';

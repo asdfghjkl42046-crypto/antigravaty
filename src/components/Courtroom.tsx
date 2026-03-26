@@ -19,7 +19,11 @@ import {
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { getWithdrawCaseCost, getExtraAppealCost } from '@/engine/GameEngine';
+import {
+  getWithdrawCaseCost,
+  getExtraAppealCost,
+  getLawyerDefenseBonus,
+} from '@/engine/GameEngine';
 import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
 import { formatLawTags } from '@/data/laws/LawCasesDB';
@@ -328,6 +332,17 @@ export default function Courtroom() {
           {/* -------------------- 階段 3：旁觀者法院門口下注大會 (V3.2 Unified) -------------------- */}
           {trial.stage === 3 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+              <div className="p-6 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Scale size={24} className="text-blue-400" />
+                  <span className="text-lg font-black uppercase tracking-widest text-blue-400">
+                    案件基礎公關難度
+                  </span>
+                </div>
+                <div className="text-3xl font-black text-blue-400">
+                  {(trial.lawCase?.survival_rate || 0.2) * 100}%
+                </div>
+              </div>
               <div className="flex flex-col gap-4">
                 {trial.bystanderIds.map((bid) => {
                   const p = players.find((player) => player.id === bid);
@@ -470,21 +485,75 @@ export default function Courtroom() {
                     COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](formatLawTags(trial.lawCase.tag)),
                     // 選項三：跟法官搏感情，針對剛剛卡牌上「表面話」做解釋裝可憐
                     COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2](trial.lawCase.surface_term),
-                  ].map((label, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedOption(i)}
-                      className={cn(
-                        'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex justify-between items-center group leading-relaxed',
-                        selectedOption === i
-                          ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
-                          : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
-                      )}
-                    >
-                      <span className="text-xl font-black">{label}</span>
-                      {selectedOption === i && <ShieldCheck size={28} />}
-                    </button>
-                  ))}
+                  ].map((label, i) => {
+                    // [新增] 即時勝率預測邏輯
+                    const baseRate = trial.lawCase.survival_rate || 0.2;
+                    const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
+                    let keywordBonus = 0;
+                    if (trial.lawCase.winning_keywords) {
+                      trial.lawCase.winning_keywords.forEach((k) => {
+                        if (label.includes(k)) keywordBonus += 0.15;
+                      });
+                    }
+                    const predictedRate = Math.min(1.0, baseRate + lawyerBonus + keywordBonus);
+
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedOption(i)}
+                        className={cn(
+                          'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
+                          selectedOption === i
+                            ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
+                            : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
+                        )}
+                      >
+                        <div className="flex justify-between items-center w-full">
+                          <span className="text-xl font-black">{label}</span>
+                          {selectedOption === i && <ShieldCheck size={28} />}
+                        </div>
+
+                        {/* 勝率指標條 */}
+                        <div className="flex items-center gap-3 mt-1">
+                          <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                'h-full transition-all duration-500',
+                                predictedRate > 0.7
+                                  ? 'bg-emerald-500'
+                                  : predictedRate > 0.4
+                                    ? 'bg-amber-500'
+                                    : 'bg-rose-500'
+                              )}
+                              style={{ width: `${predictedRate * 100}%` }}
+                            />
+                          </div>
+                          <span
+                            className={cn(
+                              'text-sm font-black font-mono',
+                              selectedOption === i ? 'text-white' : 'text-slate-400'
+                            )}
+                          >
+                            預估勝率: {(predictedRate * 100).toFixed(0)}%
+                          </span>
+                        </div>
+
+                        {/* 加成提示小標籤 */}
+                        <div className="flex gap-2">
+                          {lawyerBonus > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                              王牌律師 +30%
+                            </span>
+                          )}
+                          {keywordBonus > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">
+                              關鍵字加乘 +{(keywordBonus * 100).toFixed(0)}%
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* 鈔能力 AI 模式限定：你可以自己打字辱罵法官、或是瞎掰出更完美的藉口來影響最終判決！ */}
@@ -777,20 +846,19 @@ export default function Courtroom() {
                       {COURT_TEXT.PHASE_6.ACCEPT_BTN}
                     </button>
 
-                    {!trial.extraAppealUsed &&
-                      !currentPlayer?.hasUsedExtraAppeal && (
-                        <button
-                          onClick={async () => {
-                            await extraordinaryAppeal();
-                          }}
-                          className="w-full py-5 bg-amber-500/10 border-2 border-amber-500/30 text-amber-500 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-xl flex items-center justify-center gap-2"
-                        >
-                          <Zap size={24} />
-                          {COURT_TEXT.PHASE_6.EXTRA_APPEAL_BTN(
-                            currentPlayer ? getExtraAppealCost(currentPlayer) : 0
-                          )}
-                        </button>
-                      )}
+                    {!trial.extraAppealUsed && !currentPlayer?.hasUsedExtraAppeal && (
+                      <button
+                        onClick={async () => {
+                          await extraordinaryAppeal();
+                        }}
+                        className="w-full py-5 bg-amber-500/10 border-2 border-amber-500/30 text-amber-500 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-xl flex items-center justify-center gap-2"
+                      >
+                        <Zap size={24} />
+                        {COURT_TEXT.PHASE_6.EXTRA_APPEAL_BTN(
+                          currentPlayer ? getExtraAppealCost(currentPlayer) : 0
+                        )}
+                      </button>
+                    )}
 
                     <button
                       onClick={() => setShowPunishmentDetail(false)}

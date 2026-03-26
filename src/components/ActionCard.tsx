@@ -86,8 +86,8 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
           return (
             <button
               key={idx}
-                // 大老闆蓋章授權！把簽字的選項 (1到3) 派信差送去給總戰情室 (page.tsx) 處理結算
-                onClick={async () => await onSelect(idx as 1 | 2 | 3)}
+              // 大老闆蓋章授權！把簽字的選項 (1到3) 派信差送去給總戰情室 (page.tsx) 處理結算
+              onClick={async () => await onSelect(idx as 1 | 2 | 3)}
               disabled={disabled}
               // 賦予按鈕像真的按下去一樣的微縮反饋手感，如果你沒體力了，就把它狠狠反灰鎖死
               className={cn(

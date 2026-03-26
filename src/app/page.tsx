@@ -191,7 +191,10 @@ export default function Home() {
           optionDescription: fullOptionDesc,
           optionType: option.type,
         });
-        handleActionResult({ success: true, message: SYSTEM_MESSAGES.SCAN_SUCCESS(cardId, optIdx) });
+        handleActionResult({
+          success: true,
+          message: SYSTEM_MESSAGES.SCAN_SUCCESS(cardId, optIdx),
+        });
         return;
       }
 
@@ -267,7 +270,8 @@ export default function Home() {
     if (!card) return;
 
     const opt = card[optIdx];
-    const isCSeriesIllegal = cardId.startsWith('C-') && (opt as { special?: string }).special === 'declareLogic';
+    const isCSeriesIllegal =
+      cardId.startsWith('C-') && (opt as { special?: string }).special === 'declareLogic';
 
     if (isCSeriesIllegal && !postActionData) {
       setPostActionData({
@@ -313,7 +317,10 @@ export default function Home() {
         ) : players.length === 0 ? (
           /* =============== 分歧三：各路人馬輸入角色名字與抽取開局路線的大廳 =============== */
           <div className="flex-1 flex items-center justify-center min-h-0 w-full overflow-y-auto">
-            <SetupScreen onComplete={(configs) => initGame(configs)} onBack={() => setShowModeSelect(true)} />
+            <SetupScreen
+              onComplete={(configs) => initGame(configs)}
+              onBack={() => setShowModeSelect(true)}
+            />
           </div>
         ) : (
           /* =============== 分歧四：所有事前準備就緒，進入正式遊戲大廳 =============== */
@@ -329,7 +336,12 @@ export default function Home() {
             )}
 
             {/* 螢幕正上方的全局橫幅：無情地播報現在是第幾回合，以及這場管事的法官是哪個個性。 */}
-            <GameHUD turn={turn} judgePersonality={judgePersonality} onReset={resetGame} onDebug={() => setShowDebug(true)} />
+            <GameHUD
+              turn={turn}
+              judgePersonality={judgePersonality}
+              onReset={resetGame}
+              onDebug={() => setShowDebug(true)}
+            />
 
             {/* 右上浮動控制台：結束回合與返回大廳 */}
             <div className="fixed top-4 right-10 z-[100] flex items-center gap-4 p-2 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto">
@@ -341,7 +353,11 @@ export default function Home() {
                 <span
                   className={cn(
                     'text-xl font-black tracking-tighter',
-                    turn >= 45 ? 'text-red-400 animate-pulse' : turn >= 40 ? 'text-amber-400' : 'text-blue-400'
+                    turn >= 45
+                      ? 'text-red-400 animate-pulse'
+                      : turn >= 40
+                        ? 'text-amber-400'
+                        : 'text-blue-400'
                   )}
                 >
                   {turn}/50
@@ -354,10 +370,10 @@ export default function Home() {
                 onClick={endTurn}
                 disabled={phase === 'courtroom'}
                 className={cn(
-                  "px-6 py-3 font-black rounded-2xl shadow-lg transition-all flex items-center gap-2",
-                  phase === 'courtroom' 
-                    ? "bg-slate-700 text-slate-500 cursor-not-allowed opacity-50"
-                    : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 hover:scale-105 active:scale-95"
+                  'px-6 py-3 font-black rounded-2xl shadow-lg transition-all flex items-center gap-2',
+                  phase === 'courtroom'
+                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed opacity-50'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 hover:scale-105 active:scale-95'
                 )}
               >
                 <Zap size={18} />
@@ -406,10 +422,16 @@ export default function Home() {
                         return (
                           <div className="flex flex-col gap-6 flex-1">
                             <section className="bg-white/5 border border-white/5 rounded-3xl p-6 text-center space-y-4">
-                              <h3 className="text-xl font-black tracking-tight">{GLOBAL_UI_TEXT.SCAN.TITLE}</h3>
+                              <h3 className="text-xl font-black tracking-tight">
+                                {GLOBAL_UI_TEXT.SCAN.TITLE}
+                              </h3>
                               {cameraMode ? (
                                 // 高耗能真實相機對接模組，利用 HTML5-QRCode 運作
-                                <QrScanner active={cameraMode} onScanSuccess={handleCameraScan} onClose={() => setCameraMode(false)} />
+                                <QrScanner
+                                  active={cameraMode}
+                                  onScanSuccess={handleCameraScan}
+                                  onClose={() => setCameraMode(false)}
+                                />
                               ) : (
                                 <div className="flex gap-2 max-w-md mx-auto">
                                   {/* 開啟實體相機的啟動鈕 */}
@@ -483,15 +505,31 @@ export default function Home() {
             {postActionData && (
               <div className="fixed inset-0 z-[210] bg-black/90 backdrop-blur-md flex items-center justify-center p-6">
                 <div className="max-w-md w-full bg-slate-900 border border-slate-700/50 rounded-[32px] p-10 space-y-8 animate-in zoom-in-95">
-                  <h3 className="text-2xl font-black text-center text-white italic">{CARD_UI_TEXT.POST_ACTION.DECLARE_TITLE(postActionData.title)}</h3>
+                  <h3 className="text-2xl font-black text-center text-white italic">
+                    {CARD_UI_TEXT.POST_ACTION.DECLARE_TITLE(postActionData.title)}
+                  </h3>
                   <div className="space-y-3">
-                    <button onClick={() => handlePostAction('declare')} className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left">
-                      <span className="text-xl font-black text-slate-200 block">{CARD_UI_TEXT.POST_ACTION.DECLARE_LABEL}</span>
-                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">{CARD_UI_TEXT.POST_ACTION.DECLARE_DESC}</p>
+                    <button
+                      onClick={() => handlePostAction('declare')}
+                      className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left"
+                    >
+                      <span className="text-xl font-black text-slate-200 block">
+                        {CARD_UI_TEXT.POST_ACTION.DECLARE_LABEL}
+                      </span>
+                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">
+                        {CARD_UI_TEXT.POST_ACTION.DECLARE_DESC}
+                      </p>
                     </button>
-                    <button onClick={() => handlePostAction('skip')} className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left">
-                      <span className="text-xl font-black text-slate-200 block">{CARD_UI_TEXT.POST_ACTION.SKIP_LABEL}</span>
-                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">{CARD_UI_TEXT.POST_ACTION.SKIP_DESC}</p>
+                    <button
+                      onClick={() => handlePostAction('skip')}
+                      className="w-full p-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl text-left"
+                    >
+                      <span className="text-xl font-black text-slate-200 block">
+                        {CARD_UI_TEXT.POST_ACTION.SKIP_LABEL}
+                      </span>
+                      <p className="text-lg text-slate-400 mt-2 font-medium leading-relaxed">
+                        {CARD_UI_TEXT.POST_ACTION.SKIP_DESC}
+                      </p>
                     </button>
                   </div>
                 </div>
@@ -503,19 +541,31 @@ export default function Home() {
               <div className="fixed inset-0 z-[220] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in">
                 <div className="max-w-4xl w-full bg-[#111418] border border-white/10 rounded-[40px] p-16 space-y-12 animate-in zoom-in-95">
                   <div className="text-center space-y-4">
-                    <p className="text-xl font-black text-blue-500 uppercase tracking-widest">{GLOBAL_UI_TEXT.SCAN.CONFIRM_TITLE}</p>
-                    <h3 className="text-6xl font-black text-white italic">{pendingScan.cardTitle}</h3>
+                    <p className="text-xl font-black text-blue-500 uppercase tracking-widest">
+                      {GLOBAL_UI_TEXT.SCAN.CONFIRM_TITLE}
+                    </p>
+                    <h3 className="text-6xl font-black text-white italic">
+                      {pendingScan.cardTitle}
+                    </h3>
                   </div>
                   <div className="p-10 bg-white/5 border border-white/5 rounded-3xl">
-                    <p className="text-3xl font-medium text-slate-300 leading-relaxed">{pendingScan.optionDescription}</p>
+                    <p className="text-3xl font-medium text-slate-300 leading-relaxed">
+                      {pendingScan.optionDescription}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-8">
                     {/* 取消一切沒事發生鈕 */}
-                    <button onClick={handleCancelScan} className="py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-black text-2xl text-slate-400 transition-all">
+                    <button
+                      onClick={handleCancelScan}
+                      className="py-6 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-black text-2xl text-slate-400 transition-all"
+                    >
                       {GLOBAL_UI_TEXT.COMMON.CANCEL}
                     </button>
                     {/* 送出並等著被引擎隨機數宣判死刑的確認鈕 */}
-                    <button onClick={handleConfirmScan} className="py-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-2xl rounded-2xl shadow-lg transition-all active:scale-95">
+                    <button
+                      onClick={handleConfirmScan}
+                      className="py-6 bg-blue-600 hover:bg-blue-500 text-white font-black text-2xl rounded-2xl shadow-lg transition-all active:scale-95"
+                    >
                       {GLOBAL_UI_TEXT.SCAN.CONFIRM_BTN}
                     </button>
                   </div>
@@ -531,17 +581,25 @@ export default function Home() {
                     <div className="inline-flex p-5 rounded-3xl bg-amber-500 text-black shadow-lg rotate-12 mx-auto">
                       <Gift size={40} />
                     </div>
-                    <h3 className="text-3xl font-black text-amber-100 tracking-tight">{SYSTEM_MESSAGES.REWARD_OBTAINED}</h3>
+                    <h3 className="text-3xl font-black text-amber-100 tracking-tight">
+                      {SYSTEM_MESSAGES.REWARD_OBTAINED}
+                    </h3>
                   </div>
                   <div className="space-y-3">
                     {startNotifications.map((note, i) => (
-                      <div key={i} className="p-6 bg-white/5 border border-white/10 rounded-2xl flex gap-4">
+                      <div
+                        key={i}
+                        className="p-6 bg-white/5 border border-white/10 rounded-2xl flex gap-4"
+                      >
                         <Check size={20} className="text-amber-400 mt-1 shrink-0" />
                         <p className="text-xl font-black text-slate-200 leading-tight">{note}</p>
                       </div>
                     ))}
                   </div>
-                  <button onClick={clearStartNotifications} className="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-400 shadow-lg transition-all flex items-center justify-center gap-2">
+                  <button
+                    onClick={clearStartNotifications}
+                    className="w-full py-5 bg-amber-500 text-black font-black rounded-2xl hover:bg-amber-400 shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
                     {SYSTEM_MESSAGES.REWARD_CONFIRM} <ChevronRight size={20} />
                   </button>
                 </div>

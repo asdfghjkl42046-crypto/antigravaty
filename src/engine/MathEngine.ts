@@ -21,7 +21,7 @@ export function roundUp(num: number): number {
   // 核心邊界防禦：攔截任何可能導致 NaN 傳播的非法傳入值
   if (num === undefined || num === null || Number.isNaN(Number(num))) {
     throwNumericalCheckError(
-      'MathEngine.roundUp', 
+      'MathEngine.roundUp',
       `傳入值非法 (值: ${num})。基礎運算層拒絕處理任何非數字輸入。`
     );
   }
@@ -57,4 +57,3 @@ export async function sha256(message: string): Promise<string> {
     throwEnvironmentError('sha256 摘要計算出錯', err?.message || '未知錯誤');
   }
 }
-

@@ -25,7 +25,7 @@ import {
   throwTrialInitializationError,
   throwNumericalCheckError,
   throwDataCorruptionError,
-  throwDataDefinitionError
+  throwDataDefinitionError,
 } from './errors/EngineErrors';
 
 /**
@@ -65,7 +65,10 @@ export class CourtEngine {
     }
 
     if (Number.isNaN(totalBM)) {
-      throwNumericalCheckError('CourtEngine.spinRussianRoulette', '全場總黑材料數計算結果為 NaN，起訴程序被迫中斷。');
+      throwNumericalCheckError(
+        'CourtEngine.spinRussianRoulette',
+        '全場總黑材料數計算結果為 NaN，起訴程序被迫中斷。'
+      );
     }
 
     // 步驟 4：進行加權隨機輪盤抽籤，黑料數量越多的玩家，被抽中的機率越大
@@ -95,8 +98,9 @@ export class CourtEngine {
         );
       }
       // 強制檢查：該標籤必須帶有明確的法律 ID 映射 (lawCaseIds)
-      const hasSpecificCase = t.lawCaseIds && t.lawCaseIds.length > 0 && t.lawCaseIds.some((id) => !!LAW_CASES_DB[id]);
-      
+      const hasSpecificCase =
+        t.lawCaseIds && t.lawCaseIds.length > 0 && t.lawCaseIds.some((id) => !!LAW_CASES_DB[id]);
+
       if (!hasSpecificCase) {
         throwDataDefinitionError(
           `標籤 [${t.text}] (ID: ${t.id})`,
@@ -114,7 +118,7 @@ export class CourtEngine {
 
     // 步驟 3：從合格的犯案標籤中隨機抽取一個做為本次審議案例
     const randomTag = validCrimeTags[Math.floor(Math.random() * validCrimeTags.length)];
-    
+
     // 取得該標籤定義的法律 ID (由於步驟 1 已驗證過，此處必有值)
     const lawCaseId = randomTag.lawCaseIds!.find((id) => !!LAW_CASES_DB[id])!;
 
@@ -465,7 +469,7 @@ export class CourtEngine {
         const lawCaseId = target.lawCaseIds?.find((id) => !!LAW_CASES_DB[id]);
         if (!lawCaseId) {
           throwTrialInitializationError(
-            '法庭初始化', 
+            '法庭初始化',
             `強制起訴標籤 [${target.text}] (ID: ${forcedTagId}) 缺少有效的法條關聯 (lawCaseIds)！`
           );
         }
@@ -574,7 +578,7 @@ export class CourtEngine {
             updates.rp = (updates.rp || player.rp) + Math.abs(t.rpChange);
           }
           // 返回新副本以確保 Store 偵測到變化
-          return { ...t, isResolved: false }; 
+          return { ...t, isResolved: false };
         }
         return t;
       });
@@ -594,7 +598,9 @@ export class CourtEngine {
 
       // 一案一清，將黑材料移除，標籤狀態更新
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
-      updates.tags = player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t));
+      updates.tags = player.tags.map((t) =>
+        t.id === lawCaseTagId ? { ...t, isResolved: true } : t
+      );
     }
 
     // 結案後清除已使用的賄賂物

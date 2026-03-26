@@ -36,6 +36,8 @@ export interface AppliedTag {
   surface_term?: string; // 勝訴後的「糖衣術語」(例如：『合法節稅規劃』)
   hidden_intent?: string; // 敗訴時的「指控動機」(例如：『惡性逃漏稅款』)
   escape?: string; // 內建抗辯事由，直接關聯法庭 Stage 4 之選項生成
+  multiplier?: number;
+  multiplierSource?: string;
 }
 
 /**
@@ -56,6 +58,8 @@ export interface Tag {
   surface_term?: string;
   hidden_intent?: string;
   escape?: string;
+  multiplier?: number; // 獲取倍率 (如 x2)
+  multiplierSource?: string; // 倍率來源 (如 'CTO')
 }
 
 /**

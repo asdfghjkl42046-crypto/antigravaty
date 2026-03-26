@@ -463,7 +463,13 @@ export const LAWS_A: Record<string, LawCase> = {
     hidden_intent: '煽動對手員工進行集體勞資爭議以瓦解其研發能量',
     escape: '僅屬於對自身營運能量受損所進行的人才招攬防禦行為',
     survival_rate: 0.03,
-    evidence_list: ['技術諮詢合約', '非專屬勞務證明', '資助金流紀錄', '併購協議', '債權委員會協商紀錄'],
+    evidence_list: [
+      '技術諮詢合約',
+      '非專屬勞務證明',
+      '資助金流紀錄',
+      '併購協議',
+      '債權委員會協商紀錄',
+    ],
     winning_keywords: ['權益釐清', '合作談判', '時機成熟'],
   },
   'A-18-2': {

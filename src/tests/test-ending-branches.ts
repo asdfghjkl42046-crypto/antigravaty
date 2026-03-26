@@ -154,14 +154,16 @@ async function testEndingBranches() {
   );
 
   // 情境 2: 聖皇(偽) 分支判定
-  dummyPlayer.tags = Array(6).fill(null).map((_, i) => ({
-    id: i + 100,
-    turn: 1,
-    text: '輕微違規',
-    netIncome: 0,
-    hash: '',
-    isCrime: true,
-  })) as any; // 超過 5 個犯罪
+  dummyPlayer.tags = Array(6)
+    .fill(null)
+    .map((_, i) => ({
+      id: i + 100,
+      turn: 1,
+      text: '輕微違規',
+      netIncome: 0,
+      hash: '',
+      isCrime: true,
+    })) as any; // 超過 5 個犯罪
   status = resolveGameStatus(dummyPlayer, 20);
   console.log(
     `  提早聖皇(偽)達成 (Turn 20, Tags=6) -> 標題: ${status.endingResult?.title} => ${status.endingResult?.title === '聖皇(偽)' ? '✅' : '❌'}`

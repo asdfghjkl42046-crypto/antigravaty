@@ -155,80 +155,100 @@ export default function PlayerSidebar({ players, currentPlayerIndex }: PlayerSid
                       {PLAYER_UI_TEXT.SIDEBAR.STAT_LABELS.AP}
                     </span>
                     <div className="flex items-baseline gap-1 text-purple-400">
-                      <span className="text-4xl font-black tracking-tighter">
-                        {p.ap}
-                      </span>
+                      <span className="text-4xl font-black tracking-tighter">{p.ap}</span>
                       <span className="text-2xl font-black opacity-60">/ 5</span>
                     </div>
                   </div>
                 </div>
 
                 {/* 犯罪前科：下拉覆蓋式展開選單 */}
-                {p.tags && p.tags.length > 0 && (() => {
-                  // 預先濃縮犯罪標籤
-                  const grouped = Object.values(
-                    p.tags.reduce(
-                      (acc, tag) => {
-                        const key = tag.text;
-                        if (!acc[key]) {
-                          acc[key] = { text: tag.text, count: 0, isResolved: true };
-                        }
-                        acc[key].count += 1;
-                        if (!tag.isResolved) acc[key].isResolved = false;
-                        return acc;
-                      },
-                      {} as Record<string, { text: string; count: number; isResolved: boolean }>
-                    )
-                  );
+                {p.tags &&
+                  p.tags.length > 0 &&
+                  (() => {
+                    // 預先濃縮犯罪標籤
+                    const grouped = Object.values(
+                      p.tags.reduce(
+                        (acc, tag) => {
+                          const sourceSuffix = tag.multiplierSource
+                            ? ` (${tag.multiplierSource})`
+                            : '';
+                          const key = tag.text + sourceSuffix;
+                          if (!acc[key]) {
+                            acc[key] = {
+                              text: tag.text,
+                              count: 0,
+                              isResolved: true,
+                              source: tag.multiplierSource,
+                            };
+                          }
+                          acc[key].count += 1;
+                          if (!tag.isResolved) acc[key].isResolved = false;
+                          return acc;
+                        },
+                        {} as Record<
+                          string,
+                          { text: string; count: number; isResolved: boolean; source?: string }
+                        >
+                      )
+                    );
 
-                  return (
-                    <div className="pt-4 border-t border-white/5 relative">
-                      {/* 可點擊的標題列：顯示犯罪數量與展開箭頭 */}
-                      <button
-                        onClick={() => setOpenTagPlayer(openTagPlayer === p.id ? null : p.id)}
-                        title={`展開${p.name}的犯罪前科`}
-                        className="w-full flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
-                      >
-                        <span className="text-[15px] font-black text-rose-500 uppercase tracking-widest font-mono">
-                          {PLAYER_UI_TEXT.SIDEBAR.CRIMINAL_RECORDS}
-                        </span>
-                        <span className="text-xs font-black text-rose-600 flex items-center gap-1">
-                          {p.tags.length} 筆
-                          <span className={cn(
-                            'transition-transform duration-300 inline-block',
-                            openTagPlayer === p.id ? 'rotate-180' : ''
-                          )}>▾</span>
-                        </span>
-                      </button>
+                    return (
+                      <div className="pt-4 border-t border-white/5 relative">
+                        {/* 可點擊的標題列：顯示犯罪數量與展開箭頭 */}
+                        <button
+                          onClick={() => setOpenTagPlayer(openTagPlayer === p.id ? null : p.id)}
+                          title={`展開${p.name}的犯罪前科`}
+                          className="w-full flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <span className="text-[15px] font-black text-rose-500 uppercase tracking-widest font-mono">
+                            {PLAYER_UI_TEXT.SIDEBAR.CRIMINAL_RECORDS}
+                          </span>
+                          <span className="text-xs font-black text-rose-600 flex items-center gap-1">
+                            {p.tags.length} 筆
+                            <span
+                              className={cn(
+                                'transition-transform duration-300 inline-block',
+                                openTagPlayer === p.id ? 'rotate-180' : ''
+                              )}
+                            >
+                              ▾
+                            </span>
+                          </span>
+                        </button>
 
-                      {/* 覆蓋式下拉面板：absolute 定位，不推移下方內容 */}
-                      {openTagPlayer === p.id && (
-                        <div className="absolute left-0 right-0 top-full mt-2 z-50 p-4 bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="flex flex-wrap gap-1.5 max-h-[200px] overflow-y-auto custom-scrollbar">
-                            {grouped.map((group, gIdx) => (
-                              <span
-                                key={gIdx}
-                                title={group.text}
-                                className={cn(
-                                  'inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-lg font-black uppercase tracking-tighter border transition-all',
-                                  'bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
-                                )}
-                              >
-                                <TagIcon size={8} />
-                                <span>{group.text}</span>
-                                {group.count > 1 && (
-                                  <span className="ml-1.5 px-2 py-0.5 bg-black/40 rounded-md text-sm font-mono border border-white/10 opacity-90">
-                                    x{group.count}
-                                  </span>
-                                )}
-                              </span>
-                            ))}
+                        {/* 覆蓋式下拉面板：absolute 定位，不推移下方內容 */}
+                        {openTagPlayer === p.id && (
+                          <div className="absolute left-0 right-0 top-full mt-2 z-50 p-4 bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="flex flex-wrap gap-1.5 max-h-[200px] overflow-y-auto custom-scrollbar">
+                              {grouped.map((group, gIdx) => (
+                                <span
+                                  key={gIdx}
+                                  title={group.text}
+                                  className={cn(
+                                    'inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-lg font-black uppercase tracking-tighter border transition-all',
+                                    'bg-rose-500/10 border-rose-500/30 text-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+                                  )}
+                                >
+                                  <TagIcon size={8} />
+                                  <span>{group.text}</span>
+                                  {group.source && (
+                                    <span className="text-[10px] bg-sky-500/20 text-sky-400 px-1 rounded ml-1">
+                                      {group.source}
+                                    </span>
+                                  )}
+                                  {group.count > 1 && (
+                                    <span className="ml-1.5 px-2 py-0.5 bg-black/40 rounded-md text-sm font-mono border border-white/10 opacity-90">
+                                      x{group.count}
+                                    </span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                        )}
+                      </div>
+                    );
+                  })()}
               </div>
             </div>
           );

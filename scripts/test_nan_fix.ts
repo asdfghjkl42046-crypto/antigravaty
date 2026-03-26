@@ -1,4 +1,3 @@
-
 import { calculateConvictionPenalty } from '../src/engine/MechanicsEngine';
 import { Player } from '../src/types/game';
 
@@ -21,7 +20,7 @@ const mockPlayer: Player = {
   totalIncome: 0,
   totalFinesPaid: 0,
   totalTagsCount: 0,
-  hasUsedExtraAppeal: false
+  hasUsedExtraAppeal: false,
 };
 
 console.log('--- Unit Test: NaN Check ---');
@@ -29,7 +28,7 @@ try {
   console.log('Executing with netIncome = 500 (Valid)...');
   const result = calculateConvictionPenalty(mockPlayer, 500);
   console.log('Result fine:', result.fine);
-  
+
   console.log('\nExecuting with netIncome = NaN (Invalid)...');
   calculateConvictionPenalty(mockPlayer, NaN);
   console.log('FAIL: Did not throw for NaN!');

@@ -162,7 +162,8 @@ export const useGameStore = create<GameStore>()(
           return { success: false, message: '行動力 (AP) 不足！', updates: {} } as ActionResult;
         }
 
-        try { // [修正] 行動結算錯誤攔截
+        try {
+          // [修正] 行動結算錯誤攔截
           // 1. 將這個決定丟給地下引擎去結算（扣錢、判斷機率、跟產生防偽紀錄）
           // [CTO 反制偵測] 檢查是否有其他技術長佈下的專利陷阱 (可疊加)
           const counterCTOCount = getCTOAntiTheftCount(players, player.id);
@@ -239,7 +240,11 @@ export const useGameStore = create<GameStore>()(
           // 捕捉引擎拋出的致命錯誤 (如 Numerical Check Error)
           console.error('[Action Fatal Error]', err);
           set({ engineError: { context: `卡牌行動 (${cardId})`, message: err.message } });
-          return { success: false, message: '🚨 運算核心發生異常，已啟動緊急熔斷。', updates: {} } as ActionResult;
+          return {
+            success: false,
+            message: '🚨 運算核心發生異常，已啟動緊急熔斷。',
+            updates: {},
+          } as ActionResult;
         }
       },
 
@@ -280,7 +285,8 @@ export const useGameStore = create<GameStore>()(
         const updatedPlayers = [...players];
         const player = updatedPlayers[currentPlayerIndex];
 
-        try { // [修正] 回合結算錯誤攔截
+        try {
+          // [修正] 回合結算錯誤攔截
           // 1. 將該名玩家丟去過 Mechanics Engine 的「回合末結算機制」(計算各種天賦分紅與白嫖名聲)
           const updates = settleEndOfTurn(player, turn);
           updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
@@ -390,7 +396,13 @@ export const useGameStore = create<GameStore>()(
         const def = get().players.find((p) => p.id === t.defendantId);
         if (!def) return;
 
-        const outcome = CourtEngine.determineDefenseOutcome(def, t, txt, get().judgeMode, get().turn);
+        const outcome = CourtEngine.determineDefenseOutcome(
+          def,
+          t,
+          txt,
+          get().judgeMode,
+          get().turn
+        );
         set({ trial: { ...t, ...outcome } as NonNullable<GameStore['trial']> });
       },
 

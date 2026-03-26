@@ -47,7 +47,7 @@ export function calculateActualRPGain(player: Player, baseGain: number): number 
  */
 export function getIndictmentChance(player: Player, currentTurn: number = 1): number {
   const sources = player.blackMaterialSources || [];
-  
+
   // 嚴格檢查：如果 blackMaterialSources 內部的 count 含有 NaN，直接報錯
   sources.forEach((s, idx) => {
     if (s.count === undefined || Number.isNaN(s.count)) {
@@ -68,7 +68,7 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   // 分離出「本回合剛產生熱騰騰的黑料 (高權重)」與「往期留下來的舊帳 (低權重)」
   const newBM = sources.filter((s) => s.turn === currentTurn).reduce((sum, s) => sum + s.count, 0);
   const oldBM = sources.filter((s) => s.turn < currentTurn).reduce((sum, s) => sum + s.count, 0);
-  
+
   // 嚴格檢查：totalTagsCount 是否為合法數字
   if (player.totalTagsCount !== undefined && Number.isNaN(player.totalTagsCount)) {
     throwDataCorruptionError(`玩家: ${player.name}`, `totalTagsCount 為 NaN！`);
@@ -96,7 +96,6 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   const rawProb = Math.floor(baseProb);
   return Math.max(floor, Math.min(100, rawProb));
 }
-
 
 // ============================================================
 // 法庭處罰與賄賂好感度處理
@@ -174,10 +173,13 @@ export function calculateConvictionPenalty(
   // 核心平衡：如果是開局既有，強制跳過所有折扣。非常上訴也不予折扣以示嚴厲。
   const rawDiscount = player.startBonusFineReduction || 0;
   if (Number.isNaN(rawDiscount)) {
-    throwNumericalCheckError('MechanicsEngine.calculateConvictionPenalty', `偵測到非法折扣率 (startBonusFineReduction: ${rawDiscount})。`);
+    throwNumericalCheckError(
+      'MechanicsEngine.calculateConvictionPenalty',
+      `偵測到非法折扣率 (startBonusFineReduction: ${rawDiscount})。`
+    );
   }
   const discountRate = isPreexisting || isAppeal ? 0 : rawDiscount;
-  
+
   // [賄賂系統實作] 判斷賄賂物是否完全命中法官偏好 (得分 5 分)
   let bribeMultiplier = 1.0;
   if (personality && player.bribeItem && !isPreexisting && !isAppeal) {
@@ -216,7 +218,7 @@ export function calculateConvictionPenalty(
   if (discountRate > 0) {
     detail += ` = ${baseTotal}萬；減去開局特權-${Math.round(discountRate * 100)}%`;
   }
-  
+
   if (bribeMultiplier < 1) {
     detail += `；[賄賂加成] 罰金再折抵 20%`;
   }
@@ -305,7 +307,10 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
     throwDataCorruptionError(`玩家: ${player.name}`, `信託基金(trustFund) 屬性缺失或為 NaN！`);
   }
   if (player.consecutiveCleanTurns === undefined || Number.isNaN(player.consecutiveCleanTurns)) {
-    throwDataCorruptionError(`玩家: ${player.name}`, `連續清白回合(consecutiveCleanTurns) 屬性缺失或為 NaN！`);
+    throwDataCorruptionError(
+      `玩家: ${player.name}`,
+      `連續清白回合(consecutiveCleanTurns) 屬性缺失或為 NaN！`
+    );
   }
 
   // 擷取當前狀態以便運算推疊
@@ -344,7 +349,12 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   updates.ap = player.isBankrupt ? player.ap : 5;
 
   // 最終安全檢查：確保回傳的數據不包含 NaN 或非法值
-  if (Number.isNaN(finalG) || Number.isNaN(finalRP) || Number.isNaN(finalTrust) || Number.isNaN(newConsecutiveCleanTurns)) {
+  if (
+    Number.isNaN(finalG) ||
+    Number.isNaN(finalRP) ||
+    Number.isNaN(finalTrust) ||
+    Number.isNaN(newConsecutiveCleanTurns)
+  ) {
     throwDataCorruptionError(
       `玩家: ${player.name}`,
       `結算過程中產生非法數值！(G: ${finalG}, RP: ${finalRP}, Trust: ${finalTrust}, CleanTurns: ${newConsecutiveCleanTurns})`

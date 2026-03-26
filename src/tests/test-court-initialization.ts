@@ -25,7 +25,7 @@ async function testCourtInitialization() {
       totalIncome: 0,
       hasUsedExtraAppeal: false,
       totalTagsCount: 0,
-    }
+    },
   ];
 
   // --- 1. 測試：找不到被告 ---
@@ -49,7 +49,14 @@ async function testCourtInitialization() {
 
   // --- 3. 測試：常規起訴但全場無黑料 (應該回傳 null 而非報錯) ---
   console.log('\n[3] 測試常規起訴但全場無黑料:');
-  const res = CourtEngine.prepareTrial(dummyPlayers, 'p1', 'website', 'traditionalist', undefined, false);
+  const res = CourtEngine.prepareTrial(
+    dummyPlayers,
+    'p1',
+    'website',
+    'traditionalist',
+    undefined,
+    false
+  );
   if (res === null) {
     console.log('  ✅ 成功：常規流程回傳 null 表示取消起訴');
   } else {

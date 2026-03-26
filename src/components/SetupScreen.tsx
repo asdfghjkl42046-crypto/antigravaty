@@ -224,7 +224,9 @@ export default function SetupScreen({ onComplete, onBack }: SetupScreenProps) {
                             <span
                               key={i}
                               className={cn(
-                                i === 0 ? 'text-base font-black whitespace-pre-wrap' : 'text-[11px] font-bold opacity-70',
+                                i === 0
+                                  ? 'text-base font-black whitespace-pre-wrap'
+                                  : 'text-[11px] font-bold opacity-70',
                                 i === 0
                                   ? currentPath === key
                                     ? 'text-blue-400'

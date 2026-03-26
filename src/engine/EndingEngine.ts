@@ -219,14 +219,16 @@ export function resolveGameStatus(
   // 3. 勝利路徑達成判定 (提早通關)
   // 聖皇路徑需滿足「最後 5 回合無犯罪」之 Saint Bonus
   const lookbackWindow = 5;
-  const isLast5TurnsClean = !player.tags.some((t) => t.isCrime && t.turn > currentTurn - lookbackWindow);
-  
+  const isLast5TurnsClean = !player.tags.some(
+    (t) => t.isCrime && t.turn > currentTurn - lookbackWindow
+  );
+
   const victoryRoute = checkVictory(player, currentTurn, isLast5TurnsClean);
   if (victoryRoute) {
     // 只要達成任何一種勝利路線，即刻結算結局
     const ending = calculateEnding(player, currentTurn);
     // 確保同步玩家狀態
-    const updatedPlayer = { ...player }; 
+    const updatedPlayer = { ...player };
     return { isGameOver: true, phase: 'victory', endingResult: ending, updatedPlayer };
   }
 

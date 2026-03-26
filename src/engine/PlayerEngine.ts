@@ -42,8 +42,8 @@ export function addBlackMaterials(
   turn: number // 發生於第幾回合
 ): BlackMaterialSource[] {
   // 深度拷貝：確保修改不會影響到原始 Player 物件中的參照位址，符合不變性 (Immutability) 原則
-  const updated = sources.map(s => ({ ...s }));
-  
+  const updated = sources.map((s) => ({ ...s }));
+
   // 總裁指示：如果遇到例外狀況沒有具體標籤名稱，不能苟且使用 unknown 帶過，必須強制拋出 Error 報錯！
   if (!tags || tags.length === 0) {
     throw new Error('嚴重異常：試圖記錄犯罪黑資料，卻未提供具體的違犯標籤（tags array 為空）！');
@@ -258,7 +258,7 @@ export async function initializeGameSession(
   // 走訪所有已完成建制的玩家，計算並廣播開局天賦紅利 (Bonus)
   sortedPlayers.forEach((p: Player) => {
     if (!p.startPath) return;
-    
+
     // 1. 檢查路徑自帶的紅利 (例如：'normal' 路徑享有的 95 折庇護)
     // 這裡維持邏輯特判：僅白手起家路徑享有 5% 永久減免
     if (p.startPath === 'normal') {
