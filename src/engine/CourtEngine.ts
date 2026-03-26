@@ -21,7 +21,12 @@ import {
 } from '../data/judges/JudgeTemplatesDB';
 import { AIEngine } from './AIEngine';
 import { getWithdrawCaseCost, getLawyerDefenseBonus } from './RoleEngine';
-import { throwTrialInitializationError } from './errors/EngineErrors';
+import {
+  throwTrialInitializationError,
+  throwNumericalCheckError,
+  throwDataCorruptionError,
+  throwDataDefinitionError
+} from './errors/EngineErrors';
 
 /**
  * 法庭與審判系統
@@ -59,6 +64,10 @@ export class CourtEngine {
       return null;
     }
 
+    if (Number.isNaN(totalBM)) {
+      throwNumericalCheckError('CourtEngine.spinRussianRoulette', '全場總黑材料數計算結果為 NaN，起訴程序被迫中斷。');
+    }
+
     // 步驟 4：進行加權隨機輪盤抽籤，黑料數量越多的玩家，被抽中的機率越大
     let roll = Math.random() * totalBM;
     for (const c of candidates) {
@@ -80,19 +89,19 @@ export class CourtEngine {
         (s) => s.actionId === t.id && s.count > 0
       );
       if (!hasEvidence) {
-        console.error(
-          `[GameLogic Error] 玩家 ${player.name} 的違法標籤 [${t.text}] (ID: ${t.id}) 尚未結案 (isResolved: false)，卻找不到其身上有對應 count > 0 的黑材料(BM) 實體！`
-        );
-        throw new Error(
-          `Data Integrity Error: Active Tag "${t.text}" found but no black materials evidence exist for it. Check ActionEngine generation.`
+        throwDataCorruptionError(
+          `玩家 ${player.name} 的法庭數據`,
+          `違法標籤 [${t.text}] (ID: ${t.id}) 尚未結案，卻找不到對應的黑材料實體！`
         );
       }
       // 強制檢查：該標籤必須帶有明確的法律 ID 映射 (lawCaseIds)
       const hasSpecificCase = t.lawCaseIds && t.lawCaseIds.length > 0 && t.lawCaseIds.some((id) => !!LAW_CASES_DB[id]);
       
       if (!hasSpecificCase) {
-        console.error(`[Data Integrity Error] 標籤 [${t.text}] (ID: ${t.id}) 缺少有效的 lawCaseIds 映射！`);
-        throw new Error(`Data Integrity Error: Tag "${t.text}" has no valid lawCaseIds defined. Fallback is disabled.`);
+        throwDataDefinitionError(
+          `標籤 [${t.text}] (ID: ${t.id})`,
+          `缺少有效的 lawCaseIds 映射，無法對位法條！`
+        );
       }
 
       return true;
@@ -561,8 +570,11 @@ export class CourtEngine {
       // 因 pickLawCase 會檢查黑材料實體，無材料即代表該標籤暫時不具備起訴條件。
       updates.tags = player.tags.map((t) => {
         if (t.id === lawCaseTagId) {
-          if (t.rpChange && t.rpChange < 0)
+          if (t.rpChange && t.rpChange < 0) {
             updates.rp = (updates.rp || player.rp) + Math.abs(t.rpChange);
+          }
+          // 返回新副本以確保 Store 偵測到變化
+          return { ...t, isResolved: false }; 
         }
         return t;
       });
@@ -580,8 +592,9 @@ export class CourtEngine {
       // 紀錄玩家被罰款的金額
       updates.totalFinesPaid = (player.totalFinesPaid || 0) + penalty.fine;
 
-      // 一案一清，將黑材料移除，標籤保留
+      // 一案一清，將黑材料移除，標籤狀態更新
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
+      updates.tags = player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t));
     }
 
     // 結案後清除已使用的賄賂物

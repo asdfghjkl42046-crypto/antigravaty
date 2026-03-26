@@ -49,7 +49,7 @@ export default function StatValue({
       setDiff(delta);
       setShowDiff(true); // 點火發射特效數字
       setDisplayValue(value); // 瞬間把作假帳的大螢幕數字蓋成新的
-      setDiffKey(Date.now()); // 更新強制重繪 Key
+      setDiffKey((prev) => prev + 1); // [遞增 Key]：確保頻繁更新時，React 仍能識別為新元件並重啟動畫特效
 
       // 把新數字鎖進黑盒子備查，以免下回合重複計算
       prevValueRef.current = value;

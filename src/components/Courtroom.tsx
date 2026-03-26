@@ -309,10 +309,10 @@ export default function Courtroom() {
               {/* 所有吃瓜群眾都表態完畢，由系統一次過把所有人的明槍暗箭射向法官與被告 */}
               <button
                 onClick={() => {
-                  trial.bystanderIds.forEach((bid) => {
+                  trial.bystanderIds.forEach(async (bid) => {
                     const idx = pendingInterventions[bid];
                     if (idx !== undefined && idx !== 999) {
-                      addIntervention(bid, BYSTANDER_OPTIONS[idx].text);
+                      await addIntervention(bid, BYSTANDER_OPTIONS[idx].text);
                     }
                   });
                   setTrialStage(3); // 推進去賭博
@@ -430,11 +430,11 @@ export default function Courtroom() {
 
               {/* 確認所有賭資到位，提交進入高潮：法官審問被告環節 */}
               <button
-                onClick={() => {
-                  trial.bystanderIds.forEach((bid) => {
+                onClick={async () => {
+                  for (const bid of trial.bystanderIds) {
                     const choice = localBets[bid];
-                    if (choice) placeBet(bid, choice); // 注入 GameStore 的賭盤
-                  });
+                    if (choice) await placeBet(bid, choice); // 注入 GameStore 的賭盤
+                  }
                   setTrialStage(4);
                 }}
                 className="w-full py-5 bg-white text-black font-black rounded-2xl hover:bg-blue-500 hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 text-lg uppercase tracking-widest"
@@ -506,8 +506,8 @@ export default function Courtroom() {
               {/* 把你這輩子最重要的防禦選項打包成封包丟往深邃的法庭黑盒子 (submitDefense) */}
               <button
                 disabled={selectedOption === null}
-                onClick={() => {
-                  submitDefense(selectedOption as number, defenseInput);
+                onClick={async () => {
+                  await submitDefense(selectedOption as number, defenseInput);
                 }}
                 className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 transition-all disabled:opacity-50"
               >
@@ -598,7 +598,9 @@ export default function Courtroom() {
                           {/* 花大錢，消滅審判歷史，直接將官司扔進黑洞 (觸發 withdrawCase() -> 清除法庭 -> 全身而退) */}
                           <button
                             disabled={!canAfford}
-                            onClick={() => withdrawCase()}
+                            onClick={async () => {
+                              await withdrawCase();
+                            }}
                             className="flex-1 py-5 bg-amber-500 disabled:bg-slate-700 disabled:text-slate-500 text-black font-black rounded-2xl hover:bg-amber-400 disabled:hover:bg-slate-700 transition-all shadow-lg shadow-amber-500/20 disabled:shadow-none active:scale-95 disabled:active:scale-100 uppercase tracking-widest text-sm flex items-center justify-center gap-2 disabled:cursor-not-allowed"
                           >
                             <ShieldCheck size={20} />
@@ -682,8 +684,8 @@ export default function Courtroom() {
                   {/* 如果無罪或不需要罰金詳情，直接結案；否則進入下一階段 */}
                   {trial.isDefenseSuccess || !trial.punishment ? (
                     <button
-                      onClick={() => {
-                        resolveTrial();
+                      onClick={async () => {
+                        await resolveTrial();
                       }}
                       className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
                     >
@@ -767,8 +769,8 @@ export default function Courtroom() {
 
                   <div className="w-full flex flex-col gap-4 pt-2">
                     <button
-                      onClick={() => {
-                        resolveTrial();
+                      onClick={async () => {
+                        await resolveTrial();
                       }}
                       className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
                     >
@@ -778,8 +780,8 @@ export default function Courtroom() {
                     {!trial.extraAppealUsed &&
                       !currentPlayer?.hasUsedExtraAppeal && (
                         <button
-                          onClick={() => {
-                            extraordinaryAppeal();
+                          onClick={async () => {
+                            await extraordinaryAppeal();
                           }}
                           className="w-full py-5 bg-amber-500/10 border-2 border-amber-500/30 text-amber-500 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-xl flex items-center justify-center gap-2"
                         >

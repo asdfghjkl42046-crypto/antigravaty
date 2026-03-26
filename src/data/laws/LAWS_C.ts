@@ -11,7 +11,7 @@ export const LAWS_C: Record<string, LawCase> = {
     evidence_list: [
       '來源不明的海外大額匯款單',
       '與黑名單帳戶往來的金流紀錄',
-      '非法地下手現管道的通訊錄',
+      '非法地下變現管道的通訊錄',
       '透過藝術品交易洗錢的虛假收據',
     ],
     winning_keywords: ['收據', '單向', '公開'],

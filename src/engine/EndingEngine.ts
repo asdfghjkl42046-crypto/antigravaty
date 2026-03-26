@@ -223,9 +223,11 @@ export function resolveGameStatus(
   
   const victoryRoute = checkVictory(player, currentTurn, isLast5TurnsClean);
   if (victoryRoute) {
-    // 只要達成任何一種勝利路線，即刻結算結局並進入 victory 階段
+    // 只要達成任何一種勝利路線，即刻結算結局
     const ending = calculateEnding(player, currentTurn);
-    return { isGameOver: true, phase: 'victory', endingResult: ending };
+    // 確保同步玩家狀態
+    const updatedPlayer = { ...player }; 
+    return { isGameOver: true, phase: 'victory', endingResult: ending, updatedPlayer };
   }
 
   // 4. 回合上限保衛機制 (GEMINI.md §3-2: 遊戲只營運 50 回合)

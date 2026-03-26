@@ -119,6 +119,12 @@ export async function performAction(
   turn: number,
   counterCTOCount: number = 0
 ): Promise<ActionResult & { hashedTags: Tag[]; finalHash: string }> {
+  try {
+    // 0. 輸入合法性預先檢查 (入参守門員)
+    if (lastHash === undefined || lastHash === null) {
+      throwNumericalCheckError('ActionEngine.performAction', '傳入的 lastHash 雜湊鏈標頭非法(undefined/null)。');
+    }
+
     const card = CARDS_DB[cardId];
     const actionId = Date.now();
     const timestamp = new Date().toISOString();
@@ -180,8 +186,8 @@ export async function performAction(
         appliedTags: [],
         hashedTags: [],
         finalHash: lastHash,
-        apRefunded: false,
         actionId,
+        apRefunded: false,
         log: {
           playerId: player.id,
           turn,
@@ -386,37 +392,30 @@ export async function performAction(
 
     const hashedTags: Tag[] = [];
     let currentLastHash = lastHash;
-    try {
-      for (const s of snapshots) {
-        const ts = new Date().toISOString();
-        // 支援多重標籤：每個標籤都應產生獨立的雜湊鏈節點與黑材料紀錄
-        for (const singleTag of s.tag) {
-          const hash = await sha256(currentLastHash + singleTag + ts);
-          hashedTags.push({
-            id: actionId,
-            text: singleTag,
-            turn,
-            timestamp: ts,
-            isCrime: true,
-            hash,
-            netIncome: s.netIncome,
-            lawCaseIds: s.lawCaseIds,
-            rpChange: s.rpChange,
-            surface_term: s.surface_term,
-            hidden_intent: s.hidden_intent,
-            escape: s.escape,
-            isResolved: false,
-          });
-          // 更新最新一筆的防偽亂碼
-          currentLastHash = hash;
-        }
+
+    for (const s of snapshots) {
+      const ts = new Date().toISOString();
+      // 支援多重標籤：每個標籤都應產生獨立的雜湊鏈節點與黑材料紀錄
+      for (const singleTag of s.tag) {
+        const hash = await sha256(currentLastHash + singleTag + ts);
+        hashedTags.push({
+          id: actionId,
+          text: singleTag,
+          turn,
+          timestamp: ts,
+          isCrime: true,
+          hash,
+          netIncome: s.netIncome,
+          lawCaseIds: s.lawCaseIds,
+          rpChange: s.rpChange,
+          surface_term: s.surface_term,
+          hidden_intent: s.hidden_intent,
+          escape: s.escape,
+          isResolved: false,
+        });
+        // 更新最新一筆的防偽亂碼
+        currentLastHash = hash;
       }
-    } catch (err: any) {
-      // 總裁指示：雜湊鏈是系統命脈，一旦失敗必須立即報錯並中止更新，防止資料鏈斷裂。
-      throwEnvironmentError(
-        `[Hash Chain Failure] 玩家: ${player.name}`,
-        `無法串接防偽雜湊鏈。原因: ${err?.message || '未知環境錯誤'}`
-      );
     }
 
     // 7. 保障AP安全機制
@@ -518,6 +517,43 @@ export async function performAction(
         timestamp: new Date().toISOString(),
       },
     };
+  } catch (err: any) {
+    // [核爆處理]：透過 instanceof 對錯誤進行分類，提供玩家更有意義的修復建議。
+    console.error(`[Fatal Action Engine Error]`, err);
+    
+    let categoryPrefix = '🚫 系統嚴重錯誤';
+    let suggestion = '請截圖並聯繫開發者。';
+    
+    if (err.category === 'Data') {
+      categoryPrefix = '📁 資料損毀錯誤';
+      suggestion = '請嘗試重新整理網頁或重新啟動遊戲。';
+    } else if (err.category === 'Calculation') {
+      categoryPrefix = '🔢 數值算力錯誤';
+      suggestion = '偵測到非法數值運算，請聯繫開發人員。';
+    } else if (err.category === 'Flow') {
+      categoryPrefix = '🌐 環境流程錯誤';
+      suggestion = '目前環境可能不支持某些功能，請使用現代瀏覽器。';
+    }
+
+    return {
+      success: false,
+      message: `${categoryPrefix}：${err?.message || '未知錯誤'}。\n【建議】${suggestion}`,
+      updates: {},
+      appliedTags: [],
+      hashedTags: [],
+      finalHash: lastHash,
+      apRefunded: true, // 發生引擎嚴重錯誤時，不應扣除玩家行動點
+      actionId: Date.now(),
+      log: {
+        playerId: player.id,
+        turn,
+        cardId,
+        optionIndex: optionIdx,
+        tags: 'FATAL_ENGINE_ERROR',
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
 }
 
 /**

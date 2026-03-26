@@ -337,7 +337,7 @@ export const CARDS_A: Record<string, Card> = {
     2: {
       type: 'B',
       label:
-        '讓財務把出貨單的日期配合實際完成時點做行政校校正——文件還是文件，只是讓帳務跟業務進度對齊。',
+        '讓財務把出貨單的日期配合實際完成時點做行政校正——文件還是文件，只是讓帳務跟業務進度對齊。',
       g: 180,
       rp: -5,
       lawCaseIds: ['A-12-2'],
@@ -349,7 +349,7 @@ export const CARDS_A: Record<string, Card> = {
       costG: 0,
       succRate: 1.0,
       succ: { g: 380, rp: -15, lawCaseIds: ['A-12-3'] },
-      fail: { special: 'sue' },
+      fail: {},
     },
   },
   'A-13': {

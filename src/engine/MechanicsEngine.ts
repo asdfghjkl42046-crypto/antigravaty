@@ -138,16 +138,14 @@ export function calculateConvictionPenalty(
   rpLoss: number;
   detail?: string;
 } {
-  // 防呆：判定傳入的獲利是否為有效數字，避免 NaN 導致罰金被安靜抹除為 0
-  if (netIncome !== undefined && Number.isNaN(Number(netIncome))) {
+  // 防呆：無法判斷的收入或非法數值直接拒絕結算
+  if (netIncome === undefined || netIncome === null || Number.isNaN(Number(netIncome))) {
     throwNumericalCheckError(
       `玩家: ${player.name} 的法庭結算`,
-      `測得 netIncome 為 NaN！這會導致罰金結算邏輯失效。原始傳入值: ${netIncome}`
+      `測得不法所得 (netIncome) 缺失或為 NaN！無法計算罰金。`
     );
   }
-
-  // 防呆：無法判斷的收入預設歸 0
-  const safeIncome = netIncome || 0;
+  const safeIncome = netIncome;
 
   // 1. 強制倍率邏輯：如果是開局既有 (Turn 0)，強制套用 1.0x (單純吐回非法所得，不額外追絞)
   // 否則，前 5 回合敗訴 (包含 5 回合)，只罰該案件淨獲利的 1 倍作為保護期；5回合後標準罰則為 3x

@@ -37,6 +37,8 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
         // 相容舊版單一字串格式 (若仍存在)
         tagSet.add(law.tag as unknown as string);
       }
+    } else {
+      console.error(`[LawCasesDB] 找不到法條 ID: ${id}，請檢查卡牌資料是否正確或是否已在 LAWS_*.ts 註冊。`);
     }
   }
   return Array.from(tagSet);

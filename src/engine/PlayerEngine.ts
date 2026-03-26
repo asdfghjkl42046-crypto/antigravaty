@@ -27,7 +27,7 @@ import { getResolvedTags, LAW_CASES_DB } from '@/data/laws/LawCasesDB';
  * 將玩家身上所有的 BlackMaterialSource 陣列中的 count (累積罪證) 進行加總
  */
 export function getTotalBlackMaterials(player: Player): number {
-  return (player.blackMaterialSources || []).reduce((sum, s) => sum + s.count, 0);
+  return (player.blackMaterialSources || []).reduce((sum, s) => sum + (Number(s.count) || 0), 0);
 }
 
 /**
@@ -49,18 +49,15 @@ export function addBlackMaterials(
     throw new Error('嚴重異常：試圖記錄犯罪黑資料，卻未提供具體的違犯標籤（tags array 為空）！');
   }
   const tagList = tags;
-  // 總裁指示：標籤越多，罪證越重。不再進行均分，每一個標籤都獲得完整的黑材料分值。
-  const bmPerTag = bmPerAction;
-
   for (const tag of tagList) {
     // 檢查這筆罪刑在相同的行動來源下，是否已經被立案過
     const existing = updated.find((s) => s.tag === tag && s.actionId === actionId);
     if (existing) {
-      // 若曾經立案，則直接疊加最新的罪證數量
-      existing.count += bmPerTag;
+      // 若曾經立案，則直接疊加最新的罪證數量 (注意：此處 bmPerAction 應代表單一標籤的增量)
+      existing.count += bmPerAction;
     } else {
       // 若尚未記錄，推入一筆全新的犯罪足跡追蹤紀錄
-      updated.push({ tag, count: bmPerTag, actionId, turn });
+      updated.push({ tag, count: bmPerAction, actionId, turn });
     }
   }
   return updated;

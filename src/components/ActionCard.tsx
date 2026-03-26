@@ -82,6 +82,7 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
         {/* 人生沒有無限選項，這裡鐵律就是硬刻三個按鈕出來給你選 */}
         {[1, 2, 3].map((idx) => {
           const opt = card[idx as 1 | 2 | 3];
+          if (!opt) return null; // [防禦性渲染]：若卡片數據缺失該選項，直接跳過不渲染，防止 undefined 崩潰
           return (
             <button
               key={idx}

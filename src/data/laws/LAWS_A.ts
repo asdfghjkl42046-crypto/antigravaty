@@ -363,7 +363,7 @@ export const LAWS_A: Record<string, LawCase> = {
     id: 'A-14-2',
     tag: ['詐欺取財', '商業會計法'],
     lawName: '《刑法》第 339 條（詐欺取財）；《商業會計法》第 71 條；《審計法》',
-    surface_term: '研發研支行政補正作業',
+    surface_term: '研發支出行政補正作業',
     hidden_intent: '假開發票沖抵補助款，以解救公務資金遭挪用之罪',
     escape: '這僅是針對研發支出在會計認列上的時間差補正',
     survival_rate: 0.02,
@@ -396,7 +396,7 @@ export const LAWS_A: Record<string, LawCase> = {
     hidden_intent: '利用「諮詢」名目規避敏感防禦技術出口管制',
     escape: '這僅是針對技術模組的指導性諮詢，並非核心轉讓',
     survival_rate: 0.02,
-    evidence_list: ['技術規格分解圖', '諮詢合約紀錄', '出口管制清單對導'],
+    evidence_list: ['技術規格分解圖', '諮詢合約紀錄', '出口管制清單對照'],
     winning_keywords: ['顧問諮詢', '分項授權', '諮詢顧問'],
   },
   'A-15-3': {
@@ -463,7 +463,7 @@ export const LAWS_A: Record<string, LawCase> = {
     hidden_intent: '煽動對手員工進行集體勞資爭議以瓦解其研發能量',
     escape: '僅屬於對自身營運能量受損所進行的人才招攬防禦行為',
     survival_rate: 0.03,
-    evidence_list: ['技術諮詢合約', '資助金流紀錄', '併購協議', '債權委員會協商紀錄'],
+    evidence_list: ['技術諮詢合約', '非專屬勞務證明', '資助金流紀錄', '併購協議', '債權委員會協商紀錄'],
     winning_keywords: ['權益釐清', '合作談判', '時機成熟'],
   },
   'A-18-2': {
