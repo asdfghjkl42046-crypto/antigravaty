@@ -445,7 +445,9 @@ export class CourtEngine {
     if (forcedTagId) {
       const target = defendant.tags.find((t) => t.id === forcedTagId);
       if (target) {
-        lawCase = LAW_CASES_DB[target.text] || null;
+        // [修正] 優先從標籤關聯的 lawCaseIds 中尋找 ID 進行檢索，而非使用標籤文字 (Text)
+        const lawCaseId = target.lawCaseIds?.find((id) => !!LAW_CASES_DB[id]);
+        lawCase = lawCaseId ? LAW_CASES_DB[lawCaseId] : null;
         tagId = target.id;
       }
     }

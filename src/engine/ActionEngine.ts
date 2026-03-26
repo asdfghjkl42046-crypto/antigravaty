@@ -11,6 +11,7 @@ import type {
   BlackMaterialSource,
   Tag,
   Card,
+  SpecialTag,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { LAW_CASES_DB, getResolvedTags } from '../data/laws/LawCasesDB';
@@ -45,7 +46,7 @@ export type AnyCardOption = BaseOption & {
     ip?: number;
     bm?: number;
     loss?: number;
-    special?: string; // 特殊狀態如 'sue' 會強制觸發起訴
+    special?: SpecialTag; // 特殊狀態如 'sue' 會強制觸發起訴
     lawCaseIds?: string[];
   };
 };
@@ -249,8 +250,8 @@ export async function performAction(
 
   // 4. 行動機率(骰子檢定)判定
   if (opt.succRate !== undefined && !skipRandomCheck) {
-    // 非滿機率的判定
-    if (Math.random() > opt.succRate) finalSuccess = false;
+    // 只有在成功率小於 1.0 時才執行隨機判定
+    if (opt.succRate < 1.0 && Math.random() > opt.succRate) finalSuccess = false;
   }
 
   // 5. 根據勝敗來決定金錢與標籤結算
@@ -272,13 +273,13 @@ export async function performAction(
       const succIP = opt.succ?.ip || 0;
       // 成功獲得的資金再次納入會計師進行額外分紅加成
       const bonusSuccG = applyAccountantBonus(player, cardId, succG);
-      const totalG = bonusRewardG + bonusSuccG;
-      const totalRP = baseRewardRP + succRP;
+      const totalG = bonusSuccG; // Only succG is considered for bonus, baseRewardG is removed
+      const totalRP = succRP; // Only succRP is considered, baseRewardRP is removed
 
       // 最終結算
       finalGChange = totalG - costToDeduct;
       finalRPChange = calculateActualRPGain(player, totalRP);
-      finalIPChange = baseRewardIP + succIP;
+      finalIPChange = succIP;
 
       // E 卡洗黑材料清除機制
       if (opt.succ?.bm === 'all') {
@@ -316,9 +317,13 @@ export async function performAction(
         });
       }
 
+      // 銜接分發獎勵：若為 100% 成功，則隱藏【成功】標籤以避免 UI 彈窗
+      const isDirectSuccess = opt.succRate === 1.0;
+
       if (!message || message.startsWith(' (')) {
-        message = `【成功】${opt.label || '計畫執行成功'}。${message}`;
-      } else if (!message.includes('【成功】')) {
+        const prefix = isDirectSuccess ? '' : '【成功】';
+        message = `${prefix}${opt.label || '計畫執行成功'}。${message}`;
+      } else if (!message.includes('【成功】') && !isDirectSuccess) {
         message = `【成功】${message}`;
       }
     }

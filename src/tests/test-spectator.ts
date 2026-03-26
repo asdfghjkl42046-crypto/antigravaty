@@ -29,13 +29,12 @@ async function testSpectatorInfluence() {
 
   const dummyCase: LawCase = {
     id: 'T-01',
-    tag: '測試法案',
+    tag: ['測試法案'],
     lawName: '測試案件',
     surface_term: '法律外殼',
     hidden_intent: '指控動機',
     evidence_list: [],
     survival_rate: 0.5, // 基礎 50%
-    rp_recovery: 20,
     winning_keywords: [],
     soft_keywords: [],
   };

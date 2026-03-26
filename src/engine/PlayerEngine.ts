@@ -15,6 +15,8 @@ import { sha256, roundUp } from './MathEngine';
 import { SETUP_TEXT } from '@/data/setup/SetupData';
 import { BRIBE_LABELS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { getBribeScore } from './MechanicsEngine';
+import { CARDS_DB } from '../data/cards/CardsDB';
+import { getResolvedTags, LAW_CASES_DB } from '@/data/laws/LawCasesDB';
 
 // ============================================================
 // 黑歷史與犯罪證據管理
@@ -117,35 +119,14 @@ export async function createInitialPlayer(
 /**
  * 集中管理不同出身背景的初始資產、社會信用、違法黑金以及天生的罰金減免比例
  */
-const STARTING_CONFIGS: Record<
-  StartPath,
-  { g: number; rp: number; booty: number; tags: string[]; lawCaseIds: string[]; fineReduction: number }
-> = {
-  normal: {
-    g: 100, // 標準起始資金
-    rp: 105, // 道德包袱較高，名聲微幅領先
-    booty: 0,
-    tags: [],
-    lawCaseIds: [],
-    fineReduction: 0.05, // 正規路徑享有的法院 95 折罰金庇護
-  },
-  backdoor: {
-    g: 250, // 特權啟動資金
-    rp: 90, // 但名聲先天受損
-    booty: 150, // 違法黑金
-    tags: ['隱蔽型利益輸送'],
-    lawCaseIds: ['SYS-01'],
-    fineReduction: 0,
-  },
-  blackbox: {
-    g: 400, // 獲得龐大本金
-    rp: 75, // 名聲敗壞及格線
-    booty: 300, // 鉅額黑金
-    tags: ['隱蔽型利益輸送', '數據清洗下的倖存者'],
-    lawCaseIds: ['SYS-01', 'SYS-02'],
-    fineReduction: 0,
-  },
-};
+/**
+ * 內部助手：將 StartPath 代號轉換為虛擬卡牌的選項索引
+ */
+function getPathOptionIndex(path: StartPath): 1 | 2 | 3 {
+  if (path === 'normal') return 1;
+  if (path === 'backdoor') return 2;
+  return 3;
+}
 
 /**
  * 內部助手：根據配置檔與基礎資料，組裝出完整的玩家實體
@@ -157,46 +138,56 @@ async function createPlayerFromConfig(
   genesis: string,
   bribeItem?: BribeItem
 ): Promise<Player> {
-  // 1. 初始化路徑數值設定區 (總裁指示：拔除無意義的預設值，改採嚴謹的物件查表法)
-  const config = STARTING_CONFIGS[path];
-  const initialG = config.g;
-  const initialRP = config.rp;
-  const initialBooty = config.booty;
-  const initialTagTexts = config.tags;
+  // 1. 初始化路徑數值設定區：從虛擬系統卡牌讀取數據
+  const card = CARDS_DB['START_PATHS'];
+  const optIdx = getPathOptionIndex(path);
+  const opt = card[optIdx];
+  const config = opt.succ!;
+
+  const initialG = config.g || 100;
+  const initialRP = config.rp || 100;
+  const initialLawCaseIds = config.lawCaseIds || [];
+
+  // 動態解析標籤，確保與法律資料庫同步 (SSOT)
+  const initialTagTexts = getResolvedTags(initialLawCaseIds);
+
+  // 計算不法所得 (Booty)：資金總額扣除保底 100 萬後，即為該路徑之原罪代價
+  const initialBooty = Math.max(0, initialG - 100);
 
   // 2. 把天生自帶的犯罪紀錄也寫進防偽系統中
   const tags: Tag[] = [];
   let currentHash = genesis;
   const startId = Date.now();
+  const timestamp = new Date().toISOString();
 
-  // 計算每個前科標籤虛擬的「髒款入帳額」：
-  // 核心平衡邏輯：為了達成「被告一次就回到 100 萬」的目標，
-  // 這裡直接將 totalBooty 作為每個標籤的 netIncome，並在 MechanicsEngine 套用 1.0x 倍率。
-  // 因為開局標籤共享同一個證據 ID (startId)，當一案宣告有罪後，相關證據會全數銷毀，
-  // 這樣能保證「第一案」就罰回正確總額，且「第二案」不會重複計算。
-  const incomePerTag =
-    initialTagTexts.length > 0 ? roundUp(initialBooty) : 0;
+  // 遍歷該路徑帶來的法案，展開其下的所有標籤，並實例化寫入玩家犯罪史
+  for (const lawCaseId of initialLawCaseIds) {
+    const lawCase = LAW_CASES_DB[lawCaseId];
+    if (!lawCase) continue;
 
-  // 遍歷該路徑天生帶來的標籤陣列，直接實例化寫入玩家的犯罪史
-  for (let i = 0; i < initialTagTexts.length; i++) {
-    const text = initialTagTexts[i];
-    const lawCaseId = config.lawCaseIds[i]; // 取得對應的法案 ID
-    const timestamp = new Date().toISOString();
-    // 將「上一個區塊的 Hash」 + 「本次標籤」 + 「時間戳」做 SHA256 加密，形成鏈狀結構
-    const newHash = await sha256(currentHash + text + timestamp);
-    tags.push({
-      id: startId,
-      text,
-      lawCaseIds: lawCaseId ? [lawCaseId] : [], // 寫入精確 ID
-      turn: 0, // 所有的初始標籤一律標定為回合 0 (既有舊案)
-      timestamp, // 記錄發生當局的犯案具體時刻
-      isCrime: true, // 從特權拿錢必定是犯罪紀錄
-      hash: newHash, // 此防偽區塊專用防竄改碼
-      netIncome: incomePerTag, // 記錄當初拿了多少錢
-      isResolved: false, // 標記為尚未被司法界審理過
-    });
-    // 收尾換棒：將 currentHash 更新為此次產出的 Hash，以供下一個標籤銜接
-    currentHash = newHash;
+    const caseTags = Array.isArray(lawCase.tag) ? lawCase.tag : [lawCase.tag];
+
+    for (const text of caseTags) {
+      // 將「上一個區塊的 Hash」 + 「本次標籤」 + 「時間戳」做 SHA256 加密，形成鏈狀結構
+      const newHash = await sha256(currentHash + text + timestamp);
+
+      tags.push({
+        id: startId,
+        text,
+        turn: 0, // 初始前科均標記為第 0 回合
+        isCrime: true,
+        isResolved: false,
+        timestamp,
+        hash: newHash,
+        surface_term: lawCase.surface_term,
+        hidden_intent: lawCase.hidden_intent,
+        escape: lawCase.escape,
+        netIncome: initialBooty, // 存入起始黑金基數
+        lawCaseIds: [lawCaseId], // 寫入精確 ID
+      });
+
+      currentHash = newHash;
+    }
   }
 
   // 將所有屬性打包成新玩家檔案
@@ -268,14 +259,12 @@ export async function initializeGameSession(
   // 走訪所有已完成建制的玩家，計算並廣播開局天賦紅利 (Bonus)
   sortedPlayers.forEach((p: Player) => {
     if (!p.startPath) return;
-    const config = STARTING_CONFIGS[p.startPath];
-
+    
     // 1. 檢查路徑自帶的紅利 (例如：'normal' 路徑享有的 95 折庇護)
-    if (config.fineReduction > 0) {
-      p.startBonusFineReduction = config.fineReduction;
-      if (p.startPath === 'normal') {
-        startNotifications.push(SETUP_TEXT.NORMAL_BONUS_MSG(p.name));
-      }
+    // 這裡維持邏輯特判：僅白手起家路徑享有 5% 永久減免
+    if (p.startPath === 'normal') {
+      p.startBonusFineReduction = 0.05;
+      startNotifications.push(SETUP_TEXT.NORMAL_BONUS_MSG(p.name));
     }
 
     // 2. 特權關說玩家：檢查開場攜帶的貢品與這場法官人設的契合度 (滿分為5)

@@ -4,7 +4,7 @@ import { LAWS_B } from './LAWS_B';
 import { LAWS_C } from './LAWS_C';
 import { LAWS_D } from './LAWS_D';
 import { LAWS_E } from './LAWS_E';
-import { LAWS_SYS } from './LAWS_SYS';
+import { LAWS_START } from './LAWS_START';
 
 /**
  * [六法全書] 地下法庭查哨站 (Law Cases DB)
@@ -17,7 +17,7 @@ export const LAW_CASES_DB: Record<string, LawCase> = {
   ...LAWS_C,
   ...LAWS_D,
   ...LAWS_E,
-  ...LAWS_SYS,
+  ...LAWS_START,
 };
 
 /**

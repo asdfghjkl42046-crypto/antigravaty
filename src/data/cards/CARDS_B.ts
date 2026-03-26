@@ -17,17 +17,19 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '開出高額技術股權，但條件是他離職前要把原公司的核心代碼庫和客戶清單帶過來——當作「入場券」。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-01-2'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-01-2'] },
+      fail: { special: 'sue' },
     },
     3: {
       type: 'C',
       label:
         '在他正式離職前安排幾次「技術交流」，全程錄音——以後萬一他想反悔或獅子大開口，你手上有籌碼。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-01-3'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-01-3'] },
+      fail: { special: 'sue' },
     },
   },
   'B-02': {
@@ -67,24 +69,27 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '談好條件，入職第一週就要他交出前公司的完整客戶名單，順便用他還沒登出的帳號盯著競品的最新動態。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-03-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-03-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'C',
       label: '要他在正式離職前把原公司的核心代碼庫下載下來——反正他有權限，又不是你叫他駭進去的。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-03-2'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-03-2'] },
+      fail: { special: 'sue' },
     },
     3: {
       type: 'C',
       label:
         '薪水照他說的給，但合約裡塞一份天價違約金協議和超時工作條款——讓他拿了錢也跑不掉，乖乖把所有資源都榨乾再說。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-03-3'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-03-3'] },
+      fail: { special: 'sue' },
     },
   },
   'B-04': {
@@ -181,9 +186,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '在對方正式宣佈裁員前，私下接洽這些工程師，承諾若他們能帶走原公司的開發環境設定檔，將給予高額簽約金。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-07-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-07-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'B',
@@ -216,9 +222,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '新人入職前先簽一份「自願放棄投保」的切結書，勞健保換成一個便宜的團體意外險——不簽就不用來了應。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-08-2'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-08-2'] },
+      fail: { special: 'sue' },
     },
     3: {
       type: 'A',
@@ -236,9 +243,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '全面改成承攬制，KPI沒達標就按比例扣錢，勞保健保通通不用給——合約上寫清楚，簽了就是他們自己同意的。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-09-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-09-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'A',
@@ -265,9 +273,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '私下找人傳話給他，說如果他繼續待在那個專案，你會把他在職時的考績紀錄全部公開——讓他自己衡量值不值得。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-10-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-10-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'B',
@@ -281,9 +290,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '讓HR發一份措辭嚴厲的公開聲明，點名任何竊取商業機密的行為都會追究到底——雖然手上其實沒什麼證據。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-10-3'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-10-3'] },
+      fail: { special: 'sue' },
     },
   },
   'B-11': {
@@ -294,9 +304,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '直接叫人入侵他的雲端帳號，強刪那個repo。順便在業界群組放風說他離職前就在偷東西——讓他的下一份工作也別想找到。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-11-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-11-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'A',
@@ -323,9 +334,10 @@ export const CARDS_B: Record<string, Card> = {
       type: 'C',
       label:
         '讓他先掛在你名下一間空殼公司，對外說是技術顧問合作。私下叫他用舊公司的帳號權限繼續抓數據——反正他還沒被停權。',
-      ip: 60,
-      rp: -20,
-      lawCaseIds: ['B-12-1'],
+      costG: 0,
+      succRate: 1.0,
+      succ: { ip: 60, rp: -20, lawCaseIds: ['B-12-1'] },
+      fail: { special: 'sue' },
     },
     2: {
       type: 'B',

@@ -64,7 +64,7 @@ export interface Tag {
  */
 export interface BlackMaterialSource {
   tag: string; // 產生源標籤
-  count: number; // 黑材料點數：A 類(0)、B 類(1)、C 類(3)
+  count: number; // 黑材料點數：採「基礎 1 點 + 類別加重」機制 (B 類總計約 2, C 類總計約 4)
   actionId: number; // 溯源關鍵：連結至特定犯罪事件 ID (Tag.id)
   turn: number; // 生成回合：區分「新生成 BM」(3.5% 加成) vs「既有舊 BM」(0.8% 加成)
 }
@@ -118,6 +118,14 @@ export type StartPath = 'normal' | 'backdoor' | 'blackbox';
 // 🃏 卡牌決策引擎 (Card & Decision Engine)
 // ============================================================
 
+/**
+ * 特殊邏輯標籤 (Special Logic Tags)
+ * sue: 強制起訴 (E 類或嚴重違規失敗觸發)
+ * declareLogic: 洗錢二階 (C 類卡牌必備，偵測到此標籤則開啟二階申報/隱匿選單)
+ * skip_next: 跳過下回合首張卡片 (政府管制或特定負面事件)
+ */
+export type SpecialTag = 'sue' | 'declareLogic' | 'skip_next';
+
 /** 選項基礎規格 */
 export interface BaseOption {
   label?: string; // UI 標題
@@ -125,7 +133,7 @@ export interface BaseOption {
   costG?: number; // 固定資金成本消耗
   costCashPct?: number; // 法定規費比例：根據當前流動資產比例消耗 (0.05 = 5%)
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
-  special?: string; // 邏輯擴充標籤：'sue' (強制起訴), 'declareLogic' (洗錢二階)
+  special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
   surface_term?: string; // 生成標籤之名目快照
   hidden_intent?: string; // 生成標籤之隱藏動機快照
   escape?: string; // 關聯抗辯邏輯
@@ -164,7 +172,7 @@ export interface OptionB extends BaseOption {
   g?: number;
   ip?: number;
   rp?: number;
-  bm?: number;
+  bm?: number; // 額外加重 penalty (預設為 +1)
   lawCaseIds?: string[];
   costG?: number;
   succRate?: number; // D 類衍生 B 選項時使用
@@ -190,7 +198,7 @@ export interface OptionC extends BaseOption {
   g?: number;
   ip?: number;
   rp?: number;
-  bm?: number; // 固定 3 (黑材料重度災區)
+  bm?: number; // 額外加重 penalty (預設為 +3，使單一標籤總計達到 4 點)
   lawCaseIds?: string[];
   costG?: number;
   succRate?: number;
@@ -344,7 +352,7 @@ export type EndingType = 'dragonhead' | 'tycoon' | 'saint' | 'bankrupt' | 'arres
 export interface EndingResult {
   playerId: string;
   type: EndingType;
-  title: string; // 結局標題 (e.g. 『聖皇』)
+  title: string; // 結局標題 (e.g. 『偽聖皇』)
   evaluation: string; // 依標籤構成生存之評價稱號集 (e.g. 『逃稅達人 / 法外狂徒』)
   description: string; // 最終敘事文案
   stats: {

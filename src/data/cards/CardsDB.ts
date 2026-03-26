@@ -4,6 +4,7 @@ import { CARDS_B } from './CARDS_B';
 import { CARDS_C } from './CARDS_C';
 import { CARDS_D } from './CARDS_D';
 import { CARDS_E } from './CARDS_E';
+import { CARDS_START } from './CARDS_START';
 
 /**
  * [機密檔案庫] 地下商業情報網庫存 (Cards DB)
@@ -16,6 +17,7 @@ export const CARDS_DB: Record<string, Card> = {
   ...CARDS_C,
   ...CARDS_D,
   ...CARDS_E,
+  ...CARDS_START,
 };
 
 /**
