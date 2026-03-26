@@ -20,7 +20,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['刑法/背信罪', '妨害電腦使用罪'],
       lawCaseIds: ['B-01-2'],
     },
     3: {
@@ -30,7 +29,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['妨害秘密罪', '強制罪'],
       lawCaseIds: ['B-01-3'],
     },
   },
@@ -74,7 +72,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['個資法', '妨害電腦使用罪'],
       lawCaseIds: ['B-03-1'],
     },
     2: {
@@ -83,7 +80,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['營業秘密法', '刑法/背信罪'],
       lawCaseIds: ['B-03-2'],
     },
     3: {
@@ -93,7 +89,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['勞基法', '強制罪'],
       lawCaseIds: ['B-03-3'],
     },
   },
@@ -108,7 +103,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['營業秘密法'],
       lawCaseIds: ['B-04-1'],
     },
     2: {
@@ -138,7 +132,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['假承攬真僱傭', '勞基法'],
       lawCaseIds: ['B-05-1'],
     },
     2: {
@@ -148,7 +141,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['勞基法/以多報少'],
       lawCaseIds: ['B-05-2'],
     },
     3: {
@@ -171,7 +163,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['無效競業禁止'],
       lawCaseIds: ['B-06-1'],
     },
     2: {
@@ -181,7 +172,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['商業背信'],
       lawCaseIds: ['B-06-2'],
     },
     3: {
@@ -191,7 +181,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['公平交易法', '誹謗罪'],
       lawCaseIds: ['B-06-3'],
     },
   },
@@ -206,7 +195,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['營業秘密法', '刑法/背信罪'],
       lawCaseIds: ['B-07-1'],
     },
     2: {
@@ -215,7 +203,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['營業秘密法'],
       lawCaseIds: ['B-07-2'],
     },
     3: {
@@ -237,7 +224,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['勞基法', '以多報少'],
       lawCaseIds: ['B-08-1'],
     },
     2: {
@@ -247,7 +233,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['勞基法/以多報少', '強制罪'],
       lawCaseIds: ['B-08-2'],
     },
     3: {
@@ -269,7 +254,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['假承攬真僱傭', '勞基法'],
       lawCaseIds: ['B-09-1'],
     },
     2: {
@@ -287,7 +271,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['假承攬真僱傭'],
       lawCaseIds: ['B-09-3'],
     },
   },
@@ -302,7 +285,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['妨害名譽罪', '強制罪'],
       lawCaseIds: ['B-10-1'],
     },
     2: {
@@ -312,7 +294,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['無效競業禁止'],
       lawCaseIds: ['B-10-2'],
     },
     3: {
@@ -322,7 +303,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['公平交易法', '妨害名譽罪'],
       lawCaseIds: ['B-10-3'],
     },
   },
@@ -337,7 +317,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['妨害電腦使用罪', '誹謗罪'],
       lawCaseIds: ['B-11-1'],
     },
     2: {
@@ -355,7 +334,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['刑法/背信罪'],
       lawCaseIds: ['B-11-3'],
     },
   },
@@ -370,7 +348,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 60,
       rp: -20,
       bm: 3,
-      tags: ['營業秘密法', '妨害電腦使用罪'],
       lawCaseIds: ['B-12-1'],
       surface_term: '全球人才技術合作',
       hidden_intent: '非法入侵前雇主資料庫並竊取商業祕密',
@@ -383,7 +360,6 @@ export const CARDS_B: Record<string, Card> = {
       ip: 30,
       rp: -8,
       bm: 1,
-      tags: ['無效競業禁止'],
       lawCaseIds: ['B-12-2'],
     },
     3: {

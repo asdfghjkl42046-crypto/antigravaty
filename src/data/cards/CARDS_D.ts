@@ -10,7 +10,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '私下聯繫另外兩家有資格的對手，三方說好標價、分配利潤——表面上是競爭，實際上你們早就喬好了誰要得標。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['政府採購法/非法圍標/詐欺罪'], lawCaseIds: ['D-01-1'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-01-1'] },
       fail: { g: -200 },
     },
     2: {
@@ -45,7 +45,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '赴約，喝了茶，對方說只要贊助他指定協會的「活動經費」，綜合評選你會拿到最高分——就這樣，不複雜。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['貪污治罪條例/交付賄賂罪/圖利罪'], lawCaseIds: ['D-02-2'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-02-2'] },
       fail: { g: -200 },
     },
     3: {
@@ -73,7 +73,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '對手有人脈，你也可以有——找一個跟特定政黨關係好的人，付他「政治顧問費」，請他幫你把評選這關打通。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['行賄罪/政治獻金法/圖利罪'], lawCaseIds: ['D-03-2'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-03-2'] },
       fail: { g: -200 },
     },
     3: {
@@ -108,7 +108,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '找一個跟你關係好的民意代表，把標案規格偷偷改成只有你的軟體才能達標的條件——對手在綁標，你也可以。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['政府採購法/圖利罪/綁標'], lawCaseIds: ['D-04-3'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-04-3'] },
       fail: { g: -200 },
     },
   },
@@ -121,7 +121,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '找兩家小資安公司組「隱形聯盟」，對外看起來三方競標，實際上標價和技術架構都你說了算。評審以為有競爭，其實整場是你的獨角戲。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['政府採購法/借牌投標/妨害電腦使用'], lawCaseIds: ['D-05-1'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-05-1'] },
       fail: { g: -200 },
     },
     2: {
@@ -149,7 +149,7 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '安排一趟「海外考察」，承辦人全家的機票住宿通通算進公關費用——費用公司出，標價怎麼調，大家心裡有數。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, tags: ['交付賄賂罪/圖利罪/背信罪'], lawCaseIds: ['D-06-1'] },
+      succ: { g: 600, rp: -20, lawCaseIds: ['D-06-1'] },
       fail: { g: -200 },
     },
     2: {

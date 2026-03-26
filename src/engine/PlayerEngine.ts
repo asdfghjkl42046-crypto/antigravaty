@@ -45,18 +45,18 @@ export function addBlackMaterials(
     throw new Error('嚴重異常：試圖記錄犯罪黑資料，卻未提供具體的違犯標籤（tags array 為空）！');
   }
   const tagList = tags;
-  // 使用精確除法防止任何通膨
-  const perTag = bmPerAction / tagList.length;
+  // 總裁指示：標籤越多，罪證越重。不再進行均分，每一個標籤都獲得完整的黑材料分值。
+  const bmPerTag = bmPerAction;
 
   for (const tag of tagList) {
     // 檢查這筆罪刑在相同的行動來源下，是否已經被立案過
     const existing = updated.find((s) => s.tag === tag && s.actionId === actionId);
     if (existing) {
       // 若曾經立案，則直接疊加最新的罪證數量
-      existing.count += perTag;
+      existing.count += bmPerTag;
     } else {
       // 若尚未記錄，推入一筆全新的犯罪足跡追蹤紀錄
-      updated.push({ tag, count: perTag, actionId, turn });
+      updated.push({ tag, count: bmPerTag, actionId, turn });
     }
   }
   return updated;
@@ -119,27 +119,30 @@ export async function createInitialPlayer(
  */
 const STARTING_CONFIGS: Record<
   StartPath,
-  { g: number; rp: number; booty: number; tags: string[]; fineReduction: number }
+  { g: number; rp: number; booty: number; tags: string[]; lawCaseIds: string[]; fineReduction: number }
 > = {
   normal: {
     g: 100, // 標準起始資金
     rp: 105, // 道德包袱較高，名聲微幅領先
     booty: 0,
     tags: [],
+    lawCaseIds: [],
     fineReduction: 0.05, // 正規路徑享有的法院 95 折罰金庇護
   },
   backdoor: {
     g: 250, // 特權啟動資金
     rp: 90, // 但名聲先天受損
     booty: 150, // 違法黑金
-    tags: ['【隱蔽型利益輸送】'],
+    tags: ['隱蔽型利益輸送'],
+    lawCaseIds: ['SYS-01'],
     fineReduction: 0,
   },
   blackbox: {
     g: 400, // 獲得龐大本金
     rp: 75, // 名聲敗壞及格線
     booty: 300, // 鉅額黑金
-    tags: ['【隱蔽型利益輸送】', '【數據清洗下的倖存者】'],
+    tags: ['隱蔽型利益輸送', '數據清洗下的倖存者'],
+    lawCaseIds: ['SYS-01', 'SYS-02'],
     fineReduction: 0,
   },
 };
@@ -175,13 +178,16 @@ async function createPlayerFromConfig(
     initialTagTexts.length > 0 ? roundUp(initialBooty) : 0;
 
   // 遍歷該路徑天生帶來的標籤陣列，直接實例化寫入玩家的犯罪史
-  for (const text of initialTagTexts) {
+  for (let i = 0; i < initialTagTexts.length; i++) {
+    const text = initialTagTexts[i];
+    const lawCaseId = config.lawCaseIds[i]; // 取得對應的法案 ID
     const timestamp = new Date().toISOString();
     // 將「上一個區塊的 Hash」 + 「本次標籤」 + 「時間戳」做 SHA256 加密，形成鏈狀結構
     const newHash = await sha256(currentHash + text + timestamp);
     tags.push({
       id: startId,
       text,
+      lawCaseIds: lawCaseId ? [lawCaseId] : [], // 寫入精確 ID
       turn: 0, // 所有的初始標籤一律標定為回合 0 (既有舊案)
       timestamp, // 記錄發生當局的犯案具體時刻
       isCrime: true, // 從特權拿錢必定是犯罪紀錄

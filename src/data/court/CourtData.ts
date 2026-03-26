@@ -51,9 +51,9 @@ export const COURT_TEXT = {
   PHASE_4: {
     QUESTION_TITLE: '法官質詢',
     DEFENSE_OPTIONS: [
-      (escape: string) => `主張此行為屬「${escape}」之合法範疇`,
-      (tag: string) => `質疑控方對「${tag}」之定性有誤`,
-      (term: string) => `主張「${term}」與指控事實無涉`,
+      (escape: string) => `${escape}`, // 直接引用資料庫中具備故事感的專業辯詞
+      (tag: string) => `質疑檢方對「${tag}」之定性存在嚴重法律爭議`,
+      (term: string) => `主張「${term}」純屬商業常規，與指控事實無涉`,
     ],
     SUPPLEMENTARY_LABEL: '補充陳述 (選填)',
     SUPPLEMENTARY_PLACEHOLDER: '請輸入您的辯護詞...',
@@ -74,9 +74,9 @@ export const COURT_TEXT = {
     NOT_GUILTY: '無罪撤告',
     // 死灰復燃或蓋棺定論的公版判決書 (不連 AI 體驗版時專用的罐頭法槌)
     GUILTY_DESC: (tag: string, escape: string) =>
-      `【有罪判決】被告之答辯內容未能推翻「${tag}」之構成要件，且無法證明其符合「${escape}」之阻卻違法事由。本庭據此認定指控屬實，依法裁定本案成立。`,
+      `【有罪判決】被告之答辯內容未能推翻「${tag}」之犯罪構成。即便其辯稱為「${escape}」，仍難掩其規避監管之實質惡意。本庭依此裁定公訴成立。`,
     NOT_GUILTY_DESC: (tag: string, escape: string, term: string) =>
-      `【無罪裁定】本庭採信被告關於「${escape}」之抗辯。判定其執行「${term}」時並無主觀惡意，其行為符合阻卻違法之要件，當即宣告撤回針對 ${tag} 之起訴。`,
+      `【無罪裁定】本庭採信被告關於「${escape}」之抗辯。判定其執行「${term}」時並無主觀惡意，其行為符合商業慣例與法律阻卻事由，宣告對其「${tag}」行為之起訴不予成立。`,
     ACCEPT_BTN: '接受判決',
     // 終極保命符 / 最高法院黑暗交易：用極度誇張的 20% 企業總資產，硬是買下非常上訴的豁免權！
     EXTRA_APPEAL_BTN: (cost: number) => `法庭終審救濟 (花費 ${cost} 萬 G)`,

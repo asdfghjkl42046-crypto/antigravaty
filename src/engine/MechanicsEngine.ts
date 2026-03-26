@@ -101,7 +101,8 @@ export function calculateConvictionPenalty(
   netIncome: number,
   currentTurn: number = 999, // 預設 999 防呆，避免沒傳到的地方炸掉
   isPreexisting: boolean = false, // 標記是否為開局既有的前科 (Turn 0)
-  isAppeal: boolean = false // 標記是否為非常上訴回合 (重審)
+  isAppeal: boolean = false, // 標記是否為非常上訴回合 (重審)
+  personality?: JudgePersonality
 ): {
   fine: number;
   rpLoss: number;
@@ -121,7 +122,7 @@ export function calculateConvictionPenalty(
   // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加重 6 倍！)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
-  
+
   if (isAppeal) {
     trialMultiplier = 2.0; // 上訴失敗，雙倍奉還
   } else if (!isPreexisting) {
@@ -131,44 +132,77 @@ export function calculateConvictionPenalty(
   }
 
   fineBeforeDiscount = roundUp(fineBeforeDiscount * trialMultiplier);
-  const baseRPLoss = 20;
+  const baseRPLoss = 5;
 
   // 3. 折扣與保護傘邏輯
   // 核心平衡：如果是開局既有，強制跳過所有折扣。非常上訴也不予折扣以示嚴厲。
-  const discountRate = (isPreexisting || isAppeal) ? 0 : player.startBonusFineReduction || 0;
-  const fineMultiplier = 1.0 - discountRate;
+  const discountRate = isPreexisting || isAppeal ? 0 : player.startBonusFineReduction || 0;
+  
+  // [賄賂系統實作] 判斷賄賂物是否完全命中法官偏好 (得分 5 分)
+  let bribeMultiplier = 1.0;
+  if (personality && player.bribeItem && !isPreexisting && !isAppeal) {
+    const score = getBribeScore(personality, player.bribeItem);
+    if (score === 5) {
+      bribeMultiplier = 0.8; // 完全匹配時獲得 20% 減免
+    }
+  }
+
+  const fineMultiplier = (1.0 - discountRate) * bribeMultiplier;
 
   // 將保護傘折扣套用回最終罰款上
   let fine = roundUp(fineBeforeDiscount * fineMultiplier);
 
   // 4. 檢查專業人士擋災 (如果是開局既有或上訴，會計師無法幫你擋掉)
-  fine = (isPreexisting || isAppeal) ? fine : applyAccountantCourtDiscount(player, fine);
+  fine = isPreexisting || isAppeal ? fine : applyAccountantCourtDiscount(player, fine);
   const rpLoss = applyPRCourtDiscount(player, baseRPLoss);
 
   // 5. 拼湊計算明細說明文本 (讓玩家死個明白)
   const trialCount = trials + 1;
   const turnLabel = currentTurn === 0 ? '[開局前科]' : `[第 ${currentTurn} 回合]`;
   const trialLabel = isAppeal ? '[非常上訴失利]' : `[第 ${trialCount} 次涉案]`;
-  const multiplierReason = (isPreexisting || isProtected) ? "(新手保護期 1.0x)" : "(標準倍率 3.0x)";
+  const multiplierReason = isPreexisting || isProtected ? '(新手保護期 1.0x)' : '(標準倍率 3.0x)';
 
   let detail = `${turnLabel} ${trialLabel} 不法所得(${safeIncome}萬) * ${multiplierReason}`;
-  
+
   if (isAppeal) {
     detail += ` * 上訴強制加重 2.0x (無視所有折扣)`;
   } else if (trialMultiplier > 1) {
-    const reason = trials >= 7 ? "限制重案累犯" : "累犯倍率";
+    const reason = trials >= 7 ? '限制重案累犯' : '累犯倍率';
     detail += ` * ${reason} ${trialMultiplier}倍`;
   }
-  
+
   const baseTotal = roundUp(fineBeforeDiscount);
-  
+
   if (discountRate > 0) {
     detail += ` = ${baseTotal}萬；減去開局特權-${Math.round(discountRate * 100)}%`;
   }
   
-  detail += ` 總計 = ${fine} 萬 G`;
+  if (bribeMultiplier < 1) {
+    detail += `；[賄賂加成] 罰金再折抵 20%`;
+  }
 
+  detail += ` 總計 = ${fine} 萬 G`;
   return { fine, rpLoss, detail };
+}
+
+/**
+ * 旁觀者干預機率補正：
+ * 被告的同夥可以護航 (支持 +10% 勝率)，但競爭對手也可以落井下石 (質疑 -10% 勝率)。
+ */
+export function calculateSpectatorInfluence(interventions: { text: string }[]): number {
+  if (!interventions || interventions.length === 0) return 0;
+
+  let totalInfluence = 0;
+  interventions.forEach((iv) => {
+    // 根據預定義的公版文字來匹配干預力
+    if (iv.text.includes('合理商業範疇')) {
+      totalInfluence += 0.1; // 支持被告 (+10%)
+    } else if (iv.text.includes('深表懷疑')) {
+      totalInfluence -= 0.1; // 質疑被告
+    }
+  });
+
+  return totalInfluence;
 }
 
 export interface BetResult {

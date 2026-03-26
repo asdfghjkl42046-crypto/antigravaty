@@ -29,7 +29,7 @@ export type RoleMap = Record<RoleType, RoleLevel>;
  * 於卡牌決策完成時產生，作為法庭階段的敘事與起訴依據。
  */
 export interface AppliedTag {
-  tag: string; // 犯罪標籤名稱 (如「偽造文書罪」)
+  tag: string[]; // 犯罪標籤名稱 (如 [「偽造文書罪」])
   netIncome: number; // 非法獲利快照 (單位: 萬元)。罰金基數 = netIncome * 3.0 (§2-2)
   lawCaseIds?: string[]; // 關聯法典 ID，若無則由司法系統動態判定
   rpChange: number; // 該決策導致的名聲隨動快照 (用於勝訴回撥)
@@ -145,7 +145,6 @@ export interface OptionA extends BaseOption {
     rp?: number;
     ip?: number;
     bm?: number | 'all';
-    tags?: string[];
     lawCaseIds?: string[];
   };
   fail: {
@@ -154,7 +153,6 @@ export interface OptionA extends BaseOption {
     ip?: number;
     bm?: number;
     loss?: number;
-    tags?: string[];
     lawCaseIds?: string[];
   };
   lawCaseIds?: string[]; // 支持規避設計型法案
@@ -167,7 +165,6 @@ export interface OptionB extends BaseOption {
   ip?: number;
   rp?: number;
   bm?: number;
-  tags?: string[];
   lawCaseIds?: string[];
   costG?: number;
   succRate?: number; // D 類衍生 B 選項時使用
@@ -176,7 +173,6 @@ export interface OptionB extends BaseOption {
     rp?: number;
     ip?: number;
     bm?: number;
-    tags?: string[];
     lawCaseIds?: string[];
   };
   fail?: {
@@ -184,7 +180,6 @@ export interface OptionB extends BaseOption {
     rp?: number;
     ip?: number;
     bm?: number;
-    tags?: string[];
     lawCaseIds?: string[];
   };
 }
@@ -196,7 +191,6 @@ export interface OptionC extends BaseOption {
   ip?: number;
   rp?: number;
   bm?: number; // 固定 3 (黑材料重度災區)
-  tags?: string[];
   lawCaseIds?: string[];
   costG?: number;
   succRate?: number;
@@ -205,7 +199,6 @@ export interface OptionC extends BaseOption {
     rp?: number;
     ip?: number;
     bm?: number | 'all';
-    tags?: string[];
     lawCaseIds?: string[];
   };
   fail?: SpecialFail;
@@ -219,7 +212,6 @@ export interface SpecialFail {
   bm?: number;
   loss?: number;
   special?: 'sue';
-  tags?: string[];
   lawCaseIds?: string[];
 }
 
@@ -267,13 +259,12 @@ export interface ActionLog {
 /** 法案核心定義 (GEMINI.md §7) */
 export interface LawCase {
   id: string; // 內部編號 (對應 LawCasesDB Key)
-  tag: string; // 偵測用標籤關鍵字
+  tag: string[]; // 偵測用標籤關鍵字 (支援多重標籤)
   lawName: string; // 引用法典正名 (e.g., 「洗錢防制法 §5」)
   surface_term: string; // 勝訴之表面術語聲援
   hidden_intent: string; // 敗訴之違法背後動機
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
   evidence_list: string[]; // 採樣之法庭證據清單
-  rp_recovery: number; // 恢復名聲之基準權重
   winning_keywords?: string[]; // 律師強關鍵詞：命中即大幅提升勝率
   soft_keywords?: string[]; // 關連弱關鍵詞：提供邊際機率增益
   deadEnd?: string; // 司法死胡同敘事：選中錯誤方向時觸發

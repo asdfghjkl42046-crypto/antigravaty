@@ -175,11 +175,8 @@ export default function Home() {
           baseDesc = baseDesc.slice(0, -1);
         }
 
-        // 組合罪狀說明：把這張卡片背後那些骯髒的手段與糖衣包裝，合併成一句話準備印在畫面正中央。
-        const fullOptionDesc =
-          lawCase && (option.type === 'B' || option.type === 'C')
-            ? `${baseDesc}，並透過『${lawCase.surface_term}』確保利益。`
-            : option.label || `執行選項 ${optIdx}`;
+        // 組合說明：直接使用卡片上定義的精確標籤，不再進行硬編碼拼接，確保文案與 BATCH 1 更新同步
+        const fullOptionDesc = option.label || `執行選項 ${optIdx}`;
 
         // 一切都安排妥當了！把準備好的提案送上檯面，就等老闆你的一句「簽字執行」。
         setPendingScan({

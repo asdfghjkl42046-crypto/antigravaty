@@ -12,7 +12,7 @@ export const CARDS_E: Record<string, Card> = {
       succRate: 0.3,
       costG: 150,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['湮滅證據罪/加重刑責'], lawCaseIds: ['E-01-1'] },
+      fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
     },
     2: {
       type: 'A',
@@ -44,7 +44,7 @@ export const CARDS_E: Record<string, Card> = {
       succRate: 0.3,
       costG: 200,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['教唆偽證罪/虛偽陳述'], lawCaseIds: ['E-02-1'] },
+      fail: { special: 'sue', lawCaseIds: ['E-02-1'] },
     },
     2: {
       type: 'A',
@@ -62,13 +62,13 @@ export const CARDS_E: Record<string, Card> = {
       succRate: 0.3,
       costG: 300,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['湮滅證據罪/加重刑責'], lawCaseIds: ['E-02-3'] },
+      fail: { special: 'sue', lawCaseIds: ['E-02-3'] },
     },
   },
   'E-03': {
     title: '後台Log還在，每一筆都是把柄',
     description:
-      '技術主管悄悄拉你到旁邊說：系統後台把當初幾次違規連線的紀錄都存下來了，時間戳記、IP位址、存取內容，一清二楚。AI演算法隨時可能掃到這些東西。他問你要怎麼處理，你看著那串Log，心裡很清楚這不是技術問題，是燙手山芋。',
+      '技術主管悄悄拉你到旁邊說：系統後台把當前幾次連線紀錄都存下來了，時間戳記、IP位址、存取內容，一清二楚。AI演算法隨時可能掃到這些東西。他問你要怎麼處理，你看著那串Log，心裡很清楚這不是技術問題，是燙手山芋。',
     1: {
       type: 'A',
       label:
@@ -85,7 +85,7 @@ export const CARDS_E: Record<string, Card> = {
       succRate: 0.3,
       costG: 120,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['妨害電腦使用罪/湮滅證據罪'], lawCaseIds: ['E-03-2'] },
+      fail: { special: 'sue', lawCaseIds: ['E-03-2'] },
     },
     3: {
       type: 'A',
@@ -104,16 +104,16 @@ export const CARDS_E: Record<string, Card> = {
     1: {
       type: 'C',
       label:
-        '透過事務所牽線，找到一位辦事「靈活」的公證人，塞一筆可觀的急件費，請他對日期和內容睜一隻眼閉一隻眼。對方點頭的速度快得讓你有點不安——他大概不是第一次這樣做了。',
+        '透過事務所牽線，找到一位辦事「靈活」的公證人，塞一筆可觀的急件費，請他對日期和內容睜一隻眼閉一隻眼。',
       succRate: 0.3,
       costG: 250,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['偽造私文書罪/公證法違規'], lawCaseIds: ['E-04-1'] },
+      fail: { special: 'sue', lawCaseIds: ['E-04-1'] },
     },
     2: {
       type: 'A',
       label:
-        '請律師出面，和對方公司「重新確認當年的合作意向」，補簽一份意向書。程序上有點牽強，但至少不用在法庭上解釋為什麼合約墨水還是新的。',
+        '請律師出面，和對方公司「重新確認當年的合作意向」，補簽一份意向書。程序上有點牽強，但至少不用在法庭上解釋。',
       succRate: 0.9,
       costG: 80,
       succ: { bm: 1 },
@@ -121,22 +121,20 @@ export const CARDS_E: Record<string, Card> = {
     },
     3: {
       type: 'C',
-      label:
-        '你決定賭大的。找來整個文書重建團隊，會議紀錄、簽名、連紙張磅數都要換成當年的規格。費用是選項一的兩倍，但理論上天衣無縫——你說服自己這叫「完整性」，不叫貪心。',
+      label: '你決定賭大的。找來整個文書重建團隊，會議紀錄、簽名、連紙張磅數都要換成當年的規格。',
       succRate: 0.3,
       costG: 400,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['偽造私文書罪/公證法違規'], lawCaseIds: ['E-04-1'] },
+      fail: { special: 'sue', lawCaseIds: ['E-04-1'] },
     },
   },
   'E-05': {
     title: '錢去哪了，你最清楚',
     description:
-      '稅務單位開始追那幾筆「說不清楚」的資金流向了。你當初覺得放海外就沒事，現在看來沒那麼簡單。帳面上它們是顧問費，但顧問是誰、做了什麼、發票在哪——你一個都答不出來。',
+      '稅務單位開始追那幾筆「說不清楚」的資金流向了。你當初覺得放海外就沒事，現在看來沒那麼簡單。',
     1: {
       type: 'A',
-      label:
-        '律師建議你主動出擊：如實申報、補繳欠稅，在 AI 法庭介入前談好認罪協商。你深吸一口氣，決定把爛攤子自己收——至少睡得著。',
+      label: '律師建議你主動出擊：如實申報、補繳欠稅，在 AI 法庭介入前談好認罪協商。',
       succRate: 0.9,
       costG: 70,
       succ: { bm: 1 },
@@ -145,16 +143,15 @@ export const CARDS_E: Record<string, Card> = {
     2: {
       type: 'C',
       label:
-        '花大錢搭一套海外信託迷宮：紙上公司套紙上公司，錢繞了五個國家再回來，來源洗得乾乾淨淨。設計這套架構的律師說「完全合法」——但他說完就把手機螢幕翻過去了。',
+        '花大錢搭一套海外信託迷宮：紙上公司套紙上公司，錢繞了五個國家再回來，來源洗得乾乾淨淨。',
       succRate: 0.3,
       costG: 500,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['洗錢防制法/掩飾犯罪所得'], lawCaseIds: ['E-05-2'] },
+      fail: { special: 'sue', lawCaseIds: ['E-05-2'] },
     },
     3: {
       type: 'A',
-      label:
-        '請會計師和律師聯手做「資產重組」，把那幾筆錢重新定義成公司的無形資產。文件上看起來很正當，過程中你只問了一個問題：「這樣查得到嗎？」',
+      label: '請會計師和律師聯手做「資產重組」，把那幾筆錢重新定義成公司的無形資產。',
       succRate: 0.9,
       costG: 100,
       succ: { bm: 1 },
@@ -164,20 +161,18 @@ export const CARDS_E: Record<string, Card> = {
   'E-06': {
     title: '那幾封信不能讓人看到',
     description:
-      '你突然想起來了。當年那幾封親自寫的信——措辭直接、指令清楚、完全沒有轉圜空間。它們還靜靜躺在伺服器裡，等著被 AI 溯源系統掃到。你的助理問你要不要處理，你說「等我想一下」，但其實你已經在想了。',
+      '你突然想起來了。當年那幾封親自寫的信——措辭直接、指令清楚、完全沒有轉圜空間。它們還靜靜躺在伺服器裡。',
     1: {
       type: 'C',
-      label:
-        '以「資安升級」為名，把整台舊伺服器硬體物理替換掉，原本的設備直接銷毀。對外說是例行維護，沒有人需要知道裡面裝了什麼。',
+      label: '以「資安升級」為名，把整台舊伺服器硬體物理替換掉，原本的設備直接銷毀。',
       succRate: 0.3,
       costG: 200,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['湮滅證據罪/加重刑責'], lawCaseIds: ['E-01-1'] },
+      fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
     },
     2: {
       type: 'A',
-      label:
-        '請法律專員在所有敏感郵件上標註「律師客戶保密特權」，萬一真的上了法庭，至少有機會讓這些信件在程序上被排除。治標不治本，但你決定先睡一覺再說。',
+      label: '請法律專員在所有敏感郵件上標註「律師客戶保密特權」，規避程序檢查。',
       succRate: 0.9,
       costG: 60,
       succ: { bm: 1 },
@@ -185,12 +180,11 @@ export const CARDS_E: Record<string, Card> = {
     },
     3: {
       type: 'C',
-      label:
-        '律師和資訊長一起出動，對郵件系統做「例行清理」，把那個年份的備份檔案從伺服器上永久移除。兩個人都沒有直接說在做什麼，你也沒有問——大家心照不宣。',
+      label: '律師和資訊長一起出動，對郵件系統做「例行清理」，把那個年份的備份檔案永久移除。',
       succRate: 0.3,
       costG: 300,
       succ: { bm: 'all' },
-      fail: { special: 'sue', tags: ['妨害電腦使用罪/湮滅證據罪'], lawCaseIds: ['E-06-3'] },
+      fail: { special: 'sue', lawCaseIds: ['E-06-3'] },
     },
   },
 };

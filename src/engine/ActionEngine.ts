@@ -13,6 +13,7 @@ import type {
   Card,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
+import { LAW_CASES_DB, getResolvedTags } from '../data/laws/LawCasesDB';
 import { roundUp, sha256 } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP } from './RoleEngine';
@@ -28,7 +29,6 @@ export type AnyCardOption = BaseOption & {
   rp?: number; // 聲望增減量
   ip?: number; // 人脈獲得量
   bm?: number; // 產生的黑材料點數
-  tags?: string[]; // 保留在身上的標籤字串
   lawCaseIds?: string[]; // 法條編號
   succ?: {
     // 鑑定成功的獎勵
@@ -36,7 +36,6 @@ export type AnyCardOption = BaseOption & {
     rp?: number;
     ip?: number;
     bm?: number | 'all'; // 若為 all 則可以消除掉身上所有的黑材料
-    tags?: string[];
     lawCaseIds?: string[];
   };
   fail?: {
@@ -47,7 +46,6 @@ export type AnyCardOption = BaseOption & {
     bm?: number;
     loss?: number;
     special?: string; // 特殊狀態如 'sue' 會強制觸發起訴
-    tags?: string[];
     lawCaseIds?: string[];
   };
 };
@@ -137,7 +135,7 @@ export async function performAction(
   if (counterCTOCount > 0 && cardId.startsWith('B-') && (opt?.type === 'B' || opt?.type === 'C')) {
     for (let i = 0; i < counterCTOCount; i++) {
       snapshots.push({
-        tag: '專利侵權',
+        tag: ['專利侵權'],
         netIncome: 0,
         lawCaseIds: ['B-COUNTER-PATENT'],
         rpChange: -5,
@@ -166,6 +164,10 @@ export async function performAction(
       },
     };
   }
+
+  // 1. 動態解析標籤：從法律資料庫提取
+  const baseLawCaseIds = opt.lawCaseIds || [];
+  const resolvedBaseTags = getResolvedTags(baseLawCaseIds);
 
   let message = '';
   let finalSuccess = true;
@@ -215,28 +217,26 @@ export async function performAction(
   // 3. 系統報表敘事生成與標籤處理
   if (isDeclaration) {
     message = `【安全申報】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
-  } else if (opt.tags && opt.tags.length > 0) {
-    // 優先記錄卡片定義的特定標籤 (如：妨害秘密、強制罪等)
-    opt.tags.forEach((t: string) => {
-      snapshots.push({
-        tag: t,
-        netIncome: bonusRewardG,
-        lawCaseIds: opt.lawCaseIds || [],
-        rpChange: baseRewardRP,
-        surface_term: opt.surface_term,
-        hidden_intent: opt.hidden_intent,
-        escape: opt.escape,
-      });
+  } else if (resolvedBaseTags.length > 0) {
+    // 優先記錄從法條解析出的標籤
+    snapshots.push({
+      tag: resolvedBaseTags,
+      netIncome: bonusRewardG,
+      lawCaseIds: baseLawCaseIds,
+      rpChange: baseRewardRP,
+      surface_term: opt.surface_term,
+      hidden_intent: opt.hidden_intent,
+      escape: opt.escape,
     });
     if (choice === 'skip' && opt.type !== 'C') {
       message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
     }
   } else if (choice === 'skip') {
-    // 僅在選擇略過且卡片「未定義」特定標籤時，才使用通用的「隱匿金流」標籤
+    // 僅在選擇略過且未對應特定法律條文時，才使用通用的「隱匿金流」標籤
     snapshots.push({
-      tag: '隱匿金流',
+      tag: ['隱匿金流'],
       netIncome: bonusRewardG,
-      lawCaseIds: opt.lawCaseIds || [],
+      lawCaseIds: baseLawCaseIds,
       rpChange: baseRewardRP,
       surface_term: opt.surface_term,
       hidden_intent: opt.hidden_intent,
@@ -302,19 +302,20 @@ export async function performAction(
       }
 
       // 成功所帶出來的標籤紀錄下來供未來當對簿公堂的把柄
-      if (opt.succ?.tags && opt.succ.tags.length > 0) {
-        opt.succ.tags.forEach((t: string) => {
-          snapshots.push({
-            tag: t,
-            netIncome: totalG,
-            lawCaseIds: opt.succ!.lawCaseIds || opt.lawCaseIds || [],
-            rpChange: finalRPChange,
-            surface_term: opt.surface_term,
-            hidden_intent: opt.hidden_intent,
-            escape: opt.escape,
-          });
+      const succLawCaseIds = opt.succ?.lawCaseIds || opt.lawCaseIds || [];
+      const resolvedSuccTags = getResolvedTags(succLawCaseIds);
+      if (resolvedSuccTags.length > 0) {
+        snapshots.push({
+          tag: resolvedSuccTags,
+          netIncome: totalG,
+          lawCaseIds: succLawCaseIds,
+          rpChange: finalRPChange,
+          surface_term: opt.surface_term,
+          hidden_intent: opt.hidden_intent,
+          escape: opt.escape,
         });
       }
+
       if (!message || message.startsWith(' (')) {
         message = `【成功】${opt.label || '計畫執行成功'}。${message}`;
       } else if (!message.includes('【成功】')) {
@@ -335,17 +336,17 @@ export async function performAction(
     finalIPChange = finalIPChange + failIP;
 
     // 失敗所帶出來的標籤紀錄下來供未來當對簿公堂的把柄
-    if (opt.fail?.tags && opt.fail.tags.length > 0) {
-      opt.fail.tags.forEach((t: string) => {
-        snapshots.push({
-          tag: t,
-          netIncome: totalG,
-          lawCaseIds: opt.fail!.lawCaseIds || opt.lawCaseIds || [],
-          rpChange: finalRPChange,
-          surface_term: opt.surface_term,
-          hidden_intent: opt.hidden_intent,
-          escape: opt.escape,
-        });
+    const failLawCaseIds = opt.fail?.lawCaseIds || opt.lawCaseIds || [];
+    const resolvedFailTags = getResolvedTags(failLawCaseIds);
+    if (resolvedFailTags.length > 0) {
+      snapshots.push({
+        tag: resolvedFailTags,
+        netIncome: totalG,
+        lawCaseIds: failLawCaseIds,
+        rpChange: finalRPChange,
+        surface_term: opt.surface_term,
+        hidden_intent: opt.hidden_intent,
+        escape: opt.escape,
       });
     }
     // E卡失敗獲得關鍵字sue，會觸發法庭階段
@@ -355,30 +356,31 @@ export async function performAction(
         : `【失敗】${opt.label}: 行動遭遇挫折。`;
   }
 
-  // 6. 標籤防被駭機制
   const hashedTags: Tag[] = [];
   let currentLastHash = lastHash;
   for (const s of snapshots) {
     const ts = new Date().toISOString();
-    // 建立防竄改的犯罪歷史，將這筆紀錄鎖死在紀錄串中
-    const hash = await sha256(currentLastHash + s.tag + ts);
-    hashedTags.push({
-      id: actionId,
-      text: s.tag,
-      turn,
-      timestamp: ts,
-      isCrime: true,
-      hash,
-      netIncome: s.netIncome,
-      lawCaseIds: s.lawCaseIds,
-      rpChange: s.rpChange,
-      surface_term: s.surface_term,
-      hidden_intent: s.hidden_intent,
-      escape: s.escape,
-      isResolved: false,
-    });
-    // 更新最新一筆的防偽亂碼
-    currentLastHash = hash;
+    // 支援多重標籤：每個標籤都應產生獨立的雜湊鏈節點與黑材料紀錄
+    for (const singleTag of s.tag) {
+      const hash = await sha256(currentLastHash + singleTag + ts);
+      hashedTags.push({
+        id: actionId,
+        text: singleTag,
+        turn,
+        timestamp: ts,
+        isCrime: true,
+        hash,
+        netIncome: s.netIncome,
+        lawCaseIds: s.lawCaseIds,
+        rpChange: s.rpChange,
+        surface_term: s.surface_term,
+        hidden_intent: s.hidden_intent,
+        escape: s.escape,
+        isResolved: false,
+      });
+      // 更新最新一筆的防偽亂碼
+      currentLastHash = hash;
+    }
   }
 
   // 7. 保障AP安全機制
@@ -418,13 +420,15 @@ export async function performAction(
   // 將新增的黑材料存入玩家檔案，供法庭階段結算
   if (bmCount > 0 && hashedTags.length > 0) {
     const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
-    newBMSources.push({ tag: hashedTags[0].text, count: bmCount, actionId, turn });
+    hashedTags.forEach((ht) => {
+      newBMSources.push({ tag: ht.text, count: bmCount, actionId, turn });
+    });
     updates.blackMaterialSources = newBMSources;
   }
 
   // 9. 檢查是否有「強制起訴」狀態 (如E卡)
   let forcedTrial = undefined;
-  if (!finalSuccess && (opt.fail?.special === 'sue' || opt.fail?.tags?.includes('sue'))) {
+  if (!finalSuccess && opt.fail?.special === 'sue') {
     forcedTrial = { tagId: actionId, reason: message };
   }
 
@@ -444,7 +448,8 @@ export async function performAction(
       turn,
       cardId,
       optionIndex: optionIdx,
-      tags: snapshots.map((t) => t.tag).join(',') || (updates.skipNextCard ? 'SKIP_NEXT' : ''),
+      tags: snapshots.map((t) => (Array.isArray(t.tag) ? t.tag.join('/') : t.tag)).join(',') ||
+        (updates.skipNextCard ? 'SKIP_NEXT' : ''),
       timestamp: new Date().toISOString(),
     },
   };

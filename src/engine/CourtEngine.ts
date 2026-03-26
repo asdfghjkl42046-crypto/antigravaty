@@ -7,7 +7,11 @@ import {
   TrialStage,
 } from '../types/game';
 import { LAW_CASES_DB } from '../data/laws/LawCasesDB';
-import { getIndictmentChance, calculateConvictionPenalty } from './MechanicsEngine';
+import {
+  getIndictmentChance,
+  calculateConvictionPenalty,
+  calculateSpectatorInfluence,
+} from './MechanicsEngine';
 import { removeBlackMaterialsByTag, getTotalBlackMaterials } from './PlayerEngine';
 import {
   JUDGMENT_TEMPLATES,
@@ -82,10 +86,15 @@ export class CourtEngine {
           `Data Integrity Error: Active Tag "${t.text}" found but no black materials evidence exist for it. Check ActionEngine generation.`
         );
       }
-      // 確認該標籤文字是否有定義於法律資料庫 (LAW_CASES_DB) 中
-      const hasSpecificCase = t.lawCaseIds?.some((id) => !!LAW_CASES_DB[id]);
-      const hasGenericCase = !!LAW_CASES_DB[t.text];
-      return hasSpecificCase || hasGenericCase;
+      // 強制檢查：該標籤必須帶有明確的法律 ID 映射 (lawCaseIds)
+      const hasSpecificCase = t.lawCaseIds && t.lawCaseIds.length > 0 && t.lawCaseIds.some((id) => !!LAW_CASES_DB[id]);
+      
+      if (!hasSpecificCase) {
+        console.error(`[Data Integrity Error] 標籤 [${t.text}] (ID: ${t.id}) 缺少有效的 lawCaseIds 映射！`);
+        throw new Error(`Data Integrity Error: Tag "${t.text}" has no valid lawCaseIds defined. Fallback is disabled.`);
+      }
+
+      return true;
     });
 
     // 步驟 2：若完全找不到符合的違法標籤，代表無犯罪事實，回傳 null 準備讓庭審撤告
@@ -93,15 +102,11 @@ export class CourtEngine {
       return null;
     }
 
-    // 步驟 3：從合格的犯案標籤中隨機抽取一個做為本次審判主軸案例
+    // 步驟 3：從合格的犯案標籤中隨機抽取一個做為本次審議案例
     const randomTag = validCrimeTags[Math.floor(Math.random() * validCrimeTags.length)];
-    let lawCaseId = randomTag.text; // 預設使用標籤名稱查詢法律資料庫
-
-    // 如果該標籤帶有多組候補法條群，挑選第一個查得到資料的正式法條
-    if (randomTag.lawCaseIds && randomTag.lawCaseIds.length > 0) {
-      const specificId = randomTag.lawCaseIds.find((id) => !!LAW_CASES_DB[id]);
-      if (specificId) lawCaseId = specificId;
-    }
+    
+    // 取得該標籤定義的法律 ID (由於步驟 1 已驗證過，此處必有值)
+    const lawCaseId = randomTag.lawCaseIds!.find((id) => !!LAW_CASES_DB[id])!;
 
     // 將 LawCase 資料庫實體與玩家標籤 ID 打包回傳
     const lawCase = LAW_CASES_DB[lawCaseId];
@@ -119,17 +124,21 @@ export class CourtEngine {
     // 統一從各大惡棍法官資料庫中隨機抓取罐頭對白並植入動態變數
     // 以充滿沉浸感的文字給予玩家自由發揮的辯護空間
     const question = getRandomTemplate(INTERROGATION_TEMPLATES[personality], {
-      tag: lawCase.tag,
+      tag: lawCase.tag.join('/'),
       lawName: lawCase.lawName,
       sTerm: lawCase.surface_term,
       hIntent: lawCase.hidden_intent,
       escape: lawCase.escape,
     });
-    // 隨機選取入場提審宣言模板
+    // 隨機選取入場提審宣言模板，並在適當時機帶入證物清單提升臨場感
+    const evidenceSnippet = lawCase.evidence_list?.length
+      ? `檢方已列舉【${lawCase.evidence_list[0]}】等重要證物。`
+      : '';
+
     const narratives = [
-      `「檢方已取得決定性證據：被告於經營期間涉嫌『${lawCase.tag}』行為，觸犯《${lawCase.lawName}》。正式公訴！」`,
-      `「針對被告企業之『${lawCase.tag}』異常紀錄，本庭依《${lawCase.lawName}》宣告進入審理時序。」`,
-      `「法庭肅靜！被告涉嫌『${lawCase.tag}』此為重大犯罪，現依《${lawCase.lawName}》開庭審理！」`,
+      `「檢方已取得決定性證據：被告於經營期間涉嫌『${lawCase.tag.join('/')}』行為，觸犯《${lawCase.lawName}》。${evidenceSnippet}正式公訴！」`,
+      `「針對被告企業之『${lawCase.tag.join('/')}』異常紀錄，本庭依《${lawCase.lawName}》宣告進入審理時序。${evidenceSnippet}」`,
+      `「法庭肅靜！被告涉嫌『${lawCase.tag.join('/')}』此為重大犯罪，現依《${lawCase.lawName}》開庭審理！${evidenceSnippet}」`,
     ];
     return {
       narrative: narratives[Math.floor(Math.random() * narratives.length)],
@@ -153,7 +162,7 @@ export class CourtEngine {
 
     // 依據玩家的答辯文本，從模板庫挑選文案並填入動態變數
     const generatedTemplate = getRandomTemplate(templates, {
-      tag: trial.lawCase.tag,
+      tag: trial.lawCase.tag.join('/'),
       lawName: trial.lawCase.lawName,
       sTerm: trial.lawCase.surface_term,
       hIntent: trial.lawCase.hidden_intent,
@@ -185,7 +194,8 @@ export class CourtEngine {
     tagText: string,
     currentTurn: number = 999,
     tagId?: number,
-    isAppeal: boolean = false
+    isAppeal: boolean = false,
+    personality?: JudgePersonality
   ): { fine: number; rpLoss: number; detail?: string } {
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
     // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
@@ -213,7 +223,14 @@ export class CourtEngine {
     const isPreexisting = lastTag.turn === 0;
 
     // 直接將取出的淨利傳給 MechanicsEngine 進行專業裁罰運算
-    return calculateConvictionPenalty(player, netIncome, currentTurn, isPreexisting, isAppeal);
+    return calculateConvictionPenalty(
+      player,
+      netIncome,
+      currentTurn,
+      isPreexisting,
+      isAppeal,
+      personality
+    );
   }
 
   /**
@@ -229,6 +246,16 @@ export class CourtEngine {
     const baseSurvival = lawCase.survival_rate || 0.2;
     // 加入旁聽群眾干預帶來的浮動補正機率
     let finalSurvivalRate = baseSurvival + spectatorInfluence;
+
+    // [關鍵字系統整合]：檢查被告自述中是否提及勝訴關鍵字，每命中一個 +15% 勝率
+    if (text && lawCase.winning_keywords) {
+      lawCase.winning_keywords.forEach((keyword) => {
+        if (text.includes(keyword)) {
+          finalSurvivalRate += 0.15;
+        }
+      });
+    }
+
     // 3. 律師天賦加成 (LV1律師天賦發動)：總裁指示，直接單純提升 30% 勝率
     finalSurvivalRate += getLawyerDefenseBonus(player);
 
@@ -295,12 +322,22 @@ export class CourtEngine {
     judgeMode: JudgeMode,
     currentTurn: number
   ): Partial<TrialState> {
+    // [旁觀者干預系統整合]：計算場上所有干預行對機率產生的總影響
+    const spectatorInfluence = calculateSpectatorInfluence(trial.interventions);
+
     // 依前面定義的防禦勝率演算法來獲取勝敗結論
-    const res = this.calculateDefenseResult(player, trial.lawCase, text);
+    const res = this.calculateDefenseResult(player, trial.lawCase, text, spectatorInfluence);
     // 根據勝敗來決定是否計算判決罰鍰數字 (傳入當前標籤 ID 進行精準資產對接)
     const punishment = res.isSuccess
       ? undefined
-      : this.calculatePenalty(player, trial.lawCase.tag, currentTurn, trial.lawCaseTagId, trial.isAppeal || false);
+      : this.calculatePenalty(
+          player,
+          trial.lawCase.tag.join('/'),
+          currentTurn,
+          trial.lawCaseTagId,
+          trial.isAppeal || false,
+          trial.judgePersonality
+        );
 
     // 如果玩家敗訴但有律師LV3，引導流程進入 stage 5 給予花錢撤告機會
     if (!res.isSuccess && (player.roles?.lawyer || 0) >= 3) {
@@ -502,13 +539,12 @@ export class CourtEngine {
     if (isSuccess) {
       // 消除相關黑材料
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, lawCaseTag, lawCaseTagId);
-      // 將標籤宣告已解決，並退還被扣除的歷史 RP
+      // 標籤保留邏輯：不再標記 isResolved: true，僅移除黑材料。
+      // 因 pickLawCase 會檢查黑材料實體，無材料即代表該標籤暫時不具備起訴條件。
       updates.tags = player.tags.map((t) => {
         if (t.id === lawCaseTagId) {
-          const newTag = { ...t, isResolved: true };
           if (t.rpChange && t.rpChange < 0)
             updates.rp = (updates.rp || player.rp) + Math.abs(t.rpChange);
-          return newTag;
         }
         return t;
       });
@@ -519,16 +555,20 @@ export class CourtEngine {
       updates.totalTrials = (player.totalTrials || 0) + 1;
       // 資金沒收保底不小於 0 即可
       updates.g = Math.max(0, player.g - penalty.fine);
-      updates.rp = Math.max(0, player.rp - penalty.rpLoss);
+
+      // [名聲結算優化]：根據計算出的 penalty.rpLoss 進行扣除（已包含公關折扣）
+      updates.rp = Math.max(0, (updates.rp || player.rp) - penalty.rpLoss);
+
       // 紀錄玩家被罰款的金額
       updates.totalFinesPaid = (player.totalFinesPaid || 0) + penalty.fine;
 
       // 一案一清，將黑材料移除，標籤保留
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, lawCaseTag, lawCaseTagId);
-      updates.tags = player.tags.map((t) =>
-        t.id === lawCaseTagId ? { ...t, isResolved: true } : t
-      );
     }
+
+    // 結案後清除已使用的賄賂物
+    updates.bribeItem = undefined;
+
     return updates; // 回傳給 store，透過 Zustand 改寫核心狀態
   }
 }

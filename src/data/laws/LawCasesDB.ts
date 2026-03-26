@@ -19,3 +19,25 @@ export const LAW_CASES_DB: Record<string, LawCase> = {
   ...LAWS_E,
   ...LAWS_SYS,
 };
+
+/**
+ * 根據法條實體 ID 列表動態解析並合併所有對應的犯罪標籤
+ * @param lawCaseIds 法條編號陣列
+ * @returns 去重後的標籤字串陣列
+ */
+export function getResolvedTags(lawCaseIds?: string[]): string[] {
+  if (!lawCaseIds || lawCaseIds.length === 0) return [];
+  const tagSet = new Set<string>();
+  for (const id of lawCaseIds) {
+    const law = LAW_CASES_DB[id];
+    if (law && law.tag) {
+      if (Array.isArray(law.tag)) {
+        law.tag.forEach((t) => tagSet.add(t));
+      } else {
+        // 相容舊版單一字串格式 (若仍存在)
+        tagSet.add(law.tag);
+      }
+    }
+  }
+  return Array.from(tagSet);
+}

@@ -200,7 +200,7 @@ export default function Courtroom() {
                   {/* 控訴罪名標籤徽章 */}
                   <div className="inline-flex items-center gap-3 px-6 py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full text-xl font-black uppercase tracking-widest">
                     <ShieldCheck size={18} /> {COURT_TEXT.PHASE_1.CHARGE_LABEL}
-                    {trial.lawCase.tag}
+                    {trial.lawCase.tag.join('/')}
                   </div>
                   {/* 使用超大字體顯示法院開庭傳召公文 */}
                   <h3 className="text-4xl font-black leading-tight text-white tracking-tighter">
@@ -208,7 +208,7 @@ export default function Courtroom() {
                       ? COURT_TEXT.PHASE_1.AI_TITLE
                       : COURT_TEXT.PHASE_1.NON_AI_TITLE}
                     <br />
-                    {COURT_TEXT.PHASE_1.SUSPECT(trial.lawCase.tag)}
+                    {COURT_TEXT.PHASE_1.SUSPECT(trial.lawCase.tag.join('/'))}
                   </h3>
                   {/* 此處的 narrative 是從 CourtEngine 加工過由檢察司長發出的起訴文稿 */}
                   <div className="p-6 bg-black/40 rounded-3xl border-l-4 border-blue-500 italic text-slate-200 leading-relaxed font-serif text-lg animate-in fade-in duration-1000 whitespace-pre-line">
@@ -463,7 +463,7 @@ export default function Courtroom() {
                     // 選項一：打模糊仗，推給法條裡的專用脫罪口訣 (例如：這是專案建置維護費不是回扣)
                     COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0](trial.lawCase.escape || '業務正當性'),
                     // 選項二：打死不認，針對本體罪名「內線交易」發誓絕對無辜
-                    COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](trial.lawCase.tag),
+                    COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](trial.lawCase.tag.join('/')),
                     // 選項三：跟法官搏感情，針對剛剛卡牌上「表面話」做解釋裝可憐
                     COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2](trial.lawCase.surface_term),
                   ].map((label, i) => (
@@ -647,7 +647,7 @@ export default function Courtroom() {
                         key={i}
                         className="court-float-tag absolute pointer-events-none select-none text-red-400 font-black text-[11px] tracking-wider whitespace-nowrap"
                       >
-                        {trial.lawCase.tag}
+                        {trial.lawCase.tag.join('/')}
                       </span>
                     ))}
 
@@ -659,7 +659,7 @@ export default function Courtroom() {
                       ) : trial.isDefenseSuccess ? (
                         <div className="text-xl font-serif">
                           {COURT_TEXT.PHASE_6.NOT_GUILTY_DESC(
-                            trial.lawCase.tag,
+                            trial.lawCase.tag.join('/'),
                             trial.lawCase.escape || '業務正當性',
                             trial.lawCase.surface_term
                           )}
@@ -667,7 +667,7 @@ export default function Courtroom() {
                       ) : (
                         <div className="text-xl font-serif">
                           {COURT_TEXT.PHASE_6.GUILTY_DESC(
-                            trial.lawCase.tag,
+                            trial.lawCase.tag.join('/'),
                             trial.lawCase.escape || '業務正當性'
                           )}
                         </div>
