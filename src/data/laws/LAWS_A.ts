@@ -159,8 +159,8 @@ export const LAWS_A: Record<string, LawCase> = {
     winning_keywords: ['內部測試', '場地協調', '行政進度'],
     soft_keywords: ['初步嘗試', '業界慣例'],
   },
-  'A-06-2-2': {
-    id: 'A-06-2-2',
+  'A-06-3': {
+    id: 'A-06-3',
     tag: ['業務登載不實', '消防法'],
     lawName: '《刑法》第 215 條（業務登載不實）＋《消防法》',
     surface_term: '委託合格廠商進行消防安全優化',

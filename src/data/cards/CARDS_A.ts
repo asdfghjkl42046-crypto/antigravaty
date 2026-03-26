@@ -77,7 +77,7 @@ export const CARDS_A: Record<string, Card> = {
         '透過子公司做帳務結構重整，讓集團整體的財務數字更清楚——錢還是在體體系裡，只是走了一條更好看的路。',
       costG: 0,
       succRate: 1.0,
-      succ: { g: 500, rp: -15, lawCaseIds: ['A-03-1', 'A-03-2'] },
+      succ: { g: 500, rp: -15, lawCaseIds: ['A-03-2'] },
       fail: { special: 'sue' },
     },
     3: {
@@ -164,7 +164,7 @@ export const CARDS_A: Record<string, Card> = {
         '先低調做內部營運測試，同時跟大樓管理端建立定期溝通——確保任何行政進展都能第一時間掌握，屬於正常的場地協調。',
       costG: 0,
       succRate: 1.0,
-      succ: { g: 350, rp: -15, lawCaseIds: ['A-06-2', 'A-06-2-2'] },
+      succ: { g: 350, rp: -15, lawCaseIds: ['A-06-2'] },
       fail: { special: 'sue' },
     },
     3: {
