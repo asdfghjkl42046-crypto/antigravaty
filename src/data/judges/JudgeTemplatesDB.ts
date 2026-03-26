@@ -36,7 +36,6 @@ export interface JudgeLabel {
   name: string;
   judgeName: string;
   title: string; // 例如「最高法院榮譽院長」
-  desc: string; // 在畫面上給玩家的警告敘述
   style: string; // 法槌或穿著風格
   icon: string;
   prompt_injection: string; // 若開啟 AI 模式，要把這段詠唱傳給 OpenAI 或 Gemini 告訴它個性要怎麼裝

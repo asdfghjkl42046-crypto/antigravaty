@@ -59,11 +59,9 @@ export default function GameHUD({
           </button>
         )}
 
-
         {/* 擴充功能插槽：將原本分散的導航按鈕整合至此 */}
         {children}
       </div>
-
     </div>
   );
 }

@@ -60,6 +60,8 @@ export default function Courtroom() {
   const [pendingInterventions, setPendingInterventions] = useState<Record<string, number>>({});
   // 旁觀群眾針對這次庭審結果到底賭有罪還是無罪的金流押注快取
   const [localBets, setLocalBets] = useState<Record<string, 'win' | 'lose' | 'none'>>({});
+  // 是否進入二階段展示中的「罰金計算明細」畫面
+  const [showPunishmentDetail, setShowPunishmentDetail] = useState(false);
 
   // 找出誰是倒楣鬼被告本人
   const currentPlayer = players.find((p) => p.id === trial?.defendantId);
@@ -84,6 +86,7 @@ export default function Courtroom() {
       setDefenseInput('');
       setPendingInterventions({});
       setLocalBets({});
+      setShowPunishmentDetail(false);
     }, 0);
   }, [trial?.stage]);
 
@@ -608,155 +611,198 @@ export default function Courtroom() {
 
           {/* -------------------- 階段 6：一翻兩瞪眼，法院宣判死刑還是當庭釋放 -------------------- */}
           {trial.stage === 6 && (
-            // 用壯闊霸氣的全滿版動畫縮放宣讀有無罪這生死殊途的畫面
-            <div className="space-y-8 animate-in zoom-in duration-700 text-center">
-              <div
-                className={cn(
-                  'p-10 rounded-[40px] border-4 flex flex-col items-center text-center space-y-6 shadow-2xl',
-                  // 顏色管理學：無罪大綠燈、有罪死刑紅
-                  trial.isDefenseSuccess
-                    ? 'bg-emerald-500/10 border-emerald-500/50 shadow-emerald-500/10'
-                    : 'bg-red-500/10 border-red-500/50 shadow-red-500/10'
-                )}
-              >
+            <div className="space-y-4 animate-in zoom-in duration-700 text-center">
+              {/* 【第一小階段：宣讀判決文字】 */}
+              {!showPunishmentDetail && (
                 <div
                   className={cn(
-                    'p-6 rounded-3xl bg-white/10',
-                    trial.isDefenseSuccess ? 'text-emerald-500' : 'text-red-500'
+                    'p-6 rounded-[40px] border-4 flex flex-col items-center text-center space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-4',
+                    trial.isDefenseSuccess
+                      ? 'bg-emerald-500/10 border-emerald-500/50 shadow-emerald-500/10'
+                      : 'bg-red-500/10 border-red-500/50 shadow-red-500/10'
                   )}
                 >
-                  {trial.isDefenseSuccess ? <Shield size={64} /> : <AlertTriangle size={64} />}
-                </div>
-                <div>
-                  <h3 className="text-4xl font-black mb-2 uppercase tracking-tight">
-                    {trial.isDefenseSuccess
-                      ? COURT_TEXT.PHASE_6.NOT_GUILTY
-                      : COURT_TEXT.PHASE_6.GUILTY}
-                  </h3>
-                  <p className="text-slate-300 font-bold tracking-widest text-xs">
-                    {trial.lawCase.lawName}
-                  </p>
-                </div>
-
-                {/* 法官結案陳詞區：AI 洗臉大會 */}
-                <div className="p-8 bg-black/40 rounded-3xl text-sm leading-relaxed text-slate-200 max-w-lg font-mono relative group overflow-hidden">
-                  {/* CSS 藝術展示：製作 8 條如滿天飛舞符咒一般的違法犯罪標籤血紅字體滿版在背後輪轉無盡洗腦 */}
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className="court-float-tag absolute pointer-events-none select-none text-red-400 font-black text-[11px] tracking-wider whitespace-nowrap"
-                    >
-                      {trial.lawCase.tag}
-                    </span>
-                  ))}
-
-                  {/* 最重要的法官裁判書，如果是真 ChatGPT AI 就會在這裡吐出洋洋灑灑 300 字大作 */}
-                  <div className="relative z-10">
-                    {trial.judgment ? (
-                      <div className="whitespace-pre-wrap font-serif text-base">
-                        {trial.judgment}
-                      </div>
-                    ) : trial.isDefenseSuccess ? (
-                      COURT_TEXT.PHASE_6.NOT_GUILTY_DESC(
-                        trial.lawCase.tag,
-                        trial.lawCase.escape || '業務正當性',
-                        trial.lawCase.surface_term
-                      )
-                    ) : (
-                      COURT_TEXT.PHASE_6.GUILTY_DESC(
-                        trial.lawCase.tag,
-                        trial.lawCase.escape || '業務正當性'
-                      )
+                  <div
+                    className={cn(
+                      'p-6 rounded-3xl bg-white/10',
+                      trial.isDefenseSuccess ? 'text-emerald-500' : 'text-red-500'
                     )}
+                  >
+                    {trial.isDefenseSuccess ? <Shield size={64} /> : <AlertTriangle size={64} />}
                   </div>
-                </div>
+                  <div>
+                    <h3 className="text-5xl font-black mb-2 uppercase tracking-tight">
+                      {trial.isDefenseSuccess
+                        ? COURT_TEXT.PHASE_6.NOT_GUILTY
+                        : COURT_TEXT.PHASE_6.GUILTY}
+                    </h3>
+                    <p className="text-xl text-slate-300 font-bold tracking-widest">
+                      {trial.lawCase.lawName}
+                    </p>
+                  </div>
 
-                {/* 結尾損害報告書評估區：只有當他活該敗訴被宣告重罪時才繪製 */}
-                {!trial.isDefenseSuccess && trial.punishment && (
-                  <div className="w-full grid grid-cols-2 gap-6 max-w-sm">
-                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
-                      <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
+                  <div className="p-8 bg-black/40 rounded-3xl text-sm leading-relaxed text-slate-200 w-full max-w-2xl font-mono relative group overflow-hidden border border-white/5">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="court-float-tag absolute pointer-events-none select-none text-red-400 font-black text-[11px] tracking-wider whitespace-nowrap"
+                      >
+                        {trial.lawCase.tag}
+                      </span>
+                    ))}
+
+                    <div className="relative z-10">
+                      {trial.judgment ? (
+                        <div className="whitespace-pre-wrap font-serif text-2xl leading-relaxed">
+                          {trial.judgment}
+                        </div>
+                      ) : trial.isDefenseSuccess ? (
+                        <div className="text-xl font-serif">
+                          {COURT_TEXT.PHASE_6.NOT_GUILTY_DESC(
+                            trial.lawCase.tag,
+                            trial.lawCase.escape || '業務正當性',
+                            trial.lawCase.surface_term
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-xl font-serif">
+                          {COURT_TEXT.PHASE_6.GUILTY_DESC(
+                            trial.lawCase.tag,
+                            trial.lawCase.escape || '業務正當性'
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 如果無罪或不需要罰金詳情，直接結案；否則進入下一階段 */}
+                  {trial.isDefenseSuccess || !trial.punishment ? (
+                    <button
+                      onClick={() => {
+                        (
+                          useGameStore.getState() as unknown as { resolveTrial: () => void }
+                        ).resolveTrial();
+                      }}
+                      className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
+                    >
+                      {COURT_TEXT.PHASE_6.ACCEPT_BTN}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowPunishmentDetail(true)}
+                      className="w-full py-6 bg-red-600 border border-red-400 text-white font-black rounded-2xl hover:bg-red-500 transition-all text-2xl uppercase tracking-widest animate-pulse"
+                    >
+                      <Calculator size={24} className="inline mr-2" />
+                      查看處罰詳情與核算報告
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* 【第二小階段：執行處罰與罰金核算】 */}
+              {showPunishmentDetail && trial.punishment && (
+                <div className="p-6 rounded-[40px] border-4 border-red-500/50 bg-red-500/10 shadow-2xl shadow-red-500/10 flex flex-col items-center text-center space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                  <div className="text-red-500">
+                    <AlertTriangle size={48} />
+                  </div>
+                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter">
+                    刑罰執行核算
+                  </h3>
+
+                  <div className="w-full flex gap-4 max-w-2xl">
+                    <div className="flex-1 p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
+                      <div className="text-lg font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.FINE}
                       </div>
-                      <div className="text-4xl font-black text-red-400">
-                        -{trial.punishment.fine} 萬 G {/* 失血金錢 */}
+                      <div className="text-5xl font-black text-red-400">
+                        -{trial.punishment.fine} 萬 G
                       </div>
                     </div>
-                    <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
-                      <div className="text-xl font-black uppercase tracking-widest text-red-400/60 mb-2">
+                    <div className="flex-1 p-6 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col items-center justify-center">
+                      <div className="text-lg font-black uppercase tracking-widest text-red-400/60 mb-2">
                         {COURT_TEXT.PHASE_6.RP_LOSS}
                       </div>
-                      <div className="text-4xl font-black text-red-400">
-                        -{trial.punishment.rpLoss} RP {/* 社會名聲一落千丈 */}
+                      <div className="text-5xl font-black text-red-400">
+                        -{trial.punishment.rpLoss} RP
                       </div>
                     </div>
                   </div>
-                )}
 
-                {/* 罰金計算過程：顯眼地位於按鈕上方 */}
-                {!trial.isDefenseSuccess && trial.punishmentDetail && (
-                  <div className="w-full max-w-lg p-6 bg-black/40 border border-red-500/20 rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="flex items-center gap-2 mb-2 text-red-400/70">
-                      <Calculator size={14} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">
-                        罰金計算核算報告 (Calculation Report)
-                      </span>
-                    </div>
-                    <div className="text-sm font-mono text-slate-300 leading-relaxed text-left">
-                      {trial.punishmentDetail}
-                    </div>
+                  {trial.punishmentDetail && (
+                    <div className="w-full max-w-2xl p-6 bg-black/40 border border-red-500/20 rounded-3xl">
+                      <div className="flex items-center gap-2 mb-3 text-red-400/70">
+                        <Calculator size={18} />
+                        <span className="text-sm font-black uppercase tracking-widest">
+                          罰金計算核算報告 (CALCULATION REPORT)
+                        </span>
+                      </div>
+                      <div className="text-2xl font-mono text-slate-300 leading-relaxed text-left border-l-4 border-red-500/50 pl-4">
+                        {trial.punishmentDetail}
+                      </div>
 
-                    <div className="mt-4 pt-4 border-t border-red-500/10 text-[11px] text-slate-400 space-y-1">
-                      <p className="flex items-center gap-1.5 italic">
-                        <Info size={12} className="opacity-50" />
-                        <span>罰金影響規約：</span>
-                      </p>
-                      <ul className="list-disc list-inside space-y-0.5 opacity-70">
-                        <li>1-5 回合為「新手保護期」，基礎罰金倍率僅 1.0x。</li>
-                        <li>第 6 回合起進入「標準罰則」，基礎罰金倍率提升至 3.0x。</li>
-                        <li>累犯紀錄第 4 次起罰金 3.0 倍加重，第 7 次起 6.0 倍加重。</li>
-                        <li>非常上訴敗訴將觸發額外 2.0x 處罰、利息加徵且無視折扣。</li>
-                      </ul>
+                      <div className="mt-4 pt-4 border-t border-red-500/10 text-sm text-slate-400">
+                        <p className="flex items-center gap-1.5 italic mb-2 font-bold">
+                          <Info size={14} className="opacity-50" />
+                          <span>罰金影響規約 (RULES)：</span>
+                        </p>
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-base opacity-90 font-medium text-left">
+                          <div className="flex gap-2">
+                            <span className="text-red-500">◆</span> 1-5回合為新手期(1.0x)
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-red-500">◆</span> 第6回合起標籤(3.0x)
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-red-500">◆</span> 累犯加重(3.0x - 6.0x)
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-red-500">◆</span> 非常上訴敗訴額外加成
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                  )}
+
+                  <div className="w-full flex flex-col gap-4 pt-2">
+                    <button
+                      onClick={() => {
+                        (
+                          useGameStore.getState() as unknown as { resolveTrial: () => void }
+                        ).resolveTrial();
+                      }}
+                      className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
+                    >
+                      {COURT_TEXT.PHASE_6.ACCEPT_BTN}
+                    </button>
+
+                    {!trial.extraAppealUsed &&
+                      !currentPlayer?.hasUsedExtraAppeal && (
+                        <button
+                          onClick={() => {
+                            (
+                              useGameStore.getState() as unknown as {
+                                extraordinaryAppeal: () => void;
+                              }
+                            ).extraordinaryAppeal();
+                          }}
+                          className="w-full py-5 bg-amber-500/10 border-2 border-amber-500/30 text-amber-500 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-xl flex items-center justify-center gap-2"
+                        >
+                          <Zap size={24} />
+                          {COURT_TEXT.PHASE_6.EXTRA_APPEAL_BTN(
+                            currentPlayer ? getExtraAppealCost(currentPlayer) : 0
+                          )}
+                        </button>
+                      )}
+
+                    <button
+                      onClick={() => setShowPunishmentDetail(false)}
+                      className="text-xs uppercase font-bold text-slate-500 hover:text-slate-300 underline underline-offset-4 tracking-widest"
+                    >
+                      返回查看判決書文字
+                    </button>
                   </div>
-                )}
-
-                <div className="w-full flex flex-col gap-4 pt-4">
-                  {/* 乖乖低頭認罪被法院吸血的平庸按鈕 */}
-                  <button
-                    onClick={() => {
-                      (
-                        useGameStore.getState() as unknown as { resolveTrial: () => void }
-                      ).resolveTrial();
-                    }}
-                    className="flex-1 py-5 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all font-sans uppercase tracking-widest border border-white/10"
-                  >
-                    {COURT_TEXT.PHASE_6.ACCEPT_BTN}
-                  </button>
-
-                  {/* 當代商戰最高權限「非常上訴」：
-                      當你被判死刑，且你這輩子還沒用過這項特權時，你可以砸下公司 20% 的財富強迫法官重審！ */}
-                  {!trial.isDefenseSuccess &&
-                    !trial.extraAppealUsed &&
-                    !currentPlayer?.hasUsedExtraAppeal && (
-                      <button
-                        onClick={() => {
-                          (
-                            useGameStore.getState() as unknown as {
-                              extraordinaryAppeal: () => void;
-                            }
-                          ).extraordinaryAppeal();
-                        }}
-                        className="flex-1 py-4 bg-amber-500/10 border-2 border-amber-500/30 text-amber-400 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-2"
-                      >
-                        <Zap size={18} />
-                        {COURT_TEXT.PHASE_6.EXTRA_APPEAL_BTN(
-                          currentPlayer ? getExtraAppealCost(currentPlayer) : 0
-                        )}
-                      </button>
-                    )}
                 </div>
-              </div>
+              )}
             </div>
           )}
 
