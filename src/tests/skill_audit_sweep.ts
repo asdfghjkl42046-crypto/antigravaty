@@ -5,6 +5,8 @@ import {
   applyAccountantBonus,
   applyAccountantCourtDiscount,
   calculateTrustTransfer,
+  shouldRemoveWrongOption,
+  canWithdrawCase,
   getCTOAutoIncome,
   getCTOAntiTheftCount
 } from '../engine/RoleEngine';
@@ -46,8 +48,17 @@ async function runSkillSweep() {
   console.log('\n[TEST] 律師技能組合...');
   const pLawyer0 = { ...mockPlayer, roles: { lawyer: 0 as RoleLevel } };
   const pLawyer1 = { ...mockPlayer, roles: { lawyer: 1 as RoleLevel } };
+  const pLawyer2 = { ...mockPlayer, roles: { lawyer: 2 as RoleLevel } };
+  const pLawyer3 = { ...mockPlayer, roles: { lawyer: 3 as RoleLevel }, g: 1000, ip: 100 };
+  const pLawyer3Poor = { ...mockPlayer, roles: { lawyer: 3 as RoleLevel }, g: 50, ip: 2 };
+
   assert(getLawyerDefenseBonus(pLawyer0) === 0, 'LV0 律師勝率加成應為 0');
   assert(getLawyerDefenseBonus(pLawyer1) === 0.3, 'LV1 律師勝率加成應為 +30%');
+  assert(shouldRemoveWrongOption(pLawyer1) === false, 'LV1 律師不應觸發防雷機制');
+  assert(shouldRemoveWrongOption(pLawyer2) === true, 'LV2 律師應觸發防雷機制 (✅ LV2 驗證)');
+  assert(canWithdrawCase(pLawyer2) === false, 'LV2 律師不能撤案');
+  assert(canWithdrawCase(pLawyer3) === true, 'LV3 律師且資產足夠時應能撤案');
+  assert(canWithdrawCase(pLawyer3Poor) === false, 'LV3 律師但資產不足時不能撤案');
 
   // --- 2. 會計師 (Accountant) ---
   console.log('[TEST] 會計師技能組合...');
