@@ -16,7 +16,6 @@ export const CARDS_START: Record<string, Card> = {
       succ: {
         g: 100,
         rp: 105,
-        lawCaseIds: [],
       },
       fail: {},
     },

@@ -41,7 +41,9 @@ export function addBlackMaterials(
   actionId: number, // 對應引發黑料的歷史行動局 ID
   turn: number // 發生於第幾回合
 ): BlackMaterialSource[] {
-  const updated = [...sources];
+  // 深度拷貝：確保修改不會影響到原始 Player 物件中的參照位址，符合不變性 (Immutability) 原則
+  const updated = sources.map(s => ({ ...s }));
+  
   // 總裁指示：如果遇到例外狀況沒有具體標籤名稱，不能苟且使用 unknown 帶過，必須強制拋出 Error 報錯！
   if (!tags || tags.length === 0) {
     throw new Error('嚴重異常：試圖記錄犯罪黑資料，卻未提供具體的違犯標籤（tags array 為空）！');

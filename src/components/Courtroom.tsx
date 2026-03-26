@@ -47,6 +47,8 @@ export default function Courtroom() {
     tickTrialTimer,
     judgePersonality,
     judgeMode,
+    resolveTrial,
+    extraordinaryAppeal,
   } = useGameStore();
 
   // -------------------------
@@ -78,7 +80,8 @@ export default function Courtroom() {
     }, 1000);
     // 元件銷毀或暫停時拆除炸彈
     return () => clearInterval(interval);
-  }, [trial, tickTrialTimer]);
+    // [優化] 移除 trial.timer 作為依賴項，避免每秒重新建立計時器
+  }, [trial?.isReady, trial?.stage, tickTrialTimer]);
 
   // 切換不同階段 (Stage) 時，為了防止上個畫面的輸入殘留，延遲一幀後徹底執行記憶清洗
   useEffect(() => {
@@ -680,9 +683,7 @@ export default function Courtroom() {
                   {trial.isDefenseSuccess || !trial.punishment ? (
                     <button
                       onClick={() => {
-                        (
-                          useGameStore.getState() as unknown as { resolveTrial: () => void }
-                        ).resolveTrial();
+                        resolveTrial();
                       }}
                       className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
                     >
@@ -767,9 +768,7 @@ export default function Courtroom() {
                   <div className="w-full flex flex-col gap-4 pt-2">
                     <button
                       onClick={() => {
-                        (
-                          useGameStore.getState() as unknown as { resolveTrial: () => void }
-                        ).resolveTrial();
+                        resolveTrial();
                       }}
                       className="w-full py-6 bg-white text-black font-black rounded-2xl hover:bg-slate-200 transition-all text-2xl uppercase tracking-widest"
                     >
@@ -780,11 +779,7 @@ export default function Courtroom() {
                       !currentPlayer?.hasUsedExtraAppeal && (
                         <button
                           onClick={() => {
-                            (
-                              useGameStore.getState() as unknown as {
-                                extraordinaryAppeal: () => void;
-                              }
-                            ).extraordinaryAppeal();
+                            extraordinaryAppeal();
                           }}
                           className="w-full py-5 bg-amber-500/10 border-2 border-amber-500/30 text-amber-500 font-black rounded-2xl hover:bg-amber-500/20 transition-all uppercase tracking-widest text-xl flex items-center justify-center gap-2"
                         >

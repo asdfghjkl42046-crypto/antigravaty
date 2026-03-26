@@ -18,6 +18,7 @@ import EndingScreen from '@/components/EndingScreen';
 import TabNavigation from '@/components/TabNavigation';
 import DebugPanel from '@/components/DebugPanel';
 import ErrorPopup from '@/components/ErrorPopup';
+import EngineErrorModal from '@/components/EngineErrorModal';
 import { GLOBAL_UI_TEXT } from '@/data/system/GlobalUI';
 import { CARD_UI_TEXT } from '@/data/cards/CardsDB';
 import { SYSTEM_MESSAGES } from '@/data/system/SystemMessages';
@@ -49,6 +50,8 @@ export default function Home() {
     clearStartNotifications, // 確認關閉開場推播
     endingResult, // 儲存遊戲被處刑破產或獲勝時的報表成績
     setJudgeMode, // AI 法庭模式選項 (Cloud 還是 Local)
+    engineError, // 核心引擎致命錯誤攔截快照
+    hardReset, // 強制重啟系統
   } = useGameStore();
 
   // 2. 幕後載入防護網：
@@ -374,6 +377,9 @@ export default function Home() {
 
             {/* 錯誤彈窗：無效卡片等錯誤以彈窗形式顯示 */}
             <ErrorPopup message={errorMessage} onClose={() => setErrorMessage(null)} />
+
+            {/* 核心引擎致命報錯遮罩：數值損毀 (NaN) 或邏輯斷裂時的最終防線 */}
+            <EngineErrorModal error={engineError} onReset={hardReset} />
 
             {/* 畫面中下大塊切版開始：內容區完全向上延展至頂端，實現全屏沈浸感 */}
             <main className="flex-1 w-full max-w-[2332px] mx-auto px-4 pb-4 xl:px-8 xl:pb-8 flex gap-8 min-h-0 relative z-10">

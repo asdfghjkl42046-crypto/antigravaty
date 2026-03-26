@@ -293,6 +293,7 @@ export interface GameStateData {
   judgeMode: JudgeMode;
   startNotifications: string[]; // 開局背景與路徑增益提示
   endingResult: EndingResult | null;
+  engineError: { context: string; message: string } | null; // 核心引擎致命錯誤攔截快照
 }
 
 export type BetChoice = 'win' | 'lose' | 'none';

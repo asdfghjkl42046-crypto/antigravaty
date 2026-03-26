@@ -87,11 +87,17 @@ export function shouldRemoveWrongOption(player: Player): boolean {
   return getRoleLevel(player, 'lawyer') >= 2;
 }
 
+import { throwNumericalCheckError } from './errors/EngineErrors';
+
 /**
  * 計算律師終極技能「強制撤告」的手續費
  * 需花費玩家目前總體資金的 20% (最低 100 萬)
  */
 export function getWithdrawCaseCost(player: Player): { g: number; ip: number } {
+  // 核心邊界防禦：防範資產數值損毀導致的規費計算失效
+  if (player.g === undefined || Number.isNaN(player.g)) {
+    throwNumericalCheckError('RoleEngine.getWithdrawCaseCost', `玩家資金 (g) 為非法數值: ${player.g}`);
+  }
   return {
     g: Math.max(100, roundUp(player.g * 0.2)),
     ip: 5, // 固定另加消耗 5 點公關人脈進行打點疏通

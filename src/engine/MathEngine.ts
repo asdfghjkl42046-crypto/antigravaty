@@ -9,11 +9,24 @@
  * 修正浮點數精度誤差（例如 220.00000000000003 應判定為 220，若為 220.1 則進位成 221）
  * 這是為了確保玩家在受到懲罰或罰金計算時，系統採取對抗風險最嚴格的標準
  */
+import { throwEnvironmentError, throwNumericalCheckError } from './errors/EngineErrors';
+
+/**
+ * §1-1 無條件進位 (Round Up)
+ * 凡涉及百分比計算導致小數點，一律無條件進位。
+ * 修正浮點數精度誤差（例如 220.00000000000003 應判定為 220，若為 220.1 則進位成 221）
+ * 這是為了確保玩家在受到懲罰或罰金計算時，系統採取對抗風險最嚴格的標準
+ */
 export function roundUp(num: number): number {
+  // 核心邊界防禦：攔截任何可能導致 NaN 傳播的非法傳入值
+  if (num === undefined || num === null || Number.isNaN(Number(num))) {
+    throwNumericalCheckError(
+      'MathEngine.roundUp', 
+      `傳入值非法 (值: ${num})。基礎運算層拒絕處理任何非數字輸入。`
+    );
+  }
   return Math.ceil(Math.round(num * 1e6) / 1e6);
 }
-
-import { throwEnvironmentError } from './errors/EngineErrors';
 
 /**
  * 產生 SHA-256 雜湊 (Cryptography Hash)

@@ -36,3 +36,10 @@ export function throwTrialInitializationError(context: string, details: string):
   console.error(msg);
   throw new Error(msg);
 }
+
+/** 數值檢核錯誤：用於攔截 NaN, Infinity 或非法計算結果 */
+export function throwNumericalCheckError(context: string, details: string): never {
+  const msg = `[Numerical Check Error] ${context}: ${details}`;
+  console.error(msg);
+  throw new Error(msg);
+}

@@ -452,9 +452,15 @@ export class CourtEngine {
     if (forcedTagId) {
       const target = defendant.tags.find((t) => t.id === forcedTagId);
       if (target) {
-        // [修正] 優先從標籤關聯的 lawCaseIds 中尋找 ID 進行檢索，而非使用標籤文字 (Text)
+        // [修正] 優先從標籤關聯的 lawCaseIds 中尋找 ID 進行檢索，並強制檢查資料完整性
         const lawCaseId = target.lawCaseIds?.find((id) => !!LAW_CASES_DB[id]);
-        lawCase = lawCaseId ? LAW_CASES_DB[lawCaseId] : null;
+        if (!lawCaseId) {
+          throwTrialInitializationError(
+            '法庭初始化', 
+            `強制起訴標籤 [${target.text}] (ID: ${forcedTagId}) 缺少有效的法條關聯 (lawCaseIds)！`
+          );
+        }
+        lawCase = LAW_CASES_DB[lawCaseId];
         tagId = target.id;
       }
     }

@@ -13,7 +13,11 @@ import {
   getCTOAutoIncome,
   calculateTrustTransfer,
 } from './RoleEngine';
-import { throwDataCorruptionError, throwLogicFailureError } from './errors/EngineErrors';
+import {
+  throwDataCorruptionError,
+  throwLogicFailureError,
+  throwNumericalCheckError,
+} from './errors/EngineErrors';
 
 // ============================================================
 // §1-2 信用不合格 (收益補丁)
@@ -134,6 +138,14 @@ export function calculateConvictionPenalty(
   rpLoss: number;
   detail?: string;
 } {
+  // 防呆：判定傳入的獲利是否為有效數字，避免 NaN 導致罰金被安靜抹除為 0
+  if (netIncome !== undefined && Number.isNaN(Number(netIncome))) {
+    throwNumericalCheckError(
+      `玩家: ${player.name} 的法庭結算`,
+      `測得 netIncome 為 NaN！這會導致罰金結算邏輯失效。原始傳入值: ${netIncome}`
+    );
+  }
+
   // 防呆：無法判斷的收入預設歸 0
   const safeIncome = netIncome || 0;
 
@@ -162,7 +174,11 @@ export function calculateConvictionPenalty(
 
   // 3. 折扣與保護傘邏輯
   // 核心平衡：如果是開局既有，強制跳過所有折扣。非常上訴也不予折扣以示嚴厲。
-  const discountRate = isPreexisting || isAppeal ? 0 : player.startBonusFineReduction || 0;
+  const rawDiscount = player.startBonusFineReduction || 0;
+  if (Number.isNaN(rawDiscount)) {
+    throwNumericalCheckError('MechanicsEngine.calculateConvictionPenalty', `偵測到非法折扣率 (startBonusFineReduction: ${rawDiscount})。`);
+  }
+  const discountRate = isPreexisting || isAppeal ? 0 : rawDiscount;
   
   // [賄賂系統實作] 判斷賄賂物是否完全命中法官偏好 (得分 5 分)
   let bribeMultiplier = 1.0;
@@ -219,7 +235,15 @@ export function calculateSpectatorInfluence(interventions: { text: string }[]): 
   if (!interventions || interventions.length === 0) return 0;
 
   let totalInfluence = 0;
-  interventions.forEach((iv) => {
+  interventions.forEach((iv, idx) => {
+    // 核心邊界防禦：確保傳入的干預物件具備合法文本描述，避免 TypeError 導致法庭流程中斷
+    if (!iv || typeof iv.text !== 'string') {
+      throwDataCorruptionError(
+        'MechanicsEngine.calculateSpectatorInfluence',
+        `偵測到非法干預數據 (索引: ${idx})！物件缺少或具備無效的 text 屬性。`
+      );
+    }
+
     // 根據預定義的公版文字來匹配干預力
     if (iv.text.includes('合理商業範疇')) {
       totalInfluence += 0.1; // 支持被告 (+10%)
@@ -282,6 +306,9 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   if (player.trustFund === undefined || Number.isNaN(player.trustFund)) {
     throwDataCorruptionError(`玩家: ${player.name}`, `信託基金(trustFund) 屬性缺失或為 NaN！`);
   }
+  if (player.consecutiveCleanTurns === undefined || Number.isNaN(player.consecutiveCleanTurns)) {
+    throwDataCorruptionError(`玩家: ${player.name}`, `連續清白回合(consecutiveCleanTurns) 屬性缺失或為 NaN！`);
+  }
 
   // 擷取當前狀態以便運算推疊
   let finalG = player.g;
@@ -319,10 +346,10 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   updates.ap = player.isBankrupt ? player.ap : 5;
 
   // 最終安全檢查：確保回傳的數據不包含 NaN 或非法值
-  if (Number.isNaN(finalG) || Number.isNaN(finalRP) || Number.isNaN(finalTrust)) {
+  if (Number.isNaN(finalG) || Number.isNaN(finalRP) || Number.isNaN(finalTrust) || Number.isNaN(newConsecutiveCleanTurns)) {
     throwDataCorruptionError(
       `玩家: ${player.name}`,
-      `結算過程中產生非法數值！(G: ${finalG}, RP: ${finalRP}, Trust: ${finalTrust})`
+      `結算過程中產生非法數值！(G: ${finalG}, RP: ${finalRP}, Trust: ${finalTrust}, CleanTurns: ${newConsecutiveCleanTurns})`
     );
   }
 
