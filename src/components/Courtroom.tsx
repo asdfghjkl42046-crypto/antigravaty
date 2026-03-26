@@ -35,21 +35,20 @@ function cn(...inputs: ClassValue[]) {
  */
 export default function Courtroom() {
   // 從全域伺服器借調法庭專屬的武裝：包含所有人的籌碼、按鈕與當下的法官人偶
-  const {
-    players,
-    trial,
-    setTrialStage,
-    addIntervention,
-    placeBet,
-    submitDefense,
-    withdrawCase,
-    setTrialReady,
-    tickTrialTimer,
-    judgePersonality,
-    judgeMode,
-    resolveTrial,
-    extraordinaryAppeal,
-  } = useGameStore();
+  // 從全域伺服器借調法庭專屬的武裝：利用 Selector 模式精準訂閱，優化 Re-render 效能
+  const players = useGameStore((s) => s.players);
+  const trial = useGameStore((s) => s.trial);
+  const setTrialStage = useGameStore((s) => s.setTrialStage);
+  const addIntervention = useGameStore((s) => s.addIntervention);
+  const placeBet = useGameStore((s) => s.placeBet);
+  const submitDefense = useGameStore((s) => s.submitDefense);
+  const withdrawCase = useGameStore((s) => s.withdrawCase);
+  const setTrialReady = useGameStore((s) => s.setTrialReady);
+  const tickTrialTimer = useGameStore((s) => s.tickTrialTimer);
+  const judgePersonality = useGameStore((s) => s.judgePersonality);
+  const judgeMode = useGameStore((s) => s.judgeMode);
+  const resolveTrial = useGameStore((s) => s.resolveTrial);
+  const extraordinaryAppeal = useGameStore((s) => s.extraordinaryAppeal);
 
   // -------------------------
   // 法庭本地暫存文件區（只在這場官司中有效）
@@ -308,13 +307,14 @@ export default function Courtroom() {
 
               {/* 所有吃瓜群眾都表態完畢，由系統一次過把所有人的明槍暗箭射向法官與被告 */}
               <button
-                onClick={() => {
-                  trial.bystanderIds.forEach(async (bid) => {
+                onClick={async () => {
+                  // [修正] 改用 for...of 確保異步順序，防止在資料寫入 Store 之前就跳轉 Stage (疑點 1)
+                  for (const bid of trial.bystanderIds) {
                     const idx = pendingInterventions[bid];
                     if (idx !== undefined && idx !== 999) {
                       await addIntervention(bid, BYSTANDER_OPTIONS[idx].text);
                     }
-                  });
+                  }
                   setTrialStage(3); // 推進去賭博
                 }}
                 className="w-full py-5 bg-white text-black font-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 text-lg uppercase tracking-widest"

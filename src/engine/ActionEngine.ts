@@ -138,7 +138,7 @@ export async function performAction(
         appliedTags: [],
         hashedTags: [],
         finalHash: lastHash,
-        apRefunded: false,
+        apRefunded: true,
         actionId,
         log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: '', timestamp },
       };
@@ -297,13 +297,15 @@ export async function performAction(
         finalIPChange = baseRewardIP;
       } else {
         // 檢定過關且未主動申報的黑箱路線
-        const succG = opt.succ?.g || 0;
-        const succRP = opt.succ?.rp || 0;
-        const succIP = opt.succ?.ip || 0;
+        // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
+        const succG = opt.succ?.g !== undefined ? opt.succ.g : (opt.g || 0);
+        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : (opt.rp || 0);
+        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : (opt.ip || 0);
+        
         // 成功獲得的資金再次納入會計師進行額外分紅加成
         const bonusSuccG = applyAccountantBonus(player, cardId, succG);
-        const totalG = bonusSuccG; // Only succG is considered for bonus, baseRewardG is removed
-        const totalRP = succRP; // Only succRP is considered, baseRewardRP is removed
+        const totalG = bonusSuccG; 
+        const totalRP = succRP; 
 
         // 最終結算
         finalGChange = totalG - costToDeduct;

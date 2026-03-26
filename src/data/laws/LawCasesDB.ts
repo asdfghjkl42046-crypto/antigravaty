@@ -5,6 +5,7 @@ import { LAWS_C } from './LAWS_C';
 import { LAWS_D } from './LAWS_D';
 import { LAWS_E } from './LAWS_E';
 import { LAWS_START } from './LAWS_START';
+import { throwDataDefinitionError } from '../../engine/errors/EngineErrors';
 
 /**
  * [六法全書] 地下法庭查哨站 (Law Cases DB)
@@ -38,7 +39,10 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
         tagSet.add(law.tag as unknown as string);
       }
     } else {
-      console.error(`[LawCasesDB] 找不到法條 ID: ${id}，請檢查卡牌資料是否正確或是否已在 LAWS_*.ts 註冊。`);
+      throwDataDefinitionError(
+        'LawCasesDB.getResolvedTags',
+        `找不到法條 ID: ${id}，請檢查卡牌資料是否正確或是否已在 LAWS_*.ts 註冊。`
+      );
     }
   }
   return Array.from(tagSet);

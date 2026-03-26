@@ -458,36 +458,48 @@ export const useGameStore = create<GameStore>()(
         const def = players[idx];
         const updatedPlayers = [...players]; // Moved up for bet settlement
 
+        // 1. 結算所有旁觀者的賭局勝負。必須先計算，因為這會動到 players 陣列中其他人的資產。
         trial.bets?.forEach((b) => {
-          const bettorIndex = updatedPlayers.findIndex((p) => p.id === b.playerId);
-          if (bettorIndex !== -1) {
-            const bp = updatedPlayers[bettorIndex];
+          const bIdx = updatedPlayers.findIndex((p) => p.id === b.playerId);
+          if (bIdx !== -1) {
+            // [修正] 徹底實行 Immutability：先複製物件，再修改屬性 (疑點 1)
+            const bp = { ...updatedPlayers[bIdx] };
             const betRes = settleBet(bp, b.choice, trial.isDefenseSuccess || false);
-            // 依照總裁指示的雙軌制結算，分別處理現金、人脈與名聲
+
             bp.g = Math.max(0, bp.g + betRes.gGain);
             bp.ip = Math.max(0, bp.ip + betRes.ipGain);
 
-            // 處理 RP 扣除，且公關經理 (LV1) 技能對此專屬扣除生效 (減半)
             let rpChange = betRes.rpGain;
             if (rpChange < 0) {
               rpChange = applyPRDiscount(bp, rpChange);
             }
             bp.rp = Math.max(0, Math.min(100, bp.rp + rpChange));
+
+            // 將新物件塞回暫存陣列中
+            updatedPlayers[bIdx] = bp;
           }
         });
+
+        // 2. 結算被告本人的判定結果。
+        // [修正] 從更新後的陣列中抓出被告最新的狀態 (包含剛下注後的變動)
+        const currentDef = updatedPlayers[idx];
         const updates = CourtEngine.applyTrialResolution(
-          def,
+          currentDef,
           trial.isDefenseSuccess || false,
           trial.lawCase.tag,
           trial.lawCaseTagId || 0,
           trial.judgePersonality,
           get().turn
         );
-        const final = { ...def, ...updates };
+
+        // 合併結果並進行最終存活校驗
+        const final = { ...currentDef, ...updates };
         const res = resolveGameStatus(final, get().turn);
+
         updatedPlayers[idx] = res.isGameOver
           ? res.updatedPlayer || { ...final, isBankrupt: true }
           : final;
+
         set({
           players: updatedPlayers,
           phase: res.isGameOver ? res.phase : 'play',
