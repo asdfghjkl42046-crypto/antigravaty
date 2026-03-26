@@ -17,7 +17,7 @@ interface DebugPanelProps {
  */
 export default function DebugPanel({ onClose }: DebugPanelProps) {
   // 從 Store 系統核心深處撈出一種絕對防禦級數的「無視任何商業邏輯強制無情派發覆寫」函示 (名叫 debugUpdatePlayer)
-  const { players, currentPlayerIndex, debugUpdatePlayer, turn } = useGameStore();
+  const { players, currentPlayerIndex, debugUpdatePlayer, turn, hardReset } = useGameStore();
   const player = players[currentPlayerIndex];
 
   // 面板專用內存暫存區域 Local State，我們先在這裡暫時拖曳玩弄各種天價數字，
@@ -184,10 +184,10 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
               <Save size={18} /> 套用數值更新執行覆寫
             </button>
             <button
-              onClick={handleClearBM}
-              className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all flex items-center justify-center gap-2"
+              onClick={hardReset}
+              className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-2"
             >
-              <Eraser size={18} /> 清洗所有黑材料 (BM) 紀錄
+              <Plus size={18} className="rotate-45" /> 強制系統重啟 (清除快取)
             </button>
           </div>
 

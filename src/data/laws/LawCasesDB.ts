@@ -35,9 +35,23 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
         law.tag.forEach((t) => tagSet.add(t));
       } else {
         // 相容舊版單一字串格式 (若仍存在)
-        tagSet.add(law.tag);
+        tagSet.add(law.tag as unknown as string);
       }
     }
   }
   return Array.from(tagSet);
+}
+
+/**
+ * 格式化顯示用標籤 (GEMINI.md §7-2)
+ * 安全處理 string | string[] 型別，避免 .join 崩潰，並提供統一的顯示分隔符。
+ * @param tag 原始標籤數據
+ * @returns 格式化後的顯示字串
+ */
+export function formatLawTags(tag: string | string[] | undefined): string {
+  if (!tag) return '未知罪嫌';
+  if (Array.isArray(tag)) {
+    return tag.length > 0 ? tag.join('/') : '無標籤';
+  }
+  return tag; // 若為字串則直接回傳
 }

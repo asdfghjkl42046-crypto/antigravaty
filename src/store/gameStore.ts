@@ -81,6 +81,7 @@ interface GameStore extends GameStateData {
 
   // --- 開發人員偵錯工具 ---
   debugUpdatePlayer: (playerId: string, updates: Partial<Player>) => void;
+  hardReset: () => void;
 }
 
 // ============================================================
@@ -485,6 +486,12 @@ export const useGameStore = create<GameStore>()(
       getCurrentPlayer: () => get().players[get().currentPlayerIndex] || null,
       debugUpdatePlayer: (pid, upd) =>
         set((s) => ({ players: s.players.map((p) => (p.id === pid ? { ...p, ...upd } : p)) })),
+      hardReset: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('antigravity-game-storage');
+          window.location.reload();
+        }
+      },
     }),
     { name: 'antigravity-game-storage', storage: createJSONStorage(() => localStorage) }
   )

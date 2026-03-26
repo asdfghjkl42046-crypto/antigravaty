@@ -131,7 +131,6 @@ export interface BaseOption {
   label?: string; // UI 標題
   ap?: number; // 行動力消耗 (若不填則由引擎預設為 1)
   costG?: number; // 固定資金成本消耗
-  costCashPct?: number; // 法定規費比例：根據當前流動資產比例消耗 (0.05 = 5%)
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
   special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
   surface_term?: string; // 生成標籤之名目快照

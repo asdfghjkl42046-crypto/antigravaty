@@ -14,10 +14,11 @@ import type {
   SpecialTag,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
-import { LAW_CASES_DB, getResolvedTags } from '../data/laws/LawCasesDB';
+import { LAW_CASES_DB, getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
 import { roundUp, sha256 } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP } from './RoleEngine';
+import { throwDataDefinitionError, throwLogicFailureError, throwEnvironmentError } from './errors/EngineErrors';
 
 /**
  * 定義每張卡牌選項會對玩家造成的收益、懲罰與觸犯的法條
@@ -108,9 +109,10 @@ export async function performAction(
   turn: number,
   counterCTOCount: number = 0
 ): Promise<ActionResult & { hashedTags: Tag[]; finalHash: string }> {
-  const card = CARDS_DB[cardId];
-  const actionId = Date.now();
-  const timestamp = new Date().toISOString();
+  try {
+    const card = CARDS_DB[cardId];
+    const actionId = Date.now();
+    const timestamp = new Date().toISOString();
 
   // 若找不到該實體卡片，則拒絕結算
   if (!card) {
@@ -129,6 +131,22 @@ export async function performAction(
 
   // 取出被選中的卡片選項詳細結構參數
   const opt = card[optionIdx as unknown as keyof Card] as AnyCardOption;
+
+  // [修正] 防禦性守門員：檢核選項是否存在，防止 TypeError
+  if (!opt) {
+    return {
+      success: false,
+      message: `🚫 系統錯誤：找不到行動選項 (${optionIdx})。`,
+      updates: {},
+      appliedTags: [],
+      hashedTags: [],
+      finalHash: lastHash,
+      apRefunded: true, // 系統資料錯誤，不應扣除玩家 AP
+      actionId,
+      log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'ERR_INVALID_OPT', timestamp },
+    };
+  }
+
   const updates: Partial<Player> = {};
   const snapshots: ActionResult['appliedTags'] = [];
 
@@ -177,10 +195,6 @@ export async function performAction(
 
   // 1. 成本計算 (GEMINI.md §2-2)，判斷玩家有沒有足夠的錢選擇選項
   let costToDeduct = opt.costG || 0;
-  if (opt.costCashPct !== undefined) {
-    // 有比例費用的計算公式 (無條件進位)
-    costToDeduct = Math.max(costToDeduct, roundUp((player.g || 0) * opt.costCashPct));
-  }
   // 如果玩家選擇了申報，課徵 50 萬手續費
   if (isDeclaration) costToDeduct += 50;
 
@@ -363,30 +377,39 @@ export async function performAction(
 
   const hashedTags: Tag[] = [];
   let currentLastHash = lastHash;
-  for (const s of snapshots) {
-    const ts = new Date().toISOString();
-    // 支援多重標籤：每個標籤都應產生獨立的雜湊鏈節點與黑材料紀錄
-    for (const singleTag of s.tag) {
-      const hash = await sha256(currentLastHash + singleTag + ts);
-      hashedTags.push({
-        id: actionId,
-        text: singleTag,
-        turn,
-        timestamp: ts,
-        isCrime: true,
-        hash,
-        netIncome: s.netIncome,
-        lawCaseIds: s.lawCaseIds,
-        rpChange: s.rpChange,
-        surface_term: s.surface_term,
-        hidden_intent: s.hidden_intent,
-        escape: s.escape,
-        isResolved: false,
-      });
-      // 更新最新一筆的防偽亂碼
-      currentLastHash = hash;
+  try {
+    for (const s of snapshots) {
+      const ts = new Date().toISOString();
+      // 支援多重標籤：每個標籤都應產生獨立的雜湊鏈節點與黑材料紀錄
+      for (const singleTag of s.tag) {
+        const hash = await sha256(currentLastHash + singleTag + ts);
+        hashedTags.push({
+          id: actionId,
+          text: singleTag,
+          turn,
+          timestamp: ts,
+          isCrime: true,
+          hash,
+          netIncome: s.netIncome,
+          lawCaseIds: s.lawCaseIds,
+          rpChange: s.rpChange,
+          surface_term: s.surface_term,
+          hidden_intent: s.hidden_intent,
+          escape: s.escape,
+          isResolved: false,
+        });
+        // 更新最新一筆的防偽亂碼
+        currentLastHash = hash;
+      }
     }
+  } catch (err: any) {
+    // 總裁指示：雜湊鏈是系統命脈，一旦失敗必須立即報錯並中止更新，防止資料鏈斷裂。
+    throwEnvironmentError(
+      `[Hash Chain Failure] 玩家: ${player.name}`,
+      `無法串接防偽雜湊鏈。原因: ${err?.message || '未知環境錯誤'}`
+    );
   }
+
 
   // 7. 保障AP安全機制
   // 失敗或取消的，AP點數不扣除
@@ -419,14 +442,28 @@ export async function performAction(
     else if (opt.type === 'B') extraPenaltyPool = 1;
 
     // C. 失敗額外罰則：若卡牌有設定 fail.bm，則繼續加重累計
-    if (!finalSuccess && opt.fail?.bm) extraPenaltyPool += opt.fail.bm;
+    if (!finalSuccess && opt.fail?.bm) {
+      const failBM = Number(opt.fail.bm);
+      if (Number.isNaN(failBM)) {
+        throwDataDefinitionError(`卡牌: ${cardId}`, `fail.bm 定義非法 (非數字): ${opt.fail.bm}`);
+      }
+      extraPenaltyPool += failBM;
+    }
 
     const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
     
     // D. 累加分攤邏輯：將額外懲罰平分給各標籤
     const bonusPerTag = Math.floor(extraPenaltyPool / hashedTags.length);
     
+    if (Number.isNaN(bonusPerTag)) {
+      throwLogicFailureError(
+        `bonusPerTag 計算結果為 NaN！`,
+        `(extraPenaltyPool: ${extraPenaltyPool}, tags: ${hashedTags.length})`
+      );
+    }
+
     hashedTags.forEach((ht) => {
+
       newBMSources.push({ 
         tag: ht.text, 
         count: baseBMPerTag + bonusPerTag, // 基礎 1 + 額外懲罰 (Additive)
@@ -444,28 +481,49 @@ export async function performAction(
     forcedTrial = { tagId: actionId, reason: message };
   }
 
-  // 將行動結果回傳給遊戲總控台
-  return {
-    success: finalSuccess,
-    message,
-    updates,
-    appliedTags: snapshots,
-    hashedTags,
-    finalHash: currentLastHash,
-    apRefunded,
-    actionId,
-    forcedTrial,
-    log: {
-      playerId: player.id,
-      turn,
-      cardId,
-      optionIndex: optionIdx,
-      tags:
-        snapshots.map((t) => (Array.isArray(t.tag) ? t.tag.join('/') : t.tag)).join(',') ||
-        (updates.skipNextCard ? 'SKIP_NEXT' : ''),
-      timestamp: new Date().toISOString(),
-    },
-  };
+    // 將行動結果回傳給遊戲總控台
+    return {
+      success: finalSuccess,
+      message,
+      updates,
+      appliedTags: snapshots,
+      hashedTags,
+      finalHash: currentLastHash,
+      apRefunded,
+      actionId,
+      forcedTrial,
+      log: {
+        playerId: player.id,
+        turn,
+        cardId,
+        optionIndex: optionIdx,
+        tags:
+          snapshots.map((t) => formatLawTags(t.tag)).join(',') ||
+          (updates.skipNextCard ? 'SKIP_NEXT' : ''),
+        timestamp: new Date().toISOString(),
+      },
+    };
+  } catch (err) {
+    console.error(`[Fatal Action Error] Card: ${cardId}, Option: ${optionIdx}`, err);
+    return {
+      success: false,
+      message: `🚨 核心熔毀：行動結算過程發生未知錯誤。原因：${err instanceof Error ? err.message : 'Unknown'}`,
+      updates: {},
+      appliedTags: [],
+      hashedTags: [],
+      finalHash: lastHash,
+      apRefunded: true,
+      actionId: 0,
+      log: {
+        playerId: player.id,
+        turn,
+        cardId,
+        optionIndex: optionIdx,
+        tags: 'ERR_FATAL',
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
 }
 
 /**
