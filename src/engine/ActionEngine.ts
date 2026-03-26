@@ -402,27 +402,34 @@ export async function performAction(
   // 禁足延遲發動機制
   if (opt.special === 'skip_next' || opt.skipNextCard) updates.skipNextCard = true;
 
-  // 8. 黑材料(BM) 累積以拉高起訴輪盤機率
-  let bmCount = opt.bm !== undefined ? opt.bm : 0;
-  if (isDeclaration) {
-    bmCount = 0; // 正規申報(保護費 / 手續費)不會產生黑材料
-  } else {
-    // 不同卡的不申報有不同程度的黑材料
-    if (bmCount === 0 && hashedTags.length > 0) {
-      if (opt.type === 'C')
-        bmCount = 3; // 公益假帳等重大舞弊更惡劣，3點
-      else if (opt.type === 'B') bmCount = 1; // 人才市場(商業間諜、挖角)1點
-    }
-    // 不申報還失敗導致更多黑材料
-    if (!finalSuccess && opt.fail?.bm) bmCount += opt.fail.bm;
-  }
+  // 8. 黑材料(BM) 累積：以拉高起訴輪盤機率 (各處標籤統一生成邏輯)
+  // 總裁指示：原本的標籤就是一個黑材料 (SSOT，基礎 1 點)，如果是「不申報」則額外增加累加上去
+  if (!isDeclaration && hashedTags.length > 0) {
+    // A. 基礎罰則：每個標籤保底 1 點
+    const baseBMPerTag = 1;
 
-  // 將新增的黑材料存入玩家檔案，供法庭階段結算
-  if (bmCount > 0 && hashedTags.length > 0) {
+    // B. 額外懲罰池 (不申報時的 Bonus)：C 類卡牌(重大舞弊)額外加 3 點，B 類(一般違規)額外加 1 點
+    let extraPenaltyPool = 0;
+    if (opt.type === 'C') extraPenaltyPool = 3;
+    else if (opt.type === 'B') extraPenaltyPool = 1;
+
+    // C. 失敗額外罰則：若卡牌有設定 fail.bm，則繼續加重累計
+    if (!finalSuccess && opt.fail?.bm) extraPenaltyPool += opt.fail.bm;
+
     const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
+    
+    // D. 累加分攤邏輯：將額外懲罰平分給各標籤
+    const bonusPerTag = Math.floor(extraPenaltyPool / hashedTags.length);
+    
     hashedTags.forEach((ht) => {
-      newBMSources.push({ tag: ht.text, count: bmCount, actionId, turn });
+      newBMSources.push({ 
+        tag: ht.text, 
+        count: baseBMPerTag + bonusPerTag, // 基礎 1 + 額外懲罰 (Additive)
+        actionId, 
+        turn 
+      });
     });
+    
     updates.blackMaterialSources = newBMSources;
   }
 
@@ -448,7 +455,8 @@ export async function performAction(
       turn,
       cardId,
       optionIndex: optionIdx,
-      tags: snapshots.map((t) => (Array.isArray(t.tag) ? t.tag.join('/') : t.tag)).join(',') ||
+      tags:
+        snapshots.map((t) => (Array.isArray(t.tag) ? t.tag.join('/') : t.tag)).join(',') ||
         (updates.skipNextCard ? 'SKIP_NEXT' : ''),
       timestamp: new Date().toISOString(),
     },

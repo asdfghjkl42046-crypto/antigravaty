@@ -3,7 +3,7 @@ import type { LawCase } from '../../types/game';
 export const LAWS_C: Record<string, LawCase> = {
   'C-01-3': {
     id: 'C-01-3',
-    tag: ['洗錢防制法', '虛假捐贈'],
+    tag: ['洗錢防制法', '詐欺罪'],
     lawName: '《洗錢防制法》第 14 條',
     surface_term: '贊助偏鄉孩童營養午餐',
     hidden_intent: '錢捐進去再繞一圈流回來，公益外皮包著洗錢的心',
@@ -18,7 +18,7 @@ export const LAWS_C: Record<string, LawCase> = {
   },
   'C-02-2': {
     id: 'C-02-2',
-    tag: ['公平交易法', '詐欺罪', '綠色洗白'],
+    tag: ['公平交易法', '詐欺罪'],
     lawName: '《公平交易法》第 21 條；《刑法》第 339 條',
     surface_term: '認養都市綠地環保專案',
     hidden_intent: '工廠污染超標還在做環保公關，用綠色形象掩蓋真相',
@@ -48,7 +48,7 @@ export const LAWS_C: Record<string, LawCase> = {
   },
   'C-04-1': {
     id: 'C-04-1',
-    tag: ['背信罪', '洗錢防制法', '公益挪用'],
+    tag: ['背信罪', '洗錢防制法', '業務侵占罪'],
     lawName: '《刑法》第 336 條；《洗錢防制法》第 14 條',
     surface_term: '員工教育訓練行政補助',
     hidden_intent: '用假發票把公益基金領出來，拿去替高管付私人消費',
@@ -58,8 +58,8 @@ export const LAWS_C: Record<string, LawCase> = {
   },
   'C-05-3': {
     id: 'C-05-3',
-    tag: ['詐欺罪', '洗錢防制法', '高估資產'],
-    lawName: '《刑法》第 339 條；《洗錢防制法》第 14 條',
+    tag: ['詐欺罪', '洗錢防制法', '商業會計法'],
+    lawName: '《刑法》第 339 條；《洗錢防制法》第 14 條；《商業會計法》第 71 條',
     surface_term: '扶植本土文化資產發展',
     hidden_intent: '把藝術品估價灌水，用來把公司的錢轉移到自己口袋',
     survival_rate: 0.02,
@@ -73,8 +73,8 @@ export const LAWS_C: Record<string, LawCase> = {
   },
   'C-06-1': {
     id: 'C-06-1',
-    tag: ['公益侵占罪', '洗錢防制法'],
-    lawName: '《刑法》第 277 條；《洗錢防制法》第 14 條',
+    tag: ['詐欺罪', '稅捐稽徵法'],
+    lawName: '《刑法》第 339 條；《稅捐稽徵法》第 41 條',
     surface_term: '重大災害後物資緊急調撥',
     hidden_intent: '捐過期爛貨卻虛報高價抵稅，公益資金進了自己帳戶',
     survival_rate: 0.02,

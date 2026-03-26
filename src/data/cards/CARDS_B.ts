@@ -19,7 +19,6 @@ export const CARDS_B: Record<string, Card> = {
         '開出高額技術股權，但條件是他離職前要把原公司的核心代碼庫和客戶清單帶過來——當作「入場券」。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-01-2'],
     },
     3: {
@@ -28,7 +27,6 @@ export const CARDS_B: Record<string, Card> = {
         '在他正式離職前安排幾次「技術交流」，全程錄音——以後萬一他想反悔或獅子大開口，你手上有籌碼。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-01-3'],
     },
   },
@@ -71,7 +69,6 @@ export const CARDS_B: Record<string, Card> = {
         '談好條件，入職第一週就要他交出前公司的完整客戶名單，順便用他還沒登出的帳號盯著競品的最新動態。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-03-1'],
     },
     2: {
@@ -79,7 +76,6 @@ export const CARDS_B: Record<string, Card> = {
       label: '要他在正式離職前把原公司的核心代碼庫下載下來——反正他有權限，又不是你叫他駭進去的。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-03-2'],
     },
     3: {
@@ -88,7 +84,6 @@ export const CARDS_B: Record<string, Card> = {
         '薪水照他說的給，但合約裡塞一份天價違約金協議和超時工作條款——讓他拿了錢也跑不掉，乖乖把所有資源都榨乾再說。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-03-3'],
     },
   },
@@ -102,7 +97,6 @@ export const CARDS_B: Record<string, Card> = {
         '私下接觸那幾個快跑的工程師，告訴他們跳過來有「搬家費」——但條件是帶著正在開發的產品原型圖一起來。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-04-1'],
     },
     2: {
@@ -131,7 +125,6 @@ export const CARDS_B: Record<string, Card> = {
         '讓他們簽「承攬合約」而不是勞動合約——加班費就不用算了，再塞一條提早離職要賠三個月薪水的條款，想走也走不了。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-05-1'],
     },
     2: {
@@ -140,7 +133,6 @@ export const CARDS_B: Record<string, Card> = {
         '直接上996，加班費不給，但發一堆股票期權當補償——反正公司真的上市的話，這些期權比加班費值錢多了。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-05-2'],
     },
     3: {
@@ -162,7 +154,6 @@ export const CARDS_B: Record<string, Card> = {
         '讓我先進你名下一間不相關的子公司，薪水用「顧問費」名義發——人在你這裡，但帳面上跟競業條款沒有關係。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-06-1'],
     },
     2: {
@@ -171,7 +162,6 @@ export const CARDS_B: Record<string, Card> = {
         '在海外開個人頭公司跟他簽約，研發獎金直接打進他的海外帳戶——錢出去了，但帳面上查不到你們之間有任何關係。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-06-2'],
     },
     3: {
@@ -180,7 +170,6 @@ export const CARDS_B: Record<string, Card> = {
         '暗中金援他去告前東家勞資糾紛，對方忙著應付官司、人心渙散——等時機到了，再光明正大地把他接過來。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-06-3'],
     },
   },
@@ -194,7 +183,6 @@ export const CARDS_B: Record<string, Card> = {
         '在對方正式宣佈裁員前，私下接洽這些工程師，承諾若他們能帶走原公司的開發環境設定檔，將給予高額簽約金。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-07-1'],
     },
     2: {
@@ -202,7 +190,6 @@ export const CARDS_B: Record<string, Card> = {
       label: '指示公司技術主管以「學術交流」為名邀請對方聚餐，藉此探聽對方的技術架構細節。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-07-2'],
     },
     3: {
@@ -223,7 +210,6 @@ export const CARDS_B: Record<string, Card> = {
         '把薪水拆成底薪加一堆津貼，津貼不計入投保薪資——對員工說這是「讓你實領更多」，對會計說這是「結構優化」。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-08-1'],
     },
     2: {
@@ -232,7 +218,6 @@ export const CARDS_B: Record<string, Card> = {
         '新人入職前先簽一份「自願放棄投保」的切結書，勞健保換成一個便宜的團體意外險——不簽就不用來了應。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-08-2'],
     },
     3: {
@@ -253,7 +238,6 @@ export const CARDS_B: Record<string, Card> = {
         '全面改成承攬制，KPI沒達標就按比例扣錢，勞保健保通通不用給——合約上寫清楚，簽了就是他們自己同意的。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-09-1'],
     },
     2: {
@@ -270,7 +254,6 @@ export const CARDS_B: Record<string, Card> = {
         '專案型的人力改成短期承攬，核心員工還是給正職福利——灰色地帶走一走，至少不是全部壓上去賭。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-09-3'],
     },
   },
@@ -284,7 +267,6 @@ export const CARDS_B: Record<string, Card> = {
         '私下找人傳話給他，說如果他繼續待在那個專案，你會把他在職時的考績紀錄全部公開——讓他自己衡量值不值得。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-10-1'],
     },
     2: {
@@ -293,7 +275,6 @@ export const CARDS_B: Record<string, Card> = {
         '協議有沒有效是一回事，先發一封措辭強硬的律師函給對方公司——就算告不贏，也能讓他們的開發節奏亂掉幾個月。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-10-2'],
     },
     3: {
@@ -302,7 +283,6 @@ export const CARDS_B: Record<string, Card> = {
         '讓HR發一份措辭嚴厲的公開聲明，點名任何竊取商業機密的行為都會追究到底——雖然手上其實沒什麼證據。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-10-3'],
     },
   },
@@ -316,7 +296,6 @@ export const CARDS_B: Record<string, Card> = {
         '直接叫人入侵他的雲端帳號，強刪那個repo。順便在業界群組放風說他離職前就在偷東西——讓他的下一份工作也別想找到。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-11-1'],
     },
     2: {
@@ -333,7 +312,6 @@ export const CARDS_B: Record<string, Card> = {
         '私下約他喝咖啡，給他一筆「顧問費」，條件是刪掉repo、簽封口協議、以後別再提這件事。他猶豫了一下，你加了個零。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-11-3'],
     },
   },
@@ -347,11 +325,7 @@ export const CARDS_B: Record<string, Card> = {
         '讓他先掛在你名下一間空殼公司，對外說是技術顧問合作。私下叫他用舊公司的帳號權限繼續抓數據——反正他還沒被停權。',
       ip: 60,
       rp: -20,
-      bm: 3,
       lawCaseIds: ['B-12-1'],
-      surface_term: '全球人才技術合作',
-      hidden_intent: '非法入侵前雇主資料庫並竊取商業祕密',
-      escape: '正當海外人才技術交流',
     },
     2: {
       type: 'B',
@@ -359,7 +333,6 @@ export const CARDS_B: Record<string, Card> = {
         '照他說的來：海外人頭公司付幣，他掛「虛擬顧問」，不簽約、不留紀錄、開會用代號。你告訴自己這只是彈性用人，直到你開始記不清楚到底付了他多少錢。',
       ip: 30,
       rp: -8,
-      bm: 1,
       lawCaseIds: ['B-12-2'],
     },
     3: {

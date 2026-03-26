@@ -4,7 +4,7 @@ export const LAWS_E: Record<string, LawCase> = {
   // E-01: 證據湮滅
   'E-01-1': {
     id: 'E-01-1',
-    tag: ['湮滅證據罪', '加重刑責'],
+    tag: ['湮滅證據罪'],
     lawName: '《刑法》第 165 條',
     surface_term: '硬體設施的年度例行汰換',
     hidden_intent: '明知調查展開仍針對性銷毀關鍵硬碟，意圖湮滅證據',
@@ -21,7 +21,7 @@ export const LAWS_E: Record<string, LawCase> = {
   // E-02: 證人調解
   'E-02-1': {
     id: 'E-02-1',
-    tag: ['教唆偽證罪', '虛偽陳述'],
+    tag: ['教唆偽證罪', '妨害司法罪'],
     lawName: '《刑法》第 168 條',
     surface_term: '關於民事糾紛的賠償和解協議',
     hidden_intent: '以金錢誘導證人不實陳述或翻供，教唆偽證',
@@ -70,8 +70,8 @@ export const LAWS_E: Record<string, LawCase> = {
   // E-04: 合約修改
   'E-04-1': {
     id: 'E-04-1',
-    tag: ['偽造私文書罪', '公證法違規'],
-    lawName: '《刑法》第 210、216 條',
+    tag: ['偽造私文書罪', '使公務員登載不實罪'],
+    lawName: '《刑法》第 210、214、216 條',
     surface_term: '針對漏簽文件的行政補簽流程',
     hidden_intent: '誘使公證人修改合約日期，偽造並行使私文書',
     survival_rate: 0.02,
@@ -87,8 +87,8 @@ export const LAWS_E: Record<string, LawCase> = {
   // E-05: 資產隱藏
   'E-05-2': {
     id: 'E-05-2',
-    tag: ['洗錢防制法', '掩飾犯罪所得'],
-    lawName: '《洗錢防制法》第 14 條',
+    tag: ['洗錢防制法', '稅捐稽徵法'],
+    lawName: '《洗錢防制法》第 14 條；《稅捐稽徵法》第 41 條',
     surface_term: '全球化多元資產配置架構分析',
     hidden_intent: '透過多層海外架構掩飾犯罪所得，規備跨境資金追查',
     survival_rate: 0.01,

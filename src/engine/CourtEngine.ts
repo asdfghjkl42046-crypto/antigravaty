@@ -191,18 +191,21 @@ export class CourtEngine {
    */
   static calculatePenalty(
     player: Player,
-    tagText: string,
+    tagText: string | string[],
     currentTurn: number = 999,
     tagId?: number,
     isAppeal: boolean = false,
     personality?: JudgePersonality
   ): { fine: number; rpLoss: number; detail?: string } {
+    // 統一處理標籤轉字串，便於後續搜尋與比對
+    const searchTag = Array.isArray(tagText) ? tagText.join('/') : tagText;
+
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
     // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
     const relatedTags = player.tags.filter((t) => {
       const isIdMatch = tagId !== undefined && t.id === tagId;
       // 複合標籤處理：檢查法典標籤是否包含原本的獨立標籤，或者是完全相等
-      const isTextMatch = tagText.includes(t.text) || t.text.includes(tagText);
+      const isTextMatch = searchTag.includes(t.text) || t.text.includes(searchTag);
       return (isIdMatch || isTextMatch) && t.netIncome !== undefined;
     });
 
@@ -273,9 +276,10 @@ export class CourtEngine {
    */
   static applyWithdrawCase(
     player: Player,
-    lawCaseTag: string,
+    lawCaseTag: string | string[],
     lawCaseTagId: number
   ): { success: boolean; updates: Partial<Player> } {
+    const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     // 從 RoleEngine 調用動態撤案成本計算 (依據玩家總資產比率)
     const cost = getWithdrawCaseCost(player);
     // 確認手邊可動用資金與人脈是否充足
@@ -289,7 +293,7 @@ export class CourtEngine {
         g: Math.max(0, player.g - cost.g), // 扣除所需費用
         ip: Math.max(0, player.ip - cost.ip), // 扣除人脈點數
         // 將身上對應該標籤的所有黑材料銷毀
-        blackMaterialSources: removeBlackMaterialsByTag(player, lawCaseTag, lawCaseTagId),
+        blackMaterialSources: removeBlackMaterialsByTag(player, tagText, lawCaseTagId),
         // 將引發訴訟的問題標籤轉為 Resolved 歷史狀態
         tags: player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t)),
       },
@@ -529,16 +533,17 @@ export class CourtEngine {
   static applyTrialResolution(
     player: Player,
     isSuccess: boolean,
-    lawCaseTag: string,
+    lawCaseTag: string | string[],
     lawCaseTagId: number,
     personality?: JudgePersonality,
     currentTurn: number = 999
   ): Partial<Player> {
     const updates: Partial<Player> = { ...player };
+    const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     // 勝訴情況：洗清嫌疑，還予公道
     if (isSuccess) {
       // 消除相關黑材料
-      updates.blackMaterialSources = removeBlackMaterialsByTag(player, lawCaseTag, lawCaseTagId);
+      updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
       // 標籤保留邏輯：不再標記 isResolved: true，僅移除黑材料。
       // 因 pickLawCase 會檢查黑材料實體，無材料即代表該標籤暫時不具備起訴條件。
       updates.tags = player.tags.map((t) => {
@@ -563,7 +568,7 @@ export class CourtEngine {
       updates.totalFinesPaid = (player.totalFinesPaid || 0) + penalty.fine;
 
       // 一案一清，將黑材料移除，標籤保留
-      updates.blackMaterialSources = removeBlackMaterialsByTag(player, lawCaseTag, lawCaseTagId);
+      updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
     }
 
     // 結案後清除已使用的賄賂物

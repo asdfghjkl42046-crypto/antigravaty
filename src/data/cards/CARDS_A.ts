@@ -11,7 +11,6 @@ export const CARDS_A: Record<string, Card> = {
         '工程師說這只是「預留維護通道」——合約沒有明確禁止，對方要是真的賴帳，這就是我們保障自己的技術性手段。',
       g: 350,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-01-1'],
     },
     2: {
@@ -20,7 +19,6 @@ export const CARDS_A: Record<string, Card> = {
         '去識別化之後法律上就不算個資了。把這批數據的使用授權賣給廣告商，算是幫資料找到它應有的商業價值。',
       g: 400,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-01-2'],
     },
     3: {
@@ -56,7 +54,6 @@ export const CARDS_A: Record<string, Card> = {
         '視覺語言本來就在市場上流通——我們做的是同一個品類的獨立詮釋，目標客群也不同，這叫品牌定位，不叫抄襲。',
       g: 180,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-02-3'],
     },
   },
@@ -70,7 +67,6 @@ export const CARDS_A: Record<string, Card> = {
         '幾乎確定要簽的合約，調整一下認列時點而已——會計師說這在準則的彈性空間裡，叫「跨期認列」。',
       g: 200,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-03-1'],
     },
     2: {
@@ -79,7 +75,6 @@ export const CARDS_A: Record<string, Card> = {
         '透過子公司做帳務結構重整，讓集團整體的財務數字更清楚——錢還是在體系裡，只是走了一條更好看的路。',
       g: 500,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-03-1', 'A-03-2'],
     },
     3: {
@@ -88,7 +83,6 @@ export const CARDS_A: Record<string, Card> = {
         '請同事把這個月的發票都丟來，費用統一歸入研發項目——財報結構更漂亮，省下來的稅就當大家的績效獎金。',
       g: 150,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-03-3'],
     },
   },
@@ -102,7 +96,6 @@ export const CARDS_A: Record<string, Card> = {
         '匿名整理一批對方技術疑義的資料寄給評審——讓市場機制自己判斷對手的合規性，我只是傳遞資訊。',
       g: 450,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-04-1'],
     },
     2: {
@@ -110,7 +103,6 @@ export const CARDS_A: Record<string, Card> = {
       label: '對方那套核心邏輯根本沒有法律保護，參考一下不算侵權——業界都在做，只是很少人直說。',
       g: 220,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-04-2'],
     },
     3: {
@@ -147,7 +139,6 @@ export const CARDS_A: Record<string, Card> = {
         '後台的數據呈現方式本來就有優化空間——調整一下顯示邏輯，讓報告更直觀，幫客戶把注意力放在真正重要的指標上。',
       g: 400,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-05-3'],
     },
   },
@@ -168,7 +159,6 @@ export const CARDS_A: Record<string, Card> = {
         '先低調做內部營運測試，同時跟大樓管理端建立定期溝通——確保任何行政進展都能第一時間掌握，屬於正常的場地協調。',
       g: 350,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-06-2', 'A-06-2-2'],
     },
     3: {
@@ -177,7 +167,6 @@ export const CARDS_A: Record<string, Card> = {
         '正式執照下來之前先用倉儲節點過渡，登記地址依行政需求彈性安排——只是暫時的，等證照齊了再統一正式化。',
       g: 180,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-06-3'],
     },
   },
@@ -198,7 +187,6 @@ export const CARDS_A: Record<string, Card> = {
         '不放自己口袋——掛個「公關預備金」的名目放公司帳。維繫供應商關係是真實的業務需求，性質不一樣。',
       g: 200,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-07-2'],
     },
     3: {
@@ -207,7 +195,6 @@ export const CARDS_A: Record<string, Card> = {
         '請對方開「行銷勞務費」的發票——這樣錢進得合法、帳報得出去，還能順便抵稅。合規包裝，兩頭都顧到。',
       g: 420,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-07-3'],
     },
   },
@@ -229,7 +216,6 @@ export const CARDS_A: Record<string, Card> = {
         '在股權結構尚未轉移之前，把核心智財以技術授權方式移轉到海外關係企業——確保資產在重組過程中不被稀釋。',
       g: 500,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-08-2'],
     },
     3: {
@@ -238,7 +224,6 @@ export const CARDS_A: Record<string, Card> = {
         '在章程裡加入股權稀釋的觸發條款——這是標準反惡意併購的設計邏輯，進了董事會就知道這是正常的防禦機制。',
       g: 220,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-08-3'],
     },
   },
@@ -260,7 +245,6 @@ export const CARDS_A: Record<string, Card> = {
         '補償金不給，但在合約裡塞一個天文數字的賠償條款——看到那個數字通常就嚇跑了，真的要告再說。',
       g: 150,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-09-2'],
     },
     3: {
@@ -269,7 +253,6 @@ export const CARDS_A: Record<string, Card> = {
         '發律師函給對方公司，順便放話說這個主管有竊密嫌疑——讓他還沒到職就先被貼上標籤，自己評估值不值得。',
       g: 380,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-09-3'],
     },
   },
@@ -283,7 +266,6 @@ export const CARDS_A: Record<string, Card> = {
         '把這筆大錢拆成一堆小錢，分批打進比較少用的外幣帳戶——每筆都在申報門檻以下，查核系統很難抓到規律。',
       g: 480,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-10-1'],
     },
     2: {
@@ -299,7 +281,6 @@ export const CARDS_A: Record<string, Card> = {
         '買幾個NFT，申報成「數位行銷推廣支出」——帳面獲利降下來，稅少繳，反正數位資產本來就很難估價。',
       g: 180,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-10-3'],
     },
   },
@@ -313,7 +294,6 @@ export const CARDS_A: Record<string, Card> = {
         '委託數位公關團隊在各平台協助擴散消費者反饋——市場已經在討論了，幫真實的聲音傳得更遠而已。',
       g: 420,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-11-1'],
     },
     2: {
@@ -322,7 +302,6 @@ export const CARDS_A: Record<string, Card> = {
         '推出「安心選擇」廣告，主動揭露自家的檢驗標準與認證流程——沒有直接點名，但懂的人都懂在說誰。',
       g: 200,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-11-2'],
     },
     3: {
@@ -350,7 +329,6 @@ export const CARDS_A: Record<string, Card> = {
         '讓財務把出貨單的日期配合實際完成時點做行政校校正——文件還是文件，只是讓帳務跟業務進度對齊。',
       g: 180,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-12-2'],
     },
     3: {
@@ -359,7 +337,6 @@ export const CARDS_A: Record<string, Card> = {
         '私下聯繫對方財務窗口，請他在系統裡對那個日期誤差「通融」一下——長期合作關係，互相留點空間是正常的。',
       g: 380,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-12-3'],
     },
   },
@@ -380,7 +357,6 @@ export const CARDS_A: Record<string, Card> = {
         '這批商品功能完整，外觀差異屬於製程容許範圍——跟新品混合出貨，通路商驗貨通常不會每箱拆開細看的。',
       g: 220,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-13-2'],
     },
     3: {
@@ -389,7 +365,6 @@ export const CARDS_A: Record<string, Card> = {
         '捐給公益機構，申請抵稅證明——金額嘛，依實際功能價值往合理範圍認定，捐出去的東西本來就有估價空間。',
       g: 450,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-13-3'],
     },
   },
@@ -411,7 +386,6 @@ export const CARDS_A: Record<string, Card> = {
         '先挪來發薪水，結案報告再補幾張研發支出的單據——查帳員不可能每張都核實，這只是時間差的問題。',
       g: 250,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-14-2'],
     },
     3: {
@@ -420,7 +394,6 @@ export const CARDS_A: Record<string, Card> = {
         '找熟悉的外包商簽一份技術合約，把補助款打過去再扣手續費匯回——帳面上是研發支出，實際上錢還是回來了。',
       g: 500,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-14-3'],
     },
   },
@@ -441,7 +414,6 @@ export const CARDS_A: Record<string, Card> = {
         '不叫「轉讓」，叫「技術諮詢」——把核心拆成幾個模組分批授權，合約上看起來就是一般的顧問服務。',
       g: 300,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-15-2'],
     },
     3: {
@@ -450,7 +422,6 @@ export const CARDS_A: Record<string, Card> = {
         '直接把原始碼傳到對方伺服器，再用一份「軟體採購合約」把那筆錢合法地收回來——技術出去了，錢也進來了。',
       g: 600,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-15-3'],
     },
   },
@@ -472,7 +443,6 @@ export const CARDS_A: Record<string, Card> = {
         '剪一段展示影片，把整體設計邏輯和功能概念跑起來——Demo本來就是概念溝通，細節在後續交付時補齊。',
       g: 180,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-16-2'],
     },
     3: {
@@ -481,7 +451,6 @@ export const CARDS_A: Record<string, Card> = {
         '叫外包商以現有框架為基礎做客製化調整——縮短開發周期，確保如期交付，這是業界常見的整合開發方式。',
       g: 200,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-16-3'],
     },
   },
@@ -495,7 +464,6 @@ export const CARDS_A: Record<string, Card> = {
         '透過獵頭公司繞個彎，用「技術顧問」名義簽私人合約——不是「聘用」，只是「合作」，競業條款管不到這裡。',
       g: 220,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-17-1'],
     },
     2: {
@@ -504,7 +472,6 @@ export const CARDS_A: Record<string, Card> = {
         '暗中資助這些員工了解自身的勞動權益，協助他們釐清勞資責任——等時機成熟，再正式開啟合作談判。',
       g: 200,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-17-2'],
     },
     3: {
@@ -532,7 +499,6 @@ export const CARDS_A: Record<string, Card> = {
         '讓律師在合約裡加幾個技術性保護條款，用精確的法律語言確保極端情況下協議的可執行性受到充分檢驗。',
       g: 280,
       rp: -5,
-      bm: 1,
       lawCaseIds: ['A-18-2'],
     },
     3: {
@@ -541,7 +507,6 @@ export const CARDS_A: Record<string, Card> = {
         '透過關係企業的採購安排強化集團業務往來規模——帳面毛利結構自然漂亮，兩年後對賭目標順利達成。',
       g: 550,
       rp: -15,
-      bm: 3,
       lawCaseIds: ['A-18-3'],
     },
   },
