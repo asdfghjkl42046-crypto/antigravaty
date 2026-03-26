@@ -13,6 +13,7 @@ import {
   getCTOAutoIncome,
   calculateTrustTransfer,
 } from './RoleEngine';
+import { throwDataCorruptionError, throwLogicFailureError } from './errors/EngineErrors';
 
 // ============================================================
 // §1-2 信用不合格 (收益補丁)
@@ -42,6 +43,17 @@ export function calculateActualRPGain(player: Player, baseGain: number): number 
  */
 export function getIndictmentChance(player: Player, currentTurn: number = 1): number {
   const sources = player.blackMaterialSources || [];
+  
+  // 嚴格檢查：如果 blackMaterialSources 內部的 count 含有 NaN，直接報錯
+  sources.forEach((s, idx) => {
+    if (s.count === undefined || Number.isNaN(s.count)) {
+      throwDataCorruptionError(
+        `玩家: ${player.name}`,
+        `檢測到非法黑材料數據！標籤: ${s.tag}, 索引: ${idx}, 數值: ${s.count}。這會導致起訴機率計算失效。`
+      );
+    }
+  });
+
   // 累加出現役的總黑材料數 (BM)
   const totalBM = sources.reduce((sum, s) => sum + s.count, 0);
 
@@ -52,10 +64,23 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   // 分離出「本回合剛產生熱騰騰的黑料 (高權重)」與「往期留下來的舊帳 (低權重)」
   const newBM = sources.filter((s) => s.turn === currentTurn).reduce((sum, s) => sum + s.count, 0);
   const oldBM = sources.filter((s) => s.turn < currentTurn).reduce((sum, s) => sum + s.count, 0);
-  const totalTags = player.totalTagsCount || 0; // 生涯累積標籤作為名聲隱性負債
+  
+  // 嚴格檢查：totalTagsCount 是否為合法數字
+  if (player.totalTagsCount !== undefined && Number.isNaN(player.totalTagsCount)) {
+    throwDataCorruptionError(`玩家: ${player.name}`, `totalTagsCount 為 NaN！`);
+  }
+  const totalTags = player.totalTagsCount || 0;
 
   // 綜合結算：(新罪*3.5倍) + (舊罪*0.8倍) + (累積犯罪標籤*0.2) - (名望折抵)
   const baseProb = newBM * 3.5 + oldBM * 0.8 + totalTags * 0.2 - (player.rp - 50) * 0.5;
+
+  // 最後確認：如果最終機率算出來是 NaN，說明 player.rp 可能也有問題
+  if (Number.isNaN(baseProb)) {
+    throwLogicFailureError(
+      `起訴機率計算結果為 NaN！`,
+      `(newBM: ${newBM}, oldBM: ${oldBM}, totalTags: ${totalTags}, RP: ${player.rp})`
+    );
+  }
 
   // 違法階梯：為防止老玩家依仗資金洗白，歷史犯罪次數過多的法外狂徒將面臨越來越高的基礎發跡底線
   let floor = 0;
@@ -67,6 +92,7 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   const rawProb = Math.floor(baseProb);
   return Math.max(floor, Math.min(100, rawProb));
 }
+
 
 // ============================================================
 // 法庭處罰與賄賂好感度處理
@@ -245,7 +271,19 @@ export function settleBet(
  */
 export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Player> {
   const updates: Partial<Player> = {};
-  // 先擷取當前狀態以便運算推疊
+
+  // § 嚴格檢查：核心資產必須存在且為合法數字 (防止數據損壞導致的 NaN 連鎖反應)
+  if (player.g === undefined || Number.isNaN(player.g)) {
+    throwDataCorruptionError(`玩家: ${player.name}`, `現金(g) 屬性缺失或為 NaN！`);
+  }
+  if (player.rp === undefined || Number.isNaN(player.rp)) {
+    throwDataCorruptionError(`玩家: ${player.name}`, `名聲(rp) 屬性缺失或為 NaN！`);
+  }
+  if (player.trustFund === undefined || Number.isNaN(player.trustFund)) {
+    throwDataCorruptionError(`玩家: ${player.name}`, `信託基金(trustFund) 屬性缺失或為 NaN！`);
+  }
+
+  // 擷取當前狀態以便運算推疊
   let finalG = player.g;
   let finalRP = player.rp;
   let finalTrust = player.trustFund;
@@ -279,6 +317,14 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
 
   // 5. AP 行動力重置：回合結束時，除非玩家已經出局，否則 AP 強度補回上限 5 點供下一輪運用
   updates.ap = player.isBankrupt ? player.ap : 5;
+
+  // 最終安全檢查：確保回傳的數據不包含 NaN 或非法值
+  if (Number.isNaN(finalG) || Number.isNaN(finalRP) || Number.isNaN(finalTrust)) {
+    throwDataCorruptionError(
+      `玩家: ${player.name}`,
+      `結算過程中產生非法數值！(G: ${finalG}, RP: ${finalRP}, Trust: ${finalTrust})`
+    );
+  }
 
   // 紀錄封裝
   updates.g = finalG;

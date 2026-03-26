@@ -6,12 +6,12 @@ import {
   TrialState,
   TrialStage,
 } from '../types/game';
-import { LAW_CASES_DB } from '../data/laws/LawCasesDB';
 import {
   getIndictmentChance,
   calculateConvictionPenalty,
   calculateSpectatorInfluence,
 } from './MechanicsEngine';
+import { LAW_CASES_DB, formatLawTags } from '../data/laws/LawCasesDB';
 import { removeBlackMaterialsByTag, getTotalBlackMaterials } from './PlayerEngine';
 import {
   JUDGMENT_TEMPLATES,
@@ -21,6 +21,7 @@ import {
 } from '../data/judges/JudgeTemplatesDB';
 import { AIEngine } from './AIEngine';
 import { getWithdrawCaseCost, getLawyerDefenseBonus } from './RoleEngine';
+import { throwTrialInitializationError } from './errors/EngineErrors';
 
 /**
  * 法庭與審判系統
@@ -124,7 +125,7 @@ export class CourtEngine {
     // 統一從各大惡棍法官資料庫中隨機抓取罐頭對白並植入動態變數
     // 以充滿沉浸感的文字給予玩家自由發揮的辯護空間
     const question = getRandomTemplate(INTERROGATION_TEMPLATES[personality], {
-      tag: lawCase.tag.join('/'),
+      tag: formatLawTags(lawCase.tag),
       lawName: lawCase.lawName,
       sTerm: lawCase.surface_term,
       hIntent: lawCase.hidden_intent,
@@ -136,9 +137,9 @@ export class CourtEngine {
       : '';
 
     const narratives = [
-      `「檢方已取得決定性證據：被告於經營期間涉嫌『${lawCase.tag.join('/')}』行為，觸犯《${lawCase.lawName}》。${evidenceSnippet}正式公訴！」`,
-      `「針對被告企業之『${lawCase.tag.join('/')}』異常紀錄，本庭依《${lawCase.lawName}》宣告進入審理時序。${evidenceSnippet}」`,
-      `「法庭肅靜！被告涉嫌『${lawCase.tag.join('/')}』此為重大犯罪，現依《${lawCase.lawName}》開庭審理！${evidenceSnippet}」`,
+      `「檢方已取得決定性證據：被告於經營期間涉嫌『${formatLawTags(lawCase.tag)}』行為，觸犯《${lawCase.lawName}》。${evidenceSnippet}正式公訴！」`,
+      `「針對被告企業之『${formatLawTags(lawCase.tag)}』異常紀錄，本庭依《${lawCase.lawName}》宣告進入審理時序。${evidenceSnippet}」`,
+      `「法庭肅靜！被告涉嫌『${formatLawTags(lawCase.tag)}』此為重大犯罪，現依《${lawCase.lawName}》開庭審理！${evidenceSnippet}」`,
     ];
     return {
       narrative: narratives[Math.floor(Math.random() * narratives.length)],
@@ -162,7 +163,7 @@ export class CourtEngine {
 
     // 依據玩家的答辯文本，從模板庫挑選文案並填入動態變數
     const generatedTemplate = getRandomTemplate(templates, {
-      tag: trial.lawCase.tag.join('/'),
+      tag: formatLawTags(trial.lawCase.tag),
       lawName: trial.lawCase.lawName,
       sTerm: trial.lawCase.surface_term,
       hIntent: trial.lawCase.hidden_intent,
@@ -198,7 +199,7 @@ export class CourtEngine {
     personality?: JudgePersonality
   ): { fine: number; rpLoss: number; detail?: string } {
     // 統一處理標籤轉字串，便於後續搜尋與比對
-    const searchTag = Array.isArray(tagText) ? tagText.join('/') : tagText;
+    const searchTag = formatLawTags(tagText);
 
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
     // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
@@ -336,7 +337,7 @@ export class CourtEngine {
       ? undefined
       : this.calculatePenalty(
           player,
-          trial.lawCase.tag.join('/'),
+          trial.lawCase.tag, // 此處傳入原始型別，由 calculatePenalty 內部處理 format
           currentTurn,
           trial.lawCaseTagId,
           trial.isAppeal || false,
@@ -424,7 +425,9 @@ export class CourtEngine {
   ): Partial<TrialState> | null {
     // 根據鎖定之被告 ID 提取玩家參考物件
     const defendant = players.find((p) => p.id === defendantId);
-    if (!defendant) return null;
+    if (!defendant) {
+      throwTrialInitializationError('法庭初始化', `找不到指定被告 ID: ${defendantId}`);
+    }
 
     // 將場上其餘並未破產存活者作為「陪審員/旁觀者」納入陣列清單
     const bystanderIds = players
@@ -435,7 +438,11 @@ export class CourtEngine {
     // 若黑材料為 0，直接阻斷不觸發提告
     const totalGlobalBM = players.reduce((acc, p) => acc + getTotalBlackMaterials(p), 0);
     if (totalGlobalBM === 0) {
-      return null;
+      // [修正] 如果是強制性起訴，黑材料卻是 0，這代表資料存檔或引擎狀態損壞
+      if (isInevitable || forcedTagId) {
+        throwTrialInitializationError('法庭初始化', `強制性起訴程序發動，但全場黑材料總量為 0！`);
+      }
+      return null; // 常規隨機案件允許可因無事證而撤告
     }
 
     let lawCase: LawCase | null = null;
@@ -458,11 +465,9 @@ export class CourtEngine {
       if (!res) {
         // 如果進得來這裡代表俄羅斯輪盤判定這名玩家身上有黑材料 (totalBM > 0)
         // 但 pickLawCase 卻遍尋不著尚未結案的違規標籤，這是嚴重的邏輯斷層或發牌 BUG
-        console.error(
-          `[GameLogic Error] 玩家 ${defendant.name} 被法庭強勢傳喚，但卻完全搜不到任何有效且未結案的犯罪標籤 (Tag)！`
-        );
-        throw new Error(
-          `Data Integrity Error: Player ${defendant.name} was summoned but no valid active tags were found for prosecution. Please verify if ActionEngine generated BM without an active Crime Tag.`
+        throwTrialInitializationError(
+          '法庭初始化',
+          `玩家 ${defendant.name} 被起訴，但搜不到任何有效且未結案的犯罪標籤 (Tag)！可能原因：ActionEngine 產生了無標籤的黑材料(BM)。`
         );
       }
       lawCase = res.lawCase;

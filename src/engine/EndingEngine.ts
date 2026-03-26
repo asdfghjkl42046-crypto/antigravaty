@@ -216,13 +216,25 @@ export function resolveGameStatus(
     return { isGameOver: true, phase: 'gameover', endingResult: ending, updatedPlayer };
   }
 
-  // 3. 回合上限保衛機制 (GEMINI.md §3-2: 遊戲只營運 50 回合)
+  // 3. 勝利路徑達成判定 (提早通關)
+  // 聖皇路徑需滿足「最後 5 回合無犯罪」之 Saint Bonus
+  const lookbackWindow = 5;
+  const isLast5TurnsClean = !player.tags.some((t) => t.isCrime && t.turn > currentTurn - lookbackWindow);
+  
+  const victoryRoute = checkVictory(player, currentTurn, isLast5TurnsClean);
+  if (victoryRoute) {
+    // 只要達成任何一種勝利路線，即刻結算結局並進入 victory 階段
+    const ending = calculateEnding(player, currentTurn);
+    return { isGameOver: true, phase: 'victory', endingResult: ending };
+  }
+
+  // 4. 回合上限保衛機制 (GEMINI.md §3-2: 遊戲只營運 50 回合)
   if (currentTurn > 50) {
     // 時間到，強制送去審判看成績
     const ending = calculateEnding(player, 50);
     return { isGameOver: true, phase: 'gameover', endingResult: ending };
   }
 
-  // 4. 若通過所有考驗，向狀態機回報繼續正常進行遊戲
+  // 5. 若通過所有考驗，向狀態機回報繼續正常進行遊戲
   return { isGameOver: false, phase: 'play', endingResult: null };
 }

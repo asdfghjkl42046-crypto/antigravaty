@@ -1,4 +1,4 @@
-import { checkVictory, generateEvaluation } from '../engine/EndingEngine';
+import { checkVictory, generateEvaluation, resolveGameStatus } from '../engine/EndingEngine';
 import type { Player } from '../types/game';
 
 async function testEndingBranches() {
@@ -139,6 +139,40 @@ async function testEndingBranches() {
   evalTitle = generateEvaluation(dummyPlayer.tags);
   console.log(
     `  駭客+其他標籤 -> 評價: ${evalTitle} (預期: 技術駭客 / 法外狂徒) => ${evalTitle.includes('技術駭客') && evalTitle.includes('法外狂徒') ? '✅' : '❌'}`
+  );
+
+  // --- 3. 狀態分流系統 (resolveGameStatus) ---
+  console.log('\n[3] 遊戲狀態分流 (resolveGameStatus) 測試:');
+
+  // 情境 1: 提早聖皇達成 (滿足 5 回合清白)
+  dummyPlayer.g = 2200;
+  dummyPlayer.rp = 100;
+  dummyPlayer.tags = []; // 歷史總犯罪 = 0，絕對是 True Saint
+  let status = resolveGameStatus(dummyPlayer, 20);
+  console.log(
+    `  提早聖皇達成 (Turn 20, Tags=0) -> 狀態: ${status.phase}, 標題: ${status.endingResult?.title} => ${status.phase === 'victory' && status.endingResult?.title === '聖皇' ? '✅' : '❌'}`
+  );
+
+  // 情境 2: 聖皇(偽) 分支判定
+  dummyPlayer.tags = Array(6).fill(null).map((_, i) => ({
+    id: i + 100,
+    turn: 1,
+    text: '輕微違規',
+    netIncome: 0,
+    hash: '',
+    isCrime: true,
+  })) as any; // 超過 5 個犯罪
+  status = resolveGameStatus(dummyPlayer, 20);
+  console.log(
+    `  提早聖皇(偽)達成 (Turn 20, Tags=6) -> 標題: ${status.endingResult?.title} => ${status.endingResult?.title === '聖皇(偽)' ? '✅' : '❌'}`
+  );
+
+  // 情境 3: 企業巨頭提早達成
+  dummyPlayer.g = 3000;
+  dummyPlayer.rp = 30; // 即使有犯罪也沒關係
+  status = resolveGameStatus(dummyPlayer, 20);
+  console.log(
+    `  提早巨頭達成 (Turn 20) -> 狀態: ${status.phase}, 結局: ${status.endingResult?.type} => ${status.phase === 'victory' && status.endingResult?.type === 'tycoon' ? '✅' : '❌'}`
   );
 
   console.log('\n✅ EndingEngine 結局與評價分支覆蓋測試完成。');
