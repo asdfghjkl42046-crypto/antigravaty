@@ -58,6 +58,11 @@ body {
   width: var(--progress, 0%);
 }
 
+/* 勝率預估條：透過 CSS 變數控制動態寬度，避免 inline style */
+.survival-rate-bar {
+  width: var(--rate, 0%);
+}
+
 /* 慢速旋轉動畫（2 秒一圈），避免 inline style */
 .spin-slow {
   animation-duration: 2s;

@@ -546,15 +546,15 @@ export default function Courtroom() {
                           <div className="flex items-center gap-3 mt-1">
                             <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
                               <div
+                                ref={(el) => { if (el) el.style.setProperty('--rate', `${predictedRate * 100}%`); }}
                                 className={cn(
-                                  'h-full transition-all duration-500',
+                                  'survival-rate-bar h-full transition-all duration-500',
                                   predictedRate > 0.7
                                     ? 'bg-emerald-500'
                                     : predictedRate > 0.4
                                       ? 'bg-amber-500'
                                       : 'bg-rose-500'
                                 )}
-                                style={{ width: `${predictedRate * 100}%` }}
                               />
                             </div>
                             <span
