@@ -51,7 +51,7 @@ export const CARD_UI_TEXT = {
   POST_ACTION: {
     DECLARE_TITLE: (title: string) => `【${title}】申報決策`,
     DECLARE_LABEL: '正規申報案',
-    DECLARE_DESC: '支付手續費並列入財報，大幅提升名聲（RP+50）。',
+    DECLARE_DESC: '支付手續費並列入財報，成功申報可獲得額外名聲獎勵。',
     SKIP_LABEL: '略過申報 (黑箱)',
     SKIP_DESC: '隱瞞資金流向，若成功可保留全額，失敗則沒收並產生黑材料。',
   },

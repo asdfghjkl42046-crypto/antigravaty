@@ -296,9 +296,15 @@ export async function performAction(
       if (isDeclaration) {
         // 安全申報，需要倒貼手續費
         finalGChange = -costToDeduct;
-        // 但大幅吸收了名聲進帳
-        finalRPChange = calculateActualRPGain(player, baseRewardRP);
+        // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
+        const baseRPWithBonus = isCTypeCOption ? baseRewardRP + 30 : baseRewardRP;
+        finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
         finalIPChange = baseRewardIP;
+
+        // [新增] 若是 C 類卡且成功獲得獎勵，在訊息增加提示文字
+        if (isCTypeCOption) {
+          message += `。獲得額外獎勵 +30 RP！`;
+        }
       } else {
         // 檢定過關且未主動申報的黑箱路線
         // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
