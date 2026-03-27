@@ -23,6 +23,7 @@ import {
   getWithdrawCaseCost,
   getExtraAppealCost,
   getLawyerDefenseBonus,
+  shouldRemoveWrongOption,
 } from '@/engine/GameEngine';
 import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
@@ -478,82 +479,110 @@ export default function Courtroom() {
 
                 {/* 被告最後的狡辯：你要裝死到底、轉移焦點、還是跟法官裝可憐？ */}
                 <div className="grid grid-cols-1 gap-3">
-                  {[
-                    // 選項一：打模糊仗，推給法條裡的專用脫罪口訣 (例如：這是專案建置維護費不是回扣)
-                    COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0](trial.lawCase.escape || '業務正當性'),
-                    // 選項二：打死不認，針對本體罪名「內線交易」發誓絕對無辜
-                    COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](formatLawTags(trial.lawCase.tag)),
-                    // 選項三：跟法官搏感情，針對剛剛卡牌上「表面話」做解釋裝可憐
-                    COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2](trial.lawCase.surface_term),
-                  ].map((label, i) => {
-                    // [新增] 即時勝率預測邏輯
-                    const baseRate = trial.lawCase.survival_rate || 0.2;
-                    const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
-                    let keywordBonus = 0;
-                    if (trial.lawCase.winning_keywords) {
-                      trial.lawCase.winning_keywords.forEach((k) => {
-                        if (label.includes(k)) keywordBonus += 0.15;
+                  {(() => {
+                    const rawOptions = [
+                      {
+                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0](
+                          trial.lawCase.escape || '業務正當性'
+                        ),
+                        index: 0,
+                      },
+                      {
+                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](formatLawTags(trial.lawCase.tag)),
+                        index: 1,
+                      },
+                      {
+                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2](trial.lawCase.surface_term),
+                        index: 2,
+                      },
+                    ];
+
+                    const analyzedOptions = rawOptions.map((opt) => {
+                      const baseRate = trial.lawCase.survival_rate || 0.2;
+                      const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
+                      let keywordBonus = 0;
+                      if (trial.lawCase.winning_keywords) {
+                        trial.lawCase.winning_keywords.forEach((k) => {
+                          if (opt.label.includes(k)) keywordBonus += 0.15;
+                        });
+                      }
+                      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + keywordBonus);
+                      return { ...opt, predictedRate, lawyerBonus, keywordBonus };
+                    });
+
+                    let finalOptions = analyzedOptions;
+                    if (defendant && shouldRemoveWrongOption(defendant)) {
+                      let minRate = 1.1;
+                      let worstIdx = -1;
+                      analyzedOptions.forEach((o, i) => {
+                        if (o.predictedRate < minRate) {
+                          minRate = o.predictedRate;
+                          worstIdx = i;
+                        }
                       });
+                      if (worstIdx !== -1) {
+                        finalOptions = analyzedOptions.filter((_, i) => i !== worstIdx);
+                      }
                     }
-                    const predictedRate = Math.min(1.0, baseRate + lawyerBonus + keywordBonus);
 
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedOption(i)}
-                        className={cn(
-                          'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
-                          selectedOption === i
-                            ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
-                            : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
-                        )}
-                      >
-                        <div className="flex justify-between items-center w-full">
-                          <span className="text-xl font-black">{label}</span>
-                          {selectedOption === i && <ShieldCheck size={28} />}
-                        </div>
-
-                        {/* 勝率指標條 */}
-                        <div className="flex items-center gap-3 mt-1">
-                          <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                'h-full transition-all duration-500',
-                                predictedRate > 0.7
-                                  ? 'bg-emerald-500'
-                                  : predictedRate > 0.4
-                                    ? 'bg-amber-500'
-                                    : 'bg-rose-500'
-                              )}
-                              style={{ width: `${predictedRate * 100}%` }}
-                            />
+                    return finalOptions.map((opt) => {
+                      const { label, index: i, predictedRate, lawyerBonus, keywordBonus } = opt;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedOption(i)}
+                          className={cn(
+                            'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
+                            selectedOption === i
+                              ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
+                              : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
+                          )}
+                        >
+                          <div className="flex justify-between items-center w-full">
+                            <span className="text-xl font-black">{label}</span>
+                            {selectedOption === i && <ShieldCheck size={28} />}
                           </div>
-                          <span
-                            className={cn(
-                              'text-sm font-black font-mono',
-                              selectedOption === i ? 'text-white' : 'text-slate-400'
-                            )}
-                          >
-                            預估勝率: {(predictedRate * 100).toFixed(0)}%
-                          </span>
-                        </div>
 
-                        {/* 加成提示小標籤 */}
-                        <div className="flex gap-2">
-                          {lawyerBonus > 0 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">
-                              王牌律師 +30%
+                          <div className="flex items-center gap-3 mt-1">
+                            <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
+                              <div
+                                className={cn(
+                                  'h-full transition-all duration-500',
+                                  predictedRate > 0.7
+                                    ? 'bg-emerald-500'
+                                    : predictedRate > 0.4
+                                      ? 'bg-amber-500'
+                                      : 'bg-rose-500'
+                                )}
+                                style={{ width: `${predictedRate * 100}%` }}
+                              />
+                            </div>
+                            <span
+                              className={cn(
+                                'text-sm font-black font-mono',
+                                selectedOption === i ? 'text-white' : 'text-slate-400'
+                              )}
+                            >
+                              預估勝率: {(predictedRate * 100).toFixed(0)}%
                             </span>
-                          )}
-                          {keywordBonus > 0 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">
-                              關鍵字加乘 +{(keywordBonus * 100).toFixed(0)}%
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
+                          </div>
+
+                          <div className="flex gap-2">
+                            {lawyerBonus > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                                王牌律師 +30%
+                              </span>
+                            )}
+                            {keywordBonus > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">
+                                關鍵字加乘 +{(keywordBonus * 100).toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* 鈔能力 AI 模式限定：你可以自己打字辱罵法官、或是瞎掰出更完美的藉口來影響最終判決！ */}

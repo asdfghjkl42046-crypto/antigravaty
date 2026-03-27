@@ -121,7 +121,7 @@ export async function performAction(
   cardId: string,
   optionIdx: number,
   lastHash: string,
-  choice: 'declare' | 'skip',
+  choice: 'declare' | 'skip' | 'normal',
   turn: number,
   counterCTOCount: number = 0
 ): Promise<ActionResult & { hashedTags: Tag[]; finalHash: string }> {
@@ -192,7 +192,10 @@ export async function performAction(
       return {
         success: false,
         message: `🚫 行動凍結：您目前正受到標案審核或政府管制，本次行動無效！`,
-        updates: { skipNextCard: false }, // 自動解除管制以迎接下次行動
+        updates: {
+          skipNextCard: false,
+          ap: Math.max(0, (player.ap || 0) - 1), // [核心修正] 禁足仍要扣除 1 點 AP
+        }, // 自動解除管制以迎接下次行動
         appliedTags: [],
         hashedTags: [],
         finalHash: lastHash,
@@ -251,8 +254,9 @@ export async function performAction(
     const baseRewardIP = opt.ip || 0;
     // 基礎收益給會計天賦判定，看有沒有額外的灰色收入加成
     const bonusRewardG = applyAccountantBonus(player, cardId, baseRewardG);
-    // 合法申報不需面臨隨機失敗檢定
-    const skipRandomCheck = isDeclaration;
+    // [核心修正] C 類卡片的 C 類選項，即使申報也要過機率檢定；A 類選項申報則維持百分百成功
+    const isCTypeCOption = cardId.startsWith('C-') && opt.type === 'C';
+    const skipRandomCheck = isDeclaration && !isCTypeCOption;
 
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
@@ -275,25 +279,7 @@ export async function performAction(
       if (choice === 'skip' && opt.type !== 'C') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
-    } else if (choice === 'skip') {
-      // 僅在選擇略過且未對應特定法律條文時，才使用通用的「隱匿金流」標籤
-      for (let i = 0; i < tagMultiplier; i++) {
-        snapshots.push({
-          tag: ['隱匿金流'],
-          netIncome: bonusRewardG,
-          lawCaseIds: baseLawCaseIds.length > 0 ? baseLawCaseIds : ['A-03-3'],
-          rpChange: baseRewardRP,
-          surface_term: opt.surface_term,
-          hidden_intent: opt.hidden_intent,
-          escape: opt.escape,
-          multiplier: tagMultiplier,
-          multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
-        });
-      }
-      if (opt.type !== 'C') {
-        message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
-      }
-    }
+    } // [修正] 移除冗餘的「隱匿金流」備援區塊，因所有具備申報面板之卡牌均已帶有 lawCaseIds。
 
     // 4. 行動機率(骰子檢定)判定
     if (opt.succRate !== undefined && !skipRandomCheck) {
@@ -351,8 +337,8 @@ export async function performAction(
           updates.blackMaterialSources = sources.filter((s: BlackMaterialSource) => s.count > 0);
         }
 
-        // 成功所帶出來的標籤紀錄下來供未來當對簿公堂的把柄
-        const succLawCaseIds = opt.succ?.lawCaseIds || opt.lawCaseIds || [];
+        // 成功所帶出來的標籤：僅在有明確定義成功標籤，且與頂層標籤不重複時才增加
+        const succLawCaseIds = (opt.succ?.lawCaseIds || []).filter(id => !baseLawCaseIds.includes(id));
         const resolvedSuccTags = getResolvedTags(succLawCaseIds);
         if (resolvedSuccTags.length > 0) {
           for (let i = 0; i < tagMultiplier; i++) {
@@ -391,8 +377,8 @@ export async function performAction(
       finalRPChange = calculateActualRPGain(player, totalRP);
       finalIPChange = finalIPChange + failIP;
 
-      // 失敗所帶出來的標籤紀錄下來供未來當對簿公堂的把柄
-      const failLawCaseIds = opt.fail?.lawCaseIds || opt.lawCaseIds || [];
+      // 失敗所帶出來的標籤：僅在有明確定義失敗標籤，且與頂層標籤不重複時才增加
+      const failLawCaseIds = (opt.fail?.lawCaseIds || []).filter(id => !baseLawCaseIds.includes(id));
       const resolvedFailTags = getResolvedTags(failLawCaseIds);
       if (resolvedFailTags.length > 0) {
         for (let i = 0; i < tagMultiplier; i++) {
@@ -462,41 +448,22 @@ export async function performAction(
     if (opt.special === 'skip_next' || opt.skipNextCard) updates.skipNextCard = true;
 
     // 8. 黑材料(BM) 累積：以拉高起訴輪盤機率 (各處標籤統一生成邏輯)
-    // 總裁指示：原本的標籤就是一個黑材料 (SSOT，基礎 1 點)，如果是「不申報」則額外增加累加上去
-    if (!isDeclaration && hashedTags.length > 0) {
-      // A. 基礎罰則：每個標籤保底 1 點
-      const baseBMPerTag = 1;
-
-      // B. 額外懲罰池 (不申報時的 Bonus)：C 類卡牌(重大舞弊)額外加 3 點，B 類(一般違規)額外加 1 點
-      let extraPenaltyPool = 0;
-      if (opt.type === 'C') extraPenaltyPool = 3;
-      else if (opt.type === 'B') extraPenaltyPool = 1;
-
-      // C. 失敗額外罰則：若卡牌有設定 fail.bm，則繼續加重累計
-      if (!finalSuccess && opt.fail?.bm) {
-        const failBM = Number(opt.fail.bm);
-        if (Number.isNaN(failBM)) {
-          throwDataDefinitionError(`卡牌: ${cardId}`, `fail.bm 定義非法 (非數字): ${opt.fail.bm}`);
-        }
-        extraPenaltyPool += failBM;
-      }
-
+    // 總裁指示：原本的標籤就是一個黑材料 (SSOT，基礎 1 點)
+    // 修正：申報失敗也會產生黑材料，且「不申報」時根據類別有額外加成
+    if (hashedTags.length > 0) {
       const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
-
-      // D. 累加分攤邏輯：將額外懲罰平分給各標籤
-      const bonusPerTag = Math.floor(extraPenaltyPool / hashedTags.length);
-
-      if (Number.isNaN(bonusPerTag)) {
-        throwLogicFailureError(
-          `bonusPerTag 計算結果為 NaN！`,
-          `(extraPenaltyPool: ${extraPenaltyPool}, tags: ${hashedTags.length})`
-        );
+      
+      // 計算額外加成 (僅在選擇不申報時)
+      let extraBM = 0;
+      if (!isDeclaration) {
+        if (opt.type === 'C') extraBM = 2; // [修正] 每標籤 1+2=3 點，2標籤則為 6 點
+        else if (opt.type === 'B') extraBM = 1; // 每標籤 1+1=2 點
       }
 
       hashedTags.forEach((ht) => {
         newBMSources.push({
           tag: ht.text,
-          count: baseBMPerTag + bonusPerTag, // 基礎 1 + 額外懲罰 (Additive)
+          count: 1 + extraBM, // [SSOT 歸一化] 基礎 1 + 類別加重
           actionId,
           turn,
         });

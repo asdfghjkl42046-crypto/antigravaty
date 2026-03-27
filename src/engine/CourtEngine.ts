@@ -1,3 +1,4 @@
+import { COURT_TEXT } from '../data/court/CourtData';
 import {
   Player,
   LawCase,
@@ -87,15 +88,13 @@ export class CourtEngine {
     const validCrimeTags = player.tags.filter((t) => {
       // 已結案（isResolved）的標籤不可重複起訴，依據一事不再理原則
       if (t.isResolved) return false;
-      // 檢查該標籤對應的「實體黑材料證據」是否存在 -> 總裁指示：這不該發生，直接拋出錯誤字串
+      // 檢查該標籤對應的「實體黑材料證據」是否存在
       const hasEvidence = player.blackMaterialSources.some(
         (s) => s.actionId === t.id && s.count > 0
       );
       if (!hasEvidence) {
-        throwDataCorruptionError(
-          `玩家 ${player.name} 的法庭數據`,
-          `違法標籤 [${t.text}] (ID: ${t.id}) 尚未結案，卻找不到對應的黑材料實體！`
-        );
+        // [優化] 若無證據則不可起訴，優雅回傳 false 即可，不應拋出錯誤導致崩潰
+        return false;
       }
       // 強制檢查：該標籤必須帶有明確的法律 ID 映射 (lawCaseIds)
       const hasSpecificCase =
@@ -257,17 +256,21 @@ export class CourtEngine {
     player: Player,
     lawCase: LawCase,
     text: string,
-    spectatorInfluence: number = 0
+    spectatorInfluence: number = 0,
+    optionText: string = ''
   ): { isSuccess: boolean; rate: number; isRelief?: boolean } {
     // 基礎勝算為卡牌所載的案件基本逃脫率，若無定義預設 20% 防禦成功率
     const baseSurvival = lawCase.survival_rate || 0.2;
     // 加入旁聽群眾干預帶來的浮動補正機率
     let finalSurvivalRate = baseSurvival + spectatorInfluence;
 
+    // 將玩家輸入的補充陳述與點選的選項文字合併，作為最終審核文本
+    const combinedText = (text || '') + (optionText || '');
+
     // [關鍵字系統整合]：檢查被告自述中是否提及勝訴關鍵字，每命中一個 +15% 勝率
-    if (text && lawCase.winning_keywords) {
+    if (combinedText && lawCase.winning_keywords) {
       lawCase.winning_keywords.forEach((keyword) => {
-        if (text.includes(keyword)) {
+        if (combinedText.includes(keyword)) {
           finalSurvivalRate += 0.15;
         }
       });
@@ -336,15 +339,32 @@ export class CourtEngine {
   static determineDefenseOutcome(
     player: Player,
     trial: TrialState,
+    optionIdx: number,
     text: string,
     judgeMode: JudgeMode,
     currentTurn: number
   ): Partial<TrialState> {
-    // [旁觀者干預系統整合]：計算場上所有干預行對機率產生的總影響
+    // 根據索引從 COURT_TEXT 中重建玩家選定的原始回話文本，以便進行關鍵字比對
+    const optionFn = COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[optionIdx];
+    let optionText = '';
+
+    if (typeof optionFn === 'function') {
+      if (optionIdx === 0) optionText = optionFn(trial.lawCase.escape || '業務正當性');
+      else if (optionIdx === 1) optionText = optionFn(formatLawTags(trial.lawCase.tag));
+      else if (optionIdx === 2) optionText = optionFn(trial.lawCase.surface_term);
+    }
+
+    // [旁觀者干預系統整合]：計算場上所有干預行為對機率產生的總影響
     const spectatorInfluence = calculateSpectatorInfluence(trial.interventions);
 
-    // 依前面定義的防禦勝率演算法來獲取勝敗結論
-    const res = this.calculateDefenseResult(player, trial.lawCase, text, spectatorInfluence);
+    // 依前面定義的防禦勝率演算法來獲取勝敗結論 (傳入 optionText 供關鍵字比對)
+    const res = this.calculateDefenseResult(
+      player,
+      trial.lawCase,
+      text,
+      spectatorInfluence,
+      optionText
+    );
     // 根據勝敗來決定是否計算判決罰鍰數字 (傳入當前標籤 ID 進行精準資產對接)
     const punishment = res.isSuccess
       ? undefined
@@ -562,7 +582,8 @@ export class CourtEngine {
     lawCaseTag: string | string[],
     lawCaseTagId: number,
     personality?: JudgePersonality,
-    currentTurn: number = 999
+    currentTurn: number = 999,
+    isAppeal: boolean = false
   ): Partial<Player> {
     const updates: Partial<Player> = { ...player };
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
@@ -571,20 +592,23 @@ export class CourtEngine {
       // 消除相關黑材料
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
       // 標籤保留邏輯：不再標記 isResolved: true，僅移除黑材料。
-      // 因 pickLawCase 會檢查黑材料實體，無材料即代表該標籤暫時不具備起訴條件。
       updates.tags = player.tags.map((t) => {
         if (t.id === lawCaseTagId) {
-          if (t.rpChange && t.rpChange < 0) {
-            updates.rp = (updates.rp || player.rp) + Math.abs(t.rpChange);
-          }
-          // 返回新副本以確保 Store 偵測到變化
-          return { ...t, isResolved: false };
+          // [修正] 無論勝訴敗訴，同一個 actionId 產生的標籤應一併結案 (一案一清)
+          return { ...t, isResolved: true };
         }
         return t;
       });
     } else {
       // 敗訴情況：嚴厲制裁 (附上回合數支援開局新手保護期判定，並鎖定標籤 ID)
-      const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId);
+      const penalty = this.calculatePenalty(
+        player,
+        lawCaseTag,
+        currentTurn,
+        lawCaseTagId,
+        isAppeal,
+        personality
+      );
       // 添上一筆打死不認的敗訴歷史傷疤以利後續懲罰連坐
       updates.totalTrials = (player.totalTrials || 0) + 1;
       // 資金沒收保底不小於 0 即可

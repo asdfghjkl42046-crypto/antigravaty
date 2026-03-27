@@ -173,13 +173,20 @@ export const useGameStore = create<GameStore>()(
             cardId,
             optionIdx,
             player.lastHash,
-            declareChoice || 'skip', // 提供預設值
+            declareChoice || 'normal', // 提供預設值，無申報面板之行動視為一般合法行為
             state.turn,
             counterCTOCount
           )) as ActionResult & { hashedTags: Tag[]; finalHash: string };
 
-          // 如果行動失敗、沒退費而且也沒有新犯罪標籤產出，代表是無效決策，直接退出
-          if (!result.success && !result.apRefunded && result.hashedTags.length === 0) {
+          // [修正] 如果行動失敗、沒退費且無標籤，但若內部帶有重要的 updates (如：解除禁足 skipNextCard: false)
+          // 則我們「不可以」提前返回，必須讓 logic 繼續往下走 set((s) => ...)
+          const hasCriticalUpdates = Object.keys(result.updates || {}).length > 0;
+          if (
+            !result.success &&
+            !result.apRefunded &&
+            result.hashedTags.length === 0 &&
+            !hasCriticalUpdates
+          ) {
             return result;
           }
 
@@ -399,6 +406,7 @@ export const useGameStore = create<GameStore>()(
         const outcome = CourtEngine.determineDefenseOutcome(
           def,
           t,
+          idx, // [核心修正] 傳遞玩家選擇的選項索引
           txt,
           get().judgeMode,
           get().turn
@@ -501,7 +509,8 @@ export const useGameStore = create<GameStore>()(
           trial.lawCase.tag,
           trial.lawCaseTagId || 0,
           trial.judgePersonality,
-          get().turn
+          get().turn,
+          trial.isAppeal || false
         );
 
         // 合併結果並進行最終存活校驗

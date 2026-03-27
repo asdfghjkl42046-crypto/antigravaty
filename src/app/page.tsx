@@ -99,6 +99,7 @@ export default function Home() {
   const [cameraMode, setCameraMode] = useState(false); // 是否啟動實體鏡頭掃描二維碼模式
   const [showDebug, setShowDebug] = useState(false); // 開發者面板開關 (隱藏在 GameHUD 中)
   const [showModeSelect, setShowModeSelect] = useState(true); // 最開始的模式過場視窗
+  const [isPerforming, setIsPerforming] = useState(false); // 🐛 防連點漏洞：非同步結算鎖
   const lastScanTimeRef = useRef(0); // 🐛 效能 Bug 修復: QR 掃描防止硬體連拍的截流閥
 
   // 人性防線：當你把卡片湊向鏡頭，系統會先停格並跳出說明，讓你好好看清楚自己幹了甚麼好事，不要手殘怪系統。
@@ -220,7 +221,8 @@ export default function Home() {
 
   /** 最終簽字執行：當你決定放手一搏，狠狠按下確認鍵後，命運的齒輪就會開始轉動。 */
   const handleConfirmScan = async () => {
-    if (!pendingScan) return;
+    if (!pendingScan || isPerforming) return;
+    setIsPerforming(true);
     const { cardId, optionIndex } = pendingScan;
     const card = CARDS_DB[cardId];
     const opt = card[optionIndex as 1 | 2 | 3];
@@ -237,23 +239,28 @@ export default function Home() {
         title: card.title || cardId,
       });
       setPendingScan(null); // 把首波彈窗收起來換上二階段視窗
+      setIsPerforming(false); // [修正] 解鎖，讓後續二階段面板按鈕可點擊
       return;
     }
 
     // 一般正常卡片就清除彈窗並正式呼叫 Zustand 連動底層 Engine 發起大屠殺結算
     setPendingScan(null);
+    setActiveCardId(null); // [核心修復] 立即清理背景卡片，防止並行洩漏
     const result = await performAction(cardId, optionIndex as 1 | 2 | 3);
     handleActionResult(result);
+    setIsPerforming(false);
   };
 
   // 承上：二階段決策後置面板的兩種選擇（乖乖給政府抽稅合法申報 declare vs 惡意逃漏隱匿 skip）
   const handlePostAction = async (choice: 'declare' | 'skip') => {
-    if (!postActionData) return;
+    if (!postActionData || isPerforming) return;
+    setIsPerforming(true);
     const { cardId, optionIndex } = postActionData;
     setPostActionData(null);
     // 把抉擇結果一起傳給 Engine 做歷史紀錄與制裁法理依據
     const result = await performAction(cardId, optionIndex, choice);
     handleActionResult(result);
+    setIsPerforming(false);
   };
 
   /** 如果玩家掃完條碼看到選項說明發現不妙，直接按取消。這不扣除任何資源，只算虛驚一場。 */
@@ -266,6 +273,7 @@ export default function Home() {
    * 當玩家在畫面上直接操作滑鼠點擊非條碼選項 (例如被鎖在地圖或是開發外掛面板) 時用的包裹層
    */
   const handleAction = async (cardId: string, optIdx: 1 | 2 | 3) => {
+    if (isPerforming) return;
     const card = CARDS_DB[cardId];
     if (!card) return;
 
@@ -281,12 +289,15 @@ export default function Home() {
         title: card.title || cardId,
       });
       setActiveCardId(null);
+      setIsPerforming(false); // [修正] 解鎖，讓後續二階段面板按鈕可點擊
       return;
     }
 
     setActiveCardId(null);
+    setIsPerforming(true);
     const result = await performAction(cardId, optIdx);
     handleActionResult(result);
+    setIsPerforming(false);
   };
 
   // 畫面載入中：等待舞台燈光跟圖層完全掛載上去前，先不要透露任何資訊。
@@ -474,7 +485,7 @@ export default function Home() {
                                   cardId={activeCardId}
                                   card={CARDS_DB[activeCardId]}
                                   onSelect={(idx) => handleAction(activeCardId, idx as 1 | 2 | 3)}
-                                  disabled={isApEmpty}
+                                  disabled={isApEmpty || isPerforming}
                                 />
                               ) : (
                                 <div className="text-slate-400 text-sm font-bold uppercase tracking-widest opacity-40">

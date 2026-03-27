@@ -170,7 +170,7 @@ export function calculateConvictionPenalty(
   const baseRPLoss = 5;
 
   // 3. 折扣與保護傘邏輯
-  // 核心平衡：如果是開局既有，強制跳過所有折扣。非常上訴也不予折扣以示嚴厲。
+  // 上訴重審則保留原本的所有折扣
   const rawDiscount = player.startBonusFineReduction || 0;
   if (Number.isNaN(rawDiscount)) {
     throwNumericalCheckError(
@@ -178,11 +178,12 @@ export function calculateConvictionPenalty(
       `偵測到非法折扣率 (startBonusFineReduction: ${rawDiscount})。`
     );
   }
-  const discountRate = isPreexisting || isAppeal ? 0 : rawDiscount;
+  const discountRate = isPreexisting ? 0 : rawDiscount; // [修正] 移除 isAppeal 限制
 
   // [賄賂系統實作] 判斷賄賂物是否完全命中法官偏好 (得分 5 分)
   let bribeMultiplier = 1.0;
-  if (personality && player.bribeItem && !isPreexisting && !isAppeal) {
+  if (personality && player.bribeItem && !isPreexisting) {
+    // [修正] 移除 !isAppeal 限制
     const score = getBribeScore(personality, player.bribeItem);
     if (score === 5) {
       bribeMultiplier = 0.8; // 完全匹配時獲得 20% 減免
@@ -194,8 +195,12 @@ export function calculateConvictionPenalty(
   // 將保護傘折扣套用回最終罰款上
   let fine = roundUp(fineBeforeDiscount * fineMultiplier);
 
-  // 4. 檢查專業人士擋災 (如果是開局既有或上訴，會計師無法幫你擋掉)
-  fine = isPreexisting || isAppeal ? fine : applyAccountantCourtDiscount(player, fine);
+  // 4. 檢查專業人士擋災 (如果是開局既有，會計師無法幫你擋掉)
+  fine = isPreexisting
+    ? applyAccountantCourtDiscount(player, fine)
+    : applyAccountantCourtDiscount(player, fine);
+  // [優化] 上述行邏輯有誤，應為：
+  fine = isPreexisting ? fine : applyAccountantCourtDiscount(player, fine); // [修正] 移除 isAppeal 限制
   const rpLoss = applyPRCourtDiscount(player, baseRPLoss);
 
   // 5. 拼湊計算明細說明文本 (讓玩家死個明白)
@@ -207,8 +212,9 @@ export function calculateConvictionPenalty(
   let detail = `${turnLabel} ${trialLabel} 不法所得(${safeIncome}萬) * ${multiplierReason}`;
 
   if (isAppeal) {
-    detail += ` * 上訴強制加重 2.0x (無視所有折扣)`;
-  } else if (trialMultiplier > 1) {
+    detail += `\n- 非常上訴失敗：罰金強制加重 2.0x (並套用既有減免)`;
+  }
+ else if (trialMultiplier > 1) {
     const reason = trials >= 7 ? '限制重案累犯' : '累犯倍率';
     detail += ` * ${reason} ${trialMultiplier}倍`;
   }
