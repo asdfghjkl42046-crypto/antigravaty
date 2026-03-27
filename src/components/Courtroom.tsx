@@ -344,7 +344,9 @@ export default function Courtroom() {
                   </span>
                 </div>
                 <div className="text-3xl font-black text-blue-400">
-                  {canSeeRate ? `${((trial.lawCase?.survival_rate || 0.2) * 100).toFixed(0)}%` : '??%'}
+                  {canSeeRate
+                    ? `${((trial.lawCase?.survival_rate || 0.2) * 100).toFixed(0)}%`
+                    : '??%'}
                 </div>
               </div>
               <div className="flex flex-col gap-4">
@@ -491,7 +493,9 @@ export default function Courtroom() {
                         index: 0,
                       },
                       {
-                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](formatLawTags(trial.lawCase.tag)),
+                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](
+                          formatLawTags(trial.lawCase.tag)
+                        ),
                         index: 1,
                       },
                       {
@@ -551,7 +555,8 @@ export default function Courtroom() {
                               <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
                                 <div
                                   ref={(el) => {
-                                    if (el) el.style.setProperty('--rate', `${predictedRate * 100}%`);
+                                    if (el)
+                                      el.style.setProperty('--rate', `${predictedRate * 100}%`);
                                   }}
                                   className={cn(
                                     'survival-rate-bar h-full transition-all duration-500',

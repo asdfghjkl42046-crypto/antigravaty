@@ -344,7 +344,9 @@ export async function performAction(
         }
 
         // 成功所帶出來的標籤：僅在有明確定義成功標籤，且與頂層標籤不重複時才增加
-        const succLawCaseIds = (opt.succ?.lawCaseIds || []).filter(id => !baseLawCaseIds.includes(id));
+        const succLawCaseIds = (opt.succ?.lawCaseIds || []).filter(
+          (id) => !baseLawCaseIds.includes(id)
+        );
         const resolvedSuccTags = getResolvedTags(succLawCaseIds);
         if (resolvedSuccTags.length > 0) {
           for (let i = 0; i < tagMultiplier; i++) {
@@ -384,7 +386,9 @@ export async function performAction(
       finalIPChange = finalIPChange + failIP;
 
       // 失敗所帶出來的標籤：僅在有明確定義失敗標籤，且與頂層標籤不重複時才增加
-      const failLawCaseIds = (opt.fail?.lawCaseIds || []).filter(id => !baseLawCaseIds.includes(id));
+      const failLawCaseIds = (opt.fail?.lawCaseIds || []).filter(
+        (id) => !baseLawCaseIds.includes(id)
+      );
       const resolvedFailTags = getResolvedTags(failLawCaseIds);
       if (resolvedFailTags.length > 0) {
         for (let i = 0; i < tagMultiplier; i++) {
@@ -458,11 +462,12 @@ export async function performAction(
     // 修正：申報失敗也會產生黑材料，且「不申報」時根據類別有額外加成
     if (hashedTags.length > 0) {
       const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
-      
+
       // 計算額外加成 (僅在選擇不申報時)
       let extraBM = 0;
       if (!isDeclaration) {
-        if (opt.type === 'C') extraBM = 2; // [修正] 每標籤 1+2=3 點，2標籤則為 6 點
+        if (opt.type === 'C')
+          extraBM = 2; // [修正] 每標籤 1+2=3 點，2標籤則為 6 點
         else if (opt.type === 'B') extraBM = 1; // 每標籤 1+1=2 點
       }
 

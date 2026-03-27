@@ -213,8 +213,7 @@ export function calculateConvictionPenalty(
 
   if (isAppeal) {
     detail += `\n- 非常上訴失敗：罰金強制加重 2.0x (並套用既有減免)`;
-  }
- else if (trialMultiplier > 1) {
+  } else if (trialMultiplier > 1) {
     const reason = trials >= 7 ? '限制重案累犯' : '累犯倍率';
     detail += ` * ${reason} ${trialMultiplier}倍`;
   }
