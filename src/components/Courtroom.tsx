@@ -108,6 +108,9 @@ export default function Courtroom() {
       ? defendant // Stage 4: 被告申辯時間
       : players.find((p) => p.id === trial.bystanderIds[trial.actingBystanderIndex]); // Stage 2/3: 旁聽席路人時間
 
+  // [新增] 只有王牌律師 LV2 以上的人能在操作時看透勝率
+  const canSeeRate = (currentPlayerInTrial?.roles?.lawyer ?? 0) >= 2;
+
   // 中場鎖定畫面解除：確認是本人按下「開始回合」按鍵
   const handleStartTurn = () => {
     setTrialReady(true);
@@ -341,7 +344,7 @@ export default function Courtroom() {
                   </span>
                 </div>
                 <div className="text-3xl font-black text-blue-400">
-                  {(trial.lawCase?.survival_rate || 0.2) * 100}%
+                  {canSeeRate ? `${((trial.lawCase?.survival_rate || 0.2) * 100).toFixed(0)}%` : '??%'}
                 </div>
               </div>
               <div className="flex flex-col gap-4">
@@ -543,29 +546,46 @@ export default function Courtroom() {
                             {selectedOption === i && <ShieldCheck size={28} />}
                           </div>
 
-                          <div className="flex items-center gap-3 mt-1">
-                            <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
-                              <div
-                                ref={(el) => { if (el) el.style.setProperty('--rate', `${predictedRate * 100}%`); }}
+                          {canSeeRate && (
+                            <div className="flex items-center gap-3 mt-1">
+                              <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
+                                <div
+                                  ref={(el) => {
+                                    if (el) el.style.setProperty('--rate', `${predictedRate * 100}%`);
+                                  }}
+                                  className={cn(
+                                    'survival-rate-bar h-full transition-all duration-500',
+                                    predictedRate > 0.7
+                                      ? 'bg-emerald-500'
+                                      : predictedRate > 0.4
+                                        ? 'bg-amber-500'
+                                        : 'bg-rose-500'
+                                  )}
+                                />
+                              </div>
+                              <span
                                 className={cn(
-                                  'survival-rate-bar h-full transition-all duration-500',
-                                  predictedRate > 0.7
-                                    ? 'bg-emerald-500'
-                                    : predictedRate > 0.4
-                                      ? 'bg-amber-500'
-                                      : 'bg-rose-500'
+                                  'text-sm font-black font-mono',
+                                  selectedOption === i ? 'text-white' : 'text-slate-400'
                                 )}
-                              />
+                              >
+                                預估勝率: {(predictedRate * 100).toFixed(0)}%
+                              </span>
                             </div>
-                            <span
-                              className={cn(
-                                'text-sm font-black font-mono',
-                                selectedOption === i ? 'text-white' : 'text-slate-400'
-                              )}
-                            >
-                              預估勝率: {(predictedRate * 100).toFixed(0)}%
-                            </span>
-                          </div>
+                          )}
+
+                          {!canSeeRate && (
+                            <div className="flex items-center gap-3 mt-1">
+                              <span
+                                className={cn(
+                                  'text-sm font-black font-mono',
+                                  selectedOption === i ? 'text-white' : 'text-slate-400'
+                                )}
+                              >
+                                預估勝率: ???
+                              </span>
+                            </div>
+                          )}
 
                           <div className="flex gap-2">
                             {lawyerBonus > 0 && (
