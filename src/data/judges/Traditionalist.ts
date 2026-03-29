@@ -1,3 +1,6 @@
+/**
+ * 法官範本：老派傳統型
+ */
 import type { JudgmentTemplate } from './JudgeTemplatesDB';
 
 export const TRADITIONALIST_LABEL = {
@@ -37,8 +40,14 @@ export const TRADITIONALIST_INTERROGATION = [
   `被告，老夫把你的紀錄看完了。\n涉案行為：「{tag}」\n你說這是：「{escape}」\n老夫給你一次機會說清楚——不是為了你，是因為老夫不喜歡在資訊不完整的情況下定人的罪。說吧。`,
 ];
 
+export const TRADITIONALIST_OPENING = [
+  '「肅靜！本庭現就被告涉嫌之【{tag}】行為，違反《{lawName}》一案正式提審。」',
+  '「老夫這四十年看過太多這類案子了。針對被告疑似以【{sTerm}】為名行【{hIntent}】之實，現在宣告開庭。」',
+];
+
 export const Traditionalist = {
   LABEL: TRADITIONALIST_LABEL,
   JUDGMENT: TRADITIONALIST_JUDGMENT,
   INTERROGATION: TRADITIONALIST_INTERROGATION,
+  OPENING: TRADITIONALIST_OPENING,
 };

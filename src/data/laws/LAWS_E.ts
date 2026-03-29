@@ -1,3 +1,6 @@
+/**
+ * 法律資料：E 類案件
+ */
 import type { LawCase } from '../../types/game';
 
 export const LAWS_E: Record<string, LawCase> = {
@@ -15,7 +18,9 @@ export const LAWS_E: Record<string, LawCase> = {
       '調查展開後突然刪除大量檔案的日誌',
       '技術部門收到緊急銷毀指令的對話紀錄',
     ],
-    winning_keywords: ['例行', '政策', '無連結'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // E-02: 證人調解
@@ -32,7 +37,9 @@ export const LAWS_E: Record<string, LawCase> = {
       '證人與被告律師私下見面的紀錄',
       '通訊軟體裡商量偽證的秘密對話存根',
     ],
-    winning_keywords: ['保密', '標準', '和解'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'E-02-3': {
     id: 'E-02-3',
@@ -47,7 +54,9 @@ export const LAWS_E: Record<string, LawCase> = {
       '監視器拍到移除關鍵證物之畫面',
       '與證人間涉及利益交換之加密通訊',
     ],
-    winning_keywords: ['安置', '誠信', '自由'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // E-03: 數位足跡清理
@@ -64,7 +73,9 @@ export const LAWS_E: Record<string, LawCase> = {
       '在終端機輸入強制刪除指令的軌跡',
       '備份檔案被針對性移除的紀錄',
     ],
-    winning_keywords: ['自動', '保留', '維護'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // E-04: 合約修改
@@ -81,7 +92,9 @@ export const LAWS_E: Record<string, LawCase> = {
       '拜託公證人配合改日期的通訊對話',
       '電子合約的原始數位指紋對不上',
     ],
-    winning_keywords: ['事後', '補簽', '無損'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // E-05: 資產隱藏
@@ -93,7 +106,9 @@ export const LAWS_E: Record<string, LawCase> = {
     hidden_intent: '透過多層海外架構掩飾犯罪所得，規備跨境資金追查',
     survival_rate: 0.01,
     evidence_list: ['金流路徑圖', '紙上公司文件', '跨境匯款紀錄'],
-    winning_keywords: ['申報', '來源', '合法'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // E-06: 郵件備份
@@ -110,6 +125,8 @@ export const LAWS_E: Record<string, LawCase> = {
       '備份磁帶被物理損壞的照片證明',
       '技術主管收到高層指示要刪除郵件的信件',
     ],
-    winning_keywords: ['特權', '升級', '全量'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 };

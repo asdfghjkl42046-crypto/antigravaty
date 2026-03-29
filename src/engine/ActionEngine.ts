@@ -1,6 +1,6 @@
 /**
- * 單次行動結算流程
- * 主要負責：決定玩家行動順序、解析並執行卡牌選項的所有影響，以及防竄改機制
+ * 行動處裡中心
+ * 負責處理玩家做決定後的結果，包含誰先開始、錢跟名聲的增減，以及是否犯法。
  */
 
 import type {
@@ -27,16 +27,11 @@ import {
 
 /**
  * 定義每張卡牌選項會對玩家造成的收益、懲罰與觸犯的法條
+ * 此型別為從資料庫讀取後的聯集，支援所有 X, Y, Z 的特徵
  */
 export type AnyCardOption = BaseOption & {
   type?: OptionType;
-  costG?: number; // 該行動需要支付的資金
   succRate?: number; // 0~1 的成功機率 (如 0.8 代表 80% 成功率)
-  g?: number; // 資金獲得量
-  rp?: number; // 聲望增減量
-  ip?: number; // 人脈獲得量
-  bm?: number; // 產生的黑材料點數
-  lawCaseIds?: string[]; // 法條編號
   succ?: {
     // 鑑定成功的獎勵
     g?: number;
@@ -50,7 +45,6 @@ export type AnyCardOption = BaseOption & {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number;
     loss?: number;
     special?: SpecialTag; // 特殊狀態如 'sue' 會強制觸發起訴
     lawCaseIds?: string[];
@@ -58,21 +52,20 @@ export type AnyCardOption = BaseOption & {
 };
 
 /**
- * 決定每回合玩家的行動順序：
- * - 第 1 回合：依開局路線(黑箱 > 走後門 > 正規)決定，重現社會現實。
- * - 第 2 回合起：依行動力 > 總財產 > 名聲 > 隨機 排序
+ * 決定每回合玩家的行動順序
+ * 第一回合看開局選哪條路，之後看誰的體力(AP)跟錢比較多。
  */
 export function sortTurnOrder(players: Player[], currentRound: number): Player[] {
-  // 將開局路線賦予開局順位制度，數值越高越先開始
+  // 設定開局路線權重
   const pathPriority: Record<string, number> = { blackbox: 3, backdoor: 2, normal: 1 };
 
   return [...players].sort((a, b) => {
-    // 處理第一回合獨佔的特權路徑加成順位排列
+    // 處理第 1 回合特殊權重
     if (Number(currentRound) === 1) {
       const vA = pathPriority[a.startPath || 'normal'] || 0;
       const vB = pathPriority[b.startPath || 'normal'] || 0;
       if (vB !== vA) return vB - vA;
-      return Math.random() - 0.5; // 極端情況同分才亂數擲骰
+      return Math.random() - 0.5;
     }
 
     const apA = Number(a.ap);
@@ -181,11 +174,9 @@ export async function performAction(
     const updates: Partial<Player> = {};
     const snapshots: ActionResult['appliedTags'] = [];
 
-    // [CTO 反制技] 判定：偵測人才市場的惡性競爭
-    // 若場上有其他玩家擁有 CTO 角色，則本次行動的標籤獲取量將依人數加計 (1 + N) 倍
-    const isCTOContested =
-      counterCTOCount > 0 && cardId.startsWith('B-') && (opt?.type === 'B' || opt?.type === 'C');
-    const tagMultiplier = isCTOContested ? 1 + counterCTOCount : 1;
+    // [核心邏輯] CTO 反制觸發限定在 B 類型的 Y/Z 選項
+    const isBTypeYZ = cardId.startsWith('B-') && (opt?.type === 'Y' || opt?.type === 'Z');
+    const tagMultiplier = isBTypeYZ ? 1 + counterCTOCount : 1;
 
     // 檢查玩家是否正受到禁足管制 (例如被政府盯上)
     if (player.skipNextCard) {
@@ -252,11 +243,12 @@ export async function performAction(
     const baseRewardG = opt.g || 0;
     const baseRewardRP = opt.rp || 0;
     const baseRewardIP = opt.ip || 0;
+
     // 基礎收益給會計天賦判定，看有沒有額外的灰色收入加成
     const bonusRewardG = applyAccountantBonus(player, cardId, baseRewardG);
-    // [核心修正] C 類卡片的 C 類選項，即使申報也要過機率檢定；A 類選項申報則維持百分百成功
-    const isCTypeCOption = cardId.startsWith('C-') && opt.type === 'C';
-    const skipRandomCheck = isDeclaration && !isCTypeCOption;
+    // [核心修正] C 類卡片的 Z 選項，即使申報也要過機率檢定；A 類選項申報則維持百分百成功
+    const isCTypeZOption = cardId.startsWith('C-') && opt.type === 'Z';
+    const skipRandomCheck = isDeclaration && !isCTypeZOption;
 
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
@@ -276,7 +268,7 @@ export async function performAction(
           multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
         });
       }
-      if (choice === 'skip' && opt.type !== 'C') {
+      if (choice === 'skip' && opt.type !== 'Z') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
     } // [修正] 移除冗餘的「隱匿金流」備援區塊，因所有具備申報面板之卡牌均已帶有 lawCaseIds。
@@ -297,12 +289,12 @@ export async function performAction(
         // 安全申報，需要倒貼手續費
         finalGChange = -costToDeduct;
         // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
-        const baseRPWithBonus = isCTypeCOption ? baseRewardRP + 30 : baseRewardRP;
+        const baseRPWithBonus = isCTypeZOption ? baseRewardRP + 30 : baseRewardRP;
         finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
         finalIPChange = baseRewardIP;
 
         // [新增] 若是 C 類卡且成功獲得獎勵，在訊息增加提示文字
-        if (isCTypeCOption) {
+        if (isCTypeZOption) {
           message += `。獲得額外獎勵 +30 RP！`;
         }
       } else {
@@ -458,23 +450,25 @@ export async function performAction(
     if (opt.special === 'skip_next' || opt.skipNextCard) updates.skipNextCard = true;
 
     // 8. 黑材料(BM) 累積：以拉高起訴輪盤機率 (各處標籤統一生成邏輯)
-    // 總裁指示：原本的標籤就是一個黑材料 (SSOT，基礎 1 點)
-    // 修正：申報失敗也會產生黑材料，且「不申報」時根據類別有額外加成
+    // 總裁指示：一個標籤就是一個黑材料 (SSOT，基礎 1 點)
     if (hashedTags.length > 0) {
       const newBMSources = [...(updates.blackMaterialSources || player.blackMaterialSources || [])];
 
-      // 計算額外加成 (僅在選擇不申報時)
-      let extraBM = 0;
-      if (!isDeclaration) {
-        if (opt.type === 'C')
-          extraBM = 2; // [修正] 每標籤 1+2=3 點，2標籤則為 6 點
-        else if (opt.type === 'B') extraBM = 1; // 每標籤 1+1=2 點
+      // [核心數值] 計算不申報加成 (僅限 C 類卡之 Z 型選項在選擇「略過」時觸發)
+      // 規則：BM = (標籤數 + 2) * tagMultiplier (對於 C 類卡，multiplier 為 1)
+      let extraBMTotals = 0;
+      if (choice === 'skip' && isCTypeZOption) {
+        extraBMTotals = 2; 
       }
 
-      hashedTags.forEach((ht) => {
+      hashedTags.forEach((ht, idx) => {
+        // 將加成平均分配到第一個標籤上，或者每個標籤都加？
+        // 用戶說「總共加 2」，我們加在第一個標籤的 count 裡即可，
+        // 或者對每個標籤套用倍率。
+        const extraForThisTag = idx === 0 ? extraBMTotals : 0;
         newBMSources.push({
           tag: ht.text,
-          count: 1 + extraBM, // [SSOT 歸一化] 基礎 1 + 類別加重
+          count: (1 + extraForThisTag) * tagMultiplier, 
           actionId,
           turn,
         });

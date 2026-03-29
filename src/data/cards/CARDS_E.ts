@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：E 類卡片（突發事件）
+ */
 import type { Card } from '../../types/game';
 
 export const CARDS_E: Record<string, Card> = {
@@ -6,7 +9,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '風聲越來越緊，AI法庭的調查已經不是傳言了。你想起辦公室角落有幾顆舊硬碟，裡面靜靜躺著幾份早期違規擴張的原始紀錄——那時候覺得不會有事，現在看起來每一筆都是定時炸彈。你盯著那幾顆硬碟，時間不多了。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '找資安公司來，把硬碟直接物理銷毀到粉塵等級——什麼磁軌紀錄都不留，就當這些東西從來不存在。',
       succRate: 0.3,
@@ -15,7 +18,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '請法律團隊進來做合規審查，挑出有風險的檔案「合理格式化」——貴，但至少有律師背書，不是你一個人扛。',
       succRate: 0.9,
@@ -24,7 +27,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '聘資深律師幫這批數據寫一套「技術研發紀錄」說明書，把它的法律性質從燙手山芋變成正當資產——用文件把故事說圓。',
       succRate: 0.9,
@@ -38,7 +41,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '那個前員工——你很清楚他當初參與了多少——現在收到傳票，要去接受檢察官質詢。他如果照實說，你累積的那些黑材料就會變成起訴書上的鐵證。你的律師說還有幾天，問你想怎麼處理這件事。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '透過事務所安排一場「私人調解」，給他一筆豐厚的離職補償——條件是上了法庭，說對公司有利的話。',
       succRate: 0.3,
@@ -47,7 +50,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-02-1'] },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '讓法律顧問去找他補簽一份保密協議，順便提醒他違約金的金額長什麼樣子——不威脅，只是讓他想清楚。',
       succRate: 0.9,
@@ -56,7 +59,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '一邊讓律師在法庭上全力攻擊他的誠信度，一邊安排他去海外「出差」，拖到出庭日期過了再說。',
       succRate: 0.3,
@@ -70,7 +73,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '技術主管悄悄拉你到旁邊說：系統後台把當前幾次連線紀錄都存下來了，時間戳記、IP位址、存取內容，一清二楚。AI演算法隨時可能掃到這些東西。他問你要怎麼處理，你看著那串Log，心裡很清楚這不是技術問題，是燙手山芋。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '請技術律師幫公司訂一套「資料保留政策」，Log依法保存到期之後正常刪除——合規流程走完，刪得光明正大。',
       succRate: 0.9,
@@ -79,7 +82,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '叫技術團隊今晚就動手，把備援伺服器裡的原始連線紀錄全部抹掉，再偽裝成硬體故障——紀錄消失了，但不是你刪的。',
       succRate: 0.3,
@@ -88,7 +91,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-03-2'] },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '找律師以「系統安全性維護」為由，把現有紀錄做加密混淆處理——紀錄還在，但沒有人看得懂在寫什麼。',
       succRate: 0.9,
@@ -102,7 +105,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '稽查員下週要來。你翻遍雲端硬碟、問遍當年的人，那份應該存在的合約就是不見——或者說，它從來就不存在。你需要一份「早就在那裡」的文件，而且要在週五之前。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '透過事務所牽線，找到一位辦事「靈活」的公證人，塞一筆可觀的急件費，請他對日期和內容睜一隻眼閉一隻眼。',
       succRate: 0.3,
@@ -111,7 +114,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-04-1'] },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '請律師出面，和對方公司「重新確認當年的合作意向」，補簽一份意向書。程序上有點牽強，但至少不用在法庭上解釋。',
       succRate: 0.9,
@@ -120,7 +123,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label: '你決定賭大的。找來整個文書重建團隊，會議紀錄、簽名、連紙張磅數都要換成當年的規格。',
       succRate: 0.3,
       costG: 400,
@@ -133,7 +136,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '稅務單位開始追那幾筆「說不清楚」的資金流向了。你當初覺得放海外就沒事，現在看來沒那麼簡單。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '律師建議你主動出擊：如實申報、補繳欠稅，在 AI 法庭介入前談好認罪協商。',
       succRate: 0.9,
       costG: 70,
@@ -141,7 +144,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '花大錢搭一套海外信託迷宮：紙上公司套紙上公司，錢繞了五個國家再回來，來源洗得乾乾淨淨。',
       succRate: 0.3,
@@ -150,7 +153,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-05-2'] },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '請會計師和律師聯手做「資產重組」，把那幾筆錢重新定義成公司的無形資產。',
       succRate: 0.9,
       costG: 100,
@@ -163,7 +166,7 @@ export const CARDS_E: Record<string, Card> = {
     description:
       '你突然想起來了。當年那幾封親自寫的信——措辭直接、指令清楚、完全沒有轉圜空間。它們還靜靜躺在伺服器裡。',
     1: {
-      type: 'C',
+      type: 'Z',
       label: '以「資安升級」為名，把整台舊伺服器硬體物理替換掉，原本的設備直接銷毀。',
       succRate: 0.3,
       costG: 200,
@@ -171,7 +174,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '請法律專員在所有敏感郵件上標註「律師客戶保密特權」，規避程序檢查。',
       succRate: 0.9,
       costG: 60,
@@ -179,7 +182,7 @@ export const CARDS_E: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label: '律師和資訊長一起出動，對郵件系統做「例行清理」，把那個年份的備份檔案永久移除。',
       succRate: 0.3,
       costG: 300,

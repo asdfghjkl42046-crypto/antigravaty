@@ -1,3 +1,6 @@
+/**
+ * 法官範本：務實中立型
+ */
 import type { JudgmentTemplate } from './JudgeTemplatesDB';
 
 export const PRAGMATIC_LABEL = {
@@ -35,8 +38,14 @@ export const PRAGMATIC_INTERROGATION = [
   `被告，本庭見過不少為了生存而踩線的案例。\n涉案行為：「{tag}」\n你主張這屬於：「{escape}」\n給本庭一個讓帳目說得通的理由，別拿法條搪塞。`,
 ];
 
+export const PRAGMATIC_OPENING = [
+  '「為了維持現實世界的最低底線，本庭針對被告之【{tag}】嫌疑案件，正式宣告提審。」',
+  '「別談理想，我們只談實質損失。就這起【{hIntent}】指控，我們開始審理。」',
+];
+
 export const Pragmatic = {
   LABEL: PRAGMATIC_LABEL,
   JUDGMENT: PRAGMATIC_JUDGMENT,
   INTERROGATION: PRAGMATIC_INTERROGATION,
+  OPENING: PRAGMATIC_OPENING,
 };

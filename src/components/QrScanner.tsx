@@ -5,17 +5,14 @@ import { SYSTEM_MESSAGES } from '@/data/system/SystemMessages';
 import { GLOBAL_UI_TEXT } from '@/data/system/GlobalUI';
 
 /**
- * 企業監視錄影網：實體卡牌掃描特勤模組
- * 負責徵用你手機或電腦的真實攝影機，當你把那些代表骯髒交易的實體小卡遞到鏡頭前，
- * 它就能瞬間解碼內含的黑心合約，並立刻切斷電源防止反追蹤。
+ * QR Code 掃描器
+ * 負責打開攝影機掃描玩家的實體卡片，並將掃描結果傳回系統。
  */
 interface QrScannerProps {
   /** 當偷拍成功並成功解除了卡牌上的密碼鎖後，要把證據送交給哪個部門？ */
-  onScanSuccess: (decodedText: string) => void;
-  /** 控制相機電源的總開關，省電也防駭客偷窺 */
-  active: boolean;
-  /** 外部要求強制中止掃描器關閉視窗的回呼 */
-  onClose: () => void;
+  onScanSuccess: (decodedText: string) => void; // 掃描成功後的動作
+  active: boolean; // 是否開啟相機
+  onClose: () => void; // 關閉掃描器
 }
 
 export default function QrScanner({ onScanSuccess, active, onClose }: QrScannerProps) {
@@ -151,8 +148,8 @@ export default function QrScanner({ onScanSuccess, active, onClose }: QrScannerP
             /* 靜默忽略 */
           });
         } else {
-          // 相機就緒後，強迫老闆多等一秒鐘才能關閉。
-          // 這是為了讓晶片層級的畫面確實暖機完畢，否則秒開秒關一定會引發系統大當機。
+          // 相機就緒後，等一秒鐘才能關閉。
+          // 這是為了讓畫面確實暖機完畢，防止系統當機。
           setTimeout(() => setIsReady(true), 1000);
         }
       } catch (err) {

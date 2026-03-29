@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：A 類卡片（辦公室行動）
+ */
 import type { Card } from '../../types/game';
 
 export const CARDS_A: Record<string, Card> = {
@@ -6,7 +9,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '系統交付前一週，客戶通知預算凍結，尾款暫獲。深夜的站立會議結束後，首席工程師把一個資料夾推到你桌上說：「我有辦法讓他們很快想起來要付錢。」你沒問那個資料夾裡有什麼。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '工程師說這只是「預留維護通道」——合約沒有明確禁止，對方要是真的賴帳，這就是我們保障自己的技術性手段。',
       costG: 0,
@@ -15,7 +18,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '去識別化之後法律上就不算個資了。把這批數據的使用授權賣給廣告商，算是幫資料找到它應有的商業價值。',
       costG: 0,
@@ -24,7 +27,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '咬牙把完整代碼 and 所有權限交出去，一毛錢的小動作都不做。這筆帳，用法律途徑慢慢要回來。',
       succRate: 0.9,
@@ -37,21 +40,21 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '你的品牌好不容易開始有人認識，結果某天滑手機，發現一家國際大廠正在申請一個跟你Logo撞臉的商標。申請一旦過了，你不只白做，搞不好還會被反咬一口說你侵權。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '找專業商標事務所做全球檢索，搶先申請註冊，並正式對對方提出異議——用規則打回去。',
       succRate: 0.9,
       succ: { g: 60, rp: 2 },
       fail: { g: -5 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '硬碰硬不一定贏，主動聯繫對方法務，看看能不能談出一個「你走你的陽關道」的共存協議。',
       succRate: 0.9,
       succ: { g: 75, rp: 5 },
       fail: { g: -5 },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '視覺語言本來就在市場上流通——我們做的是同一個品類的獨立詮釋，目標客群也不同，這叫品牌定位，不叫抄襲。',
       g: 180,
@@ -64,7 +67,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '創投的估值模型盯著你這季的增長曲線。你知道那條線是一個大案子剛好在這季結案撐起來的，不是常態。財報截止前三天，會計師說：「有幾種做法，你聽一下。」',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '幾乎確定要簽的合約，調整一下認列時點而已——會計師說這在準則的彈性空間裡，叫「跨期認列」。',
       g: 200,
@@ -72,7 +75,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-03-1'],
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '透過子公司做帳務結構重整，讓集團整體的財務數字更清楚——錢還是在體體系裡，只是走了一條更好看的路。',
       costG: 0,
@@ -81,7 +84,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '請同事把這個月的發票都丟來，費用統一歸入研發項目——財報結構更漂亮，省下來的稅就當大家的績效獎金。',
       g: 150,
@@ -94,7 +97,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '標案開打前，你做了功課，發現最強勁的對手有個致命破綻——他們主打的技術，專利申請程序出了問題，現在根本沒有正式保護。這個資訊，要怎麼用，完全看你。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '匿名整理一批對方技術疑義的資料寄給評審——讓市場機制自己判斷對手的合規性，我只是傳遞資訊。',
       costG: 0,
@@ -103,14 +106,14 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label: '對方那套核心邏輯根本沒有法律保護，參考一下不算侵權——業界都在做，只是很少人直說。',
       g: 220,
       rp: -5,
       lawCaseIds: ['A-04-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '與其打別人，不如讓自己變得打不過——緊急做差異化設計，申請防禦性專利，用實力把這場標案贏回來。',
       succRate: 0.9,
@@ -123,7 +126,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '廣告預算燒完了，數據沒有按預期走。報告明天要進客戶信箱。你手上有兩份東西：一份是原始後台截圖，一份是工程師說「可以調整顯示邏輯」之後的版本。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '硬著頭皮把真實數據全附上，然後寫一份誠懇的失敗檢討——說不定客戶反而覺得你敢講實話，願意繼續合作。',
       succRate: 0.9,
@@ -131,14 +134,14 @@ export const CARDS_A: Record<string, Card> = {
       fail: { g: -5 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '主動打電話認錯，提出下季免費再投一次——把這次的失敗變成「我們一起解決問題」的機會。',
       succRate: 0.9,
       succ: { g: 50, rp: 5 },
       fail: { g: -5 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '後台的數據呈現方式本來就有優化空間——調整一下顯示邏輯，讓報告更直觀，幫客戶把注意力放在真正重要的指標上。',
       costG: 0,
@@ -152,14 +155,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '黃金地段的店面租約已經簽了，裝潢也快好了，但消防執照還卡在審查。房租照跑、薪水照付，財務每天在算那個數字。你盯著倒數日曆，開始想有沒有別的辦法。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '乖乖等執照、延後開業，同時把這三個月拿來做員工訓練和試賣測試——慢，但穩。',
       succRate: 0.9,
       succ: { g: 70, rp: 2 },
       fail: { g: -5 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '先低調做內部營運測試，同時跟大樓管理端建立定期溝通——確保任何行政進展都能第一時間掌握，屬於正常的場地協調。',
       costG: 0,
@@ -168,7 +171,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '正式執照下來之前先用倉儲節點過渡，登記地址依行政需求彈性安排——只是暫時的，等證照齊了再統一正式化。',
       g: 180,
@@ -181,14 +184,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '餐廳很吵。供應商業務把一張寫著帳號的紙條推到你面前，說合約簽完之後「顧問費會進來」。你看了那個數字兩秒，沒說話。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '把紙條推回去，要求對方把這個「折扣」直接反映在合約上——見得了光的優惠，才是真優惠。',
       succRate: 0.9,
       succ: { g: 90, rp: 2 },
       fail: { g: -10 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '不放自己口袋——掛個「公關預備金」的名目放公司帳。維繫供應商關係是真實的業務需求，性質不一樣。',
       g: 200,
@@ -196,7 +199,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-07-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '請對方開「行銷勞務費」的發票——這樣錢進得合法、帳報得出去，還能順便抵稅。合規包裝，兩頭都顧到。',
       costG: 0,
@@ -210,7 +213,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '對方財大氣粗，已經開始在市場上默默吃你的股權。你很清楚他們要幹嘛——把你的技術挖走，團隊解散，然後把剩下的殼冷凍起來。你有一點時間，但不多。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '走法律途徑聲請緊急處分、暫停對方收購，同時公開喊話找願意救你的白武士——把這場仗打到檯面上來。',
       succRate: 0.9,
@@ -218,7 +221,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { g: -20 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '在股權結構尚未轉移之前，把核心智財以技術授權方式移轉到海外關係企業——確保資產在重組過程中不被稀釋。',
       costG: 0,
@@ -227,7 +230,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '在章程裡加入股權稀釋的觸發條款——這是標準反惡意併購的設計邏輯，進了董事會就知道這是正常的防禦機制。',
       g: 220,
@@ -240,7 +243,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '你最重要的技術主管突然遞辭呈，小道消息說他下一站是你的頭號對手，還會把還沒發表的研發成果一起帶過去。你翻出當初簽的競業協議，發現上面有幾個漏洞大到可以開車穿過去。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '開一個他無法拒絕的補償條件，換他重新簽一份真正有法律效力的競業協議——用錢把漏洞補起來。',
       succRate: 0.9,
@@ -248,7 +251,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { g: -10 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '補償金不給，但在合約裡塞一個天文數字的賠償條款——看到那個數字通常就嚇跑了，真的要告再說。',
       g: 150,
@@ -256,7 +259,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-09-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '發律師函給對方公司，順便放話說這個主管有竊密嫌疑——讓他還沒到職就先被貼上標籤，自己評估值不值得。',
       costG: 0,
@@ -270,7 +273,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '年底結帳，會計師面色凝重地指著一個數字——今年海外顧問費收入比預期高很多，如實申報的話，稅一繳，股東分紅直接少一截。會計師喝了口咖啡，說：「有幾種做法，你聽一下。」',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '把這筆大錢拆成一堆小錢，分批打進比較少用的外幣帳戶——每筆都在申報門檻以下，查核系統很難抓到規律。',
       costG: 0,
@@ -279,14 +282,14 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '全部如實申報，稅該繳就繳——帳目乾淨，未來要上市的時候審核才不會挖出陳年舊帳。',
       succRate: 0.9,
       succ: { g: 60, rp: 8 },
       fail: { g: -5 },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '買幾個NFT，申報成「數位行銷推廣支出」——帳面獲利降下來，稅少繳，反正數位資產本來就很難估價。',
       g: 180,
@@ -299,7 +302,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '競爭對手的產品出包，網路上已經吵翻天，但事情還沒蓋棺論定。公關經理興沖沖衝進來說：「這是千載難逢的機會，我們要趁現在讓他們爬不起來。」你看著對方股價下跌的即時圖，開始思考。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '委託數位公關團隊在各平台協助擴散消費者反饋——市場已經在討論了，幫真實的聲音傳得更遠而已。',
       costG: 0,
@@ -308,7 +311,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '推出「安心選擇」廣告，主動揭露自家的檢驗標準與認證流程——沒有直接點名，但懂的人都懂在說誰。',
       g: 200,
@@ -316,7 +319,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-11-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '什麼都不做，照原本的節奏走——這種時候出手，贏了也會被說趁火打劫，不值得。',
       succRate: 0.9,
       succ: { g: 80, rp: 5 },
@@ -328,14 +331,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '貨已經出了，但財務跑來報告一個「好消息」——如果發票晚一週開，匯率差可以白賺將近百萬。問題是合約白紙黑字寫著發票要跟出貨日一致。一週而已，對方真的會發現嗎？',
     1: {
-      type: 'A',
+      type: 'X',
       label: '照合約日期開票，這筆匯差就當作沒看到——跟這家大廠的長期關係，不是一百萬能買到的。',
       succRate: 0.9,
       succ: { g: 70, rp: 5 },
       fail: { g: -10 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '讓財務把出貨單的日期配合實際完成時點做行政校正——文件還是文件，只是讓帳務跟業務進度對齊。',
       g: 180,
@@ -343,7 +346,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-12-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '私下聯繫對方財務窗口，請他在系統裡對那個日期誤差「通融」一下——長期合作關係，互相留點空間是正常的。',
       costG: 0,
@@ -357,14 +360,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '倉庫角落躺著一批退貨品——功能完全正常，就是外殼有點小刮傷。重新整理要花大錢，直接報廢又肉痛。業務跑來說：「其實混進新品裡出貨，客人收到也不一定會發現啦。」你看著那一箱箱貨，開始盤算。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '貼上「福利品」標籤、打七折公開賣，把瑕疵講清楚——願意接受的客人自然會買，還能做口碑。',
       succRate: 0.9,
       succ: { g: 80, rp: 2 },
       fail: { g: -10 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '這批商品功能完整，外觀差異屬於製程容許範圍——跟新品混合出貨，通路商驗貨通常不會每箱拆開細看的。',
       g: 220,
@@ -372,7 +375,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-13-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '捐給公益機構，申請抵稅證明——金額嘛，依實際功能價值往合理範圍認定，捐出去的東西本來就有估價空間。',
       costG: 0,
@@ -386,7 +389,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '數位轉型補助款剛入帳，專款專用，只能花在研發。但下週就是發薪日，其他投資套牢，帳戶裡的數字難看得很。財務跑來說：「現在能動的錢，就只有這筆。」你看著補助款的用途規定，又看了一眼發薪日的倒數。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '補助款一毛都不動，去跟銀行談緊急貸款撐過這個月——政府的錢用途出問題，後面查帳才是真的麻煩。',
       succRate: 0.9,
@@ -394,7 +397,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { g: -20 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '先挪來發薪水，結案報告再補幾張研發支出的單據——查帳員不可能每張都核實，這只是時間差的問題。',
       g: 250,
@@ -402,7 +405,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-14-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '找熟悉的外包商簽一份技術合約，把補助款打過去再扣手續費匯回——帳面上是研發支出，實際上錢還是回來了。',
       costG: 0,
@@ -416,14 +419,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '一家海外企業找上門，開出一個讓你眼睛一亮的數字，要買你們還沒申請專利的實驗性技術。但你翻出當初拿科研補助的合約，上面寫得很清楚——未經審核，不得境外轉讓。對方說時間緊，要你盡快給答覆。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '照規定送件申請轉讓核可，該繳的費用都繳——搞不好政府真的會批，而且批了之後睡得著覺。',
       succRate: 0.9,
       succ: { g: 150, rp: 5 },
       fail: { g: -20 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '不叫「轉讓」，叫「技術諮詢」——把核心拆成幾個模組分批授權，合約上看起來就是一般的顧問服務。',
       g: 300,
@@ -431,7 +434,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-15-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '直接把原始碼傳到對方伺服器，再用一份「軟體採購合約」把那筆錢合法地收回來——技術出去了，錢也進來了。',
       costG: 0,
@@ -445,7 +448,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '團隊集體中獎躺平，系統開發進度爛到不能看。偏偏明天就是客戶進度匯報，說實話要賠違約金，長期合作關係也可能直接涼掉。你盯著那份還有一半空白的甘特圖，想著怎麼讓明天的會議撐過去。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '照實說，然後拿出一份準備好的追趕計畫——加人、補時程、給補償，讓客戶看到你認真在處理，而不是在逃避。',
       succRate: 0.9,
@@ -453,7 +456,7 @@ export const CARDS_A: Record<string, Card> = {
       fail: { g: -30 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '剪一段展示影片，把整體設計邏輯和功能概念跑起來——Demo本來就是概念溝通，細節在後續交付時補齊。',
       g: 180,
@@ -461,7 +464,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-16-2'],
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '叫外包商以現有框架為基礎做客製化調整——縮短開發周期，確保如期交付，這是業界常見的整合開發方式。',
       g: 200,
@@ -474,7 +477,7 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '隔壁那家公司快撐不住了，準備清算。他們的核心開發團隊是業界頂尖，你早就想挖——問題是這些人都簽了超嚴苛的競業條款，直接聘用等於正面踩雷。清算公告一出來，你的電話就響了。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '透過獵頭公司繞個彎，用「技術顧問」名義簽私人合約——不是「聘用」，只是「合作」，競業條款管不到這裡。',
       g: 220,
@@ -482,7 +485,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-17-1'],
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '暗中資助這些員工了解自身的勞動權益，協助他們釐清勞資責任——等時機成熟，再正式開啟合作談判。',
       g: 200,
@@ -490,7 +493,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-17-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '直接找對方的債權委員會談，正式提出人才與技術收購方案——要多花一些錢，但買得光明正大。',
       succRate: 0.9,
       succ: { g: 90, rp: 5 },
@@ -502,14 +505,14 @@ export const CARDS_A: Record<string, Card> = {
     description:
       '一個有錢有人脈的大股東要進來增資，條件是簽對賭協議——兩年內毛利沒達標，你要用高價把股份買回來。你看著現在的財務數字，離目標還差一截。對方說合約已經準備好了，就等你簽。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '簽，但要求對方在合約裡加進資源對接的條款——你賭自己做得到，但籌碼要對等。',
       succRate: 0.9,
       succ: { g: 150, rp: 2 },
       fail: { g: -50 },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '讓律師在合約裡加幾個技術性保護條款，用精確的法律語言確保極端情況下協議的可執行性受到充分檢驗。',
       g: 280,
@@ -517,7 +520,7 @@ export const CARDS_A: Record<string, Card> = {
       lawCaseIds: ['A-18-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '透過關係企業的採購安排強化集團業務往來規模——帳面毛利結構自然漂亮，兩年後對賭目標順利達成。',
       costG: 0,

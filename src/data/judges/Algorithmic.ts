@@ -1,3 +1,6 @@
+/**
+ * 法官範本：技術前衛型
+ */
 import type { JudgmentTemplate } from './JudgeTemplatesDB';
 
 export const ALGORITHMIC_LABEL = {
@@ -35,8 +38,14 @@ export const ALGORITHMIC_INTERROGATION = [
   `已載入案件資料。\n涉案行為：「{tag}」\n你的主張：「{escape}」\n請說明你的主張如何與構成要件產生有效交集。本系統只處理邏輯，不處理情緒。`,
 ];
 
+export const ALGORITHMIC_OPENING = [
+  '「系統啟動：偵測到與《{lawName}》衝突之異常數據【{tag}】，開始執行司法稽核。」',
+  '「正在檢索被告企業之歷史日誌... 針對疑似【{hIntent}】之行為，開啟審理線程。」',
+];
+
 export const Algorithmic = {
   LABEL: ALGORITHMIC_LABEL,
   JUDGMENT: ALGORITHMIC_JUDGMENT,
   INTERROGATION: ALGORITHMIC_INTERROGATION,
+  OPENING: ALGORITHMIC_OPENING,
 };

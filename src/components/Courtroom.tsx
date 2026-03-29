@@ -34,13 +34,12 @@ function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * 最高法院殺戮戰場 (Courtroom)
- * 這是整套遊戲最血腥、變化最多的核心舞台。
- * 負責演出玩家被抓去關那一刻起，從法官開砲、群眾吃瓜下注、狡辯防禦，到最後法槌敲下的生死歷程。
+ * 法庭畫面
+ * 這是遊戲的核心舞台。
+ * 負責顯示玩家被抓去關那一刻起，從法官開砲、群眾下注、被告辯護，到最後法槌敲下的過程。
  */
 export default function Courtroom() {
-  // 從全域伺服器借調法庭專屬的武裝：包含所有人的籌碼、按鈕與當下的法官人偶
-  // 從全域伺服器借調法庭專屬的武裝：利用 Selector 模式精準訂閱，優化 Re-render 效能
+  // 從資料庫拿取法庭需要的資料
   const players = useGameStore((s) => s.players);
   const trial = useGameStore((s) => s.trial);
   const setTrialStage = useGameStore((s) => s.setTrialStage);
@@ -56,7 +55,7 @@ export default function Courtroom() {
   const extraordinaryAppeal = useGameStore((s) => s.extraordinaryAppeal);
 
   // -------------------------
-  // 法庭本地暫存文件區（只在這場官司中有效）
+  // 官司期間的暫存紀錄
   // -------------------------
 
   // 被告方在 AI 模式下可選擇性輸入的補充答辯狀字串
@@ -70,11 +69,11 @@ export default function Courtroom() {
   // 是否進入二階段展示中的「罰金計算明細」畫面
   const [showPunishmentDetail, setShowPunishmentDetail] = useState(false);
 
-  // 找出誰是倒楣鬼被告本人
+  // 找出誰是被告本人
   const currentPlayer = players.find((p) => p.id === trial?.defendantId);
 
   // -------------------------------------------------------------
-  // [法庭死神倒數計時器] (給玩家造成極大心理壓力的時鐘)
+  // [法庭倒數計時器]
   // -------------------------------------------------------------
   useEffect(() => {
     // 只有在當前階段「解鎖開始」且法庭確實存在時，才開始計算生命倒數計時
@@ -82,12 +81,12 @@ export default function Courtroom() {
     const interval = setInterval(() => {
       tickTrialTimer(); // 每秒扣除一滴答器
     }, 1000);
-    // 元件銷毀或暫停時拆除炸彈
+    // 結束這回合時清掉計時器
     return () => clearInterval(interval);
     // [優化] 移除 trial.timer 作為依賴項，避免每秒重新建立計時器
   }, [trial?.isReady, trial?.stage, tickTrialTimer]);
 
-  // 切換不同階段 (Stage) 時，為了防止上個畫面的輸入殘留，延遲一幀後徹底執行記憶清洗
+  // 切換階段時重置本地狀態
   useEffect(() => {
     setTimeout(() => {
       setSelectedOption(null);
@@ -487,19 +486,24 @@ export default function Courtroom() {
                   {(() => {
                     const rawOptions = [
                       {
-                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0](
-                          trial.lawCase.escape || '業務正當性'
-                        ),
+                        label:
+                          trial.generatedOptions?.j ||
+                          trial.lawCase.defense_j ||
+                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0],
                         index: 0,
                       },
                       {
-                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1](
-                          formatLawTags(trial.lawCase.tag)
-                        ),
+                        label:
+                          trial.generatedOptions?.k ||
+                          trial.lawCase.defense_k ||
+                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1],
                         index: 1,
                       },
                       {
-                        label: COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2](trial.lawCase.surface_term),
+                        label:
+                          trial.generatedOptions?.l ||
+                          trial.lawCase.defense_l ||
+                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2],
                         index: 2,
                       },
                     ];
@@ -507,14 +511,10 @@ export default function Courtroom() {
                     const analyzedOptions = rawOptions.map((opt) => {
                       const baseRate = trial.lawCase.survival_rate || 0.2;
                       const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
-                      let keywordBonus = 0;
-                      if (trial.lawCase.winning_keywords) {
-                        trial.lawCase.winning_keywords.forEach((k) => {
-                          if (opt.label.includes(k)) keywordBonus += 0.15;
-                        });
-                      }
-                      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + keywordBonus);
-                      return { ...opt, predictedRate, lawyerBonus, keywordBonus };
+                      // JKL 選項權重加成：固定為 J(0%), K(5%), L(10%)
+                      const jklBonus = opt.index === 1 ? 0.05 : opt.index === 2 ? 0.1 : 0;
+                      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
+                      return { ...opt, predictedRate, lawyerBonus, jklBonus };
                     });
 
                     let finalOptions = analyzedOptions;
@@ -533,7 +533,7 @@ export default function Courtroom() {
                     }
 
                     return finalOptions.map((opt) => {
-                      const { label, index: i, predictedRate, lawyerBonus, keywordBonus } = opt;
+                      const { label, index: i, predictedRate, lawyerBonus, jklBonus } = opt;
                       return (
                         <button
                           key={i}
@@ -598,9 +598,9 @@ export default function Courtroom() {
                                 王牌律師 +30%
                               </span>
                             )}
-                            {keywordBonus > 0 && (
+                            {jklBonus > 0 && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">
-                                關鍵字加乘 +{(keywordBonus * 100).toFixed(0)}%
+                                選項加成 +{(jklBonus * 100).toFixed(0)}%
                               </span>
                             )}
                           </div>
@@ -610,7 +610,7 @@ export default function Courtroom() {
                   })()}
                 </div>
 
-                {/* 鈔能力 AI 模式限定：你可以自己打字辱罵法官、或是瞎掰出更完美的藉口來影響最終判決！ */}
+                {/* AI 模式限定：你可以自己打字辱罵法官、或是瞎掰出更完美的藉口來影響最終判決！ */}
                 {judgeMode === 'ai' && (
                   <div className="space-y-3">
                     <div className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">

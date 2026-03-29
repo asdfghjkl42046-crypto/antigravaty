@@ -13,14 +13,14 @@ function cn(...inputs: ClassValue[]) {
 interface StatValueProps {
   value: number; // 戶頭裡血淋淋的最新餘額
   suffix?: string; // 幣值單位綴飾 (例如 萬、點)
-  color?: string; // 財報字的專屬顏色 (賺錢綠還是虧錢紅？)
-  fontSize?: string; // 版面佔比大小
+  color?: string; // 文字顏色
+  fontSize?: string; // 字體大小
 }
 
 /**
- * 華爾街之狼的血壓計 (Stat Value Animated)
- * 每當你的黑錢與黑料暴增或蒸發的瞬間，
- * 它會在原本數字的上方「狠狠彈出」一個跳動的加減號，放大你賺錢的快感或破產的恐懼。
+ * 數值顯示元件
+ * 負責以漂亮的方式顯示錢 (G)、名聲 (RP) 等數值。
+ * 每當數值變動時，會在原本數字的上方彈出一個跳動的加減號，顯示變動的數值。
  */
 export default function StatValue({
   value,

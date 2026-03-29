@@ -1,6 +1,6 @@
 /**
- * 遊戲底層數值運算中心
- * 負責處理扣款打折、名聲懲罰、法庭法官貪婪偏好，以及何時會被警方大起訴的機率核心
+ * 遊戲數值計算中心
+ * 負責計算玩家名聲變化、被起訴的機率，以及法院罰金。
  */
 
 import type { Player, JudgePersonality, BribeItem } from '../types/game';
@@ -24,9 +24,8 @@ import {
 // ============================================================
 
 /**
- * 名聲(RP)進帳結算
- * 如果玩家已經臭名昭彰 (名聲 < 50)，名聲收益會被系統殘酷打折。
- * 象徵著一旦喪失社會公信力，要洗白是非常困難的。
+ * 計算實際獲得的名聲
+ * 當玩家名聲太低（低於 50）時，獲得的名聲會變少（減半）。
  */
 export function calculateActualRPGain(player: Player, baseGain: number): number {
   if (baseGain <= 0) return baseGain; // 負向扣除不受此減半懲罰影響 (往下掉一樣快)
@@ -41,9 +40,8 @@ export function calculateActualRPGain(player: Player, baseGain: number): number 
 // ============================================================
 
 /**
- * 起訴通緝值計算 (法院盯上你的機率)
- * 混合了本局的新罪、往年的舊帳，甚至連你做過的公益名聲都能拿來抵銷罪孽。
- * 但如果你是個長期的慣犯，系統還會強制拉高你的「被起訴保底機率」。
+ * 計算被起訴的機率
+ * 根據玩家身上的各種證據（黑材料）和名聲，算出這回合被起訴的百分比。
  */
 export function getIndictmentChance(player: Player, currentTurn: number = 1): number {
   const sources = player.blackMaterialSources || [];
@@ -75,8 +73,8 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   }
   const totalTags = player.totalTagsCount || 0;
 
-  // 綜合結算：(新罪*3.5倍) + (舊罪*0.8倍) + (累積犯罪標籤*0.2) - (名望折抵)
-  const baseProb = newBM * 3.5 + oldBM * 0.8 + totalTags * 0.2 - (player.rp - 50) * 0.5;
+  // 綜合結算：(新產 BM * 3.5倍) + (舊存 BM * 0.8倍) + (當前身上總 BM * 0.2) - (名望折抵)
+  const baseProb = newBM * 3.5 + oldBM * 0.8 + totalBM * 0.2 - (player.rp - 50) * 0.5;
 
   // 最後確認：如果最終機率算出來是 NaN，說明 player.rp 可能也有問題
   if (Number.isNaN(baseProb)) {
@@ -86,7 +84,7 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
     );
   }
 
-  // 違法階梯：為防止老玩家依仗資金洗白，歷史犯罪次數過多的法外狂徒將面臨越來越高的基礎發跡底線
+  // 基礎起訴機率：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
   let floor = 0;
   if (totalTags > 0) {
     floor = Math.min(100, Math.ceil(totalTags / 40) * 10);
@@ -146,10 +144,9 @@ export function calculateConvictionPenalty(
   }
   const safeIncome = netIncome;
 
-  // 1. 強制倍率邏輯：如果是開局既有 (Turn 0)，強制套用 1.0x (單純吐回非法所得，不額外追絞)
-  // 否則，前 5 回合敗訴 (包含 5 回合)，只罰該案件淨獲利的 1 倍作為保護期；5回合後標準罰則為 3x
+  // 1. 基礎倍率邏輯：罰金基數統一固定為 1.0x (即等於該案件的不法所得)。
   const isProtected = currentTurn <= 5;
-  const baseMultiplier = isPreexisting || isProtected ? 1.0 : 3.0;
+  const baseMultiplier = 1.0;
 
   // 基礎罰金計算: 本次查獲不法所得的指定倍率
   let fineBeforeDiscount = roundUp(safeIncome * baseMultiplier);
@@ -207,7 +204,7 @@ export function calculateConvictionPenalty(
   const trialCount = trials + 1;
   const turnLabel = currentTurn === 0 ? '[開局前科]' : `[第 ${currentTurn} 回合]`;
   const trialLabel = isAppeal ? '[非常上訴失利]' : `[第 ${trialCount} 次涉案]`;
-  const multiplierReason = isPreexisting || isProtected ? '(新手保護期 1.0x)' : '(標準倍率 3.0x)';
+  const multiplierReason = '(基礎倍率 1.0x)';
 
   let detail = `${turnLabel} ${trialLabel} 不法所得(${safeIncome}萬) * ${multiplierReason}`;
 
@@ -268,7 +265,7 @@ export interface BetResult {
 
 /**
  * 旁聽席的賭博：
- * 當別人在受審時，你可以下注押他會不會坐牢。
+ * 當別人在受審時，你可以下注押他會不會被判罰。
  * 雖然猜中有人才點數，但猜錯可是會被沒收 100 萬元保證金的！
  */
 export function settleBet(

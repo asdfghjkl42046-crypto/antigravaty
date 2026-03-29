@@ -10,37 +10,37 @@ import { PLAYER_UI_TEXT } from '@/data/player/PlayerData';
 import { START_PATH_NAMES } from '@/data/setup/SetupData';
 
 // 暗網情報站的通訊接口：隨時攔截場上總裁們的戶頭餘額跟官司狀態
+// 玩家狀態側邊欄：顯示所有參賽者的資訊
 interface PlayerSidebarProps {
-  players: Player[]; // 這局存活/破產的所有參賽者陣列
-  currentPlayerIndex: number; // 目前擁有「發動回合權力」的活躍玩家索引值，指向陣列位置
+  players: Player[]; // 所有參賽者列表
+  currentPlayerIndex: number; // 目前輪到的玩家索引
 }
 
 /**
- * 總裁財報監視側邊欄 (Player Sidebar)
- * 就算是最骯髒的地下金流，也會毫無保留地展示在這個情報看板上。
- * 讓你能隨時死命關注對手的口袋有多深、黑料累積了幾疊，以及他們是不是已經窮到買不起會計師了。
+ * 玩家狀態側邊欄
+ * 顯示目前玩家的所有數值（錢、名聲、AP、IP）以及擁有的標籤（壞事紀錄）。
  */
 export default function PlayerSidebar({ players, currentPlayerIndex }: PlayerSidebarProps) {
-  // 追蹤哪個玩家的犯罪前科下拉選單正在展開
+  // 追蹤哪個玩家的標籤選單正在展開
   const [openTagPlayer, setOpenTagPlayer] = useState<string | null>(null);
 
   return (
-    // 左側側板基底畫布：固定寬度為 900px，以容納 2x2 的優化玩家資訊矩陣
+    // 側邊欄容器
     <aside className="w-[900px] mt-44 flex-shrink-0 bg-[#0d1117]/80 backdrop-blur-sm border border-white/5 p-2 rounded-[40px] flex flex-col gap-4 overflow-y-auto shadow-2xl custom-scrollbar">
-      {/* 側邊情報網的霸氣抬頭 */}
+      {/* 標題 */}
       <h2 className="text-xl font-black tracking-tighter uppercase italic text-blue-500">
         {PLAYER_UI_TEXT.SIDEBAR.TITLE}
       </h2>
 
-      {/* 回歸 2x2 矩陣排版，將所有參賽者的情報一覽無遺 */}
+      {/* 玩家列表顯示 */}
       <div className="grid grid-cols-2 gap-4">
         {players.map((p, i) => {
-          // 聚光燈鎖定：這回合到底是哪個大老闆在呼風喚雨？
+          // 判斷是否為當前玩家
           const isCurrent = i === currentPlayerIndex;
 
           return (
             <div
-              key={p.id} // React 陣列用身分證防亂圖
+              key={p.id}
               className={cn(
                 // 每一張單人專屬卡片的通用基底樣式框架
                 'p-5 rounded-[32px] border-2 transition-all duration-500 relative group',

@@ -30,8 +30,8 @@ import {
 } from './errors/EngineErrors';
 
 /**
- * 法庭與審判系統
- * 負責處理玩家被起訴、挑選罪名、玩家在法庭上的答辯勝率，以及法官的最終判決
+ * 法庭與審判中心
+ * 負責處理玩家被警察抓、選罪名、在法庭上的辯護，以及法官最後的判決。
  */
 export class CourtEngine {
   /**
@@ -43,8 +43,8 @@ export class CourtEngine {
   }
 
   /**
-   * 鎖定本次庭審嫌疑人：黑材料大輪盤
-   * 系統會根據每位玩家身上的黑材料數量，像俄羅斯輪盤一樣抽出一位倒楣鬼上法庭。
+   * 隨機抽出這回合要上法庭的人
+   * 身上壞事（黑材料）越多的人，被抓到的機率就越高。
    */
   static spinRussianRoulette(players: Player[]): Player | null {
     // 步驟 1：過濾出尚未破產的活躍玩家，破產者不再列入被起訴名單
@@ -53,14 +53,14 @@ export class CourtEngine {
     if (activePlayers.length === 0) return null;
 
     let totalBM = 0;
-    // 步驟 2：統計每位活躍玩家的黑料總數，並累加成全場總黑料量 (作為抽籤母體)
+    // 步驟 2：統計活躍玩家黑材料總數
     const candidates = activePlayers.map((p) => {
       const bm = getTotalBlackMaterials(p);
       totalBM += bm;
       return { player: p, bm };
     });
 
-    // 步驟 3：如果全場黑料均為零，表示無任何把柄可抓，檢方直接撤銷起訴行動
+    // 步驟 3：如果大家都沒做壞事，就不會有人上法庭
     if (totalBM === 0) {
       return null;
     }
@@ -72,10 +72,10 @@ export class CourtEngine {
       );
     }
 
-    // 步驟 4：進行加權隨機輪盤抽籤，黑料數量越多的玩家，被抽中的機率越大
+    // 步驟 4：進行隨機抽籤，做壞事越多的人，機率越高
     let roll = Math.random() * totalBM;
     for (const c of candidates) {
-      // 逐一扣減玩家的黑料數權重，扣至負數或零即代表游標停在該玩家身上
+      // 逐一扣減權重，直到符合隨機值
       if (roll <= c.bm) return c.player;
       roll -= c.bm;
     }
@@ -84,9 +84,9 @@ export class CourtEngine {
   }
 
   static pickLawCase(player: Player): { lawCase: LawCase; tagId: number } | null {
-    // 步驟 1：過濾出可以被合法起訴的犯罪標籤
+    // 步驟 1：過濾出可以告玩家的罪名
     const validCrimeTags = player.tags.filter((t) => {
-      // 已結案（isResolved）的標籤不可重複起訴，依據一事不再理原則
+      // 已經結案（解決過）的罪名不能再告一次
       if (t.isResolved) return false;
       // 檢查該標籤對應的「實體黑材料證據」是否存在
       const hasEvidence = player.blackMaterialSources.some(
@@ -253,36 +253,42 @@ export class CourtEngine {
    * 玩家自述答辯：判定玩家是否能在法庭上說服法官全身而退
    */
   static calculateDefenseResult(
+    mode: JudgeMode,
     player: Player,
     lawCase: LawCase,
     text: string,
     spectatorInfluence: number = 0,
-    optionText: string = ''
+    optionIndex?: 'J' | 'K' | 'L' | string
   ): { isSuccess: boolean; rate: number; isRelief?: boolean } {
-    // 基礎勝算為卡牌所載的案件基本逃脫率，若無定義預設 20% 防禦成功率
-    const baseSurvival = lawCase.survival_rate || 0.2;
-    // 加入旁聽群眾干預帶來的浮動補正機率
-    let finalSurvivalRate = baseSurvival + spectatorInfluence;
-
-    // 將玩家輸入的補充陳述與點選的選項文字合併，作為最終審核文本
-    const combinedText = (text || '') + (optionText || '');
-
-    // [關鍵字系統整合]：檢查被告自述中是否提及勝訴關鍵字，每命中一個 +15% 勝率
-    if (combinedText && lawCase.winning_keywords) {
-      lawCase.winning_keywords.forEach((keyword) => {
-        if (combinedText.includes(keyword)) {
-          finalSurvivalRate += 0.15;
-        }
-      });
+    // 1. 基礎勝算檢核
+    if (typeof lawCase.survival_rate !== 'number') {
+      throwDataDefinitionError(
+        'CourtEngine.calculateDefenseResult',
+        `法條 ${lawCase.id} 缺少基礎勝率 (survival_rate) 設定，審判程序中止。`
+      );
     }
+    
+    // 2. 初始化最終勝率
+    let finalSurvivalRate = lawCase.survival_rate + spectatorInfluence;
 
-    // 3. 律師天賦加成 (LV1律師天賦發動)：總裁指示，直接單純提升 30% 勝率
+    // 3. 根據模式進行不同的辯護計算邏輯
+    if (mode === 'ai') {
+      // [AI 模式]：由 AI 動態生成 JKL 選項標籤，勝率加成由 optionIndex 決定
+    }
+    
+    // 4. [統一加成邏輯]：依據選擇的選項索引 (J/K/L) 固定加成
+    if (optionIndex === 'K') {
+      finalSurvivalRate += 0.05; // K 選項 +5%
+    } else if (optionIndex === 'L') {
+      finalSurvivalRate += 0.1; // L 選項 +10%
+    }
+    // J 選項維持 0% 加成，不另行計算
+
+    // 5. 律師天賦發動：王牌律師 LV1 提供額外 +30% 勝率加成
     finalSurvivalRate += getLawyerDefenseBonus(player);
 
-    // 將結算勝率封裝限制於 0 到 1 之間
+    // 5. 限制勝率範圍並執行隨機判定
     finalSurvivalRate = Math.max(0, Math.min(1.0, finalSurvivalRate));
-
-    // 透過隨機，確定最終審判是否過關
     const isSuccess = Math.random() < finalSurvivalRate;
 
     return { isSuccess, rate: finalSurvivalRate };
@@ -344,26 +350,22 @@ export class CourtEngine {
     judgeMode: JudgeMode,
     currentTurn: number
   ): Partial<TrialState> {
-    // 根據索引從 COURT_TEXT 中重建玩家選定的原始回話文本，以便進行關鍵字比對
-    const optionFn = COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[optionIdx];
-    let optionText = '';
+    // 1. 映射選項索引到 JKL 加成標記
+    // 0 -> J (+0%), 1 -> K (+5%), 2 -> L (+10%)
+    const optionMap: Record<number, string> = { 0: 'J', 1: 'K', 2: 'L' };
+    const optionLabel = optionMap[optionIdx] || 'J';
 
-    if (typeof optionFn === 'function') {
-      if (optionIdx === 0) optionText = optionFn(trial.lawCase.escape || '業務正當性');
-      else if (optionIdx === 1) optionText = optionFn(formatLawTags(trial.lawCase.tag));
-      else if (optionIdx === 2) optionText = optionFn(trial.lawCase.surface_term);
-    }
-
-    // [旁觀者干預系統整合]：計算場上所有干預行為對機率產生的總影響
+    // 2. [旁觀者干預系統整合]：計算場上所有干預行為對機率產生的總影響
     const spectatorInfluence = calculateSpectatorInfluence(trial.interventions);
 
-    // 依前面定義的防禦勝率演算法來獲取勝敗結論 (傳入 optionText 供關鍵字比對)
+    // 3. 結算防禦結果 (傳入模式與選項索引)
     const res = this.calculateDefenseResult(
+      judgeMode,
       player,
       trial.lawCase,
       text,
       spectatorInfluence,
-      optionText
+      optionLabel
     );
     // 根據勝敗來決定是否計算判決罰鍰數字 (傳入當前標籤 ID 進行精準資產對接)
     const punishment = res.isSuccess
@@ -539,12 +541,12 @@ export class CourtEngine {
       bets: [], // 存放押注結果的陣列
       question: narrative.question,
       narrative: narrative.narrative,
-      isReady: false,
-      timer: 0, // 初始化等待準備的倒數讀秒計時器
-      systemPrompt: '',
+      isReady: true,
+      timer: 30,
       isInevitable, // 定義該次審判是否為不可免疫的絕對制裁
       forcedReason: reason,
       judgePersonality: personality,
+      generatedOptions: undefined, // AI 動態生成的動態選項文案
     };
   }
 

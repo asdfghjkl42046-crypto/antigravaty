@@ -1,3 +1,6 @@
+/**
+ * 法律資料：C 類案件
+ */
 import type { LawCase } from '../../types/game';
 
 export const LAWS_C: Record<string, LawCase> = {
@@ -14,7 +17,9 @@ export const LAWS_C: Record<string, LawCase> = {
       '非法地下變現管道的通訊錄',
       '透過藝術品交易洗錢的虛假收據',
     ],
-    winning_keywords: ['收據', '單向', '公開'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-02-2': {
     id: 'C-02-2',
@@ -29,7 +34,9 @@ export const LAWS_C: Record<string, LawCase> = {
       '虛假的碳中和抵換證明',
       '買通媒體寫綠色環保假新聞的清單',
     ],
-    winning_keywords: ['科學', '揭露', '免責'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-03-2': {
     id: 'C-03-2',
@@ -44,7 +51,9 @@ export const LAWS_C: Record<string, LawCase> = {
       '故意把捐款拆成小額的對照表',
       '與議員助理交換利益的秘密合約',
     ],
-    winning_keywords: ['公開', '上限', '自產'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-04-1': {
     id: 'C-04-1',
@@ -54,7 +63,9 @@ export const LAWS_C: Record<string, LawCase> = {
     hidden_intent: '用假發票把公益基金領出來，拿去替高管付私人消費',
     survival_rate: 0.02,
     evidence_list: ['假發票憑證', '私人消費紀錄', '會計查核報告'],
-    winning_keywords: ['透明', '收據', '章程'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-05-3': {
     id: 'C-05-3',
@@ -69,7 +80,9 @@ export const LAWS_C: Record<string, LawCase> = {
       '虛報藝術品修復費用的撥款單',
       '收藏家之間私下護盤的截圖',
     ],
-    winning_keywords: ['鑑定', '常態', '投資'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-06-1': {
     id: 'C-06-1',
@@ -79,7 +92,9 @@ export const LAWS_C: Record<string, LawCase> = {
     hidden_intent: '捐過期爛貨卻虛報高價抵稅，公益資金進了自己帳戶',
     survival_rate: 0.02,
     evidence_list: ['物資驗收單', '採購捐贈對比', '出廠合格證明'],
-    winning_keywords: ['合格', '驗收', '真實'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-07-3': {
     id: 'C-07-3',
@@ -89,7 +104,9 @@ export const LAWS_C: Record<string, LawCase> = {
     hidden_intent: '對外喊淨零，實際把錢轉進洗錢管道，污染照排',
     survival_rate: 0.02,
     evidence_list: ['洗錢金流軌跡自查表', '虛假環境績效報告', '不實公關委託合約'],
-    winning_keywords: ['中和', '流量', '優化'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'C-08-2': {
     id: 'C-08-2',
@@ -104,6 +121,8 @@ export const LAWS_C: Record<string, LawCase> = {
       '體育協會內部錢被搬空的明細',
       '換取政府特許權的秘密通訊錄紀錄',
     ],
-    winning_keywords: ['推廣', '顧問', '真實'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 };

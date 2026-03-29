@@ -4,13 +4,13 @@ import React, { useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
 interface ErrorPopupProps {
-  message: string | null; // 錯誤訊息內容，null 時隱藏
-  onClose: () => void; // 關閉彈窗的回呼函數
+  message: string | null; // 顯示的文字內容，沒有內容時隱藏
+  onClose: () => void; // 關閉視窗時執行的動作
 }
 
 /**
- * 錯誤彈窗元件 (Error Popup)
- * 用於顯示無效卡片、無法讀取等錯誤訊息。
+ * 一般錯誤提示
+ * 用於顯示卡片操作不合法、餘額不足等一般性的警告訊息。
  * 3 秒後自動消失，也可手動點擊關閉。
  */
 export default function ErrorPopup({ message, onClose }: ErrorPopupProps) {

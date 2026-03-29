@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：C 類卡片（法庭答辯）
+ */
 import type { Card } from '../../types/game';
 
 export const CARDS_C: Record<string, Card> = {
@@ -6,7 +9,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '聖誕節快到了，附近育幼院的院長親自來拜訪，說孩子們的教育經費 and 生活物資都有缺口，希望你們公司能幫忙。這種事你不是第一次遇到——但每次都要想清楚，是真的要做好事，還是要讓這件好事被更多人看到。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬，派幾個員工去當志工，低調記錄在CSR報告裡——做了，但不張揚。',
       succRate: 0.9,
       costG: 50,
@@ -14,7 +17,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 50 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '捐150萬，順便邀媒體來採訪，黃金時段播出企業關懷弱勢的專題——好事做了，順便讓品牌也漂亮一下。',
       succRate: 0.9,
@@ -23,7 +26,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '對外宣布捐400萬，實際上跟仲介串通好，大部分的錢繞一圈再回到公司的不記名帳戶——名聲賺到了，錢也沒真的出去。',
       costG: 400,
@@ -40,7 +43,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '綠色消費當道，公關部門興沖沖說要申請國際環保認證——有了那個標章，溢價空間至少多兩成。但內部評估報告你也看了，生產流程裡還有幾個微量污染的環節還沒解決，要達標，要嘛花大錢改設備，要嘛想辦法讓報告「好看一點」。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '砸150萬更新設備，把流程真的改到符合標準，然後正式申請認證——貴，但標章貼上去之後睡得著覺。',
       succRate: 0.9,
@@ -49,7 +52,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '花400萬請頂級公關公司做視覺包裝，把污染細節埋在漂亮的數據圖表裡——消費者看的是故事，不是原始數據。',
       costG: 400,
@@ -61,7 +64,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '贊助50萬辦校園環保競賽，讓品牌跟環保教育連結——設備的問題慢慢解決，形象先顧好。',
       succRate: 0.9,
       costG: 50,
@@ -74,7 +77,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '大選倒數，一位跟你們產業關係密切的候選人私下約你喝咖啡，說得很直白：如果當選，法規鬆綁的事他會推，但選前需要一點「支持」。你很清楚這筆錢給下去代表什麼，也很清楚如果他當選而你沒給，代表什麼。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '走公開帳戶、依法捐150萬，所有資金流向都可查——給了，但給得清清楚楚，誰都挑不出毛病。',
       succRate: 0.9,
       costG: 150,
@@ -82,7 +85,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '找幾個人頭帳戶把400萬拆成一堆小額捐款打過去，規避上限、不留痕跡——政治關係做深，但帳面上看不出來是你。',
       costG: 400,
@@ -94,7 +97,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '捐50萬買他的公益慈善餐會入場券——算是表示支持，但跟核心政治獻金保持距離，進退都有空間。',
       succRate: 0.9,
@@ -108,7 +111,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '一份報告放到你桌上，說偏鄉學童的數位學習資源嚴重不足。公關團隊說這是個好機會——長期投入、持續曝光，品牌形象可以做得很深。但你也知道，這種專案一旦開始，就很難中途喊停，外界會一直盯著你後續怎麼做。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '對外宣布成立400萬教育基金，聽起來很漂亮——但帳目裡有一部分其實是高管的私人交際費，用假報帳藏進去。',
       costG: 400,
@@ -120,7 +123,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬買一批平板直接送到學校——簡單直接，錢用在刀口上，不用搞複雜的計畫。',
       succRate: 0.9,
       costG: 50,
@@ -128,7 +131,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '提撥150萬做三年期的師資培訓，邀知名教授當顧問——慢慢來，但這才是真的改變得了什麼的做法。',
       succRate: 0.9,
@@ -142,7 +145,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '一位在藝術圈頗有名氣的當代藝術家來找你，邀請公司擔任年度大展的首席贊助商。他說得很誘人：開幕夜的客群都是有錢有品味的人，你的品牌出現在那個場合，傳遞的訊息跟打廣告完全不一樣。你心動，但也在想這筆錢到底要投多深。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '投150萬冠名贊助，開幕派對順便邀核心客戶來——藝術展當社交場合用，品牌形象和人脈一起經營。',
       succRate: 0.9,
@@ -151,7 +154,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬贊助導覽手冊印製，封底放公司簡介——低調插旗，花小錢讓品牌名字出現在對的地方。',
       succRate: 0.9,
       costG: 50,
@@ -159,7 +162,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '用400萬贊助名義買下幾件作品，估價往高開，帳面當投資報帳——順便幫幾個股東把資產低調轉移一下，藝術品本來就很難估價。',
       costG: 400,
@@ -176,7 +179,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '傳染病來得又快又猛，醫療體系開始吃緊，新聞每天都在播哪家企業捐了多少。你的手機也開始響——供應商、公關公司、還有幾個不認識的藥商，都說他們有「資源」可以配合。社會輿論的壓力讓你很清楚：這時候不表態，也是一種表態。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '對外宣布設立400萬緊急醫療基金，實際上跟藥商喬好了，捐出去的是過期或劣質物資，帳面價值高估幾倍用來抵稅——反正物資都捐出去了，誰會去驗？',
       costG: 400,
@@ -188,7 +191,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬給紅十字會，指定買第一線醫護的防護裝備——錢不多，但去向清楚，做了就做了。',
       succRate: 0.9,
       costG: 50,
@@ -196,7 +199,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 50 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '投150萬資助大學醫學院開發快篩技術，量產後優先供應偏鄉——慢一點，但這筆錢真的會發揮作用。',
       succRate: 0.9,
@@ -210,7 +213,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '新聞畫面很難看——抗議者手上拿著你們的包裝，旁邊是一堆沖上岸的塑膠垃圾。公關部門說要盡快回應，不然輿論會繼續發酵。但內部評估也說了，要真的解決包裝問題，時間和錢都不是小數目。你必須決定，這次要給社會一個什麼樣的答案。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬支持民間淨灘活動，鼓勵員工帶家人一起去——行動不大，但是真的去做，總比發聲明好。',
       succRate: 0.9,
       costG: 50,
@@ -218,7 +221,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 50 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '撥150萬研發可分解包裝，同時公布詳細的減塑時程表——承認問題、給出計畫，讓外界有東西可以監督。',
       succRate: 0.9,
@@ -227,7 +230,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '花400萬拍一系列美輪美奐的海底生態廣告，宣告公司已達成「塑膠中和」——實際上什麼都沒改，但畫面夠美，夠多人分享就夠了。',
       costG: 400,
@@ -244,7 +247,7 @@ export const CARDS_C: Record<string, Card> = {
     description:
       '公關經理拿著一份資料跑進來說：這個足球聯賽在家長和學生圈子裡口碑很好，但今年經費缺口補不上，可能要停辦了。他說如果你們這時候出手，品牌在這個族群裡的好感度會直接拉高。你翻了翻資料，心裡在算這筆錢值不值得投。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '捐150萬讓聯賽繼續辦一年，換球場四周的大型看板——贊助體育、打廣告，兩件事一起做。',
       succRate: 0.9,
       costG: 150,
@@ -252,7 +255,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { loss: 150 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '捐400萬給聯賽委員會，但私下談好，部分款項要用「顧問費」名義轉給幾個有用的政界人士——體育贊助是檯面上的，政治關係是檯面下的。',
       costG: 400,
@@ -264,7 +267,7 @@ export const CARDS_C: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '捐50萬贊助總冠軍賽的獎盃和獎牌，頒獎時派代表上台——花小錢站在最高光的時刻，CP值最高。',
       succRate: 0.9,
       costG: 50,

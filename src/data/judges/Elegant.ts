@@ -1,3 +1,6 @@
+/**
+ * 法官範本：優雅貴族型
+ */
 import type { JudgmentTemplate } from './JudgeTemplatesDB';
 
 export const ELEGANT_LABEL = {
@@ -35,8 +38,14 @@ export const ELEGANT_INTERROGATION = [
   `本庭看過你的紀錄了。\n涉案行為：「{tag}」\n你打算主張：「{escape}」\n說來聽聽。本庭在意的是你打算怎麼解釋它。請說得好看一點。 `,
 ];
 
+export const ELEGANT_OPENING = [
+  '「在法律的華麗外衣下，我們發現了名為【{tag}】的污點。現就此案開庭。」',
+  '「被告，雖然你的【{sTerm}】包裝得很精美，但【{hIntent}】的惡臭已無法掩蓋。」',
+];
+
 export const Elegant = {
   LABEL: ELEGANT_LABEL,
   JUDGMENT: ELEGANT_JUDGMENT,
   INTERROGATION: ELEGANT_INTERROGATION,
+  OPENING: ELEGANT_OPENING,
 };

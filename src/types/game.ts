@@ -87,7 +87,7 @@ export interface Player {
   blackMaterialSources: BlackMaterialSource[]; // 黑材料精算庫
   tags: Tag[]; // 完整犯罪史紀錄 (雜湊鏈)
   trustFund: number; // 會計師信託金 (上限 1000 萬)。破產時唯一續命資產 (§4-2)
-  totalTrials: number; // 累計被告次數：控制敗訴罰金倍率唯一指標 (§2-2)
+  totalTrials: number; // 累計被告次數：影響敗訴後的累犯加重倍率
   roles?: Partial<RoleMap>; // 專業團隊構成
   isBankrupt: boolean; // 破產終止旗標
   skipNextCard: boolean; // 負面狀態：代表受監管。下回合首張卡片效果無效
@@ -140,45 +140,40 @@ export interface BaseOption {
   surface_term?: string; // 生成標籤之名目快照
   hidden_intent?: string; // 生成標籤之隱藏動機快照
   escape?: string; // 關聯抗辯邏輯
+  // --- 基礎資源隨動 (可選，支援扁平結構) ---
+  g?: number; // 預設收益
+  ip?: number; // 預設人脈
+  rp?: number; // 預設名聲
+  lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
 }
 
 /** 選項類型分類 (GEMINI.md §5-2 / §6-1) */
-export type OptionType = 'A' | 'B' | 'C';
+export type OptionType = 'X' | 'Y' | 'Z';
 export type LocationType = 'A' | 'B' | 'C' | 'D' | 'E';
 
-/** A 類 (商務機會)：低風險、中等 RP/G。Fail 時僅損失資金無法律風險 */
-export interface OptionA extends BaseOption {
-  type: 'A';
+/** X 型 (合法型)：透明商業行為。不觸發任何法律風險 (無標籤/無 BM)。 */
+export interface OptionX extends BaseOption {
+  type: 'X';
   succRate: number; // 基礎成功率 (通常 > 0.8)
-  costG?: number; // 固定成本消耗
   succ: {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number | 'all';
+    bm?: number | 'all'; // 用於消除/減少現有黑材料
     lawCaseIds?: string[];
   };
   fail: {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number;
     loss?: number;
-    lawCaseIds?: string[];
   };
-  lawCaseIds?: string[]; // 支持規避設計型法案
 }
 
-/** B 類 (人才市場)：中風險。Succ 必定獲利但伴隨 1 BM 與對應罪名 */
-export interface OptionB extends BaseOption {
-  type: 'B';
-  g?: number;
-  ip?: number;
-  rp?: number;
-  bm?: number; // 額外加重 penalty (預設為 +1)
-  lawCaseIds?: string[];
-  costG?: number;
-  succRate?: number; // D 類衍生 B 選項時使用
+/** Y 型 (灰色型)：遊走灰色地帶。法律風險 (BM) 依所屬法案標籤數累計。其中 C 類卡無此選項。 */
+export interface OptionY extends BaseOption {
+  type: 'Y';
+  succRate?: number; // 支援機率檢定
   succ?: {
     g?: number;
     rp?: number;
@@ -190,20 +185,13 @@ export interface OptionB extends BaseOption {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number;
     lawCaseIds?: string[];
   };
 }
 
-/** C 類 (慈善與公關)：大額 RP/G。Succ 伴隨 3 BM。洗錢機制需搭配 declareLogic (§6-2) */
-export interface OptionC extends BaseOption {
-  type: 'C';
-  g?: number;
-  ip?: number;
-  rp?: number;
-  bm?: number; // 額外加重 penalty (預設為 +3，使單一標籤總計達到 4 點)
-  lawCaseIds?: string[];
-  costG?: number;
+/** Z 型 (違法型)：明顯違法行為。法律風險依標籤數累計；C 類卡將觸發申報/略過機制 (略過額外 +2 BM)。 */
+export interface OptionZ extends BaseOption {
+  type: 'Z';
   succRate?: number;
   succ?: {
     g?: number;
@@ -220,7 +208,6 @@ export interface SpecialFail {
   g?: number;
   rp?: number;
   ip?: number;
-  bm?: number;
   loss?: number;
   special?: 'sue';
   lawCaseIds?: string[];
@@ -239,7 +226,7 @@ export interface ActionResult {
   bm?: number; // 當次決策產生的新增黑材料點數
 }
 
-export type CardOption = OptionA | OptionB | OptionC;
+export type CardOption = OptionX | OptionY | OptionZ;
 
 /** 區域情境卡牌 (1+3 結構) */
 export interface Card {
@@ -270,29 +257,32 @@ export interface ActionLog {
 /** 法案核心定義 (GEMINI.md §7) */
 export interface LawCase {
   id: string; // 內部編號 (對應 LawCasesDB Key)
-  tag: string[]; // 偵測用標籤關鍵字 (支援多重標籤)
+  tag: string[]; // 行動關聯標籤 (支援多重標籤)
   lawName: string; // 引用法典正名 (e.g., 「洗錢防制法 §5」)
   surface_term: string; // 勝訴之表面術語聲援
   hidden_intent: string; // 敗訴之違法背後動機
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
   evidence_list: string[]; // 採樣之法庭證據清單
-  winning_keywords?: string[]; // 律師強關鍵詞：命中即大幅提升勝率
-  soft_keywords?: string[]; // 關連弱關鍵詞：提供邊際機率增益
-  deadEnd?: string; // 司法死胡同敘事：選中錯誤方向時觸發
   escape?: string; // 生路範式描述：成功引用阻卻違法事由
+  // --- 網站模式專屬 JKL 辯護選項 (預留填充區) ---
+  defense_j?: string; // 選項 J：+0%
+  defense_k?: string; // 選項 K：+5%
+  defense_l?: string; // 選項 L：+10%
 }
 
 /** 遊戲宏觀階段 */
 export type GamePhase = 'play' | 'summary' | 'courtroom' | 'gameover' | 'victory';
 
-/** 遊戲全域狀態容器 */
+/**
+ * 遊戲目前的狀態
+ */
 export interface GameStateData {
-  players: Player[];
-  turn: number;
-  currentPlayerIndex: number;
-  phase: GamePhase;
-  actionLogs: ActionLog[];
-  trial: TrialState | null; // 若非 Null 則全體進入法庭時序
+  players: Player[]; // 所有的玩家
+  turn: number; // 目前是第幾回合
+  currentPlayerIndex: number; // 輪到誰了
+  phase: GamePhase; // 目前在哪個畫面
+  actionLogs: ActionLog[]; // 過去的紀錄
+  trial: TrialState | null; // 法庭審判的詳細資料
   judgePersonality: JudgePersonality | null;
   judgeMode: JudgeMode;
   startNotifications: string[]; // 開局背景與路徑增益提示
@@ -340,6 +330,12 @@ export interface TrialState {
   isInevitable?: boolean; // 不可規避標記：特定行為觸發之強制傳票
   forcedReason?: string; // 強制判定之邏輯解釋
   judgePersonality?: JudgePersonality;
+  /** AI 模式下動態產出的 JKL 辯護選項文案 */
+  generatedOptions?: {
+    j: string;
+    k: string;
+    l: string;
+  };
 }
 
 // ============================================================

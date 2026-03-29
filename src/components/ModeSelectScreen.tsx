@@ -10,9 +10,8 @@ interface ModeSelectScreenProps {
 }
 
 /**
- * 平行宇宙岔路口 (Mode Select Screen)
- * 遊戲載入完成後迎面而來的第一張生死契約。
- * 無情地質問總裁們：你要在內建的「封閉沙盒」跟虛擬法官過家家，還是要冒死連線大語言模型的「真・隨機法庭」被無情審判？
+ * 遊戲模式選擇畫面
+ * 讓玩家選擇要使用 AI 法官連線，還是原本的純網頁模式。
  */
 export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
   return (

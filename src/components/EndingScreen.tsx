@@ -1,24 +1,24 @@
-'use client'; // 強制元件在使用者瀏覽器觸發，因為有動畫屬性(animate-in)
+'use client'; // 確保元件在瀏覽器端執行，以支援動畫效果
 
 import React from 'react';
 import { Trophy, Award, Lock, Building2, Banknote, AlertTriangle, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Player, EndingResult } from '@/types/game';
-
-// 大結局成績單傳遞介面：判官會送來什麼樣的下場
+// 遊戲結束結果與玩家清單
 interface EndingScreenProps {
-  result: EndingResult; // 由核心引擎宣判的最終命運與罪狀
-  players: Player[]; // 所有的參賽者清單，方便對照看誰笑到最後
-  onReset: () => void; // 洗牌重來的時光機：如果破產了不甘心，就按下這個重來一次
+  result: EndingResult; // 最終結果
+  players: Player[]; // 所有參賽者
+  onReset: () => void; // 重新開始
 }
 
 /**
- * 金權帝國大結局與清算畫面 (Ending Screen)
- * 這是一翻兩瞪眼的法庭終局宣判！
- * 當有人成功統治了商界，或因為資金斷鏈倒閉時，這個畫面會用最戲劇化的方式，冷酷地為這場遊戲畫下句點。
+ * 遊戲結束畫面
+ * 顯示最終得分、名次以及破關評價。
  */
 export default function EndingScreen({ result, players, onReset }: EndingScreenProps) {
-  // 帝國命運圖鑑：為大善人、大魔王或是破產小丑準備了各自專屬的顏色與圖騰
+  if (!result) return null;
+
+  // 命運圖鑑：根據結局類型設定對應的顏色與圖示
   const configMap: Record<
     string,
     { color: string; border: string; bg: string; icon: React.ReactNode; label: string }

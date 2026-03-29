@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：開局設定
+ */
 import type { Card } from '../../types/game';
 
 /**
@@ -10,7 +13,7 @@ export const CARDS_START: Record<string, Card> = {
     title: '身分選擇',
     description: '您的出身決定了您在商戰中的起跑位置、初始門檻與必須背負的業障。',
     1: {
-      type: 'A',
+      type: 'X',
       label: '白手起家',
       succRate: 1,
       succ: {
@@ -20,7 +23,7 @@ export const CARDS_START: Record<string, Card> = {
       fail: {},
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label: '融資創業',
       succRate: 1,
       succ: {
@@ -31,7 +34,7 @@ export const CARDS_START: Record<string, Card> = {
       fail: {},
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label: '家族企業',
       succRate: 1,
       succ: {

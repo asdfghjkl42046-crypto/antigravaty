@@ -1,3 +1,6 @@
+/**
+ * 法律資料：開局案件
+ */
 import type { LawCase } from '../../types/game';
 
 export const LAWS_START: Record<string, LawCase> = {
@@ -15,7 +18,9 @@ export const LAWS_START: Record<string, LawCase> = {
       '融資合約中對負債的關鍵隱瞞',
       '資金未進入公司帳戶的流向圖',
     ],
-    winning_keywords: ['估值慣例', '特許協議', '市場期望'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'START-02': {
     id: 'START-02',
@@ -31,6 +36,8 @@ export const LAWS_START: Record<string, LawCase> = {
       '不明原因的家族成員大額分潤',
       '被刻意抹除的歷史會計查核軌跡',
     ],
-    winning_keywords: ['家族規劃', '稅務調整', '結構重整'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 };

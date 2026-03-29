@@ -1,3 +1,6 @@
+/**
+ * 法律資料：B 類案件
+ */
 import type { LawCase } from '../../types/game';
 
 export const LAWS_B: Record<string, LawCase> = {
@@ -14,7 +17,9 @@ export const LAWS_B: Record<string, LawCase> = {
       '與競爭對手公司簽下的秘密技術協議',
       '比對兩家公司產品的技術報告',
     ],
-    winning_keywords: ['面試', '競業', '聘任'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-01-3': {
     id: 'B-01-3',
@@ -29,7 +34,9 @@ export const LAWS_B: Record<string, LawCase> = {
       '未經授權的錄音存檔',
       '逼迫轉讓機密的協議草案',
     ],
-    winning_keywords: ['蒐證', '正當', '司法'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-03-1': {
     id: 'B-03-1',
@@ -44,7 +51,9 @@ export const LAWS_B: Record<string, LawCase> = {
       '那份跟前公司一模一樣的客戶名單',
       '未經授權翻閱資料庫的日誌',
     ],
-    winning_keywords: ['公開', '社交', '正當'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-03-2': {
     id: 'B-03-2',
@@ -59,7 +68,9 @@ export const LAWS_B: Record<string, LawCase> = {
       '跟前公司畫法一模一樣的設計圖',
       '內部群組裡討論前公司技術的對話',
     ],
-    winning_keywords: ['開源', '原創', '職務外'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-03-3': {
     id: 'B-03-3',
@@ -69,7 +80,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '扣住員工證件，讓人加班到爆還一毛加班費都不給',
     survival_rate: 0.02,
     evidence_list: ['證件簽收切備書', '加班發放紀錄', '薪資轉帳明細'],
-    winning_keywords: ['自願', '核備', '影印'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-04-1': {
     id: 'B-04-1',
@@ -79,7 +92,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '用搬家費換員工把前公司的產品原型圖帶過來',
     survival_rate: 0.01,
     evidence_list: ['簽約金協議書', '誠信聲明書', '資金往來紀錄'],
-    winning_keywords: ['行情', '禁令', '誠信'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-05-1': {
     id: 'B-05-1',
@@ -89,7 +104,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '實際上每天打卡受管理，合約卻簽承攬，加班費和勞健保全省了',
     survival_rate: 0.03,
     evidence_list: ['打卡紀錄', '薪資發放明細', '承攬合約書', '績效考核紀錄'],
-    winning_keywords: ['彈性', '獨立', '績效'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-05-2': {
     id: 'B-05-2',
@@ -99,7 +116,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '長期規律性超時工作卻不給加班費，想離職還要賠一大筆違約金',
     survival_rate: 0.02,
     evidence_list: ['出勤紀錄', '加給明細', '違約金條約'],
-    winning_keywords: ['激勵', '透明', '資遣'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-06-1': {
     id: 'B-06-1',
@@ -109,7 +128,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '用子公司繞過競業限制，或用顧問費包裝不當挖角',
     survival_rate: 0.03,
     evidence_list: ['子公司營登', '顧問費撥款紀錄', '業務重疊性分析'],
-    winning_keywords: ['不重疊', '顧問', '排除'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-06-2': {
     id: 'B-06-2',
@@ -119,7 +140,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '用境外人頭公司簽假合約發薪水，連開扣繳稅款都省掉',
     survival_rate: 0.01,
     evidence_list: ['不實勞務合約', '规避扣繳金流圖', '異常資金迴流紀錄'],
-    winning_keywords: ['真實', '產出', '合理'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-06-3': {
     id: 'B-06-3',
@@ -129,7 +152,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '出錢讓對手員工去告公司，趁他們亂成一團的時候挖人',
     survival_rate: 0.01,
     evidence_list: ['訴訟資助協議紀錄', '內部挖角指示清單', '與員工之秘密通訊'],
-    winning_keywords: ['權益', '協助', '正當'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-07-1': {
     id: 'B-07-1',
@@ -139,7 +164,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '要工程師把前公司的伺服器金鑰和設定檔帶來才給簽約',
     survival_rate: 0.01,
     evidence_list: ['伺服器金鑰', '內部套話清單', '技術細節紀錄'],
-    winning_keywords: ['聘僱', '公開', '交流'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-07-2': {
     id: 'B-07-2',
@@ -149,7 +176,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '假借學術交流套出競品還沒公開的技術細節',
     survival_rate: 0.02,
     evidence_list: ['技術紀錄對照', '交流會議紀錄'],
-    winning_keywords: ['學術', '概念', '公益'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-08-1': {
     id: 'B-08-1',
@@ -159,7 +188,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '申報薪資故意少報，讓員工少繳勞健保也讓公司省一筆',
     survival_rate: 0.02,
     evidence_list: ['不實薪資申報單', '內部拆薪紀錄', '實際轉帳明細'],
-    winning_keywords: ['補正', '對齊', '行政'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-08-2': {
     id: 'B-08-2',
@@ -169,7 +200,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '強迫員工簽切結書說自願不保，公司就不用幫你投保',
     survival_rate: 0.01,
     evidence_list: ['自願放棄投保聲明書', '通訊威脅紀錄', '投保回條'],
-    winning_keywords: ['依法', '拒絕', '全額'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-09-1': {
     id: 'B-09-1',
@@ -179,7 +212,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '全部改簽承攬合約，但還是每天打卡受管，加班費全省了',
     survival_rate: 0.02,
     evidence_list: ['打卡紀錄', '行政指揮紀錄', '不實勞務申報'],
-    winning_keywords: ['彈性', '獨立', '輔導'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-09-3': {
     id: 'B-09-3',
@@ -189,7 +224,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '掛承攬名義卻實質管很緊，勞保義務全部規避掉',
     survival_rate: 0.03,
     evidence_list: ['商務承攬合約', '打卡紀錄', '福利發放紀錄'],
-    winning_keywords: ['外包', '結果', '專案'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-10-1': {
     id: 'B-10-1',
@@ -199,7 +236,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '威脅要公開對方的爛考績，逼他退出競爭對手的專案',
     survival_rate: 0.01,
     evidence_list: ['威脅性通訊文字', '不實考績紀錄', '向第三方傳播紀錄'],
-    winning_keywords: ['合規', '事實', '爭議'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-10-2': {
     id: 'B-10-2',
@@ -209,7 +248,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '明知競業協議根本無效還硬發律師函，就是要拖慢對手',
     survival_rate: 0.02,
     evidence_list: ['恐嚇性律師函', '缺乏補償金之合約'],
-    winning_keywords: ['節制', '合理', '保障'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-10-3': {
     id: 'B-10-3',
@@ -219,7 +260,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '沒有任何證據就公開指控對方偷東西，把他名聲搞臭',
     survival_rate: 0.01,
     evidence_list: ['不實公開聲明稿', '名譽損害紀錄'],
-    winning_keywords: ['實證', '保護', '聲明'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-11-1': {
     id: 'B-11-1',
@@ -234,7 +277,9 @@ export const LAWS_B: Record<string, LawCase> = {
       '雲端空間存取權限被偷偷修改的紀錄',
       '執行惡意腳本導致處理器效能衝高的存證',
     ],
-    winning_keywords: ['所有權', '管理', '資產'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-11-3': {
     id: 'B-11-3',
@@ -244,7 +289,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '用高額顧問費買離職員工的沉默，或讓他幫你做違規的事',
     survival_rate: 0.01,
     evidence_list: ['無實質產出之顧問合約', '異常金流紀錄', '秘密協議文件'],
-    winning_keywords: ['產出', '對價', '技術'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-12-1': {
     id: 'B-12-1',
@@ -254,7 +301,9 @@ export const LAWS_B: Record<string, LawCase> = {
     hidden_intent: '叫人用前公司帳號持續抓數據，用來搶市場',
     survival_rate: 0.01,
     evidence_list: ['空殼公司代付協議', '非法抓取數據紀錄'],
-    winning_keywords: ['完稅', '合法', '透明'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
   'B-12-2': {
     id: 'B-12-2',
@@ -269,6 +318,8 @@ export const LAWS_B: Record<string, LawCase> = {
       '私密通訊軟體裡商量酬勞的截圖',
       '年度財報裡對不上的神秘支出',
     ],
-    winning_keywords: ['申報', '完稅', '對齊'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 };

@@ -1,3 +1,6 @@
+/**
+ * 法官範本：權勢掮客型
+ */
 import type { JudgmentTemplate } from './JudgeTemplatesDB';
 
 export const POWER_BROKER_LABEL = {
@@ -35,8 +38,14 @@ export const POWER_BROKER_INTERROGATION = [
   `被告。本庭不需要你解釋來龍去脈，本庭已經知道了。\n涉案行為：「{tag}」\n你主張這是：「{escape}」\n告訴本庭你為什麼認為這個說法在本庭面前說得通。想清楚再開口。`,
 ];
 
+export const POWER_BROKER_OPENING = [
+  '「既然這件事已經鬧到我這裡了，我們就來談談這樁【{tag}】行為的後果吧。開庭。」',
+  '「被告，你的【{sTerm}】踩到了不該踩的線。現在公訴程序啟動，你好自為之。」',
+];
+
 export const PowerBroker = {
   LABEL: POWER_BROKER_LABEL,
   JUDGMENT: POWER_BROKER_JUDGMENT,
   INTERROGATION: POWER_BROKER_INTERROGATION,
+  OPENING: POWER_BROKER_OPENING,
 };

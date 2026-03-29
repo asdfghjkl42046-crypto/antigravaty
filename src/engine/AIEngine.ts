@@ -1,17 +1,14 @@
-import { Player, TrialState, JudgePersonality } from '../types/game';
+import { Player, TrialState, JudgePersonality, LawCase } from '../types/game';
 import { getTotalBlackMaterials } from './GameEngine';
 import { JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 
 /**
- * AI 靈魂劇本產生器
- * 負責把玩家的案件資料與法官的人偶設定檔融合，寫成專屬的劇本大綱送給雲端 AI 人工智慧。
- * 這是讓每一次法庭對話都充滿火花與張力的幕後黑手。
+ * AI 引擎
+ * 負責處理與 AI 的溝通，例如法官判案的語氣與辯護選項的文案。
  */
 export class AIEngine {
   /**
-   * 建立【法官靈魂設定檔】(System Prompt)
-   * 功能：給 AI 洗腦，強迫它扮演特定性格的法官，包含語氣、口癖與禁忌。
-   * 讓 AI 徹底化身為這場法庭的無情裁決者。
+   * 向 AI 發問並取得答案
    * @param personalityId 抽出的法官性格 (傳統派、科技派、貴族派等)
    */
   static assembleSystemPrompt(personalityId: JudgePersonality): string {
@@ -52,7 +49,6 @@ ${judge.prompt_injection}
 【法律抗辯術語】：
 - 被告主張 (表面說詞)：${trial.lawCase?.surface_term}
 - 實際行為 (動機)：${trial.lawCase?.hidden_intent}
-- 勝訴關鍵字 (若被告陳述中提到將獲加分)：${trial.lawCase?.winning_keywords?.join(', ') || '無'}
 
 【被告資料】：
 - 企業名聲 (RP): ${rp}
@@ -61,10 +57,33 @@ ${judge.prompt_injection}
 
 【辯論紀錄】：
 - 核心主張：${trial.isDefenseSuccess ? `勝訴/勉強接受「${trial.lawCase?.surface_term}」` : `敗訴/指控成立：實際上是「${trial.lawCase?.hidden_intent}」`}
-- 被告陳述：${trial.defenseText || '（未提供額外陳述）'}
+- 被告陳述 (用於判決風格化)：${trial.defenseText || '（未提供額外陳述）'}
 - 檢方提供證物：${trial.lawCase?.evidence_list?.join('、') || '（未標註具體證物）'}
 - 旁觀者干預：${trial.interventions.map((i) => i.text).join('; ') || '（無干預）'}
 
 請以此為基礎，用你被分配的法官人設回傳判決文。`;
+  }
+
+  /**
+   * 建立【辯護選項生成】說明
+   * 要求 AI 根據案情寫出 J、K、L 三種不同強度的辯護文。
+   */
+  static assembleOptionsPrompt(lawCase: LawCase, defendant: Player): string {
+    return `請根據以下案情，為被告企業生成三種不同策略強度的辯護文案（JKL 選項）：
+
+【起訴罪名】：${lawCase.tag.join('/')}
+【引用法條】：${lawCase.lawName}
+【表面術語】：${lawCase.surface_term}
+【違法動機】：${lawCase.hidden_intent}
+【預期生路】：${lawCase.escape}
+
+請回傳以下 JSON 格式（僅回傳 JSON）：
+{
+  "j": "（常規/弱勢辯護：主要重複表面術語，較無說服力，+0% 勝率）",
+  "k": "（中度/技術性辯護：結合法律細節或程序正義進行防禦，+5% 勝率）",
+  "l": "（強效/策略性辯護：深度結合『預期生路』中的邏輯，精準反擊起訴動機，+10% 勝率）"
+}
+
+文案要求：語氣專業、簡潔，每項不超過 50 字。`;
   }
 }

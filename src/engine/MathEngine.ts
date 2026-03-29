@@ -1,13 +1,11 @@
 /**
- * 《創業冒險：現代法律篇》核心基礎運算 (底層模組)
- * 負責最基礎且無狀態依賴的數學與加密運算，被所有其他 Engine 廣泛調用
+ * 基礎運算工具
+ * 負責處理遊戲中最基本的數學計算（如進位）與資料加密。
  */
 
 /**
- * §1-1 無條件進位 (Round Up)
- * 凡涉及百分比計算導致小數點，一律無條件進位。
- * 修正浮點數精度誤差（例如 220.00000000000003 應判定為 220，若為 220.1 則進位成 221）
- * 這是為了確保玩家在受到懲罰或罰金計算時，系統採取對抗風險最嚴格的標準
+ * 無條件進位
+ * 只要計算結果有小數點，一律往上加 1（例如 220.1 變成 221）。
  */
 import { throwEnvironmentError, throwNumericalCheckError } from './errors/EngineErrors';
 
@@ -29,10 +27,8 @@ export function roundUp(num: number): number {
 }
 
 /**
- * 產生 SHA-256 雜湊 (Cryptography Hash)
- * 用於產生標籤的 Hash Chain (雜湊鏈)，讓遊戲中的每一筆黑材料跟前一筆綁定，無法輕易竄改
- * @param message 傳入要加密的字串內容 (通常是：前一筆 Hash + 動作名稱 + 時間戳)
- * @returns 回傳 64 字元的十六進制雜湊字串
+ * 資料加密功能
+ * 幫每一筆犯罪紀錄產生唯一的「指紋」，確保紀錄不會被隨意改動。
  */
 export async function sha256(message: string): Promise<string> {
   // 總裁指示：環境檢查必須最優先！

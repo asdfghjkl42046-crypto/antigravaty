@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：D 類卡片（投資/洗錢）
+ */
 import type { Card } from '../../types/game';
 
 export const CARDS_D: Record<string, Card> = {
@@ -6,7 +9,7 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '智慧城市監控系統的標案公告出來了，規格要求極高，全市場符合資格的廠商屈指可數——你就是其中一家。這種標案不常出現，得標就是一筆大生意，但競爭也不會客氣。你開始盤算，要怎麼確保這個案子落到你手裡。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '私下聯繫另外兩家有資格的對手，三方說好標價、分配利潤——表面上是競爭，實際上你們早就喬好了誰要得標。',
       succRate: 0.75,
@@ -14,14 +17,14 @@ export const CARDS_D: Record<string, Card> = {
       fail: { g: -200 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label: '照規矩來，把所有成本精算一遍，提出真正有競爭力的報價——用實力拿這個案子。',
       succRate: 0.9,
       succ: { g: 100, rp: 2 },
       fail: {},
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '調查過程中發現對手的實績證明是偽造的，決定不淌這個渾水——直接向公共工程委員會舉報，讓評審自己去查。',
       rp: 8,
@@ -33,7 +36,7 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '離岸風電維護工程的標案讓你心動——十年期合約，現金流穩定，是那種得標之後可以讓公司踏實很久的案子。你正在準備投標文件，這時候接到一通不尋常的電話。承辦公務員說有空可以「喝個茶聊聊」，語氣輕描淡寫，但你聽懂他的意思了。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '讓法務部門主導，照招標書每一項細節準備——獲利空間小一點沒關係，這種長期合約用實力拿才穩。',
       succRate: 0.9,
@@ -41,7 +44,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: {},
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '赴約，喝了茶，對方說只要贊助他指定協會的「活動經費」，綜合評選你會拿到最高分——就這樣，不複雜。',
       succRate: 0.75,
@@ -49,7 +52,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: { g: -200 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '技術長提議引進最新低碳工法投標——成本高一點、獲利少一點，但在能源轉型的風口上，這個亮點可能比價格更有說服力。',
       succRate: 0.9,
@@ -62,14 +65,14 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '全國數位教材的採購案金額龐大，但你聽到風聲——競爭對手跟評審委員會裡的幾個人私交很好，上週還一起吃飯。你不確定這算不算真的有問題，但你知道在這種案子裡，光靠產品好不一定夠。你開始思考，要怎麼應對這個局面。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '把對手和評委私下餐敘的證據整理好，寄去教育部廉政信箱——不投標了，但也不讓這件事就這樣過去。',
       rp: 8,
       special: 'skip_next',
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '對手有人脈，你也可以有——找一個跟特定政黨關係好的人，付他「政治顧問費」，請他幫你把評選這關打通。',
       succRate: 0.75,
@@ -77,7 +80,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: { g: -200 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '不管場外的事，把教材內容和使用體驗做到最好，展示會上直接讓基層教師和審查官員看到差距——用產品說話。',
       succRate: 0.9,
@@ -90,21 +93,21 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '這個政府醫療專案獲利不高，但得標之後品牌形象會大幅提升。你在準備投標的過程中，挖到了一些不太對勁的東西——對手的技術文件有造假嫌疑，而且標案規格感覺是針對特定廠商量身設計的。你手上有料，問題是要怎麼用。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '整理好對手技術造假的證據，正式向主管機關書面舉報，然後退出這次競標——乾淨處理，但這個案子你就放掉了。',
       rp: 8,
       special: 'skip_next',
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '把標案規格疑似綁標的問題直接在記者會上公開爆料，讓媒體去追——聲量大、效果快，但你也會變成所有人的眼中釘。',
       rp: 8,
       special: 'skip_next',
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '找一個跟你關係好的民意代表，把標案規格偷偷改成只有你的軟體才能達標的條件——對手在綁標，你也可以。',
       succRate: 0.75,
@@ -117,7 +120,7 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '國防部要建防火牆，預算大、時程急、保密條款厚到像磚頭。你的業務回來說：「我們有機會，但競爭很激烈。」你沒說出口的是——激烈的不只是技術，還有手段。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '找兩家小資安公司組「隱形聯盟」，對外看起來三方競標，實際上標價和技術架構都你說了算。評審以為有競爭，其實整場是你的獨角戲。',
       succRate: 0.75,
@@ -125,7 +128,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: { g: -200 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '保密條款讓流程繁瑣到讓人想掀桌，但你還是一關一關自己走完。沒有借殼、沒有聯盟、沒有走後門——就是慢，但乾淨。',
       succRate: 0.9,
@@ -133,7 +136,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: {},
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '你聽說對手要用一家海外公司的牌照來參標——這種敏感標案，這種操作，你直接檢附證據去國安單位按門鈴。對手出局，你什麼都沒做，但什麼都得到了。',
       rp: 8,
@@ -145,7 +148,7 @@ export const CARDS_D: Record<string, Card> = {
     description:
       '這個老舊設施改建案的案量不小，進場之後和幾個承辦公務員吃了頓飯。席間氣氛輕鬆，但有人不經意提到他老婆一直想帶孩子出國，說現在機票好貴。你聽出那個弦外之音，開始盤算要怎麼回應——或者，要不要回應。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '安排一趟「海外考察」，承辦人全家的機票住宿通通算進公關費用——費用公司出，標價怎麼調，大家心裡有數。',
       succRate: 0.75,
@@ -153,7 +156,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: { g: -200 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '預算就是預算，工法調整一下、視覺效果打點折扣——照規矩做，把能省的成本省出來，讓數字說話。',
       succRate: 0.9,
@@ -161,7 +164,7 @@ export const CARDS_D: Record<string, Card> = {
       fail: {},
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '主動撥10%預算做公共藝術和綠化——超出規格要求，但這種細節最容易在評審心裡留下印象。',
       succRate: 0.9,
       succ: { g: 100, rp: 2 },

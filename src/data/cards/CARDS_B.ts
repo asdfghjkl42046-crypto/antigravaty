@@ -1,3 +1,6 @@
+/**
+ * 行動卡牌資料：B 類卡片（人才/挖角）
+ */
 import type { Card } from '../../types/game';
 
 export const CARDS_B: Record<string, Card> = {
@@ -6,7 +9,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '競爭對手內部在鬧，他們的技術長私下傳訊息給你——他想帶著整個研發團隊一起跳過來。這種事可遇不可求，但怎麼接，學問很大。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '叫他先把原公司的事情處理乾淨，競業條款到期再來談——好的人才值得等，不需要用這種方式開始。',
       succRate: 0.9,
@@ -14,7 +17,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '開出高額技術股權，但條件是他離職前要把原公司的核心代碼庫和客戶清單帶過來——當作「入場券」。',
       costG: 0,
@@ -23,7 +26,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '在他正式離職前安排幾次「技術交流」，全程錄音——以後萬一他想反悔或獅子大開口，你手上有籌碼。',
       costG: 0,
@@ -37,7 +40,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '徵才博覽會上，一群大四生和碩士生圍著你的攤位，眼神充滿熱情——他們什麼都願意學，什麼都願意做，對薪水也還沒什麼概念。你看著履歷堆成小山，心裡盤算著怎麼把這批人用好。',
     1: {
-      type: 'A',
+      type: 'X',
       label:
         '照政府規定簽實習合約、保勞健保、加班給錢，再派個導師帶——麻煩是麻煩了點，但這樣留下來的人才是真的想跟你走的。',
       succRate: 0.9,
@@ -45,7 +48,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '從裡面挑幾個最亮眼的，開一個讓他們驚喜的正職薪水，直接把人從實習轉正——搶先一步，不讓對手有機會接觸。',
       succRate: 0.9,
@@ -53,7 +56,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '先讓法務把合約從頭到尾審一遍，所有流程攤在陽光下——聽起來最無聊，但日後最不會有人來找麻煩。',
       succRate: 0.9,
@@ -66,7 +69,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '獵頭介紹來的業務大將，過去三年把前公司的客戶關係經營得密不透風——那些聯絡方式、那些內部報價、那些還沒公開的合作進度，全在他腦子裡，也在他手機裡。他開的薪水超出預算，但他說他能帶來的東西，遠不只是他這個人。你意識到，他在暗示什麼。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '談好條件，入職第一週就要他交出前公司的完整客戶名單，順便用他還沒登出的帳號盯著競品的最新動態。',
       costG: 0,
@@ -75,7 +78,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label: '要他在正式離職前把原公司的核心代碼庫下載下來——反正他有權限，又不是你叫他駭進去的。',
       costG: 0,
       succRate: 1.0,
@@ -83,7 +86,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '薪水照他說的給，但合約裡塞一份天價違約金協議和超時工作條款——讓他拿了錢也跑不掉，乖乖把所有資源都榨乾再說。',
       costG: 0,
@@ -97,7 +100,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '消息靈通的公關經理跑來報告：對手公司研發環境一團糟，好幾個核心工程師已經在偷偷投履歷了。他說：「我們要不要在他們辦公室樓下擺個攤？」你知道他不只是在說字面上的意思。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '私下接觸那幾個快跑的工程師，告訴他們跳過來有「搬家費」——但條件是帶著正在開發的產品原型圖一起來。',
       ip: 30,
@@ -105,7 +108,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-04-1'],
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '辦幾場技術交流聚會，讓自家工程師去跟對方混熟——朋友聊天嘛，順便摸清楚對方的技術方向和人才狀況。',
       succRate: 0.9,
@@ -113,7 +116,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '把職缺掛上去，薪資福利寫清楚，讓想走的人自己來找你——不用出手，好的條件會說話。',
       succRate: 0.9,
       succ: { ip: 15, rp: 2 },
@@ -125,7 +128,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '這批新人進來一個月了，表現讓你有點失望。合夥人把你拉到一旁說：「我們就把工時拉長、壓力拉滿，撐得住的留下來，撐不住的自己走——省得我們還要費心資遣。」你看著辦公室裡埋頭工作的新人，開始思考他說的有沒有道理。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '讓他們簽「承攬合約」而不是勞動合約——加班費就不用算了，再塞一條提早離職要賠三個月薪水的條款，想走也走不了。',
       ip: 30,
@@ -133,7 +136,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-05-1'],
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '直接上996，加班費不給，但發一堆股票期權當補償——反正公司真的上市的話，這些期權比加班費值錢多了。',
       ip: 30,
@@ -141,7 +144,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-05-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '訂清楚KPI、給彈性工時，表現真的不行的就依法輔導或資遣——麻煩，但至少你不會哪天被集體申訴。',
       succRate: 0.9,
@@ -154,7 +157,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '那位科學家的名字你聽過不只一次——他手上有一項還沒發表的研究，業界都在猜那會直接改變遊戲規則。現在他主動找上你，說他需要更好的研究資源。問題是他身上背著一份終身保密協議，正式挖角等於直接踩地雷。但他說他願意配合，只要你幫他想辦法。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '讓我先進你名下一間不相關的子公司，薪水用「顧問費」名義發——人在你這裡，但帳面上跟競業條款沒有關係。',
       ip: 30,
@@ -162,7 +165,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-06-1'],
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '在海外開個人頭公司跟他簽約，研發獎金直接打進他的海外帳戶——錢出去了，但帳面上查不到你們之間有任何關係。',
       ip: 30,
@@ -170,7 +173,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-06-2'],
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '暗中金援他去告前東家勞資糾紛，對方忙著應付官司、人心渙散——等時機到了，再光明正大地把他接過來。',
       ip: 30,
@@ -183,7 +186,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '你在共用辦公室工作時，偶然聽到隔壁快速成長的新創團隊正準備進行一場大規模裁員，其中包含數位極為優秀的資深後端工程師。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '在對方正式宣佈裁員前，私下接洽這些工程師，承諾若他們能帶走原公司的開發環境設定檔，將給予高額簽約金。',
       costG: 0,
@@ -192,14 +195,14 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label: '指示公司技術主管以「學術交流」為名邀請對方聚餐，藉此探聽對方的技術架構細節。',
       ip: 30,
       rp: -8,
       lawCaseIds: ['B-07-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '透過正式管道向該公司 HR 表達人才媒合意願，並在對方離職後依照法律程序進行面試與聘雇。',
       succRate: 0.9,
       succ: { ip: 15, rp: 2 },
@@ -211,7 +214,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '人事成本這個月又創新高，會計師看著報表搖搖頭，然後壓低聲音說：「其實很多同業的勞健保都是以多報少，一年可以省好幾百萬。你要不要參考看看？」他說得雲淡風輕，好像這只是一個你不知道的省錢小技巧。',
     1: {
-      type: 'B',
+      type: 'Y',
       label:
         '把薪水拆成底薪加一堆津貼，津貼不計入投保薪資——對員工說這是「讓你實領更多」，對會計說這是「結構優化」。',
       ip: 30,
@@ -219,7 +222,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-08-1'],
     },
     2: {
-      type: 'C',
+      type: 'Z',
       label:
         '新人入職前先簽一份「自願放棄投保」的切結書，勞健保換成一個便宜的團體意外險——不簽就不用來了應。',
       costG: 0,
@@ -228,7 +231,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     3: {
-      type: 'A',
+      type: 'X',
       label: '照實際薪資投保，一毛都不少——把福利制度做好做滿，拿來吸引真正在乎保障的優秀人才。',
       succRate: 0.9,
       succ: { ip: 15, rp: 2 },
@@ -240,7 +243,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '勞健保、特休、加班費——每一項都在吃掉利潤。合夥人丟來一份合約範本說：「我們把員工全部改成承攬制，名義上他們是獨立接案者，跟我們沒有僱傭關係。法律上沒問題的。」你翻了翻那份合約，心裡有點不確定他說的「沒問題」是真的沒問題，還是還沒出問題。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '全面改成承攬制，KPI沒達標就按比例扣錢，勞保健保通通不用給——合約上寫清楚，簽了就是他們自己同意的。',
       costG: 0,
@@ -249,7 +252,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '維持正規僱傭關係，但導入彈性排班和優於法規的福利——用真的好待遇留人，比玩合約文字遊戲划算。',
       succRate: 0.9,
@@ -257,7 +260,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '專案型的人力改成短期承攬，核心員工還是給正職福利——灰色地帶走一走，至少不是全部壓上去賭。',
       ip: 30,
@@ -270,7 +273,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '你最信任的核心開發者上個月遞辭呈，這個月就出現在競爭對手的技術團隊頁面上，而且還在做幾乎一樣的專案。你氣歸氣，但冷靜下來查了一下當初的競業協議——沒給補償金，法律上可能根本無效。手上的牌不多，但你不想就這樣吞下去。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '私下找人傳話給他，說如果他繼續待在那個專案，你會把他在職時的考績紀錄全部公開——讓他自己衡量值不值得。',
       costG: 0,
@@ -279,7 +282,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '協議有沒有效是一回事，先發一封措辭強硬的律師函給對方公司——就算告不贏，也能讓他們的開發節奏亂掉幾個月。',
       ip: 30,
@@ -287,7 +290,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-10-2'],
     },
     3: {
-      type: 'C',
+      type: 'Z',
       label:
         '讓HR發一份措辭嚴厲的公開聲明，點名任何竊取商業機密的行為都會追究到底——雖然手上其實沒什麼證據。',
       costG: 0,
@@ -301,7 +304,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '前同事離職三個月，你的工程師今天早上傳來截圖：他把東西放到個人GitHub上了，public repo，任何人都看得到。他說是自己寫的。你看了五秒鐘，心裡很清楚那不是。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '直接叫人入侵他的雲端帳號，強刪那個repo。順便在業界群組放風說他離職前就在偷東西——讓他的下一份工作也別想找到。',
       costG: 0,
@@ -310,7 +313,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'A',
+      type: 'X',
       label:
         '向GitHub提版權申訴，走法律程序要求下架，同時約對方出來談。過程慢、不爽快，但你的律師說這是唯一不會讓自己也進去的方法。',
       succRate: 0.9,
@@ -318,7 +321,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { ip: 0 },
     },
     3: {
-      type: 'B',
+      type: 'Y',
       label:
         '私下約他喝咖啡，給他一筆「顧問費」，條件是刪掉repo、簽封口協議、以後別再提這件事。他猶豫了一下，你加了個零。',
       ip: 30,
@@ -331,7 +334,7 @@ export const CARDS_B: Record<string, Card> = {
     description:
       '你找到了，就是這個人。他做過那個市場、認識那些人、懂那套規則。問題是他前公司讓他簽了全球禁業條款，而且他開口就說：薪水要收加密貨幣，不能有任何勞務紀錄。你看著他的履歷，心想這個人值得冒險——但冒多大的險，你還沒想清楚。',
     1: {
-      type: 'C',
+      type: 'Z',
       label:
         '讓他先掛在你名下一間空殼公司，對外說是技術顧問合作。私下叫他用舊公司的帳號權限繼續抓數據——反正他還沒被停權。',
       costG: 0,
@@ -340,7 +343,7 @@ export const CARDS_B: Record<string, Card> = {
       fail: { special: 'sue' },
     },
     2: {
-      type: 'B',
+      type: 'Y',
       label:
         '照他說的來：海外人頭公司付幣，他掛「虛擬顧問」，不簽約、不留紀錄、開會用代號。你告訴自己這只是彈性用人，直到你開始記不清楚到底付了他多少錢。',
       ip: 30,
@@ -348,7 +351,7 @@ export const CARDS_B: Record<string, Card> = {
       lawCaseIds: ['B-12-2'],
     },
     3: {
-      type: 'A',
+      type: 'X',
       label:
         '放棄這個人。重新找一個有相同市場背景、但身分乾淨的本土專家，從頭培養。慢半年，但你不用每次開董事會都在想那筆幣匯到哪裡去了。',
       succRate: 0.9,

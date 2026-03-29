@@ -4,24 +4,20 @@ import React, { useState } from 'react';
 import { X, Save, Eraser, Plus, Minus, Info } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 
-// 為避免誤用對外宣告必須提供關閉視窗的鉤子回呼
+// Debug 面板組件屬性定義
 interface DebugPanelProps {
-  onClose: () => void; // 點選右上角的叉叉或者點選儲存後順手連鎖關閉彈窗的小精靈
+  onClose: () => void; 
 }
 
 /**
- * 萬能開發者帝王權限面板 (Debug Hack Panel)
- * 專司提供工程人員、GM(GameMaster)以及展場主考官用來在展場/測試環節
- * 以「不可被違抗之神力直接進入記憶體強行替換」修改任意一位場上玩家數值的純暗門介面工具。
- * ⚠️ 安全技術聲明：此組件實屬極危險金手指，未來在釋出生產環境打包版前不應輕易留下任何隱藏敲擊入口。
+ * 開發者除錯面板 (Debug Hack Panel)
+ * 用於快速修改玩家經營資源 (G, RP, AP, IP) 及清理黑材料，僅供開發測試使用。
  */
 export default function DebugPanel({ onClose }: DebugPanelProps) {
-  // 從 Store 系統核心深處撈出一種絕對防禦級數的「無視任何商業邏輯強制無情派發覆寫」函示 (名叫 debugUpdatePlayer)
   const { players, currentPlayerIndex, debugUpdatePlayer, turn, hardReset } = useGameStore();
   const player = players[currentPlayerIndex];
 
-  // 面板專用內存暫存區域 Local State，我們先在這裡暫時拖曳玩弄各種天價數字，
-  // 因為若每改一塊錢就連往 Store 發動請求，會導致背後的 React Canvas 或網頁 DOM 完全卡死凍結
+  // 本地暫存狀態
   const [values, setValues] = useState({
     g: player?.g ?? 0,
     rp: player?.rp ?? 0,
@@ -32,14 +28,13 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
   // 對象突然死亡或破產失去資格的話，駭客畫面當場崩解回收避免報錯
   if (!player) return null;
 
-  // 確認所有欄位的恐怖數據竄改完成，點擊「確認套用」後一次性把那坨骯髒的數據推倒灌往 Zustand Store 大腦中
+  // 套用變更至 Store
   const handleUpdate = () => {
-    debugUpdatePlayer(player.id, values); // 下此神諭，無法反悔
-    onClose(); // 送走介面完工
+    debugUpdatePlayer(player.id, values);
+    onClose();
   };
 
-  // 無上皇恩大赦天下神聖按鈕：當開發人員要修 bug 想觀察初期狀態時，
-  // 能用這個鈕一鍵清除與淨化掉這位倒楣玩家身上因為長年幹壞事堆積成的犯罪標章與巨量黑材料
+  // 清除玩家所有標籤與黑材料紀錄
   const handleClearBM = () => {
     debugUpdatePlayer(player.id, {
       tags: [],
@@ -54,29 +49,26 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
     setValues((prev) => ({ ...prev, [key]: prev[key] + amount }));
   };
 
-  // [V2.88] 為了便利後端演算法設計師微調並觀察法院模型數值設計，
-  // 特別直接在此駭客黑盒子面板下緣提供一處透明看板：專門洩漏計算底層這回合「即將機率算出多少被起訴率」的恐怖真實值。
+  // 起訴機率觀測
   const totalTags = player.totalTagsCount || 0;
-  // 推論暗黑算法底線展示 (法律系統裡，玩家的罪名只要每累積到 40 張無情標籤，就會強制墊高這傢伙 10% 機率底層極限紅線，絕對不會因為他跟法官關係好就有特例被消除)
+  // 顯示被起訴的最低機率 (每累積 40 個標籤，被起訴機率就增加 10%)
   const floorPercent = totalTags > 0 ? Math.min(100, Math.ceil(totalTags / 40) * 10) : 0;
 
-  // 同步計算並秀出另一項致命要素：這個人如果下一局再次不幸被告，他上回留下的案底會被法院追加成幾「倍」的變態體制裁罰，讓測試者有事先的心理建設準備與預警
+  // 累犯倍率觀測
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
   if (trials >= 7)
-    trialMultiplier = 6.0; // 7連被告，根本十大要犯
-  else if (trials >= 4) trialMultiplier = 3.0;
+    trialMultiplier = 6.0; // 被告次數太多，罰金會變 6 倍
+  else if (trials >= 4) trialMultiplier = 3.0; // 被告 4 次以上，罰金變 3 倍
 
   return (
-    // 最高統治層特權 (z-[1000])：全黑不透明度 60% 毛玻璃佈景，用以暴力蓋滿整個外觀後方所有系統流程按紐防止誤觸操作引發連鎖競態問題
     <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      {/* 面板本體：血紅色警戒極粗邊框與恐怖血腥光彩擴散背光暈，用以威嚇表示這是一定要慎用的極高特權行為破壞區 */}
       <div className="w-full max-w-md bg-slate-900 border-2 border-red-500/50 rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.3)]">
         {/* 開發者工具頭部橫幅大標：以大紅色警示條包裝 */}
         <div className="bg-red-600 px-6 py-4 flex justify-between items-center text-white">
           <div>
             <h3 className="font-black text-xl italic uppercase tracking-tighter">
-              Debug Tool (外掛)
+              Debug Tool
             </h3>
             <p className="text-[10px] opacity-70 font-mono">
               ID: {player.id} | Name: {player.name}
@@ -93,21 +85,21 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
         </div>
 
         <div className="p-8 space-y-6">
-          {/* [V2.88] 實時底層機密指標觀測區 (洩漏法官的內心運算底線機密數據) */}
+          {/* 機密指標觀測區 */}
           <div className="grid grid-cols-2 gap-3 bg-black/40 p-4 rounded-2xl border border-white/5">
             <div className="space-y-1">
               <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                <Info size={10} /> 起訴強制死線底限 (Floor)
+                <Info size={10} /> 最低起訴機率
               </p>
               <p className="text-xl font-black text-orange-400">{floorPercent}%</p>
               <p className="text-[8px] text-slate-600">偵查進度: {totalTags} 標籤</p>
             </div>
             <div className="space-y-1">
               <p className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                <Info size={10} /> 庭審罰金相乘倍率 (Multi)
+                <Info size={10} /> 罰金倍率
               </p>
               <p className="text-xl font-black text-red-400">{trialMultiplier.toFixed(1)}x</p>
-              <p className="text-[8px] text-slate-600">累計登錄前科被告次數: {trials} 次</p>
+              <p className="text-[8px] text-slate-600">累計被告次數: {trials} 次</p>
             </div>
           </div>
 
@@ -122,7 +114,7 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
               </label>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => quickAdjust('g', -100)} // 點一下瞬間人間蒸發一百萬鉅資
+                  onClick={() => quickAdjust('g', -100)}
                   className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-700"
                   title="Decrease G"
                   aria-label="Decrease Total Capital"
@@ -137,7 +129,7 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
                   className="flex-1 bg-black border border-slate-700 rounded-xl px-4 py-3 font-black text-emerald-400 text-center text-xl"
                 />
                 <button
-                  onClick={() => quickAdjust('g', 100)} // 點一下空投空降一百萬紓困金
+                  onClick={() => quickAdjust('g', 100)}
                   className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-700"
                   title="Increase G"
                   aria-label="Increase Total Capital"
@@ -161,9 +153,8 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
                     </label>
                     <input
                       id={`input-${key}`}
-                      type="number" // 取消英文字母亂寫權限
+                      type="number"
                       value={values[key]}
-                      // 極其重要：確保修改後依然是被轉為 Integer 純十進位整數格式，若寫出小數點或其他妖魔鬼怪符號將立刻引發接下來十張卡牌後台 Engine 的無聲嚴重炸裂崩壞錯誤！
                       onChange={(e) =>
                         setValues({ ...values, [key]: parseInt(e.target.value) || 0 })
                       }
@@ -177,17 +168,26 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
 
           {/* 右下核彈發射按鈕控制大區 */}
           <div className="pt-6 border-t border-white/5 space-y-3">
+            {/* 清除所有證據按鈕 */}
+            <button
+              onClick={handleClearBM}
+              className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-orange-500/30 text-orange-400 font-black hover:bg-orange-500/10 transition-all uppercase tracking-widest text-sm"
+              title="清除所有犯罪紀錄"
+            >
+              <Eraser size={18} />
+              清除所有犯罪證據
+            </button>
             <button
               onClick={handleUpdate}
               className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
             >
-              <Save size={18} /> 套用數值更新執行覆寫
+              <Save size={18} /> 套用數值更新
             </button>
             <button
               onClick={hardReset}
               className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-black font-black rounded-2xl transition-all flex items-center justify-center gap-2"
             >
-              <Plus size={18} className="rotate-45" /> 強制系統重啟 (清除快取)
+              <Plus size={18} className="rotate-45" /> 強制系統重啟
             </button>
           </div>
 

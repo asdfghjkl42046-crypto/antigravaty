@@ -1,6 +1,6 @@
 /**
- * 角色技能系統
- * 處理玩家在人力市場購買的專業人才所帶來的被動加成與技能效果
+ * 角色能力系統
+ * 處理玩家雇用的人才（如律師、會計師）所提供的各種加成效果。
  */
 
 import type { Player, RoleType } from '../types/game';
@@ -27,8 +27,8 @@ export interface UpgradeResult {
 }
 
 /**
- * 人才升級邏輯
- * 檢查玩家的資金與人脈是否足夠，並執行升級
+ * 升級人才
+ * 檢查玩家的錢跟影響力（IP）是否足夠，並提升人才等級。
  */
 export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult {
   const currentLevel = getRoleLevel(player, role);
@@ -66,9 +66,7 @@ export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult 
   };
 }
 
-// ============================================================
-// 王牌律師 (Lawyer) - 主掌法庭答辯勝率與提告免疫
-// ============================================================
+// 王牌律師 (Lawyer) - 負責提升官司勝率與撤銷控訴
 
 /**
  * 王牌律師 LV1：法庭勝率加成
@@ -80,8 +78,8 @@ export function getLawyerDefenseBonus(player: Player): number {
 }
 
 /**
- * 王牌律師 LV2：防雷機制
- * 法庭上面對法官質詢時，系統會自動幫玩家刪除 1 個絕對會輸的選項
+ * 王牌律師 LV2：幫忙排除錯誤選項
+ * 在法庭選辯護詞時，會幫忙刪掉一個必定會失敗的選項。
  */
 export function shouldRemoveWrongOption(player: Player): boolean {
   return getRoleLevel(player, 'lawyer') >= 2;
@@ -125,9 +123,7 @@ export function getExtraAppealCost(player: Player): number {
   return roundUp(player.g * 0.2);
 }
 
-// ============================================================
-// 公關經理 (PR) - 主掌媒體名望控制與賭局防護
-// ============================================================
+// 公關經理 (PR) - 負責保護名聲與處理媒體輿論
 
 /**
  * 公關經理 LV1：危機處理
@@ -168,9 +164,7 @@ export function getPRAutoRP(player: Player): number {
   return getRoleLevel(player, 'pr') >= 3 ? 5 : 0;
 }
 
-// ============================================================
-// 資深會計師 (Accountant) - 主掌資金流向與海外避稅信託
-// ============================================================
+// 資深會計師 (Accountant) - 負責增加收入與節稅
 
 /**
  * 資深會計師 LV1：合法作帳
@@ -212,9 +206,7 @@ export function calculateTrustTransfer(player: Player): number {
   return Math.min(roundUp(player.g * 0.1), maxTransfer);
 }
 
-// ============================================================
-// 技術長 (CTO) - 主掌自動化研發投報與行動力返還
-// ============================================================
+// 技術長 (CTO) - 負責自動化產能與黑客收入
 
 /**
  * 技術長 LV1：自動化代操

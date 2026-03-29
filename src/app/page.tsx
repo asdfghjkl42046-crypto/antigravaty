@@ -24,9 +24,8 @@ import { CARD_UI_TEXT } from '@/data/cards/CardsDB';
 import { SYSTEM_MESSAGES } from '@/data/system/SystemMessages';
 
 /**
- * 創業冒險遊戲總舞台 (Main Entry)
- * 這裡是所有玩家明爭暗鬥的主戰場，負責切換日常辦公室、肅殺法庭或是破產畫面，
- * 你手中的真實紙牌也都是透過這裡的監視器掃描進系統中的。
+ * 遊戲主導控中心
+ * 這裡是遊戲的主戰場，負責切換辦公室、法庭或是結束畫面。
  */
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +39,7 @@ export default function Home() {
     players, // 場上存活的玩家名單
     turn, // 目前整體環境回合進度
     currentPlayerIndex, // 指出畫面右上角該秀出哪位玩家的回合
-    phase, // 當前大畫面 (play 日常, courtroom 法庭對峙, victory/gameover 破關結算)
+    phase, // 當前畫面 (play 遊玩, courtroom 法庭, victory 獲勝/結束)
     initGame, // 從大廳帶入參數進入遊戲正式關卡的發動機
     performAction, // 全局唯一的選項刷卡送出派發器
     endTurn, // 呼叫 Store 進入下一位玩家的回合
@@ -62,8 +61,8 @@ export default function Home() {
     () => false
   );
 
-  // 3. 空間折疊模組
-  // 不管你用的是超寬螢幕還是破爛的小平板，系統會像看電影一樣自動縮放畫面比例，確保畫面絕對不會跑版。
+  // 畫面自動縮放功能
+  // 不管螢幕大或小，都會自動調整比例，讓畫面不會跑版。
   const subscribeScale = useCallback((callback: () => void) => {
     window.addEventListener('resize', callback);
     return () => window.removeEventListener('resize', callback);

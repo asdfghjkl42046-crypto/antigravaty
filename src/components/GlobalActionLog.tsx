@@ -6,16 +6,15 @@ import { History, Hash, Clock, User, Tag as TagIcon, FileText } from 'lucide-rea
 import { CARDS_DB } from '../data/cards/CardsDB';
 
 /**
- * 暗網行動追蹤日誌 (Global Action Log)
- * 專門給駭客跟國稅局看的交易流水帳。
- * 畫面上會赤裸裸地展示這局所有總裁幹過的骯髒事、被法院貼上的恥辱標籤，
- * 以及用最高規格密碼學防護過的、絕對無法竄改湮滅的 Hash 犯罪鐵證。
+ * 遊戲紀錄顯示區域
+ * 負責顯示所有玩家過去做過的行動紀錄。
  */
 export default function GlobalActionLog() {
-  // 駭入核心伺服器，把所有的黑箱作業紀錄全倒出來
-  const { actionLogs, players } = useGameStore();
+  // 從資料庫拿取所有紀錄與玩家名單
+  const actionLogs = useGameStore((s) => s.actionLogs);
+  const players = useGameStore((s) => s.players);
 
-  // 無罪推定狀態：如果遊戲剛開始，大家都還是清新的白紙，就給個空蕩蕩的畫面
+  // 如果遊戲剛開始，顯示空狀態
   if (actionLogs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 opacity-20 border-2 border-dashed border-white/10 rounded-3xl">
@@ -25,20 +24,20 @@ export default function GlobalActionLog() {
     );
   }
 
-  // 反向追蹤：把最新幹下的壞事推到最上面，以方便檢調單位即時追緝
+  // 反向排序：將最新的紀錄顯示在最上方
   const reversedLogs = [...actionLogs].reverse();
 
   return (
-    // 高壓的無盡卷軸：限制視窗高度，讓滿滿的犯罪紀錄只能在裡面擁擠地滾動
+    // 紀錄列表容器
     <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
       {reversedLogs.map((log) => {
-        // 抓出元兇：從嫌疑犯清單中比對，揪出到底是哪個總裁簽下這份提案
+        // 找到這則紀錄是哪個玩家產生的
         const player = players.find((p) => p.id === log.playerId);
-        // 罪狀解析：把這筆案子夾帶的「內線交易」、「做假帳」標籤給拆解剝離出來
+        // 解析紀錄標籤
         const tags = log.tags ? log.tags.split(',') : [];
 
         return (
-          // 單筆犯罪檔案：當滑鼠掃過時，背景會閃著如同警車巡邏般的藍色微光
+          // 單筆紀錄顯示區塊
           <div
             key={log.hash} // 終極鐵證：用絕對無法偽造的區塊鏈 Hash 碼來鎖死這個操作陣列
             className="group relative bg-[#0d1117] border border-white/5 rounded-2xl p-4 transition-all hover:border-blue-500/30 hover:bg-blue-900/5"

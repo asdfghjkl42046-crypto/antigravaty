@@ -14,16 +14,16 @@ function cn(...inputs: ClassValue[]) {
 import { ROLE_DATA, COLOR_MAP, HR_UI_TEXT } from '@/data/roles/RoleData';
 
 interface HRShopProps {
-  onActionResult: (res: { success: boolean; message: string }) => void; // 向上層打報告：這次黑箱招募的完整結果
+  onActionResult: (res: { success: boolean; message: string }) => void; // 處理升級結果的回調函數
 }
 
 /**
- * 地下人才黑市 (HR Shop)
- * 這是一個讓總裁們能夠揮霍大把金錢與人脈，秘密招募頂尖律師或精算師來幫自己擦屁股的市場。
- * 天下沒有白吃的午餐，每次挖角升級都要固定砸下：100 點影響力 + 100 萬黑錢 + 1 點行動體力。
+ * 團隊升級中心 (HR Shop)
+ * 讓玩家可以花錢雇用或升級各種專業人才（如會計師、律師、公關）。
+ * 每次升級需要消耗：100 點影響力 + 100 萬黑錢 + 1 點行動體力。
  */
 export default function HRShop({ onActionResult }: HRShopProps) {
-  // 從系統後台金庫調出現在這位大老闆的身家報表
+  // 獲取當前玩家資料
   const { players, currentPlayerIndex, upgradeRole } = useGameStore();
   const player = players[currentPlayerIndex];
 

@@ -11,14 +11,14 @@ import type { JudgePersonality } from '@/types/game';
 interface GameHUDProps {
   turn: number; // 當前局勢進度：1/50
   judgePersonality: JudgePersonality | null; // 幕後黑手
-  onReset: () => void; // 掀桌按鈕
-  onDebug?: () => void; // 上帝模式開關
-  children?: React.ReactNode; // 額外擴充功能（如導航按鈕）
+  onReset: () => void; // 重新開始遊戲
+  onDebug?: () => void; // 開啟開發者工具
+  children?: React.ReactNode; // 其他功能按鈕
 }
 
 /**
- * 最高法院：漂浮指揮中心 (GameHUD)
- * 懸浮顯示法官狀態與回合，釋放其餘頂部空間。
+ * 遊戲主畫面資訊列 (HUD)
+ * 顯示目前是第幾回合，以及開啟開發者工具的按鈕。
  */
 export default function GameHUD({
   turn,

@@ -15,12 +15,11 @@ interface SetupScreenProps {
 }
 
 /**
- * 企業聯合註冊大廳 (Setup Screen)
- * 這是你正式跳入火坑前，選擇要當白手起家的窮小子、還是背景超硬的富二代的地方。
- * 系統會無情地逼迫在場的 2 到 4 位總裁輪流交出底牌，再把這些見不得光的設定打包送往核心處理器。
+ * 遊戲開局設定畫面
+ * 負責設定玩家人數、幫玩家取名字，以及選擇開局的起點（身分）。
  */
 export default function SetupScreen({ onComplete, onBack }: SetupScreenProps) {
-  // 大廳動線導航：先決定有多少獵物要進場 (count)，再輪流帶進小房間拷問登記 (config)
+  // 設定流程：先決定玩家人數 (count)，再輪流輸入每位玩家的設定 (config)
   const [step, setStep] = useState<'count' | 'config'>('count');
   const [playerCount, setPlayerCount] = useState(2); // 參與玩家總數 (預設至少 2 人互鬥，上限 4)
   const [currentPlayerIdx, setCurrentPlayerIdx] = useState(0); // 當前正在輸入設定是幾號仔的指標

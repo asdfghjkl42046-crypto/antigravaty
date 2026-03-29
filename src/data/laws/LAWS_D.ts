@@ -1,3 +1,6 @@
+/**
+ * 法律資料：D 類案件
+ */
 import type { LawCase } from '../../types/game';
 
 export const LAWS_D: Record<string, LawCase> = {
@@ -15,7 +18,9 @@ export const LAWS_D: Record<string, LawCase> = {
       '商量好誰要得標的秘密協議',
       '參與圍標公司之間的私下補償紀錄',
     ],
-    winning_keywords: ['獨立', '作業', '巧合'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // D-02: 離岸風電標案
@@ -32,7 +37,9 @@ export const LAWS_D: Record<string, LawCase> = {
       '某位評審給分高得離譜的統計報告',
       '換取評分優勢的代價紀錄',
     ],
-    winning_keywords: ['公開', '透明', '無對價'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // D-03: 智慧交通顧問
@@ -49,7 +56,9 @@ export const LAWS_D: Record<string, LawCase> = {
       '用來洗錢的人頭帳戶路徑圖',
       '沒有實際產出的假顧問合約',
     ],
-    winning_keywords: ['契約', '行情', '勞務'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // D-04: 規格制定會議
@@ -66,7 +75,9 @@ export const LAWS_D: Record<string, LawCase> = {
       '故意排除其他競爭者的技術報告',
       '採購人員要求修改規格的錄音檔',
     ],
-    winning_keywords: ['必要', '多家', '獨立'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // D-05: 聯合投標聯盟
@@ -83,7 +94,9 @@ export const LAWS_D: Record<string, LawCase> = {
       '公司之間私下協議借牌的合約',
       '事先分配標案的會議紀錄',
     ],
-    winning_keywords: ['獨立', '公開', 'JV'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 
   // D-06: 考察與審核
@@ -100,6 +113,8 @@ export const LAWS_D: Record<string, LawCase> = {
       '五星級酒店與升等頭等艙的核銷單',
       '考察報告跟標案完全沒關係的證據',
     ],
-    winning_keywords: ['正當', '比例', '考察'],
+    defense_j: '',
+    defense_k: '',
+    defense_l: '',
   },
 };

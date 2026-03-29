@@ -1,6 +1,6 @@
 /**
- * 玩家檔案與前科管理局
- * 負責創建玩家角色、決定開局財產，加上管理黑歷史與洗白機制
+ * 玩家檔案與犯罪紀錄管理
+ * 負責幫玩家開新帳號、管理他們的財產、黑歷史還有結案功能。
  */
 
 import type {
@@ -23,40 +23,39 @@ import { getResolvedTags, LAW_CASES_DB } from '@/data/laws/LawCasesDB';
 // ============================================================
 
 /**
- * 計算玩家總黑材料數
- * 將玩家身上所有的 BlackMaterialSource 陣列中的 count (累積罪證) 進行加總
+ * 算出玩家身上總共有多少件壞事（黑材料）
  */
 export function getTotalBlackMaterials(player: Player): number {
   return (player.blackMaterialSources || []).reduce((sum, s) => sum + (Number(s.count) || 0), 0);
 }
 
 /**
- * 增加犯罪前科
- * 當玩家做了壞事，系統會把這筆帳記在對應的標籤上，等著秋後算帳
+ * 增加犯罪紀錄
+ * 當玩家做了壞事，系統會把這筆帳記下來。
  */
 export function addBlackMaterials(
-  sources: BlackMaterialSource[], // 目前玩家身上的黑料歷史清單
-  tags: string[], // 這次行動牽涉的違法標籤陣列
-  bmPerAction: number, // 這次行動總共會產生多少個黑材料單位
-  actionId: number, // 對應引發黑料的歷史行動局 ID
+  sources: BlackMaterialSource[], // 目前玩家身上的壞事清單
+  tags: string[], // 這次行動牽涉的違法項目
+  bmPerAction: number, // 這次行動總共會產生多少個壞事單位
+  actionId: number, // 對應引發壞事的行動編號
   turn: number // 發生於第幾回合
 ): BlackMaterialSource[] {
-  // 深度拷貝：確保修改不會影響到原始 Player 物件中的參照位址，符合不變性 (Immutability) 原則
+  // 複製一份清單：確保修改不會影響到原始資料，保持資料穩定
   const updated = sources.map((s) => ({ ...s }));
 
-  // 總裁指示：如果遇到例外狀況沒有具體標籤名稱，不能苟且使用 unknown 帶過，必須強制拋出 Error 報錯！
+  // 驗證項目是否存在
   if (!tags || tags.length === 0) {
-    throw new Error('嚴重異常：試圖記錄犯罪黑資料，卻未提供具體的違犯標籤（tags array 為空）！');
+    throw new Error('addBlackMaterials: 未提供具體的違法項目 (tags)。');
   }
   const tagList = tags;
   for (const tag of tagList) {
-    // 檢查這筆罪刑在相同的行動來源下，是否已經被立案過
+    // 檢查這筆罪刑在相同的行動來源下，是否已經被記錄過
     const existing = updated.find((s) => s.tag === tag && s.actionId === actionId);
     if (existing) {
-      // 若曾經立案，則直接疊加最新的罪證數量 (注意：此處 bmPerAction 應代表單一標籤的增量)
+      // 若已存在相同來源項目，則累加數量
       existing.count += bmPerAction;
     } else {
-      // 若尚未記錄，推入一筆全新的犯罪足跡追蹤紀錄
+      // 若尚未記錄，則新增紀錄
       updated.push({ tag, count: bmPerAction, actionId, turn });
     }
   }
@@ -64,8 +63,8 @@ export function addBlackMaterials(
 }
 
 /**
- * 銷毀特定證據 (一案一清)
- * 不管法庭判你贏還是輸，只要結案了，這個案子的前科就會被銷毀，不能再告一次
+ * 刪除特定案件的證據
+ * 官司打完（結案）後，把那個案子的證據清掉。
  */
 export function removeBlackMaterialsByTag(
   player: Player,
@@ -74,41 +73,39 @@ export function removeBlackMaterialsByTag(
 ): BlackMaterialSource[] {
   if (!player || !player.blackMaterialSources) return [];
 
-  // 首先：優先尋找 tagId (即 actionId) 進行高精準度過濾，保留所有 "不屬於這起案件來源" 的黑料
+  // 首先：優先尋找案件編號進行精準過濾，保留所有 "不屬於這起案件" 的壞事
   if (tagId !== undefined && tagId !== 0) {
     return player.blackMaterialSources.filter((s) => s.actionId !== tagId);
   }
 
-  // 備援方案：如果函數沒有被正當傳遞 ID，則退化為使用標籤純文字過濾 (字串必須 100% 吻合)
+  // 備援方案：如果函數沒有被傳遞編號，則退化為使用項目名稱過濾 (名稱必須完全吻合)
   return player.blackMaterialSources.filter((s) => s.tag !== tagText);
 }
 
 /**
- * 終極洗白法術
- * 直接清空玩家名下所有的犯罪紀錄，立刻變回乾淨企業家
+ * 清除所有犯罪紀錄
  */
 export function clearAllBlackMaterials(): BlackMaterialSource[] {
-  return []; // 直接回傳空陣列，代表所有犯罪證據被乾淨除役
+  return []; // 變回乾淨的人
 }
 
 // ============================================================
 // 預設玩家工廠與開局路徑處理器
 // ============================================================
 
-// 預設罰金倍率基準：此系統專用於反推「隱蔽路徑玩家」初始自帶標籤的虛擬入帳金額。
-// 為了跟 GEMINI.md 2-2 規範的 3 倍基礎罰金定律匹配。
-const INITIAL_FINE_MULTIPLIER = 3.0;
+// 預設罰金基礎倍率：統一為 1.0x，使基礎罰金與案件不法所得相等。
+const INITIAL_FINE_MULTIPLIER = 1.0;
 
 /**
  * 創造新玩家檔案
- * 根據玩家選的開局路線 (走後門、黑箱作業)，發放對應的起始資金，甚至塞給你天生的犯罪紀錄
+ * 根據玩家選的開局路線，發放對應的起始資金，甚至塞給你天生的犯罪紀錄
  */
 export async function createInitialPlayer(
   name: string,
   path: StartPath,
   bribeItem?: BribeItem
 ): Promise<Player> {
-  // 自動產生具備時間戳與隨機亂碼的唯一玩家流水號 ID
+  // 自動產生具備時間戳與隨機亂碼的唯一玩家編號
   const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
   // 建立玩家專屬的防偽出生證明碼
   const genesis = await sha256(`GENESIS_${id}_${name}_${path}`);
@@ -119,7 +116,7 @@ export async function createInitialPlayer(
  * 集中管理不同出身背景的初始資產、社會信用、違法黑金以及天生的罰金減免比例
  */
 /**
- * 內部助手：將 StartPath 代號轉換為虛擬卡牌的選項索引
+ * 內部助手：將路徑代號轉換為虛擬卡牌的選項索引
  */
 function getPathOptionIndex(path: StartPath): 1 | 2 | 3 {
   if (path === 'normal') return 1;
@@ -147,10 +144,10 @@ async function createPlayerFromConfig(
   const initialRP = config.rp || 100;
   const initialLawCaseIds = config.lawCaseIds || [];
 
-  // 動態解析標籤，確保與法律資料庫同步 (SSOT)
+  // 動態解析標籤，確保與法律資料庫同步
   const initialTagTexts = getResolvedTags(initialLawCaseIds);
 
-  // 計算不法所得 (Booty)：資金總額扣除保底 100 萬後，即為該路徑之原罪代價
+  // 計算不法所得：資金總額扣除保底 100 萬後，即為該路徑之原罪代價
   const initialBooty = Math.max(0, initialG - 100);
 
   // 2. 把天生自帶的犯罪紀錄也寫進防偽系統中
@@ -167,7 +164,7 @@ async function createPlayerFromConfig(
     const caseTags = Array.isArray(lawCase.tag) ? lawCase.tag : [lawCase.tag];
 
     for (const text of caseTags) {
-      // 將「上一個區塊的 Hash」 + 「本次標籤」 + 「時間戳」做 SHA256 加密，形成鏈狀結構
+      // 將「上一個區塊的加密碼」 + 「本次標籤」 + 「時間戳」做加密，形成鏈狀結構
       const newHash = await sha256(currentHash + text + timestamp);
 
       tags.push({

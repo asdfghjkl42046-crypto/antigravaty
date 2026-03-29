@@ -1,31 +1,43 @@
 /**
- * [Legacy] 遊戲引擎錯誤回報中心
- * 此檔案已棄用，請優先改用 EngineErrorClasses.ts。
- * 為了向下相容既有程式碼，目前保留同名函式但內部改為拋出新的 Error 對象。
+ * 系統錯誤回報中心
+ * 負責集中處理所有錯誤。
  */
 
-import { DataError, CalculationError, FlowError } from './EngineErrorClasses';
+export * from './BaseError';
+export * from './DataErrors';
+export * from './CalculationErrors';
+export * from './FlowErrors';
 
+import { DataCorruptionError, DataDefinitionError } from './DataErrors';
+import { LogicFailureError, NumericalCheckError } from './CalculationErrors';
+import { EnvironmentError, TrialInitializationError } from './FlowErrors';
+
+/** [資料類] 拋出資料損毀錯誤 */
 export function throwDataCorruptionError(context: string, details: string): never {
-  throw new DataError(`Data Corruption @ ${context}`, details);
+  throw new DataCorruptionError(context, details);
 }
 
+/** [計算類] 拋出邏輯失效錯誤 */
 export function throwLogicFailureError(context: string, details: string): never {
-  throw new CalculationError(`Logic Failure @ ${context}`, details);
+  throw new LogicFailureError(context, details);
 }
 
+/** [資料類] 拋出資料定義錯誤 (如找不到 ID) */
 export function throwDataDefinitionError(context: string, details: string): never {
-  throw new DataError(`Data Definition Error @ ${context}`, details);
+  throw new DataDefinitionError(context, details);
 }
 
+/** [流程類] 拋出系統環境錯誤 */
 export function throwEnvironmentError(context: string, details: string): never {
-  throw new FlowError(`Environment Error @ ${context}`, details);
+  throw new EnvironmentError(context, details);
 }
 
+/** [流程類] 拋出法庭/事件初始化失敗錯誤 */
 export function throwTrialInitializationError(context: string, details: string): never {
-  throw new FlowError(`Trial Initialization Error @ ${context}`, details);
+  throw new TrialInitializationError(context, details);
 }
 
+/** [計算類] 拋出數值檢核異常 (如 NaN) */
 export function throwNumericalCheckError(context: string, details: string): never {
-  throw new CalculationError(`Numerical Check Error @ ${context}`, details);
+  throw new NumericalCheckError(context, details);
 }

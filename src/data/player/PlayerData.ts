@@ -1,13 +1,10 @@
 /**
- * [總裁底氣] 玩家資產與黑歷史監視器文案 (Player Data UI)
- * 主要服務於左側監視器 (PlayerSidebar)，
- * 把那些冰冷的系統底層代號轉換成讓你腎上腺素飆升的財富名目與定罪指標。
+ * 玩家資產與顯示文字
+ * 用於側邊欄顯示玩家各項數值。
  */
 export const PLAYER_UI_TEXT = {
   // 集團命脈四大指標
   STATS: {
-    IP: '人才點數', // Influence Points 用來挖角升級
-    G: '資金', // Gold 用來付罰金或購買裝備卡
     RP: '名聲', // Reputation 用來維持企業形象，太低會破產淘汰
     AP: '行動力', // Action Points 每回合花費
   },

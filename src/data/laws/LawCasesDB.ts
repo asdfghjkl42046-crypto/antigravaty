@@ -8,9 +8,9 @@ import { LAWS_START } from './LAWS_START';
 import { throwDataDefinitionError } from '../../engine/errors/EngineErrors';
 
 /**
- * [六法全書] 地下法庭查哨站 (Law Cases DB)
- * 匯總所有黑灰產提案背後對應的起訴法條、脫罪藉口 (escape) 以及會被貼上的前科標籤 (tag)。
- * 審判引擎 (CourtEngine) 要開鍘前，會先來這裡查表，看看這次該用哪一條罪名跟勝率把對手踢進大牢。
+ * 法律案件資料庫
+ * 包含所有案件的起訴法條、辯護藉口與犯罪標籤。
+ * 法庭系統會在這裡查詢案件資料。
  */
 export const LAW_CASES_DB: Record<string, LawCase> = {
   ...LAWS_A,
@@ -49,8 +49,8 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
 }
 
 /**
- * 格式化顯示用標籤 (GEMINI.md §7-2)
- * 安全處理 string | string[] 型別，避免 .join 崩潰，並提供統一的顯示分隔符。
+ * 格式化顯示用標籤
+ * 把標籤陣列轉換成方便顯示的字串（用 / 隔開）。
  * @param tag 原始標籤數據
  * @returns 格式化後的顯示字串
  */

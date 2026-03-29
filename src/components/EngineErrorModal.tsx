@@ -9,9 +9,9 @@ interface EngineErrorModalProps {
 }
 
 /**
- * 核心引擎錯誤阻斷器 (Engine Error Modal)
- * 當系統偵測到數值異常 (NaN) 或資料損壞時，會彈出此全螢幕鎖定視窗。
- * 這是為了防止「靜默失敗」導致更嚴重的存檔毀損。
+ * 系統錯誤提示視窗
+ * 當遊戲發生嚴重錯誤（例如資料壞掉）時，會彈出此視窗並停止遊戲。
+ * 這是為了防止錯誤導致存檔毀損。
  */
 export default function EngineErrorModal({ error, onReset }: EngineErrorModalProps) {
   if (!error) return null;

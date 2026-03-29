@@ -7,14 +7,13 @@ import { GLOBAL_UI_TEXT } from '@/data/system/GlobalUI';
 
 // 控制器排線規格：規範切換按鈕要如何與主機板連動
 interface TabNavigationProps {
-  activeTab: 'scan' | 'hrshop' | 'log'; // 戰情室現在正亮著哪個頻道的監視器
-  onTabChange: (tab: 'scan' | 'hrshop' | 'log') => void; // 當總裁切換頻道時發出的調度命令
+  activeTab: 'scan' | 'hrshop' | 'log'; // 目前選取的分頁
+  onTabChange: (tab: 'scan' | 'hrshop' | 'log') => void; // 切換分頁的函式
 }
 
 /**
- * 總裁戰術控制面板 (Tab Navigation)
- * 懸浮在螢幕邊界的儀表切換膠囊。
- * 點擊後無情地切換主監控畫面：你要看「行動調查區」、進入「暗黑人力市場」，還是調閱「犯罪追蹤日誌」？
+ * 下方分頁導覽列
+ * 讓玩家在「投資」、「團隊」、「紀錄」三個主要畫面之間切換。
  */
 export default function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   // 將三大情報網的按鈕模組先行實例化註冊

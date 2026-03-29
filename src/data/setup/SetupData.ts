@@ -1,8 +1,8 @@
 import type { StartPath } from '../../types/game';
 
 /**
- * [劇本庫] 商戰開局設定字詞大全 (Setup Screen)
- * 收錄了玩家剛踏入戰場時，被逼著選擇人數、挑選AI法官模式，以及在暗門背後偷偷登記假帳戶時的所有引導文案。
+ * 開局設定文字
+ * 包含玩家在開局時的人數選擇、模式選擇、命名引導等文字。
  */
 export const SETUP_TEXT = {
   SETUP_TITLE: '創業之路',
@@ -49,8 +49,7 @@ export const SETUP_TEXT = {
 };
 
 /**
- * [階級標語] 起始出身背景的官方論述
- * 將骯髒的黑白道數值（多金但萬人唾棄 vs 窮酸但清清白白）包裝成能擺在檯面上的商業敘事標籤。
+ * 初始身分說明
  */
 export const START_PATH_LABELS: Record<StartPath, string> = {
   normal: '白手起家   (較佳社會信用)\n(起始資金100萬，名聲105)', // 最安穩

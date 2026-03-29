@@ -3,9 +3,8 @@ import { Gavel, Megaphone, Calculator, Cpu } from 'lucide-react';
 import type { RoleType } from '../../types/game';
 
 /**
- * [暗黑獵頭名冊] 地下菁英職能資料庫 (Role Data)
- * 定義了四大走狗（王牌律師、危機公關、做帳會計、洗錢技術長）要如何在商場上替老闆擋刀與搶錢的特性。
- * 同時為他們準備了專屬於自己的色彩配置，像是律師的黃金琥珀色與公關的交際粉色。
+ * 角色能力資料庫
+ * 定義了律師、公關、會計、技術長各等級的能力與顏色。
  */
 export const ROLE_DATA: {
   key: RoleType;
@@ -69,8 +68,7 @@ export const ROLE_DATA: {
 ];
 
 /**
- * [霓虹編碼] 各大走狗專屬的企業識別色 (Color Map)
- * 用來在黑暗的介面上，為這四種精英罪犯標籤打上他們專屬的燈光與邊框。
+ * 各人才專屬的代表顏色
  */
 export const COLOR_MAP: Record<
   string,
@@ -106,9 +104,7 @@ export const COLOR_MAP: Record<
   },
 };
 
-/**
- * [人口販子目錄] 暗黑獵頭市場的標語與報價單 (HR UI TEXT)
- */
+/** 人才升級介面文字 */
 export const HR_UI_TEXT = {
   TITLE: '人力銀行',
   COST_DESC: '每次升級需 100 IP + 100 萬 G',

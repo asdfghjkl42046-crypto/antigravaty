@@ -7,9 +7,9 @@ import { CARDS_E } from './CARDS_E';
 import { CARDS_START } from './CARDS_START';
 
 /**
- * [機密檔案庫] 地下商業情報網庫存 (Cards DB)
- * 作為所有黑灰產提案與事件的匯流黑市。將 A 到 E 類的所有投資內線消息包裝成巨大的軍火庫，
- * 讓核心引擎在老闆要下單時，能精準、無延遲地抽出對應的致命選項與後果。
+ * 行動卡牌資料庫
+ * 包含所有玩家可以抽到的卡片。
+ * 行動系統會在這裡查詢卡片的效果。
  */
 export const CARDS_DB: Record<string, Card> = {
   ...CARDS_A,

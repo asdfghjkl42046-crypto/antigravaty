@@ -51,9 +51,9 @@ export const COURT_TEXT = {
   PHASE_4: {
     QUESTION_TITLE: '法官質詢',
     DEFENSE_OPTIONS: [
-      (escape: string) => `${escape}`, // 直接引用資料庫中具備故事感的專業辯詞
-      (tag: string) => `質疑檢方對「${tag}」之定性存在嚴重法律爭議`,
-      (term: string) => `主張「${term}」純屬商業常規，與指控事實無涉`,
+      '選取 [J] 辯護策略 ($0% 加成)',
+      '選取 [K] 辯護策略 (+5% 加成)',
+      '選取 [L] 辯護策略 (+10% 加成)',
     ],
     SUPPLEMENTARY_LABEL: '補充陳述 (選填)',
     SUPPLEMENTARY_PLACEHOLDER: '請輸入您的辯護詞...',
