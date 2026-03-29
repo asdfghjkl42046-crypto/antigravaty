@@ -133,6 +133,7 @@ export interface BaseOption {
   special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
   rp?: number; // 預設名聲
   ip?: number; // 預設技術資產 (IP) (§5-4)
+  g?: number; // 預設資金收益 (用於扁平結構)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
 }
 
