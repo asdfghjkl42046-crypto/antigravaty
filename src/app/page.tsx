@@ -22,6 +22,7 @@ import EngineErrorModal from '@/components/EngineErrorModal';
 import { GLOBAL_UI_TEXT } from '@/data/system/GlobalUI';
 import { CARD_UI_TEXT } from '@/data/cards/CardsDB';
 import { SYSTEM_MESSAGES } from '@/data/system/SystemMessages';
+import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
 
 /**
  * 遊戲主導控中心
@@ -100,6 +101,13 @@ export default function Home() {
   const [showModeSelect, setShowModeSelect] = useState(true); // 最開始的模式過場視窗
   const [isPerforming, setIsPerforming] = useState(false); // 🐛 防連點漏洞：非同步結算鎖
   const lastScanTimeRef = useRef(0); // 🐛 效能 Bug 修復: QR 掃描防止硬體連拍的截流閥
+  const [pendingRoulette, setPendingRoulette] = useState<{
+    title: string;
+    subtitle: string;
+    options: RouletteOption[];
+    targetIndex: number;
+    onComplete: () => void;
+  } | null>(null);
 
   // 人性防線：當你把卡片湊向鏡頭，系統會先停格並跳出說明，讓你好好看清楚自己幹了甚麼好事，不要手殘怪系統。
   const [pendingScan, setPendingScan] = useState<{
@@ -246,8 +254,36 @@ export default function Home() {
     setPendingScan(null);
     setActiveCardId(null); // [核心修復] 立即清理背景卡片，防止並行洩漏
     const result = await performAction(cardId, optionIndex as 1 | 2 | 3);
-    handleActionResult(result);
-    setIsPerforming(false);
+    
+    // 判斷是否需要呼叫命運輪盤
+    const optConf = card[optionIndex as 1 | 2 | 3];
+    const isProbAction = optConf && typeof optConf === 'object' && 'succRate' in optConf && (optConf as any).succRate !== undefined && (optConf as any).succRate < 1.0;
+    
+    // 檢查是否因為資金不足等前置錯誤導致行動提早被取消
+    const isEarlyAbort = result.apRefunded || result.log?.tags === 'CARD_SKIPPED' || result.log?.tags === 'BANKRUPT' || result.log?.tags === 'INSUFFICIENT_FUNDS';
+
+    if (isProbAction && !isEarlyAbort) {
+      const succRate = (optConf as any).succRate;
+      // 在 ActionEngine 中，如果機率檢定失敗，success 會是 false
+      const targetIndex = result.success ? 0 : 1;
+      setPendingRoulette({
+        title: '命運輪盤',
+        subtitle: `${card.title} - ${optConf.label}`,
+        options: [
+          { label: '成功', probability: succRate, colorHex: '#10b981' },
+          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' }
+        ],
+        targetIndex,
+        onComplete: () => {
+          setPendingRoulette(null);
+          handleActionResult(result);
+          setIsPerforming(false);
+        }
+      });
+    } else {
+      handleActionResult(result);
+      setIsPerforming(false);
+    }
   };
 
   // 承上：二階段決策後置面板的兩種選擇（乖乖給政府抽稅合法申報 declare vs 惡意逃漏隱匿 skip）
@@ -295,8 +331,32 @@ export default function Home() {
     setActiveCardId(null);
     setIsPerforming(true);
     const result = await performAction(cardId, optIdx);
-    handleActionResult(result);
-    setIsPerforming(false);
+    
+    // 判斷是否需要呼叫命運輪盤
+    const isProbAction = opt && typeof opt === 'object' && 'succRate' in opt && (opt as any).succRate !== undefined && (opt as any).succRate < 1.0;
+    const isEarlyAbort = result.apRefunded || result.log?.tags === 'CARD_SKIPPED' || result.log?.tags === 'BANKRUPT' || result.log?.tags === 'INSUFFICIENT_FUNDS';
+
+    if (isProbAction && !isEarlyAbort) {
+      const succRate = (opt as any).succRate;
+      const targetIndex = result.success ? 0 : 1;
+      setPendingRoulette({
+        title: '命運輪盤',
+        subtitle: `${card.title} - ${opt.label}`,
+        options: [
+          { label: '成功', probability: succRate, colorHex: '#10b981' },
+          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' }
+        ],
+        targetIndex,
+        onComplete: () => {
+          setPendingRoulette(null);
+          handleActionResult(result);
+          setIsPerforming(false);
+        }
+      });
+    } else {
+      handleActionResult(result);
+      setIsPerforming(false);
+    }
   };
 
   // 畫面載入中：等待舞台燈光跟圖層完全掛載上去前，先不要透露任何資訊。
@@ -621,6 +681,17 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* 機率大轉盤：確保覆蓋於所有組件 (含 Courtroom 跟 GameOver) 之上，以防畫面直接切換破梗 */}
+      {pendingRoulette && (
+        <RouletteOverlay
+          title={pendingRoulette.title}
+          subtitle={pendingRoulette.subtitle}
+          options={pendingRoulette.options}
+          targetIndex={pendingRoulette.targetIndex}
+          onComplete={pendingRoulette.onComplete}
+        />
+      )}
     </div>
   );
 }

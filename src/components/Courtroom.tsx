@@ -28,6 +28,7 @@ import {
 import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
 import { formatLawTags } from '@/data/laws/LawCasesDB';
+import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -62,6 +63,14 @@ export default function Courtroom() {
   const [defenseInput, setDefenseInput] = useState('');
   // 被告所選擇的三選一防禦方針索引
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  // 命運轉盤攔截狀態
+  const [pendingRoulette, setPendingRoulette] = useState<{
+    title: string;
+    subtitle: string;
+    options: RouletteOption[];
+    targetIndex: number;
+    onComplete: () => void;
+  } | null>(null);
   // 旁觀群眾 (陪審團) 針對該被告打算提出什麼樣的落井下石或求情選項紀錄 (記錄每位玩家id選擇的選項 index)
   const [pendingInterventions, setPendingInterventions] = useState<Record<string, number>>({});
   // 旁觀群眾針對這次庭審結果到底賭有罪還是無罪的金流押注快取
@@ -629,8 +638,28 @@ export default function Courtroom() {
               {/* 把你這輩子最重要的防禦選項打包成封包丟往深邃的法庭黑盒子 (submitDefense) */}
               <button
                 disabled={selectedOption === null}
-                onClick={async () => {
-                  await submitDefense(selectedOption as number, defenseInput);
+                onClick={() => {
+                  const optIndex = selectedOption as number;
+                  const baseRate = trial.lawCase.survival_rate || 0.2;
+                  const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
+                  const jklBonus = optIndex === 1 ? 0.05 : optIndex === 2 ? 0.1 : 0;
+                  const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
+                  
+                  submitDefense(optIndex, defenseInput);
+                  
+                  const updatedTrial = useGameStore.getState().trial;
+                  setPendingRoulette({
+                    title: '法庭無情判決',
+                    subtitle: '命運的法槌即將落下...',
+                    options: [
+                      { label: '無罪釋放', probability: predictedRate, colorHex: '#10b981' },
+                      { label: '有罪定讞', probability: 1 - predictedRate, colorHex: '#ef4444' }
+                    ],
+                    targetIndex: updatedTrial?.isDefenseSuccess ? 0 : 1,
+                    onComplete: () => {
+                      setPendingRoulette(null);
+                    }
+                  });
                 }}
                 className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 transition-all disabled:opacity-50"
               >
@@ -790,7 +819,7 @@ export default function Courtroom() {
                           {COURT_TEXT.PHASE_6.NOT_GUILTY_DESC(
                             formatLawTags(trial.lawCase.tag),
                             trial.lawCase.escape || '業務正當性',
-                            trial.lawCase.surface_term
+                            trial.lawCase.surface_term || ''
                           )}
                         </div>
                       ) : (
@@ -948,6 +977,16 @@ export default function Courtroom() {
           ))}
         </div>
       </div>
+
+      {pendingRoulette && (
+        <RouletteOverlay
+          title={pendingRoulette.title}
+          subtitle={pendingRoulette.subtitle}
+          options={pendingRoulette.options}
+          targetIndex={pendingRoulette.targetIndex}
+          onComplete={pendingRoulette.onComplete}
+        />
+      )}
     </div>
   );
 }

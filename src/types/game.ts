@@ -35,6 +35,9 @@ export interface AppliedTag {
   rpChange: number; // 該決策導致的名聲隨動快照 (用於勝訴回撥)
   multiplier?: number;
   multiplierSource?: string;
+  surface_term?: string;
+  hidden_intent?: string;
+  escape?: string;
 }
 
 /**
@@ -54,6 +57,9 @@ export interface Tag {
   isResolved?: boolean; // 結案標記：勝訴後設為 True，其關聯黑材料將被「一案一清」
   multiplier?: number; // 獲取倍率 (如 x2)
   multiplierSource?: string; // 倍率來源 (如 'CTO')
+  surface_term?: string;
+  hidden_intent?: string;
+  escape?: string;
 }
 
 /**
@@ -135,6 +141,9 @@ export interface BaseOption {
   ip?: number; // 預設技術資產 (IP) (§5-4)
   g?: number; // 預設資金收益 (用於扁平結構)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
+  surface_term?: string;
+  hidden_intent?: string;
+  escape?: string;
 }
 
 /** 選項類型分類 (GEMINI.md §5-2 / §6-1) */
@@ -256,6 +265,8 @@ export interface LawCase {
   defense_j?: string; // 選項 J：+0%
   defense_k?: string; // 選項 K：+5%
   defense_l?: string; // 選項 L：+10%
+  surface_term?: string;
+  escape?: string;
 }
 
 /** 遊戲宏觀階段 */
