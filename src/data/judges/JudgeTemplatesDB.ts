@@ -22,16 +22,17 @@ export interface JudgmentTemplate {
 export interface TemplateVars {
   tag?: string;
   lawName?: string;
-  sTerm?: string;
+  defense?: string;
   hIntent?: string;
-  escape?: string;
   defendant?: string;
   bm?: number;
   trials?: number;
   rp?: number;
 }
 
-/** 法官的基本資料與 AI 設定 */
+// ============================================================
+// 法官的基本資料與 AI 設定
+// ============================================================
 export interface JudgeLabel {
   name: string; // 本人名稱
   judgeName: string; // 遊戲內顯示的法官名
@@ -114,9 +115,8 @@ export function fillTemplate(template: string, vars: TemplateVars): string {
   return template
     .replace(/\{tag\}/g, vars.tag ?? '')
     .replace(/\{lawName\}/g, vars.lawName ?? '')
-    .replace(/\{sTerm\}/g, vars.sTerm ?? '')
+    .replace(/\{defense\}/g, vars.defense ?? '')
     .replace(/\{hIntent\}/g, vars.hIntent ?? '')
-    .replace(/\{escape\}/g, vars.escape ?? '')
     .replace(/\{defendant\}/g, vars.defendant ?? '')
     .replace(/\{bm\}/g, String(vars.bm ?? 0))
     .replace(/\{trials\}/g, String(vars.trials ?? 0))

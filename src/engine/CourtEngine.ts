@@ -139,9 +139,8 @@ export class CourtEngine {
     const question = getRandomTemplate(INTERROGATION_TEMPLATES[personality], {
       tag: formatLawTags(lawCase.tag),
       lawName: lawCase.lawName,
-      sTerm: lawCase.surface_term,
       hIntent: lawCase.hidden_intent,
-      escape: lawCase.escape,
+      defense: '', // 開場階段尚無玩家選擇的辯護內容
     });
     // 隨機選取入場提審宣言模板，並在適當時機帶入證物清單提升臨場感
     const evidenceSnippet = lawCase.evidence_list?.length
@@ -177,9 +176,8 @@ export class CourtEngine {
     const generatedTemplate = getRandomTemplate(templates, {
       tag: formatLawTags(trial.lawCase.tag),
       lawName: trial.lawCase.lawName,
-      sTerm: trial.lawCase.surface_term,
       hIntent: trial.lawCase.hidden_intent,
-      escape: trial.lawCase.escape,
+      defense: trial.chosenDefenseLabel || '',
       bm: (defendant.blackMaterialSources || []).reduce((acc, s) => acc + s.count, 0), // 計算總量
       trials: defendant.totalTrials + (isSuccess ? 0 : 1), // 更新累計涉案次數以便帶入語氣之中
       rp: defendant.rp,
@@ -405,6 +403,7 @@ export class CourtEngine {
       isDefenseSuccess: res.isSuccess,
       finalSurvivalRate: res.rate,
       defenseText: text,
+      chosenDefenseLabel: trial.chosenDefenseLabel,
       punishment,
       punishmentDetail: (punishment as any)?.detail,
       judgment: judge.judgment,
@@ -520,9 +519,6 @@ export class CourtEngine {
     if (tag) {
       lawCase = {
         ...lawCase,
-        surface_term: tag.surface_term || lawCase.surface_term,
-        hidden_intent: tag.hidden_intent || lawCase.hidden_intent,
-        escape: tag.escape || lawCase.escape,
       };
     }
 

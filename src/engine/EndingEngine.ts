@@ -80,7 +80,7 @@ export function generateEvaluation(tags: Tag[]): string {
   // 定義罪行閾值與對應的地下稱號
   if (tagCounts['洗錢防制法'] > 3) evaluations.push('洗錢大亨');
   if (tagCounts['妨害電腦使用罪'] > 3) evaluations.push('技術駭客');
-  if (tagCounts['個資法'] > 5) evaluations.push('情報販子');
+  if (tagCounts['個人資料保護法'] > 5) evaluations.push('情報販子');
   if (tagCounts['背信罪'] > 5) evaluations.push('背信狂人');
   if (tagCounts['稅捐稽徵法'] > 3 || tagCounts['商業會計法'] > 3) evaluations.push('逃稅達人');
   if (tagCounts['偽造文書'] > 5) evaluations.push('文書大師');

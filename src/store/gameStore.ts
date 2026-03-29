@@ -418,15 +418,23 @@ export const useGameStore = create<GameStore>()(
         const def = get().players.find((p) => p.id === t.defendantId);
         if (!def) return;
 
+        // 根據索引抓取選項文字
+        const optionMap: Record<number, string | undefined> = {
+          0: t.lawCase.defense_j,
+          1: t.lawCase.defense_k,
+          2: t.lawCase.defense_l,
+        };
+        const chosenDefenseLabel = optionMap[idx] || '正當業務行為';
+
         const outcome = CourtEngine.determineDefenseOutcome(
           def,
-          t,
-          idx, // [核心修正] 傳遞玩家選擇的選項索引
+          { ...t, chosenDefenseLabel }, // 注入選中的選項文字
+          idx,
           txt,
           get().judgeMode,
           get().turn
         );
-        set({ trial: { ...t, ...outcome } as NonNullable<GameStore['trial']> });
+        set({ trial: { ...t, ...outcome, chosenDefenseLabel } as NonNullable<GameStore['trial']> });
       },
 
       // 啟動律師 LV3 金錢保釋免控訴

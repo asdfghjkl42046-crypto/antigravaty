@@ -33,9 +33,6 @@ export interface AppliedTag {
   netIncome: number; // 非法獲利快照 (單位: 萬元)。罰金基數 = netIncome * 3.0 (§2-2)
   lawCaseIds?: string[]; // 關聯法典 ID，若無則由司法系統動態判定
   rpChange: number; // 該決策導致的名聲隨動快照 (用於勝訴回撥)
-  surface_term?: string; // 勝訴後的「糖衣術語」(例如：『合法節稅規劃』)
-  hidden_intent?: string; // 敗訴時的「指控動機」(例如：『惡性逃漏稅款』)
-  escape?: string; // 內建抗辯事由，直接關聯法庭 Stage 4 之選項生成
   multiplier?: number;
   multiplierSource?: string;
 }
@@ -55,9 +52,6 @@ export interface Tag {
   lawCaseIds?: string[];
   rpChange?: number;
   isResolved?: boolean; // 結案標記：勝訴後設為 True，其關聯黑材料將被「一案一清」
-  surface_term?: string;
-  hidden_intent?: string;
-  escape?: string;
   multiplier?: number; // 獲取倍率 (如 x2)
   multiplierSource?: string; // 倍率來源 (如 'CTO')
 }
@@ -137,13 +131,8 @@ export interface BaseOption {
   costG?: number; // 固定資金成本消耗
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
   special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
-  surface_term?: string; // 生成標籤之名目快照
-  hidden_intent?: string; // 生成標籤之隱藏動機快照
-  escape?: string; // 關聯抗辯邏輯
-  // --- 基礎資源隨動 (可選，支援扁平結構) ---
-  g?: number; // 預設收益
-  ip?: number; // 預設人脈
   rp?: number; // 預設名聲
+  ip?: number; // 預設技術資產 (IP) (§5-4)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
 }
 
@@ -259,11 +248,9 @@ export interface LawCase {
   id: string; // 內部編號 (對應 LawCasesDB Key)
   tag: string[]; // 行動關聯標籤 (支援多重標籤)
   lawName: string; // 引用法典正名 (e.g., 「洗錢防制法 §5」)
-  surface_term: string; // 勝訴之表面術語聲援
   hidden_intent: string; // 敗訴之違法背後動機
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
   evidence_list: string[]; // 採樣之法庭證據清單
-  escape?: string; // 生路範式描述：成功引用阻卻違法事由
   // --- 網站模式專屬 JKL 辯護選項 (預留填充區) ---
   defense_j?: string; // 選項 J：+0%
   defense_k?: string; // 選項 K：+5%
@@ -315,6 +302,7 @@ export interface TrialState {
   question?: string; // 法官發問 (Stage 4)
   narrative?: string; // 庭審各階段之動機描述與對話
   defenseText?: string; // 被告答辯全文內容
+  chosenDefenseLabel?: string; // 玩家實際選擇的 J/K/L 選項內容
   isDefenseSuccess?: boolean; // 答辯判定結果
   finalSurvivalRate?: number; // 結算點之最終存活機率快照
   judgment?: string; // 最終判決摘要文案
