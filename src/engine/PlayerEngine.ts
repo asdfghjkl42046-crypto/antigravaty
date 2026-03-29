@@ -73,13 +73,27 @@ export function removeBlackMaterialsByTag(
 ): BlackMaterialSource[] {
   if (!player || !player.blackMaterialSources) return [];
 
-  // 首先：優先尋找案件編號進行精準過濾，保留所有 "不屬於這起案件" 的壞事
+  // 首先：優先尋找案件編號進行精準過濾
   if (tagId !== undefined && tagId !== 0) {
-    return player.blackMaterialSources.filter((s) => s.actionId !== tagId);
+    let removedCount = 0;
+    return player.blackMaterialSources.filter((s) => {
+      if (s.actionId === tagId && removedCount < 3) {
+        removedCount++;
+        return false; // 移除前 3 個符合條件的 BM
+      }
+      return true; // 其餘保留 (包含同案超過 3 個的部分)
+    });
   }
 
-  // 備援方案：如果函數沒有被傳遞編號，則退化為使用項目名稱過濾 (名稱必須完全吻合)
-  return player.blackMaterialSources.filter((s) => s.tag !== tagText);
+  // 備援方案：如果函數沒有被傳遞編號，則同理執行
+  let removedTagCount = 0;
+  return player.blackMaterialSources.filter((s) => {
+    if (s.tag === tagText && removedTagCount < 3) {
+      removedTagCount++;
+      return false;
+    }
+    return true;
+  });
 }
 
 /**
