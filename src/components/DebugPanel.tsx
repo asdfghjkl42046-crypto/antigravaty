@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Save, Eraser, Plus, Minus, Info } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
+import { getBaseTrialFloor, getTrialMultiplierByTrials } from '@/engine/MechanicsEngine';
 
 // Debug 面板組件屬性定義
 interface DebugPanelProps {
@@ -52,14 +53,11 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
   // 起訴機率觀測
   const totalTags = player.totalTagsCount || 0;
   // 顯示被起訴的最低機率 (每累積 40 個標籤，被起訴機率就增加 10%)
-  const floorPercent = totalTags > 0 ? Math.min(100, Math.ceil(totalTags / 40) * 10) : 0;
+  const floorPercent = getBaseTrialFloor(totalTags);
 
   // 累犯倍率觀測
   const trials = player.totalTrials || 0;
-  let trialMultiplier = 1.0;
-  if (trials >= 7)
-    trialMultiplier = 6.0; // 被告次數太多，罰金會變 6 倍
-  else if (trials >= 4) trialMultiplier = 3.0; // 被告 4 次以上，罰金變 3 倍
+  const trialMultiplier = getTrialMultiplierByTrials(trials);
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">

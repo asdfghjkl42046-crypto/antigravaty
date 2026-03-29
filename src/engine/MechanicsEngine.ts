@@ -40,6 +40,13 @@ export function calculateActualRPGain(player: Player, baseGain: number): number 
 // ============================================================
 
 /**
+ * 計算標籤所帶來的起訴機率下限 (每 40 個標籤底限加 10%)
+ */
+export function getBaseTrialFloor(totalTags: number): number {
+  return totalTags > 0 ? Math.min(100, Math.floor(totalTags / 40) * 10) : 0;
+}
+
+/**
  * 計算被起訴的機率
  * 根據玩家身上的各種證據（黑材料）和名聲，算出這回合被起訴的百分比。
  */
@@ -59,8 +66,12 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   // 累加出現役的總黑材料數 (BM)
   const totalBM = sources.reduce((sum, s) => sum + s.count, 0);
 
-  // 安全機制：如果玩家身上乾乾淨淨沒有任何黑材料，
-  // 警方就絕對拿你沒轍 (起訴率 0%)，保障乖乖牌玩家。
+  // 基礎起訴機率保底：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
+  const totalTags = player.totalTagsCount || 0;
+  const floor = getBaseTrialFloor(totalTags);
+
+  // 安全機制：即便玩家前科累累，只要身上沒有任何活躍黑材料 (BM) 
+  // 警方就缺乏直接證據無法辦案，起訴率強制歸 0%
   if (totalBM === 0) return 0;
 
   // 分離出「本回合剛產生熱騰騰的黑料 (高權重)」與「往期留下來的舊帳 (低權重)」
@@ -71,7 +82,6 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   if (player.totalTagsCount !== undefined && Number.isNaN(player.totalTagsCount)) {
     throwDataCorruptionError(`玩家: ${player.name}`, `totalTagsCount 為 NaN！`);
   }
-  const totalTags = player.totalTagsCount || 0;
 
   // 綜合結算：(新產 BM * 3.5倍) + (舊存 BM * 0.8倍) + (當前身上總 BM * 0.2) - (名望折抵)
   const baseProb = newBM * 3.5 + oldBM * 0.8 + totalBM * 0.2 - (player.rp - 50) * 0.5;
@@ -84,12 +94,6 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
     );
   }
 
-  // 基礎起訴機率：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
-  let floor = 0;
-  if (totalTags > 0) {
-    floor = Math.min(100, Math.floor(totalTags / 40) * 10);
-  }
-
   // 回傳前抹除小數點，並確保機率介於 0% 到 100% 之間
   const rawProb = Math.floor(baseProb);
   return Math.max(floor, Math.min(100, rawProb));
@@ -98,6 +102,15 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
 // ============================================================
 // 法庭處罰與賄賂好感度處理
 // ============================================================
+
+/**
+ * 計算累犯加重倍率
+ */
+export function getTrialMultiplierByTrials(trials: number): number {
+  if (trials >= 7) return 6.0;
+  if (trials >= 4) return 3.0;
+  return 1.0;
+}
 
 /**
  * 賄賂契合度死定矩陣 (Scale 1-10)
@@ -158,8 +171,7 @@ export function calculateConvictionPenalty(
     trialMultiplier = 2.0; // 上訴失敗，雙倍奉還
   } else if (!isPreexisting) {
     // 開局既有罪犯不重複加重 (除非上訴失敗)，正常遊戲案件則依累犯門檻提升
-    if (trials >= 7) trialMultiplier = 6.0;
-    else if (trials >= 4) trialMultiplier = 3.0;
+    trialMultiplier = getTrialMultiplierByTrials(trials);
   }
 
   fineBeforeDiscount = roundUp(fineBeforeDiscount * trialMultiplier);

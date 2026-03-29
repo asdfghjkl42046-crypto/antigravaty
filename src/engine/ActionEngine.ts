@@ -286,8 +286,9 @@ export async function performAction(
 
     if (finalSuccess) {
       if (isDeclaration) {
-        // 安全申報，需要倒貼手續費
-        finalGChange = -costToDeduct;
+        // 安全申報：扣繳手續費，但玩家仍可保有卡牌基礎淨利
+        const baseG = opt.g || 0;
+        finalGChange = baseG - costToDeduct;
         // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
         const baseRPWithBonus = isCTypeZOption ? baseRewardRP + 30 : baseRewardRP;
         finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
