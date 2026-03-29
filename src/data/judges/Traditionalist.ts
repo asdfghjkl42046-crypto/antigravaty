@@ -15,7 +15,7 @@ export const TRADITIONALIST_LABEL = {
 
 export const TRADITIONALIST_JUDGMENT: JudgmentTemplate = {
   win: [
-    `你說：「{defense}」\n……說得過去。撤訴。\n不是因為我喜歡你——是因為規規就是規規，我不能壞自己的規矩。`,
+    `你說：「{defense}」\n……說得過去。撤訴。\n不是因為我喜歡你——是因為規矩就是規矩，我不能壞自己的規矩。`,
     `這次沒踩到線。\n你說：「{defense}」，我接受。撤訴。\n但你心裡清楚你在幹嘛，我也清楚。`,
   ],
   lose: [
