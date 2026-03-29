@@ -433,7 +433,7 @@ export async function performAction(
     // 7. 保障AP安全機制
     // 失敗或取消的，AP點數不扣除
     const isAPRefundedBySkill = shouldRefundAP(player, cardId);
-    const apRefunded = (player.g < costToDeduct && !finalSuccess) || isAPRefundedBySkill;
+    const apRefunded = isAPRefundedBySkill;
 
     // 進行購買避免資金負債機制(罰金例外)
     updates.g = Math.max(0, (player.g || 0) + finalGChange);

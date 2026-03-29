@@ -179,7 +179,7 @@ export default function Home() {
         }
 
         // 組合說明：直接使用卡片上定義的精確標籤，不再進行硬編碼拼接，確保文案與 BATCH 1 更新同步
-        const fullOptionDesc = option.label || `執行選項 ${optIdx}`;
+        const fullOptionDesc = baseDesc;
 
         // 一切都安排妥當了！把準備好的提案送上檯面，就等老闆你的一句「簽字執行」。
         setPendingScan({

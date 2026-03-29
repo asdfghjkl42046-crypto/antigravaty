@@ -192,12 +192,8 @@ export function calculateConvictionPenalty(
   // 將保護傘折扣套用回最終罰款上
   let fine = roundUp(fineBeforeDiscount * fineMultiplier);
 
-  // 4. 檢查專業人士擋災 (如果是開局既有，會計師無法幫你擋掉)
-  fine = isPreexisting
-    ? applyAccountantCourtDiscount(player, fine)
-    : applyAccountantCourtDiscount(player, fine);
-  // [優化] 上述行邏輯有誤，應為：
-  fine = isPreexisting ? fine : applyAccountantCourtDiscount(player, fine); // [修正] 移除 isAppeal 限制
+  // 4. 檢查專業人士擋災 (會計師的威能強大，連開局自帶的前科都能依法幫你減免)
+  fine = applyAccountantCourtDiscount(player, fine);
   const rpLoss = applyPRCourtDiscount(player, baseRPLoss);
 
   // 5. 拼湊計算明細說明文本 (讓玩家死個明白)
@@ -266,7 +262,7 @@ export interface BetResult {
 /**
  * 旁聽席的賭博：
  * 當別人在受審時，你可以下注押他會不會被判罰。
- * 雖然猜中有人才點數，但猜錯可是會被沒收 100 萬元保證金的！
+ * 雖然猜中有人才點數，但猜錯可是會被扣除 10 點社會名聲 (RP)！
  */
 export function settleBet(
   player: Player,
@@ -324,7 +320,7 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   const rpPerTurn = getPRAutoRP(player);
   if (rpPerTurn > 0) finalRP += rpPerTurn;
 
-  // 2. 人資天賦檢查 - 技術長 (CTO) LV3：靠自動化黑客網路腳本印鈔，每回合免費自動 +100 萬 G
+  // 2. 人資天賦檢查 - 技術長 (CTO) LV2：靠自動化黑客網路腳本印鈔，每回合免費自動 +100 萬 G
   const gPerTurn = getCTOAutoIncome(player);
   if (gPerTurn > 0) finalG += gPerTurn;
 
