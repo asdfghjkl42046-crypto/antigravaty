@@ -189,7 +189,14 @@ export async function performAction(
         finalHash: lastHash,
         actionId,
         apRefunded: false,
-        log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'BANKRUPT', timestamp },
+        log: {
+          playerId: player.id,
+          turn,
+          cardId,
+          optionIndex: optionIdx,
+          tags: 'BANKRUPT',
+          timestamp,
+        },
       };
     }
 
@@ -222,7 +229,7 @@ export async function performAction(
     const baseLawCaseIds = opt.lawCaseIds || [];
     const resolvedBaseTags = getResolvedTags(baseLawCaseIds);
     let message = '';
-    
+
     // [新增] 套利與破產風險警示：若選項具備負向失敗金，先行在訊息中加載警示文字
     const hasBankruptcyRisk = (opt.fail?.g || 0) < 0;
     if (hasBankruptcyRisk) {
@@ -261,9 +268,11 @@ export async function performAction(
     }
 
     // 2. 基礎收益暫存區 (待套用 RP 名聲懲罰...等公式)
-    const baseRewardG = opt.g || 0;
-    const baseRewardRP = opt.rp || 0;
-    const baseRewardIP = opt.ip || 0;
+    // [核心修復] 必須優先讀取 succ 中定義的深層收益，否則對於 C 類 Z 選項等 deep structure 卡片，
+    // 會導致基礎收益被判定為 0，進而使黑材料快照 (Snapshot) 的不法所得為 0，形成法庭零元罰單之 Bug。
+    const baseRewardG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
+    const baseRewardRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
+    const baseRewardIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
 
     // 基礎收益給會計天賦判定，看有沒有額外的灰色收入加成
     const bonusRewardG = applyAccountantBonus(player, cardId, baseRewardG);
@@ -306,29 +315,34 @@ export async function performAction(
     let finalIPChange = 0;
 
     if (finalSuccess) {
-      // [統一修復] 獎勵回測機制：優先讀取 succ 中定義的深層收益，否則回退到頂層
-      const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
-      const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
-      const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
-
-      // 成功獲得的資金再次納入會計師進行額外分紅加成
-      const bonusSuccG = applyAccountantBonus(player, cardId, succG);
-
       if (isDeclaration) {
-        // 安全申報路徑：抵銷代價，並保有回流收益 (修正 C 類卡黑洞)
-        finalGChange = bonusSuccG - costToDeduct;
+        // 安全申報：再多扣繳 50 萬手續費
+        const baseG = opt.g || 0;
+        finalGChange = baseG - costToDeduct;
         // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
-        const baseRPWithBonus = isCTypeZOption ? succRP + 30 : succRP;
+        const baseRPWithBonus = isCTypeZOption ? baseRewardRP + 30 : baseRewardRP;
         finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
-        finalIPChange = succIP;
+        finalIPChange = baseRewardIP;
 
+        // [新增] 若是 C 類卡且成功獲得獎勵，在訊息增加提示文字
         if (isCTypeZOption) {
           message += `。獲得額外獎勵 +30 RP！`;
         }
       } else {
         // 檢定過關且未主動申報的黑箱路線
-        finalGChange = bonusSuccG - costToDeduct;
-        finalRPChange = calculateActualRPGain(player, succRP);
+        // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
+        const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
+        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
+        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
+
+        // 成功獲得的資金再次納入會計師進行額外分紅加成
+        const bonusSuccG = applyAccountantBonus(player, cardId, succG);
+        const totalG = bonusSuccG;
+        const totalRP = succRP;
+
+        // 最終結算
+        finalGChange = totalG - costToDeduct;
+        finalRPChange = calculateActualRPGain(player, totalRP);
         finalIPChange = succIP;
 
         // E 卡洗黑材料清除機制
@@ -361,7 +375,7 @@ export async function performAction(
           for (let i = 0; i < tagMultiplier; i++) {
             snapshots.push({
               tag: resolvedSuccTags,
-              netIncome: bonusSuccG,
+              netIncome: totalG,
               lawCaseIds: succLawCaseIds,
               rpChange: finalRPChange,
               surface_term: opt.surface_term,
@@ -473,7 +487,7 @@ export async function performAction(
       // 規則：BM = (標籤數 + 2) * tagMultiplier (對於 C 類卡，multiplier 為 1)
       let extraBMTotals = 0;
       if (choice === 'skip' && isCTypeZOption) {
-        extraBMTotals = 2; 
+        extraBMTotals = 2;
       }
 
       hashedTags.forEach((ht, idx) => {
