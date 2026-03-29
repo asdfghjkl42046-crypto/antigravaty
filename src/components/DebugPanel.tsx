@@ -7,7 +7,7 @@ import { getBaseTrialFloor, getTrialMultiplierByTrials } from '@/engine/Mechanic
 
 // Debug 面板組件屬性定義
 interface DebugPanelProps {
-  onClose: () => void; 
+  onClose: () => void;
 }
 
 /**
@@ -65,9 +65,7 @@ export default function DebugPanel({ onClose }: DebugPanelProps) {
         {/* 開發者工具頭部橫幅大標：以大紅色警示條包裝 */}
         <div className="bg-red-600 px-6 py-4 flex justify-between items-center text-white">
           <div>
-            <h3 className="font-black text-xl italic uppercase tracking-tighter">
-              Debug Tool
-            </h3>
+            <h3 className="font-black text-xl italic uppercase tracking-tighter">Debug Tool</h3>
             <p className="text-[10px] opacity-70 font-mono">
               ID: {player.id} | Name: {player.name}
             </p>

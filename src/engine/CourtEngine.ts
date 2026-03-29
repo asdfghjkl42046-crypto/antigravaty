@@ -267,7 +267,7 @@ export class CourtEngine {
         `法條 ${lawCase.id} 缺少基礎勝率 (survival_rate) 設定，審判程序中止。`
       );
     }
-    
+
     // 2. 初始化最終勝率
     let finalSurvivalRate = lawCase.survival_rate + spectatorInfluence;
 
@@ -275,7 +275,7 @@ export class CourtEngine {
     if (mode === 'ai') {
       // [AI 模式]：由 AI 動態生成 JKL 選項標籤，勝率加成由 optionIndex 決定
     }
-    
+
     // 4. [統一加成邏輯]：依據選擇的選項索引 (J/K/L) 固定加成
     if (optionIndex === 'K') {
       finalSurvivalRate += 0.05; // K 選項 +5%

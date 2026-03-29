@@ -309,9 +309,9 @@ export const useGameStore = create<GameStore>()(
 
           // 3. 尋找下一位活躍玩家 (跳過已破產者)
           let nextTurn = turn;
-          let nextIndex = (currentPlayerIndex + 1);
+          let nextIndex = currentPlayerIndex + 1;
           let finalPlayers = updatedPlayers;
-          
+
           const findNextActive = (start: number, list: Player[]) => {
             for (let i = start; i < list.length; i++) {
               if (!list[i].isBankrupt) return i;

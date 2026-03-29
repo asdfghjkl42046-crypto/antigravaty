@@ -174,7 +174,7 @@ export function calculateConvictionPenalty(
 
   // [嚴重漏洞修復] 非常上訴失利應採「疊加翻倍」而非覆寫，避免重案犯利用上訴減刑
   if (isAppeal) {
-    trialMultiplier *= 2.0; 
+    trialMultiplier *= 2.0;
   }
 
   fineBeforeDiscount = roundUp(fineBeforeDiscount * trialMultiplier);
@@ -211,7 +211,8 @@ export function calculateConvictionPenalty(
 
   if (isAppeal) {
     const appealMsg = `\n- 非常上訴失敗：罰金加重 2.0x`;
-    const recidivismMsg = trialMultiplier / 2.0 > 1 ? ` (基於累犯 ${trialMultiplier / 2.0} 倍)` : '';
+    const recidivismMsg =
+      trialMultiplier / 2.0 > 1 ? ` (基於累犯 ${trialMultiplier / 2.0} 倍)` : '';
     detail += `${appealMsg}${recidivismMsg} (並套用既有減免)`;
   } else if (trialMultiplier > 1) {
     const reason = trials >= 7 ? '限制重案累犯' : '累犯倍率';

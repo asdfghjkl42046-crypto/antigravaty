@@ -28,7 +28,7 @@ export const CARDS_A: Record<string, Card> = {
         '咬牙把完整代碼 and 所有權限交出去，一毛錢的小動作都不做。這筆帳，用法律途徑慢慢要回來。',
       succRate: 0.9,
       succ: { g: 80, rp: 2 },
-      fail: { g: -5 },
+      fail: {},
     },
   },
   'A-02': {
@@ -40,14 +40,14 @@ export const CARDS_A: Record<string, Card> = {
       label: '找專業商標事務所做全球檢索，搶先申請註冊，並正式對對方提出異議——用規則打回去。',
       succRate: 0.9,
       succ: { g: 60, rp: 2 },
-      fail: { g: -5 },
+      fail: {},
     },
     2: {
       type: 'X',
       label: '硬碰硬不一定贏，主動聯繫對方法務，看看能不能談出一個「你走你的陽關道」的共存協議。',
       succRate: 0.9,
       succ: { g: 75, rp: 5 },
-      fail: { g: -5 },
+      fail: {},
     },
     3: {
       type: 'Y',
@@ -110,7 +110,7 @@ export const CARDS_A: Record<string, Card> = {
         '與其打別人，不如讓自己變得打不過——緊急做差異化設計，申請防禦性專利，用實力把這場標案贏回來。',
       succRate: 0.9,
       succ: { g: 100, rp: 2 },
-      fail: { g: -10 },
+      fail: {},
     },
   },
   'A-05': {
@@ -123,14 +123,14 @@ export const CARDS_A: Record<string, Card> = {
         '硬著頭皮把真實數據全附上，然後寫一份誠懇的失敗檢討——說不定客戶反而覺得你敢講實話，願意繼續合作。',
       succRate: 0.9,
       succ: { g: 65, rp: 2 },
-      fail: { g: -5 },
+      fail: {},
     },
     2: {
       type: 'X',
       label: '主動打電話認錯，提出下季免費再投一次——把這次的失敗變成「我們一起解決問題」的機會。',
       succRate: 0.9,
       succ: { g: 50, rp: 5 },
-      fail: { g: -5 },
+      fail: {},
     },
     3: {
       type: 'Z',
@@ -149,7 +149,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '乖乖等執照、延後開業，同時把這三個月拿來做員工訓練和試賣測試——慢，但穩。',
       succRate: 0.9,
       succ: { g: 70, rp: 2 },
-      fail: { g: -5 },
+      fail: {},
     },
     2: {
       type: 'Z',
@@ -176,7 +176,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '把紙條推回去，要求對方把這個「折扣」直接反映在合約上——見得了光的優惠，才是真優惠。',
       succRate: 0.9,
       succ: { g: 90, rp: 2 },
-      fail: { g: -10 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -204,7 +204,7 @@ export const CARDS_A: Record<string, Card> = {
         '走法律途徑聲請緊急處分、暫停對方收購，同時公開喊話找願意救你的白武士——把這場仗打到檯面上來。',
       succRate: 0.9,
       succ: { g: 50, rp: 5 },
-      fail: { g: -20 },
+      fail: {},
     },
     2: {
       type: 'Z',
@@ -232,7 +232,7 @@ export const CARDS_A: Record<string, Card> = {
         '開一個他無法拒絕的補償條件，換他重新簽一份真正有法律效力的競業協議——用錢把漏洞補起來。',
       succRate: 0.9,
       succ: { g: 60, rp: 5 },
-      fail: { g: -10 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -266,7 +266,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '全部如實申報，稅該繳就繳——帳目乾淨，未來要上市的時候審核才不會挖出陳年舊帳。',
       succRate: 0.9,
       succ: { g: 60, rp: 8 },
-      fail: { g: -5 },
+      fail: {},
     },
     3: {
       type: 'Y',
@@ -301,7 +301,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '什麼都不做，照原本的節奏走——這種時候出手，贏了也會被說趁火打劫，不值得。',
       succRate: 0.9,
       succ: { g: 80, rp: 5 },
-      fail: { g: -5 },
+      fail: {},
     },
   },
   'A-12': {
@@ -313,7 +313,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '照合約日期開票，這筆匯差就當作沒看到——跟這家大廠的長期關係，不是一百萬能買到的。',
       succRate: 0.9,
       succ: { g: 70, rp: 5 },
-      fail: { g: -10 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -341,7 +341,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '貼上「福利品」標籤、打七折公開賣，把瑕疵講清楚——願意接受的客人自然會買，還能做口碑。',
       succRate: 0.9,
       succ: { g: 80, rp: 2 },
-      fail: { g: -10 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -369,7 +369,7 @@ export const CARDS_A: Record<string, Card> = {
         '補助款一毛都不動，去跟銀行談緊急貸款撐過這個月——政府的錢用途出問題，後面查帳才是真的麻煩。',
       succRate: 0.9,
       succ: { g: 120, rp: 2 },
-      fail: { g: -20 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -396,7 +396,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '照規定送件申請轉讓核可，該繳的費用都繳——搞不好政府真的會批，而且批了之後睡得著覺。',
       succRate: 0.9,
       succ: { g: 150, rp: 5 },
-      fail: { g: -20 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -424,7 +424,7 @@ export const CARDS_A: Record<string, Card> = {
         '照實說，然後拿出一份準備好的追趕計畫——加人、補時程、給補償，讓客戶看到你認真在處理，而不是在逃避。',
       succRate: 0.9,
       succ: { g: 70, rp: 5 },
-      fail: { g: -30 },
+      fail: {},
     },
     2: {
       type: 'Y',
@@ -468,7 +468,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '直接找對方的債權委員會談，正式提出人才與技術收購方案——要多花一些錢，但買得光明正大。',
       succRate: 0.9,
       succ: { g: 90, rp: 5 },
-      fail: { g: -20 },
+      fail: {},
     },
   },
   'A-18': {
@@ -480,7 +480,7 @@ export const CARDS_A: Record<string, Card> = {
       label: '簽，但要求對方在合約裡加進資源對接的條款——你賭自己做得到，但籌碼要對等。',
       succRate: 0.9,
       succ: { g: 150, rp: 2 },
-      fail: { g: -50 },
+      fail: {},
     },
     2: {
       type: 'Y',

@@ -32,11 +32,11 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
   const type = cardId.charAt(0);
   const themeColors =
     {
-      A: 'border-blue-500/30 bg-blue-900/10 text-blue-400', 
-      B: 'border-emerald-500/30 bg-emerald-900/10 text-emerald-400', 
-      C: 'border-purple-500/30 bg-purple-900/10 text-purple-400', 
-      D: 'border-amber-500/30 bg-amber-900/10 text-amber-400', 
-      E: 'border-slate-500/30 bg-slate-900/10 text-slate-300', 
+      A: 'border-blue-500/30 bg-blue-900/10 text-blue-400',
+      B: 'border-emerald-500/30 bg-emerald-900/10 text-emerald-400',
+      C: 'border-purple-500/30 bg-purple-900/10 text-purple-400',
+      D: 'border-amber-500/30 bg-amber-900/10 text-amber-400',
+      E: 'border-slate-500/30 bg-slate-900/10 text-slate-300',
     }[type] || 'border-slate-700 bg-slate-800 text-slate-300';
 
   // 取得對應類型的顯示名稱
