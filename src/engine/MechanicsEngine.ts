@@ -87,7 +87,7 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   // 基礎起訴機率：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
   let floor = 0;
   if (totalTags > 0) {
-    floor = Math.min(100, Math.ceil(totalTags / 40) * 10);
+    floor = Math.min(100, Math.floor(totalTags / 40) * 10);
   }
 
   // 回傳前抹除小數點，並確保機率介於 0% 到 100% 之間
@@ -145,7 +145,6 @@ export function calculateConvictionPenalty(
   const safeIncome = netIncome;
 
   // 1. 基礎倍率邏輯：罰金基數統一固定為 1.0x (即等於該案件的不法所得)。
-  const isProtected = currentTurn <= 5;
   const baseMultiplier = 1.0;
 
   // 基礎罰金計算: 本次查獲不法所得的指定倍率
@@ -177,17 +176,8 @@ export function calculateConvictionPenalty(
   }
   const discountRate = isPreexisting ? 0 : rawDiscount; // [修正] 移除 isAppeal 限制
 
-  // [賄賂系統實作] 判斷賄賂物是否完全命中法官偏好 (得分 5 分)
-  let bribeMultiplier = 1.0;
-  if (personality && player.bribeItem && !isPreexisting) {
-    // [修正] 移除 !isAppeal 限制
-    const score = getBribeScore(personality, player.bribeItem);
-    if (score === 5) {
-      bribeMultiplier = 0.8; // 完全匹配時獲得 20% 減免
-    }
-  }
-
-  const fineMultiplier = (1.0 - discountRate) * bribeMultiplier;
+  // [賄賂系統防呆] 開局賄賂的減免已在初始化時經由 startBonusFineReduction 永久賦予，不再重複計算
+  const fineMultiplier = 1.0 - discountRate;
 
   // 將保護傘折扣套用回最終罰款上
   let fine = roundUp(fineBeforeDiscount * fineMultiplier);
@@ -215,10 +205,6 @@ export function calculateConvictionPenalty(
 
   if (discountRate > 0) {
     detail += ` = ${baseTotal}萬；減去開局特權-${Math.round(discountRate * 100)}%`;
-  }
-
-  if (bribeMultiplier < 1) {
-    detail += `；[賄賂加成] 罰金再折抵 20%`;
   }
 
   detail += ` 總計 = ${fine} 萬 G`;

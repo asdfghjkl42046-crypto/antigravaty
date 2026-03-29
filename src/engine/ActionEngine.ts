@@ -268,7 +268,7 @@ export async function performAction(
           multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
         });
       }
-      if (choice === 'skip' && opt.type !== 'Z') {
+      if (choice === 'skip') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
     } // [修正] 移除冗餘的「隱匿金流」備援區塊，因所有具備申報面板之卡牌均已帶有 lawCaseIds。
@@ -429,7 +429,7 @@ export async function performAction(
     }
 
     // 7. 保障AP安全機制
-    // 失敗或取消的，AP點數不扣除
+    // 若觸發 CTO 自動化代操技能，則 AP 點數不扣除
     const isAPRefundedBySkill = shouldRefundAP(player, cardId);
     const apRefunded = isAPRefundedBySkill;
 
@@ -466,7 +466,7 @@ export async function performAction(
         const extraForThisTag = idx === 0 ? extraBMTotals : 0;
         newBMSources.push({
           tag: ht.text,
-          count: (1 + extraForThisTag) * tagMultiplier, 
+          count: 1 + extraForThisTag, // [修正] tagMultiplier 於生成標籤時已複製過實體，勿重複相乘疊加
           actionId,
           turn,
         });
