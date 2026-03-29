@@ -284,48 +284,72 @@ export const useGameStore = create<GameStore>()(
         const player = updatedPlayers[currentPlayerIndex];
 
         try {
-          // [修正] 回合結算錯誤攔截
-          // 1. 將該名玩家丟去過 Mechanics Engine 的「回合末結算機制」(計算各種天賦分紅與白嫖名聲)
+          // 1. 回合結算與狀態校驗
           const updates = settleEndOfTurn(player, turn);
           updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
 
-          // 準備把操縱權杖交給陣列中的下一位
-          let nextIndex = currentPlayerIndex + 1;
-          let nextTurn = turn;
-          let finalPlayers = updatedPlayers;
-
-          // 2. 當所有董事長都做完決定時，正式推進到下一回合
-          if (nextIndex >= players.length) {
-            nextIndex = 0; // 指標歸零回第一人
-            nextTurn = turn + 1; // 跨入下一個全新回合
-            // 全員輪畢，必須依照每人身上現有的資源量，透過 Engine 重新洗牌決定下一回合的出牌先後順位
-            finalPlayers = sortTurnOrder(updatedPlayers, nextTurn);
-          }
-
-          // 3. 全面結局校驗：跨回合期間看有沒有人因為信託移轉抽乾現金等原因宣告破產
-          for (const p of finalPlayers) {
-            if (p.isBankrupt) continue;
-            const res = resolveGameStatus(p, nextTurn);
-            if (res.isGameOver) {
+          // 2. 局部結局偵測：看當前玩家是否剛踏入結局
+          const currentPlayerRes = resolveGameStatus(updatedPlayers[currentPlayerIndex], turn);
+          if (currentPlayerRes.isGameOver) {
+            // 若該玩家贏了，則全局結束 (勝大於敗)
+            if (currentPlayerRes.phase === 'victory') {
               set({
-                players: finalPlayers,
-                phase: res.phase,
-                endingResult: res.endingResult,
-                turn: Math.min(nextTurn, 50),
+                players: updatedPlayers,
+                phase: 'victory',
+                endingResult: currentPlayerRes.endingResult,
+                turn: Math.min(turn, 50),
               });
               return;
             }
+            // 若該玩家破產，標記狀態但不立刻終局
+            if (currentPlayerRes.phase === 'gameover') {
+              updatedPlayers[currentPlayerIndex].isBankrupt = true;
+            }
           }
 
-          // 4. 重頭戲起訴審計機制：每當有人按結束鍵，法院就有機率寄來傳票！
+          // 3. 尋找下一位活躍玩家 (跳過已破產者)
+          let nextTurn = turn;
+          let nextIndex = (currentPlayerIndex + 1);
+          let finalPlayers = updatedPlayers;
+          
+          const findNextActive = (start: number, list: Player[]) => {
+            for (let i = start; i < list.length; i++) {
+              if (!list[i].isBankrupt) return i;
+            }
+            return -1;
+          };
+
+          let potentialNext = findNextActive(nextIndex, updatedPlayers);
+
+          if (potentialNext === -1) {
+            // 全員輪畢或後面的人都掛了，推進到下一回合
+            nextTurn = turn + 1;
+            // 回合末重新洗牌 (Engine 會根據 AP 與資產排序)
+            finalPlayers = sortTurnOrder(updatedPlayers, nextTurn);
+            // 從新排位的第一位開始找
+            potentialNext = findNextActive(0, finalPlayers);
+          }
+
+          nextIndex = potentialNext;
+
+          // 4. 全員破產校驗：如果 nextIndex 依然找不到人，代表沒人活著了
+          if (nextIndex === -1 || nextTurn > 50) {
+            set({
+              players: finalPlayers,
+              phase: 'gameover',
+              endingResult: resolveGameStatus(finalPlayers[0], Math.min(nextTurn, 50)).endingResult,
+              turn: Math.min(nextTurn, 50),
+            });
+            return;
+          }
+
+          // 5. 法庭起訴審計
           const trialToTrigger = trial
-            ? null // 前有官司未了則跳過
+            ? null
             : CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn);
 
-          // 將更新後的全域指標、回合與人數寫回 Store
           set({ players: finalPlayers, currentPlayerIndex: nextIndex, turn: nextTurn });
 
-          // 若倒楣抽中法院傳票（有人平時壞事做太多），立刻將畫面強制切換至起訴庭模式
           if (trialToTrigger) get().triggerTrial(trialToTrigger);
         } catch (err: any) {
           console.error('[EndTurn Fatal Error]', err);

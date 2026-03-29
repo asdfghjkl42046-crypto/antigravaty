@@ -178,6 +178,21 @@ export async function performAction(
     const isBTypeYZ = cardId.startsWith('B-') && (opt?.type === 'Y' || opt?.type === 'Z');
     const tagMultiplier = isBTypeYZ ? 1 + counterCTOCount : 1;
 
+    // [新增] 破產狀態鎖定：已宣告破產之玩家不允許再執行任何行動
+    if (player.isBankrupt) {
+      return {
+        success: false,
+        message: `🚫 行動終止：您的企業已宣告破產，無法再進行任何商業活動。`,
+        updates: {},
+        appliedTags: [],
+        hashedTags: [],
+        finalHash: lastHash,
+        actionId,
+        apRefunded: false,
+        log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'BANKRUPT', timestamp },
+      };
+    }
+
     // 檢查玩家是否正受到禁足管制 (例如被政府盯上)
     if (player.skipNextCard) {
       return {
@@ -206,8 +221,14 @@ export async function performAction(
     // 1. 動態解析標籤：從法律資料庫提取
     const baseLawCaseIds = opt.lawCaseIds || [];
     const resolvedBaseTags = getResolvedTags(baseLawCaseIds);
-
     let message = '';
+    
+    // [新增] 套利與破產風險警示：若選項具備負向失敗金，先行在訊息中加載警示文字
+    const hasBankruptcyRisk = (opt.fail?.g || 0) < 0;
+    if (hasBankruptcyRisk) {
+      message += ' (⚠️ 注意：此行動若失敗，隨之而來的賠償金可能導致公司破產)';
+    }
+
     let finalSuccess = true;
     // 判斷玩家的選擇是否需要付費來合法申報
     const isDeclaration = choice === 'declare';
