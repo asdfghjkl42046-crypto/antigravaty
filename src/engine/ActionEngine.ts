@@ -365,17 +365,15 @@ export async function performAction(
         }
       }
     } else {
-      // 失敗的情況
+      // 失敗的情況 (不享有預期成功的 base rewards 收益)
       const failG = opt.fail?.g || 0;
       const failRP = opt.fail?.rp || 0;
       const failIP = opt.fail?.ip || 0;
-      // 資金名聲結算
-      const totalG = bonusRewardG + failG;
-      const totalRP = baseRewardRP + failRP;
 
+      const totalG = failG;
       finalGChange = totalG - costToDeduct;
-      finalRPChange = calculateActualRPGain(player, totalRP);
-      finalIPChange = finalIPChange + failIP;
+      finalRPChange = calculateActualRPGain(player, failRP);
+      finalIPChange = failIP;
 
       // 失敗所帶出來的標籤：僅在有明確定義失敗標籤，且與頂層標籤不重複時才增加
       const failLawCaseIds = (opt.fail?.lawCaseIds || []).filter(

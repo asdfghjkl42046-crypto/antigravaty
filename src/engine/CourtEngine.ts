@@ -593,10 +593,9 @@ export class CourtEngine {
     if (isSuccess) {
       // 消除相關黑材料
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
-      // 標籤保留邏輯：不再標記 isResolved: true，僅移除黑材料。
+      // 標籤結清邏輯：一案一清，更新狀態為 isResolved: true (避免一罪二罰)
       updates.tags = player.tags.map((t) => {
         if (t.id === lawCaseTagId) {
-          // [修正] 無論勝訴敗訴，同一個 actionId 產生的標籤應一併結案 (一案一清)
           return { ...t, isResolved: true };
         }
         return t;

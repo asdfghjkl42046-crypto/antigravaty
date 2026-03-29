@@ -325,9 +325,9 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   if (gPerTurn > 0) finalG += gPerTurn;
 
   // 3. 清白回合計數更新 (§4-2)
-  // 檢查該玩家在「這整回合之中」是否有染指任何最新觸發的犯罪標籤
+  // 檢查該玩家在「這整回合之中」是否有染指任何最新觸發的犯罪標籤 (無論是否在該回合透過法庭結案掩蓋)
   const hasCrimeThisTurn = player.tags.some(
-    (t) => t.isCrime && t.turn === currentTurn && !t.isResolved
+    (t) => t.isCrime && t.turn === currentTurn
   );
   // 若該局有犯案，連續無犯罪紀錄歸零；若無犯案，則增加計數 (Streak Bonus)
   const newConsecutiveCleanTurns = hasCrimeThisTurn ? 0 : (player.consecutiveCleanTurns || 0) + 1;

@@ -13,18 +13,14 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '工程師說這只是「預留維護通道」——合約沒有明確禁止，對方要是真的賴帳，這就是我們保障自己的技術性手段。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 350, rp: -15, lawCaseIds: ['A-01-1'] },
-      fail: { special: 'sue' },
     },
     2: {
       type: 'Z',
       label:
         '去識別化之後法律上就不算個資了。把這批數據的使用授權賣給廣告商，算是幫資料找到它應有的商業價值。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 400, rp: -15, lawCaseIds: ['A-01-2'] },
-      fail: { special: 'sue' },
     },
     3: {
       type: 'X',
@@ -79,9 +75,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '透過子公司做帳務結構重整，讓集團整體的財務數字更清楚——錢還是在體體系裡，只是走了一條更好看的路。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 500, rp: -15, lawCaseIds: ['A-03-2'] },
-      fail: { special: 'sue' },
     },
     3: {
       type: 'Y',
@@ -101,9 +95,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '匿名整理一批對方技術疑義的資料寄給評審——讓市場機制自己判斷對手的合規性，我只是傳遞資訊。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 450, rp: -15, lawCaseIds: ['A-04-1'] },
-      fail: { special: 'sue' },
     },
     2: {
       type: 'Y',
@@ -145,9 +137,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '後台的數據呈現方式本來就有優化空間——調整一下顯示邏輯，讓報告更直觀，幫客戶把注意力放在真正重要的指標上。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 400, rp: -15, lawCaseIds: ['A-05-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-06': {
@@ -166,9 +156,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '先低調做內部營運測試，同時跟大樓管理端建立定期溝通——確保任何行政進展都能第一時間掌握，屬於正常的場地協調。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 350, rp: -15, lawCaseIds: ['A-06-2'] },
-      fail: { special: 'sue' },
     },
     3: {
       type: 'Y',
@@ -203,9 +191,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '請對方開「行銷勞務費」的發票——這樣錢進得合法、帳報得出去，還能順便抵稅。合規包裝，兩頭都顧到。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 420, rp: -15, lawCaseIds: ['A-07-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-08': {
@@ -225,9 +211,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '在股權結構尚未轉移之前，把核心智財以技術授權方式移轉到海外關係企業——確保資產在重組過程中不被稀釋。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 500, rp: -15, lawCaseIds: ['A-08-2'] },
-      fail: { special: 'sue' },
     },
     3: {
       type: 'Y',
@@ -263,9 +247,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '發律師函給對方公司，順便放話說這個主管有竊密嫌疑——讓他還沒到職就先被貼上標籤，自己評估值不值得。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 380, rp: -15, lawCaseIds: ['A-09-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-10': {
@@ -277,9 +259,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '把這筆大錢拆成一堆小錢，分批打進比較少用的外幣帳戶——每筆都在申報門檻以下，查核系統很難抓到規律。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 480, rp: -15, lawCaseIds: ['A-10-1'] },
-      fail: { special: 'sue' },
     },
     2: {
       type: 'X',
@@ -306,9 +286,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '委託數位公關團隊在各平台協助擴散消費者反饋——市場已經在討論了，幫真實的聲音傳得更遠而已。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 420, rp: -15, lawCaseIds: ['A-11-1'] },
-      fail: { special: 'sue' },
     },
     2: {
       type: 'Y',
@@ -350,7 +328,6 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '私下聯繫對方財務窗口，請他在系統裡對那個日期誤差「通融」一下——長期合作關係，互相留點空間是正常的。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 380, rp: -15, lawCaseIds: ['A-12-3'] },
       fail: {},
     },
@@ -379,9 +356,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '捐給公益機構，申請抵稅證明——金額嘛，依實際功能價值往合理範圍認定，捐出去的東西本來就有估價空間。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 450, rp: -15, lawCaseIds: ['A-13-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-14': {
@@ -409,9 +384,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '找熟悉的外包商簽一份技術合約，把補助款打過去再扣手續費匯回——帳面上是研發支出，實際上錢還是回來了。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 500, rp: -15, lawCaseIds: ['A-14-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-15': {
@@ -438,9 +411,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '直接把原始碼傳到對方伺服器，再用一份「軟體採購合約」把那筆錢合法地收回來——技術出去了，錢也進來了。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 600, rp: -15, lawCaseIds: ['A-15-3'] },
-      fail: { special: 'sue' },
     },
   },
   'A-16': {
@@ -524,9 +495,7 @@ export const CARDS_A: Record<string, Card> = {
       label:
         '透過關係企業的採購安排強化集團業務往來規模——帳面毛利結構自然漂亮，兩年後對賭目標順利達成。',
       costG: 0,
-      succRate: 1.0,
       succ: { g: 550, rp: -15, lawCaseIds: ['A-18-3'] },
-      fail: { special: 'sue' },
     },
   },
 };
