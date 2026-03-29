@@ -151,7 +151,7 @@ export function calculateConvictionPenalty(
   // 基礎罰金計算: 本次查獲不法所得的指定倍率
   let fineBeforeDiscount = roundUp(safeIncome * baseMultiplier);
 
-  // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加重 6 倍！)
+  // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加倍奉還！)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
 
