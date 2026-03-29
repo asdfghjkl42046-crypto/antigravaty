@@ -306,34 +306,29 @@ export async function performAction(
     let finalIPChange = 0;
 
     if (finalSuccess) {
-      if (isDeclaration) {
-        // 安全申報：扣繳手續費，但玩家仍可保有卡牌基礎淨利
-        const baseG = opt.g || 0;
-        finalGChange = baseG - costToDeduct;
-        // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
-        const baseRPWithBonus = isCTypeZOption ? baseRewardRP + 30 : baseRewardRP;
-        finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
-        finalIPChange = baseRewardIP;
+      // [統一修復] 獎勵回測機制：優先讀取 succ 中定義的深層收益，否則回退到頂層
+      const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
+      const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
+      const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
 
-        // [新增] 若是 C 類卡且成功獲得獎勵，在訊息增加提示文字
+      // 成功獲得的資金再次納入會計師進行額外分紅加成
+      const bonusSuccG = applyAccountantBonus(player, cardId, succG);
+
+      if (isDeclaration) {
+        // 安全申報路徑：抵銷代價，並保有回流收益 (修正 C 類卡黑洞)
+        finalGChange = bonusSuccG - costToDeduct;
+        // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
+        const baseRPWithBonus = isCTypeZOption ? succRP + 30 : succRP;
+        finalRPChange = calculateActualRPGain(player, baseRPWithBonus);
+        finalIPChange = succIP;
+
         if (isCTypeZOption) {
           message += `。獲得額外獎勵 +30 RP！`;
         }
       } else {
         // 檢定過關且未主動申報的黑箱路線
-        // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
-        const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
-        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
-        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
-
-        // 成功獲得的資金再次納入會計師進行額外分紅加成
-        const bonusSuccG = applyAccountantBonus(player, cardId, succG);
-        const totalG = bonusSuccG;
-        const totalRP = succRP;
-
-        // 最終結算
-        finalGChange = totalG - costToDeduct;
-        finalRPChange = calculateActualRPGain(player, totalRP);
+        finalGChange = bonusSuccG - costToDeduct;
+        finalRPChange = calculateActualRPGain(player, succRP);
         finalIPChange = succIP;
 
         // E 卡洗黑材料清除機制
@@ -366,7 +361,7 @@ export async function performAction(
           for (let i = 0; i < tagMultiplier; i++) {
             snapshots.push({
               tag: resolvedSuccTags,
-              netIncome: totalG,
+              netIncome: bonusSuccG,
               lawCaseIds: succLawCaseIds,
               rpChange: finalRPChange,
               surface_term: opt.surface_term,
