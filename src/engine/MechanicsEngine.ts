@@ -66,12 +66,8 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   // 累加出現役的總黑材料數 (BM)
   const totalBM = sources.reduce((sum, s) => sum + s.count, 0);
 
-  // 基礎起訴機率保底：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
-  const totalTags = player.totalTagsCount || 0;
-  const floor = getBaseTrialFloor(totalTags);
-
-  // 安全機制：即便玩家前科累累，只要身上沒有任何活躍黑材料 (BM) 
-  // 警方就缺乏直接證據無法辦案，起訴率強制歸 0%
+  // 安全機制：如果玩家身上乾乾淨淨沒有任何黑材料，
+  // 警方就絕對拿你沒轍 (起訴率 0%)，保障乖乖牌玩家。
   if (totalBM === 0) return 0;
 
   // 分離出「本回合剛產生熱騰騰的黑料 (高權重)」與「往期留下來的舊帳 (低權重)」
@@ -82,6 +78,7 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
   if (player.totalTagsCount !== undefined && Number.isNaN(player.totalTagsCount)) {
     throwDataCorruptionError(`玩家: ${player.name}`, `totalTagsCount 為 NaN！`);
   }
+  const totalTags = player.totalTagsCount || 0;
 
   // 綜合結算：(新產 BM * 3.5倍) + (舊存 BM * 0.8倍) + (當前身上總 BM * 0.2) - (名望折抵)
   const baseProb = newBM * 3.5 + oldBM * 0.8 + totalBM * 0.2 - (player.rp - 50) * 0.5;
@@ -93,6 +90,9 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
       `(newBM: ${newBM}, oldBM: ${oldBM}, totalTags: ${totalTags}, RP: ${player.rp})`
     );
   }
+
+  // 基礎起訴機率：如果玩家之前被抓過很多次，機率會從比較高的基礎開始算
+  const floor = getBaseTrialFloor(totalTags);
 
   // 回傳前抹除小數點，並確保機率介於 0% 到 100% 之間
   const rawProb = Math.floor(baseProb);
@@ -166,12 +166,15 @@ export function calculateConvictionPenalty(
   // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加倍奉還！)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
-
-  if (isAppeal) {
-    trialMultiplier = 2.0; // 上訴失敗，雙倍奉還
-  } else if (!isPreexisting) {
+  // 2. 累犯加重計分 (Recidivism Multiplier)
+  if (!isPreexisting) {
     // 開局既有罪犯不重複加重 (除非上訴失敗)，正常遊戲案件則依累犯門檻提升
     trialMultiplier = getTrialMultiplierByTrials(trials);
+  }
+
+  // [嚴重漏洞修復] 非常上訴失利應採「疊加翻倍」而非覆寫，避免重案犯利用上訴減刑
+  if (isAppeal) {
+    trialMultiplier *= 2.0; 
   }
 
   fineBeforeDiscount = roundUp(fineBeforeDiscount * trialMultiplier);
@@ -207,7 +210,9 @@ export function calculateConvictionPenalty(
   let detail = `${turnLabel} ${trialLabel} 不法所得(${safeIncome}萬) * ${multiplierReason}`;
 
   if (isAppeal) {
-    detail += `\n- 非常上訴失敗：罰金強制加重 2.0x (並套用既有減免)`;
+    const appealMsg = `\n- 非常上訴失敗：罰金加重 2.0x`;
+    const recidivismMsg = trialMultiplier / 2.0 > 1 ? ` (基於累犯 ${trialMultiplier / 2.0} 倍)` : '';
+    detail += `${appealMsg}${recidivismMsg} (並套用既有減免)`;
   } else if (trialMultiplier > 1) {
     const reason = trials >= 7 ? '限制重案累犯' : '累犯倍率';
     detail += ` * ${reason} ${trialMultiplier}倍`;
@@ -324,9 +329,7 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
 
   // 3. 清白回合計數更新 (§4-2)
   // 檢查該玩家在「這整回合之中」是否有染指任何最新觸發的犯罪標籤 (無論是否在該回合透過法庭結案掩蓋)
-  const hasCrimeThisTurn = player.tags.some(
-    (t) => t.isCrime && t.turn === currentTurn
-  );
+  const hasCrimeThisTurn = player.tags.some((t) => t.isCrime && t.turn === currentTurn);
   // 若該局有犯案，連續無犯罪紀錄歸零；若無犯案，則增加計數 (Streak Bonus)
   const newConsecutiveCleanTurns = hasCrimeThisTurn ? 0 : (player.consecutiveCleanTurns || 0) + 1;
   updates.consecutiveCleanTurns = newConsecutiveCleanTurns;
