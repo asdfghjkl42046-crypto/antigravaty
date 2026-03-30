@@ -231,7 +231,12 @@ export class CourtEngine {
 
     // 取出最新的那筆關聯收益作為罰金基數
     const lastTag = relatedTags[relatedTags.length - 1];
-    const netIncome = lastTag.netIncome!;
+    let netIncome = lastTag.netIncome!;
+
+    // 專案客製化需求：E卡相關的直接起訴案件，罰金不看原始不法所得，改為強制抓取玩家當前可用資金(不含信託)的 20%
+    if (lastTag.lawCaseIds && lastTag.lawCaseIds.some((id) => id.startsWith('E-'))) {
+      netIncome = Math.floor((player.g || 0) * 0.2);
+    }
 
     // 判定是否為開局既有前科 (Turn 0)
     const isPreexisting = lastTag.turn === 0;

@@ -29,6 +29,7 @@ import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB
 import { COURT_TEXT } from '@/data/court/CourtData';
 import { formatLawTags } from '@/data/laws/LawCasesDB';
 import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
+import TypewriterText from '@/components/TypewriterText';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -131,6 +132,60 @@ export default function Courtroom() {
     );
   };
 
+  const shuffledDefenseOptions = React.useMemo(() => {
+    if (trial?.stage !== 4 || !trial?.lawCase) return [];
+    const _defendant = players.find((p) => p.id === trial.defendantId);
+
+    const rawOptions = [
+      {
+        label:
+          trial.generatedOptions?.j ||
+          trial.lawCase.defense_j ||
+          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0],
+        index: 0,
+      },
+      {
+        label:
+          trial.generatedOptions?.k ||
+          trial.lawCase.defense_k ||
+          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1],
+        index: 1,
+      },
+      {
+        label:
+          trial.generatedOptions?.l ||
+          trial.lawCase.defense_l ||
+          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2],
+        index: 2,
+      },
+    ];
+
+    const analyzedOptions = rawOptions.map((opt) => {
+      const baseRate = trial.lawCase.survival_rate || 0.2;
+      const lawyerBonus = _defendant ? getLawyerDefenseBonus(_defendant) : 0;
+      const jklBonus = opt.index === 1 ? 0.05 : opt.index === 2 ? 0.1 : 0;
+      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
+      return { ...opt, predictedRate, lawyerBonus, jklBonus };
+    });
+
+    let finalOptions = analyzedOptions;
+    if (_defendant && shouldRemoveWrongOption(_defendant)) {
+      let minRate = 1.1;
+      let worstIdx = -1;
+      analyzedOptions.forEach((o, i) => {
+        if (o.predictedRate < minRate) {
+          minRate = o.predictedRate;
+          worstIdx = i;
+        }
+      });
+      if (worstIdx !== -1) {
+        finalOptions = analyzedOptions.filter((_, i) => i !== worstIdx);
+      }
+    }
+
+    return [...finalOptions].sort(() => Math.random() - 0.5);
+  }, [trial?.stage, trial?.lawCase, trial?.defendantId, trial?.generatedOptions, players]);
+
   return (
     // 主畫布：法典深藍色底板與漸層光輝
     <div className="w-full min-h-[700px] flex flex-col items-center justify-start py-0 selection:bg-blue-500/30">
@@ -230,8 +285,8 @@ export default function Courtroom() {
                     {COURT_TEXT.PHASE_1.SUSPECT(formatLawTags(trial.lawCase.tag))}
                   </h3>
                   {/* 此處的 narrative 是從 CourtEngine 加工過由檢察司長發出的起訴文稿 */}
-                  <div className="p-6 bg-black/40 rounded-3xl border-l-4 border-blue-500 italic text-slate-200 leading-relaxed font-serif text-lg animate-in fade-in duration-1000 whitespace-pre-line">
-                    {trial.narrative}
+                  <div className="p-6 bg-black/40 rounded-3xl border-l-4 border-blue-500 italic text-slate-200 leading-relaxed font-serif text-lg animate-in fade-in duration-1000 whitespace-pre-line min-h-[120px]">
+                    <TypewriterText text={trial.narrative || ''} speed={60} lineDelay={600} />
                   </div>
                 </div>
               </div>
@@ -480,143 +535,96 @@ export default function Courtroom() {
               <div className="p-8 rounded-3xl bg-[#1a1f26] border-2 border-blue-500/30 space-y-6">
                 {/* 充滿壓迫感的法官死亡質詢 */}
                 <div className="flex items-center gap-3">
-                  <Gavel size={24} className="text-yellow-500" />
-                  <h3 className="text-xl font-bold text-white">
+                  <Gavel size={32} className="text-yellow-500" />
+                  <h3 className="text-[28px] font-bold text-white">
                     {COURT_TEXT.PHASE_4.QUESTION_TITLE}
                   </h3>
                 </div>
                 {/* trial.question 是由 CourtEngine 用模板精算後吐出來的有毒問句 */}
-                <p className="text-lg text-slate-200 italic font-serif leading-relaxed whitespace-pre-line">
-                  {trial.question}
-                </p>
+                <div className="text-[28px] text-slate-200 italic font-serif leading-relaxed whitespace-pre-line min-h-[100px]">
+                  <TypewriterText text={trial.question || ''} speed={60} lineDelay={600} />
+                </div>
 
                 {/* 被告最後的狡辯：你要裝死到底、轉移焦點、還是跟法官裝可憐？ */}
                 <div className="grid grid-cols-1 gap-3">
-                  {(() => {
-                    const rawOptions = [
-                      {
-                        label:
-                          trial.generatedOptions?.j ||
-                          trial.lawCase.defense_j ||
-                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[0],
-                        index: 0,
-                      },
-                      {
-                        label:
-                          trial.generatedOptions?.k ||
-                          trial.lawCase.defense_k ||
-                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[1],
-                        index: 1,
-                      },
-                      {
-                        label:
-                          trial.generatedOptions?.l ||
-                          trial.lawCase.defense_l ||
-                          COURT_TEXT.PHASE_4.DEFENSE_OPTIONS[2],
-                        index: 2,
-                      },
-                    ];
+                  {shuffledDefenseOptions.map((opt) => {
+                    const { label, index: i, predictedRate, lawyerBonus, jklBonus } = opt;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedOption(i)}
+                        className={cn(
+                          'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
+                          selectedOption === i
+                            ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
+                            : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
+                        )}
+                      >
+                        <div className="flex justify-between items-center w-full mb-2">
+                          <span className="text-[24px] leading-snug font-black">{label}</span>
+                          {selectedOption === i && <ShieldCheck size={32} className="shrink-0 ml-4" />}
+                        </div>
 
-                    const analyzedOptions = rawOptions.map((opt) => {
-                      const baseRate = trial.lawCase.survival_rate || 0.2;
-                      const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
-                      // JKL 選項權重加成：固定為 J(0%), K(5%), L(10%)
-                      const jklBonus = opt.index === 1 ? 0.05 : opt.index === 2 ? 0.1 : 0;
-                      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
-                      return { ...opt, predictedRate, lawyerBonus, jklBonus };
-                    });
-
-                    let finalOptions = analyzedOptions;
-                    if (defendant && shouldRemoveWrongOption(defendant)) {
-                      let minRate = 1.1;
-                      let worstIdx = -1;
-                      analyzedOptions.forEach((o, i) => {
-                        if (o.predictedRate < minRate) {
-                          minRate = o.predictedRate;
-                          worstIdx = i;
-                        }
-                      });
-                      if (worstIdx !== -1) {
-                        finalOptions = analyzedOptions.filter((_, i) => i !== worstIdx);
-                      }
-                    }
-
-                    return finalOptions.map((opt) => {
-                      const { label, index: i, predictedRate, lawyerBonus, jklBonus } = opt;
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => setSelectedOption(i)}
-                          className={cn(
-                            'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
-                            selectedOption === i
-                              ? 'bg-blue-600 border-blue-400 text-white shadow-lg'
-                              : 'bg-white/5 border-white/10 text-slate-200 hover:bg-white/10'
-                          )}
-                        >
-                          <div className="flex justify-between items-center w-full">
-                            <span className="text-xl font-black">{label}</span>
-                            {selectedOption === i && <ShieldCheck size={28} />}
+                        {canSeeRate && (
+                          <div className="flex items-center gap-4 mt-2">
+                            <div className="flex-1 h-3 bg-black/20 rounded-full overflow-hidden">
+                              <div
+                                ref={(el) => {
+                                  if (el)
+                                    el.style.setProperty('--rate', `${predictedRate * 100}%`);
+                                }}
+                                className={cn(
+                                  'survival-rate-bar h-full transition-all duration-500',
+                                  predictedRate > 0.7
+                                    ? 'bg-emerald-500'
+                                    : predictedRate > 0.4
+                                      ? 'bg-amber-500'
+                                      : 'bg-rose-500'
+                                )}
+                              />
+                            </div>
+                            <span
+                              className={cn(
+                                'text-[20px] font-black font-mono leading-none',
+                                selectedOption === i ? 'text-white' : 'text-slate-400'
+                              )}
+                            >
+                              預估勝率: {(predictedRate * 100).toFixed(0)}%
+                            </span>
                           </div>
+                        )}
 
-                          {canSeeRate && (
-                            <div className="flex items-center gap-3 mt-1">
-                              <div className="flex-1 h-2 bg-black/20 rounded-full overflow-hidden">
-                                <div
-                                  ref={(el) => {
-                                    if (el)
-                                      el.style.setProperty('--rate', `${predictedRate * 100}%`);
-                                  }}
-                                  className={cn(
-                                    'survival-rate-bar h-full transition-all duration-500',
-                                    predictedRate > 0.7
-                                      ? 'bg-emerald-500'
-                                      : predictedRate > 0.4
-                                        ? 'bg-amber-500'
-                                        : 'bg-rose-500'
-                                  )}
-                                />
-                              </div>
-                              <span
-                                className={cn(
-                                  'text-sm font-black font-mono',
-                                  selectedOption === i ? 'text-white' : 'text-slate-400'
-                                )}
-                              >
-                                預估勝率: {(predictedRate * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                          )}
+                        {!canSeeRate && (
+                          <div className="flex items-center gap-4 mt-2">
+                            <span
+                              className={cn(
+                                'text-[20px] font-black font-mono leading-none',
+                                selectedOption === i ? 'text-white' : 'text-slate-400'
+                              )}
+                            >
+                              預估勝率: ???
+                            </span>
+                          </div>
+                        )}
 
-                          {!canSeeRate && (
-                            <div className="flex items-center gap-3 mt-1">
-                              <span
-                                className={cn(
-                                  'text-sm font-black font-mono',
-                                  selectedOption === i ? 'text-white' : 'text-slate-400'
-                                )}
-                              >
-                                預估勝率: ???
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="flex gap-2">
+                        {/* 只有在能看見勝率且有加成的情況下才顯示該標籤（避免選項內容防禦力被外洩） */}
+                        {canSeeRate && (lawyerBonus > 0 || jklBonus > 0) && (
+                          <div className="flex flex-wrap gap-3 mt-2">
                             {lawyerBonus > 0 && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">
+                              <span className="text-[20px] px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold uppercase leading-none">
                                 王牌律師 +30%
                               </span>
                             )}
                             {jklBonus > 0 && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold uppercase">
+                              <span className="text-[20px] px-3 py-1.5 rounded-xl bg-blue-500/20 text-blue-400 font-bold uppercase leading-none">
                                 選項加成 +{(jklBonus * 100).toFixed(0)}%
                               </span>
                             )}
                           </div>
-                        </button>
-                      );
-                    });
-                  })()}
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* AI 模式限定：你可以自己打字辱罵法官、或是瞎掰出更完美的藉口來影響最終判決！ */}
@@ -644,21 +652,21 @@ export default function Courtroom() {
                   const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
                   const jklBonus = optIndex === 1 ? 0.05 : optIndex === 2 ? 0.1 : 0;
                   const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
-                  
+
                   submitDefense(optIndex, defenseInput);
-                  
+
                   const updatedTrial = useGameStore.getState().trial;
                   setPendingRoulette({
                     title: '法庭無情判決',
                     subtitle: '命運的法槌即將落下...',
                     options: [
                       { label: '無罪釋放', probability: predictedRate, colorHex: '#10b981' },
-                      { label: '有罪定讞', probability: 1 - predictedRate, colorHex: '#ef4444' }
+                      { label: '有罪定讞', probability: 1 - predictedRate, colorHex: '#ef4444' },
                     ],
                     targetIndex: updatedTrial?.isDefenseSuccess ? 0 : 1,
                     onComplete: () => {
                       setPendingRoulette(null);
-                    }
+                    },
                   });
                 }}
                 className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-500 transition-all disabled:opacity-50"

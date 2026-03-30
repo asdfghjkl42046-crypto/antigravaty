@@ -13,7 +13,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬，派幾個員工去當志工，低調記錄在CSR報告裡——做了，但不張揚。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
     2: {
@@ -22,7 +22,7 @@ export const CARDS_C: Record<string, Card> = {
         '捐150萬，順便邀媒體來採訪，黃金時段播出企業關懷弱勢的專題——好事做了，順便讓品牌也漂亮一下。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     3: {
@@ -30,7 +30,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '對外宣布捐400萬，實際上跟仲介串通好，大部分的錢繞一圈再回到公司的不記名帳戶——名聲賺到了，錢也沒真的出去。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-01-3'],
@@ -48,7 +48,7 @@ export const CARDS_C: Record<string, Card> = {
         '砸150萬更新設備，把流程真的改到符合標準，然後正式申請認證——貴，但標章貼上去之後睡得著覺。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     2: {
@@ -56,7 +56,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '花400萬請頂級公關公司做視覺包裝，把污染細節埋在漂亮的數據圖表裡——消費者看的是故事，不是原始數據。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-02-2'],
@@ -68,7 +68,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '贊助50萬辦校園環保競賽，讓品牌跟環保教育連結——設備的問題慢慢解決，形象先顧好。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
   },
@@ -81,7 +81,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '走公開帳戶、依法捐150萬，所有資金流向都可查——給了，但給得清清楚楚，誰都挑不出毛病。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     2: {
@@ -89,7 +89,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '找幾個人頭帳戶把400萬拆成一堆小額捐款打過去，規避上限、不留痕跡——政治關係做深，但帳面上看不出來是你。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-03-2'],
@@ -102,7 +102,7 @@ export const CARDS_C: Record<string, Card> = {
         '捐50萬買他的公益慈善餐會入場券——算是表示支持，但跟核心政治獻金保持距離，進退都有空間。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
   },
@@ -115,7 +115,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '對外宣布成立400萬教育基金，聽起來很漂亮——但帳目裡有一部分其實是高管的私人交際費，用假報帳藏進去。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-04-1'],
@@ -127,7 +127,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬買一批平板直接送到學校——簡單直接，錢用在刀口上，不用搞複雜的計畫。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
     3: {
@@ -136,7 +136,7 @@ export const CARDS_C: Record<string, Card> = {
         '提撥150萬做三年期的師資培訓，邀知名教授當顧問——慢慢來，但這才是真的改變得了什麼的做法。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
   },
@@ -150,7 +150,7 @@ export const CARDS_C: Record<string, Card> = {
         '投150萬冠名贊助，開幕派對順便邀核心客戶來——藝術展當社交場合用，品牌形象和人脈一起經營。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     2: {
@@ -158,7 +158,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬贊助導覽手冊印製，封底放公司簡介——低調插旗，花小錢讓品牌名字出現在對的地方。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
     3: {
@@ -166,7 +166,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '用400萬贊助名義買下幾件作品，估價往高開，帳面當投資報帳——順便幫幾個股東把資產低調轉移一下，藝術品本來就很難估價。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-05-3'],
@@ -183,7 +183,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '對外宣布設立400萬緊急醫療基金，實際上跟藥商喬好了，捐出去的是過期或劣質物資，帳面價值高估幾倍用來抵稅——反正物資都捐出去了，誰會去驗？',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-06-1'],
@@ -195,7 +195,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬給紅十字會，指定買第一線醫護的防護裝備——錢不多，但去向清楚，做了就做了。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
     3: {
@@ -204,7 +204,7 @@ export const CARDS_C: Record<string, Card> = {
         '投150萬資助大學醫學院開發快篩技術，量產後優先供應偏鄉——慢一點，但這筆錢真的會發揮作用。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
   },
@@ -217,7 +217,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬支持民間淨灘活動，鼓勵員工帶家人一起去——行動不大，但是真的去做，總比發聲明好。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
     2: {
@@ -226,7 +226,7 @@ export const CARDS_C: Record<string, Card> = {
         '撥150萬研發可分解包裝，同時公布詳細的減塑時程表——承認問題、給出計畫，讓外界有東西可以監督。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     3: {
@@ -234,7 +234,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '花400萬拍一系列美輪美奐的海底生態廣告，宣告公司已達成「塑膠中和」——實際上什麼都沒改，但畫面夠美，夠多人分享就夠了。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-07-3'],
@@ -251,7 +251,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐150萬讓聯賽繼續辦一年，換球場四周的大型看板——贊助體育、打廣告，兩件事一起做。',
       succRate: 0.9,
       costG: 150,
-      succ: { rp: 5 },
+      succ: { rp: 20 },
       fail: { loss: 150 },
     },
     2: {
@@ -259,7 +259,7 @@ export const CARDS_C: Record<string, Card> = {
       label:
         '捐400萬給聯賽委員會，但私下談好，部分款項要用「顧問費」名義轉給幾個有用的政界人士——體育贊助是檯面上的，政治關係是檯面下的。',
       costG: 400,
-      rp: 12,
+      rp: 40,
       special: 'declareLogic',
       succRate: 0.8,
       lawCaseIds: ['C-08-2'],
@@ -271,7 +271,7 @@ export const CARDS_C: Record<string, Card> = {
       label: '捐50萬贊助總冠軍賽的獎盃和獎牌，頒獎時派代表上台——花小錢站在最高光的時刻，CP值最高。',
       succRate: 0.9,
       costG: 50,
-      succ: { rp: 2 },
+      succ: { rp: 10 },
       fail: { loss: 50 },
     },
   },

@@ -27,26 +27,26 @@ export default function ErrorPopup({ message, onClose }: ErrorPopupProps) {
     // 全螢幕遮罩層
     <div className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none">
       {/* 彈窗本體：霓虹紅色警告風格 */}
-      <div className="pointer-events-auto max-w-lg w-full mx-4 p-6 bg-slate-950/95 backdrop-blur-2xl border-2 border-red-500/60 rounded-3xl shadow-[0_0_60px_rgba(239,68,68,0.3)] animate-in zoom-in-95 fade-in duration-300">
-        <div className="flex items-start gap-4">
+      <div className="pointer-events-auto max-w-2xl w-full mx-8 p-10 bg-slate-950/95 backdrop-blur-2xl border-4 border-red-500/80 rounded-[2rem] shadow-[0_0_80px_rgba(239,68,68,0.4)] animate-in zoom-in-95 fade-in duration-300">
+        <div className="flex items-start gap-6">
           {/* 警告圖示 */}
-          <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0">
-            <AlertTriangle size={24} className="text-red-400" />
+          <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0">
+            <AlertTriangle size={36} className="text-red-400" />
           </div>
 
           {/* 錯誤訊息文字 */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-black text-red-400 uppercase tracking-widest mb-2">錯誤</h3>
-            <p className="text-white font-bold text-base leading-relaxed">{message}</p>
+          <div className="flex-1 min-w-0 pt-1">
+            <h3 className="text-2xl font-black text-red-500 uppercase tracking-widest mb-4">錯誤</h3>
+            <p className="text-white font-bold text-[28px] leading-[1.4] tracking-wide">{message}</p>
           </div>
 
           {/* 手動關閉按鈕 */}
           <button
             onClick={onClose}
             title="關閉錯誤訊息"
-            className="p-2 rounded-xl hover:bg-white/10 text-slate-500 hover:text-white transition-all shrink-0"
+            className="p-3 rounded-2xl hover:bg-white/10 text-slate-500 hover:text-white transition-all shrink-0 -mt-2 -mr-2"
           >
-            <X size={20} />
+            <X size={32} />
           </button>
         </div>
 

@@ -12,7 +12,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '找資安公司來，把硬碟直接物理銷毀到粉塵等級——什麼磁軌紀錄都不留，就當這些東西從來不存在。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 150,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
@@ -44,7 +44,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '透過事務所安排一場「私人調解」，給他一筆豐厚的離職補償——條件是上了法庭，說對公司有利的話。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 200,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-02-1'] },
@@ -62,7 +62,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '一邊讓律師在法庭上全力攻擊他的誠信度，一邊安排他去海外「出差」，拖到出庭日期過了再說。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 300,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-02-3'] },
@@ -85,7 +85,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '叫技術團隊今晚就動手，把備援伺服器裡的原始連線紀錄全部抹掉，再偽裝成硬體故障——紀錄消失了，但不是你刪的。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 120,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-03-2'] },
@@ -108,7 +108,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '透過事務所牽線，找到一位辦事「靈活」的公證人，塞一筆可觀的急件費，請他對日期和內容睜一隻眼閉一隻眼。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 250,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-04-1'] },
@@ -125,7 +125,7 @@ export const CARDS_E: Record<string, Card> = {
     3: {
       type: 'Z',
       label: '你決定賭大的。找來整個文書重建團隊，會議紀錄、簽名、連紙張磅數都要換成當年的規格。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 400,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-04-1'] },
@@ -147,7 +147,7 @@ export const CARDS_E: Record<string, Card> = {
       type: 'Z',
       label:
         '花大錢搭一套海外信託迷宮：紙上公司套紙上公司，錢繞了五個國家再回來，來源洗得乾乾淨淨。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 500,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-05-2'] },
@@ -168,7 +168,7 @@ export const CARDS_E: Record<string, Card> = {
     1: {
       type: 'Z',
       label: '以「資安升級」為名，把整台舊伺服器硬體物理替換掉，原本的設備直接銷毀。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 200,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-01-1'] },
@@ -184,7 +184,7 @@ export const CARDS_E: Record<string, Card> = {
     3: {
       type: 'Z',
       label: '律師和資訊長一起出動，對郵件系統做「例行清理」，把那個年份的備份檔案永久移除。',
-      succRate: 0.3,
+      succRate: 0.5,
       costG: 300,
       succ: { bm: 'all' },
       fail: { special: 'sue', lawCaseIds: ['E-06-3'] },
