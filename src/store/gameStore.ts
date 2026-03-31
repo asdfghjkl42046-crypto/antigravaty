@@ -343,10 +343,10 @@ export const useGameStore = create<GameStore>()(
             return;
           }
 
-          // 5. 法庭起訴審計
-          const trialToTrigger = trial
-            ? null
-            : CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn);
+          // 5. 法庭起訴審計 (僅在所有玩家行動輪畢，回合推進時觸發)
+          const trialToTrigger = (!trial && nextTurn > turn)
+            ? CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn)
+            : null;
 
           set({ players: finalPlayers, currentPlayerIndex: nextIndex, turn: nextTurn });
 
