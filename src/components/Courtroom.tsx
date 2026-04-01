@@ -27,6 +27,7 @@ import {
 } from '@/engine/GameEngine';
 import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
+import { calculateSpectatorInfluence } from '@/engine/MechanicsEngine';
 import { formatLawTags } from '@/data/laws/LawCasesDB';
 import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
 import TypewriterText from '@/components/TypewriterText';
@@ -160,12 +161,15 @@ export default function Courtroom() {
       },
     ];
 
+    // 計算旁觀者干預對勝率的影響 (支持被告 +10% / 質疑被告 -10%)
+    const spectatorBonus = calculateSpectatorInfluence(trial.interventions);
+
     const analyzedOptions = rawOptions.map((opt) => {
       const baseRate = trial.lawCase.survival_rate || 0.2;
       const lawyerBonus = _defendant ? getLawyerDefenseBonus(_defendant) : 0;
       const jklBonus = opt.index === 1 ? 0.05 : opt.index === 2 ? 0.1 : 0;
-      const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
-      return { ...opt, predictedRate, lawyerBonus, jklBonus };
+      const predictedRate = Math.min(1.0, baseRate + spectatorBonus + lawyerBonus + jklBonus);
+      return { ...opt, predictedRate, lawyerBonus, jklBonus, spectatorBonus };
     });
 
     let finalOptions = analyzedOptions;
@@ -184,7 +188,7 @@ export default function Courtroom() {
     }
 
     return [...finalOptions].sort(() => Math.random() - 0.5);
-  }, [trial?.stage, trial?.lawCase, trial?.defendantId, trial?.generatedOptions, players]);
+  }, [trial?.stage, trial?.lawCase, trial?.defendantId, trial?.generatedOptions, trial?.interventions, players]);
 
   return (
     // 主畫布：法典深藍色底板與漸層光輝
@@ -548,7 +552,7 @@ export default function Courtroom() {
                 {/* 被告最後的狡辯：你要裝死到底、轉移焦點、還是跟法官裝可憐？ */}
                 <div className="grid grid-cols-1 gap-3">
                   {shuffledDefenseOptions.map((opt) => {
-                    const { label, index: i, predictedRate, lawyerBonus, jklBonus } = opt;
+                    const { label, index: i, predictedRate, lawyerBonus, jklBonus, spectatorBonus } = opt;
                     return (
                       <button
                         key={i}
@@ -608,7 +612,7 @@ export default function Courtroom() {
                         )}
 
                         {/* 只有在能看見勝率且有加成的情況下才顯示該標籤（避免選項內容防禦力被外洩） */}
-                        {canSeeRate && (lawyerBonus > 0 || jklBonus > 0) && (
+                        {canSeeRate && (lawyerBonus > 0 || jklBonus > 0 || spectatorBonus !== 0) && (
                           <div className="flex flex-wrap gap-3 mt-2">
                             {lawyerBonus > 0 && (
                               <span className="text-[20px] px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold uppercase leading-none">
@@ -618,6 +622,16 @@ export default function Courtroom() {
                             {jklBonus > 0 && (
                               <span className="text-[20px] px-3 py-1.5 rounded-xl bg-blue-500/20 text-blue-400 font-bold uppercase leading-none">
                                 選項加成 +{(jklBonus * 100).toFixed(0)}%
+                              </span>
+                            )}
+                            {spectatorBonus > 0 && (
+                              <span className="text-[20px] px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-400 font-bold uppercase leading-none">
+                                🛡 旁聽席支持 +{(spectatorBonus * 100).toFixed(0)}%
+                              </span>
+                            )}
+                            {spectatorBonus < 0 && (
+                              <span className="text-[20px] px-3 py-1.5 rounded-xl bg-red-500/20 text-red-400 font-bold uppercase leading-none">
+                                ⚔ 旁聽席質疑 {(spectatorBonus * 100).toFixed(0)}%
                               </span>
                             )}
                           </div>
@@ -649,9 +663,10 @@ export default function Courtroom() {
                 onClick={() => {
                   const optIndex = selectedOption as number;
                   const baseRate = trial.lawCase.survival_rate || 0.2;
+                  const spectatorBonus = calculateSpectatorInfluence(trial.interventions);
                   const lawyerBonus = defendant ? getLawyerDefenseBonus(defendant) : 0;
                   const jklBonus = optIndex === 1 ? 0.05 : optIndex === 2 ? 0.1 : 0;
-                  const predictedRate = Math.min(1.0, baseRate + lawyerBonus + jklBonus);
+                  const predictedRate = Math.min(1.0, baseRate + spectatorBonus + lawyerBonus + jklBonus);
 
                   submitDefense(optIndex, defenseInput);
 
