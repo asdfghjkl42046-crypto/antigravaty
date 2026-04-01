@@ -332,12 +332,15 @@ export const useGameStore = create<GameStore>()(
 
           nextIndex = potentialNext;
 
-          // 4. 全員破產校驗：如果 nextIndex 依然找不到人，代表沒人活著了
+          // 4. 全員破產校驗 或 回合上限達到
           if (nextIndex === -1 || nextTurn > 50) {
+            // 從所有玩家中找出最適合作為結局代表的角色（優先取活著的）
+            const endingPlayer = finalPlayers.find((p) => !p.isBankrupt) || finalPlayers[0];
+            const endingRes = resolveGameStatus(endingPlayer, Math.min(nextTurn, 50), { forceTurn: 51 });
             set({
               players: finalPlayers,
-              phase: 'gameover',
-              endingResult: resolveGameStatus(finalPlayers[0], Math.min(nextTurn, 50)).endingResult,
+              phase: endingRes.phase || 'gameover',
+              endingResult: endingRes.endingResult,
               turn: Math.min(nextTurn, 50),
             });
             return;
@@ -550,6 +553,20 @@ export const useGameStore = create<GameStore>()(
           trial: null,
           endingResult: res.endingResult,
         });
+
+        // [修正] 法庭結束後的 50 回合安全網：若回合已到上限且無結局觸發，強制結算
+        if (!res.isGameOver && get().turn >= 50) {
+          const currentState = get();
+          const bestPlayer = currentState.players.find((p) => !p.isBankrupt) || currentState.players[0];
+          const endRes = resolveGameStatus(bestPlayer, 50, { forceTurn: 51 });
+          if (endRes.isGameOver) {
+            set({
+              phase: endRes.phase,
+              endingResult: endRes.endingResult,
+              turn: 50,
+            });
+          }
+        }
       },
 
       setTrialReady: (r) => set((s) => ({ trial: s.trial ? { ...s.trial, isReady: r } : null })),
