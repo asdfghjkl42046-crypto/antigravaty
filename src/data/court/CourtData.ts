@@ -63,7 +63,7 @@ export const COURT_TEXT = {
     TITLE: '王牌律師發動',
     SUB: 'ACE ATTORNEY LV3 — WITHDRAW CASE',
     DESC: '你的王牌律師（LV3）已介入本案，提出撤告申請：',
-    FEE_LABEL: '保釋封口費 (保底低消 100萬或總資產20%)', // 極度貪婪的王牌律師要價：就算花上兩成身家，也至少會榨出一百萬打點費
+    FEE_LABEL: '撤告費用 (總資金 20%，最低 100 萬)', // 極度貪婪的王牌律師要價：就算花上兩成身家，也至少會榨出一百萬打點費
     IP_LABEL: '人脈 (IP)',
     WITHDRAW_DESC: '支付上述費用後，將撤銷本次起訴，相關黑材料歸零，案件不成立。',
     GIVE_UP_BTN: '放棄，接受判決',

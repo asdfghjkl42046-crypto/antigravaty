@@ -926,16 +926,16 @@ export default function Courtroom() {
                         </p>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-base opacity-90 font-medium text-left">
                           <div className="flex gap-2">
-                            <span className="text-red-500">◆</span> 1-5回合為新手期(1.0x)
+                            <span className="text-red-500">◆</span> 基礎罰金 = 不法所得 × 1.0x
                           </div>
                           <div className="flex gap-2">
-                            <span className="text-red-500">◆</span> 第6回合起標籤(3.0x)
+                            <span className="text-red-500">◆</span> 累犯 4 次以上：罰金 × 3.0x
                           </div>
                           <div className="flex gap-2">
-                            <span className="text-red-500">◆</span> 累犯加重(3.0x - 6.0x)
+                            <span className="text-red-500">◆</span> 累犯 7 次以上：罰金 × 6.0x
                           </div>
                           <div className="flex gap-2">
-                            <span className="text-red-500">◆</span> 非常上訴敗訴額外加成
+                            <span className="text-red-500">◆</span> 非常上訴敗訴：再 × 2.0x
                           </div>
                         </div>
                       </div>
