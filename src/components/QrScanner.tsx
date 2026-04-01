@@ -29,13 +29,16 @@ export default function QrScanner({ onScanSuccess, active, onClose }: QrScannerP
   // 防呆與防爆：攝影機這種硬體很嬌弱，必須等它完全暖機亮綠燈後，才能讓急性子的老闆按下關閉按鈕，避免當機。
   const [isReady, setIsReady] = useState(false);
 
-  // 封裝掃描成功的穩定回呼，避免被 useEffect 依賴鏈頻繁更新
-  const handleSuccess = useCallback(
-    (decodedText: string) => {
-      onScanSuccess(decodedText);
-    },
-    [onScanSuccess]
-  );
+  // 使用 useRef 永遠記錄最新的 callback，避免對 useEffect 產生破壞性的重新渲染
+  const latestOnScanSuccess = useRef(onScanSuccess);
+  useEffect(() => {
+    latestOnScanSuccess.current = onScanSuccess;
+  }, [onScanSuccess]);
+
+  // 封裝掃描成功的穩定回呼，永遠不會被改變，從而保護相機不會被強制關閉
+  const handleSuccess = useCallback((decodedText: string) => {
+    latestOnScanSuccess.current(decodedText);
+  }, []);
 
   /**
    * 系統崩潰防護罩：
@@ -130,11 +133,7 @@ export default function QrScanner({ onScanSuccess, active, onClose }: QrScannerP
           },
           (decodedText) => {
             // Callback：掃到了！而且符合規格！
-            // 立即命令相機停止吃電 (使用 trycatch 防爆)
-            scanner.stop().catch(() => {
-              /* 靜默忽略 */
-            });
-            // 傳遞戰利品給上層元件
+            // 傳遞戰利品給上層元件 (這裡不自動關閉相機，維持開啟)
             handleSuccess(decodedText);
           },
           () => {

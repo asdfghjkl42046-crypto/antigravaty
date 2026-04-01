@@ -101,6 +101,7 @@ export default function Home() {
   const [showModeSelect, setShowModeSelect] = useState(true); // 最開始的模式過場視窗
   const [isPerforming, setIsPerforming] = useState(false); // 🐛 防連點漏洞：非同步結算鎖
   const lastScanTimeRef = useRef(0); // 🐛 效能 Bug 修復: QR 掃描防止硬體連拍的截流閥
+  const lastScannedTextRef = useRef(''); // 🐛 記憶最後一次掃描的文字，防止重複連擊
   const [pendingRoulette, setPendingRoulette] = useState<{
     title: string;
     subtitle: string;
@@ -146,8 +147,14 @@ export default function Home() {
 
       // 🐛 Fix: 防止相機鏡頭對焦不良導致極短間隔內送出超過 2 條相同字串（實作 500ms 短暫無敵冷卻）
       const now = Date.now();
-      if (now - lastScanTimeRef.current < 500) return;
+      // 如果短時間內 (3秒內) 掃描完全相同的條碼，或是 500ms 內掃描任何條碼，予以忽略
+      if (
+        now - lastScanTimeRef.current < 500 ||
+        (now - lastScanTimeRef.current < 3000 && lastScannedTextRef.current === raw)
+      )
+        return;
       lastScanTimeRef.current = now;
+      lastScannedTextRef.current = raw;
 
       // 系統特規攔截：卡牌背面的洗牌條碼 (不分大小寫)
       if (raw.toUpperCase() === 'RECARD') {
@@ -221,10 +228,13 @@ export default function Home() {
   };
 
   // 鏡頭辨識模組成功解碼後拋回的回呼函數
-  const handleCameraScan = (decodedText: string) => {
-    setCameraMode(false); // 掃到就關相機節省電源與 DOM 負載
-    handleScanWithValue(decodedText.trim().toUpperCase());
-  };
+  const handleCameraScan = useCallback(
+    (decodedText: string) => {
+      // 依據需求：掃描後維持相機開啟，不自動關閉
+      handleScanWithValue(decodedText.trim().toUpperCase());
+    },
+    [handleScanWithValue]
+  );
 
   /** 最終簽字執行：當你決定放手一搏，狠狠按下確認鍵後，命運的齒輪就會開始轉動。 */
   const handleConfirmScan = async () => {
@@ -254,13 +264,22 @@ export default function Home() {
     setPendingScan(null);
     setActiveCardId(null); // [核心修復] 立即清理背景卡片，防止並行洩漏
     const result = await performAction(cardId, optionIndex as 1 | 2 | 3);
-    
+
     // 判斷是否需要呼叫命運輪盤
     const optConf = card[optionIndex as 1 | 2 | 3];
-    const isProbAction = optConf && typeof optConf === 'object' && 'succRate' in optConf && (optConf as any).succRate !== undefined && (optConf as any).succRate < 1.0;
-    
+    const isProbAction =
+      optConf &&
+      typeof optConf === 'object' &&
+      'succRate' in optConf &&
+      (optConf as any).succRate !== undefined &&
+      (optConf as any).succRate < 1.0;
+
     // 檢查是否因為資金不足等前置錯誤導致行動提早被取消
-    const isEarlyAbort = result.apRefunded || result.log?.tags === 'CARD_SKIPPED' || result.log?.tags === 'BANKRUPT' || result.log?.tags === 'INSUFFICIENT_FUNDS';
+    const isEarlyAbort =
+      result.apRefunded ||
+      result.log?.tags === 'CARD_SKIPPED' ||
+      result.log?.tags === 'BANKRUPT' ||
+      result.log?.tags === 'INSUFFICIENT_FUNDS';
 
     if (isProbAction && !isEarlyAbort) {
       const succRate = (optConf as any).succRate;
@@ -271,14 +290,14 @@ export default function Home() {
         subtitle: `${card.title} - ${optConf.label}`,
         options: [
           { label: '成功', probability: succRate, colorHex: '#10b981' },
-          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' }
+          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' },
         ],
         targetIndex,
         onComplete: () => {
           setPendingRoulette(null);
           handleActionResult(result);
           setIsPerforming(false);
-        }
+        },
       });
     } else {
       handleActionResult(result);
@@ -331,10 +350,19 @@ export default function Home() {
     setActiveCardId(null);
     setIsPerforming(true);
     const result = await performAction(cardId, optIdx);
-    
+
     // 判斷是否需要呼叫命運輪盤
-    const isProbAction = opt && typeof opt === 'object' && 'succRate' in opt && (opt as any).succRate !== undefined && (opt as any).succRate < 1.0;
-    const isEarlyAbort = result.apRefunded || result.log?.tags === 'CARD_SKIPPED' || result.log?.tags === 'BANKRUPT' || result.log?.tags === 'INSUFFICIENT_FUNDS';
+    const isProbAction =
+      opt &&
+      typeof opt === 'object' &&
+      'succRate' in opt &&
+      (opt as any).succRate !== undefined &&
+      (opt as any).succRate < 1.0;
+    const isEarlyAbort =
+      result.apRefunded ||
+      result.log?.tags === 'CARD_SKIPPED' ||
+      result.log?.tags === 'BANKRUPT' ||
+      result.log?.tags === 'INSUFFICIENT_FUNDS';
 
     if (isProbAction && !isEarlyAbort) {
       const succRate = (opt as any).succRate;
@@ -344,14 +372,14 @@ export default function Home() {
         subtitle: `${card.title} - ${opt.label}`,
         options: [
           { label: '成功', probability: succRate, colorHex: '#10b981' },
-          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' }
+          { label: '失敗', probability: 1 - succRate, colorHex: '#ef4444' },
         ],
         targetIndex,
         onComplete: () => {
           setPendingRoulette(null);
           handleActionResult(result);
           setIsPerforming(false);
-        }
+        },
       });
     } else {
       handleActionResult(result);
