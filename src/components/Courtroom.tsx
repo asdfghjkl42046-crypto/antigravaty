@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import type { JudgePersonality } from '@/types/game';
 import {
   Gavel,
   Scale,
@@ -16,6 +17,8 @@ import {
   Zap,
   Calculator,
   Info,
+  BookOpen,
+  ExternalLink,
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -27,8 +30,10 @@ import {
 } from '@/engine/GameEngine';
 import { BYSTANDER_OPTIONS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
+import { getRandomMurmur, type MurmurTrigger } from '@/data/judges/JudgeMurmurs';
 import { calculateSpectatorInfluence } from '@/engine/MechanicsEngine';
 import { formatLawTags } from '@/data/laws/LawCasesDB';
+import { getLawStory } from '@/data/lawstore/LawStoriesDB';
 import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
 import TypewriterText from '@/components/TypewriterText';
 
@@ -79,6 +84,24 @@ export default function Courtroom() {
   const [localBets, setLocalBets] = useState<Record<string, 'win' | 'lose' | 'none'>>({});
   // 是否進入二階段展示中的「罰金計算明細」畫面
   const [showPunishmentDetail, setShowPunishmentDetail] = useState(false);
+  // 是否展示真實世界判例故事
+  const [showStoryDetail, setShowStoryDetail] = useState(false);
+  // 法官碎碎念：當前顯示的台詞文字
+  const [murmur, setMurmur] = useState<string>('');
+  // 法官碎碎念閃爍動畫 key（用於觸發重新動畫）
+  const [murmurKey, setMurmurKey] = useState(0);
+
+  /**
+   * 觸發法官碎碎念
+   * 從碎碎念資料庫隨機抽取一句台詞，並觸發氣泡動畫
+   */
+  const triggerMurmur = (trigger: MurmurTrigger) => {
+    const text = getRandomMurmur(judgePersonality, trigger);
+    if (text) {
+      setMurmur(text);
+      setMurmurKey((k) => k + 1);
+    }
+  };
 
   // 找出誰是被告本人
   const currentPlayer = players.find((p) => p.id === trial?.defendantId);
@@ -105,6 +128,7 @@ export default function Courtroom() {
       setPendingInterventions({});
       setLocalBets({});
       setShowPunishmentDetail(false);
+      setMurmur(''); // 切換階段時清除碎碎念
     }, 0);
   }, [trial?.stage]);
 
@@ -240,6 +264,15 @@ export default function Courtroom() {
           </div>
         </div>
 
+        {/* ======================= 法官碎碎念氣泡 ======================= */}
+        {murmur && (
+          <JudgeMurmurBubble
+            key={murmurKey}
+            text={murmur}
+            judgePersonality={judgePersonality}
+          />
+        )}
+
         {/* ======================= 核心動態戲服渲染區 (Scrollable) ======================= */}
         <div className="flex-1 overflow-y-auto p-10 relative">
           {/* 黑幕換手遮罩：在需要傳遞實體手機或滑鼠的環節，如果不是本人解鎖，整個畫面都會被打上厚厚的馬賽克防偷看！ */}
@@ -349,6 +382,8 @@ export default function Courtroom() {
                                 key={i}
                                 onClick={() => {
                                   setPendingInterventions((prev) => ({ ...prev, [bid]: i }));
+                                  // 觸發法官碎碎念：根據旁觀者選擇支持或質疑
+                                  triggerMurmur(i === 0 ? 'bystander_support' : 'bystander_attack');
                                 }}
                                 className={cn(
                                   'px-6 py-5 rounded-2xl text-base font-black uppercase tracking-widest transition-all active:scale-95 text-center border-2 leading-tight',
@@ -451,7 +486,7 @@ export default function Courtroom() {
                         <div className="grid grid-cols-3 gap-3">
                           {/* 買脫產成功 (無罪) */}
                           <button
-                            onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'win' }))}
+                            onClick={() => { setLocalBets((prev) => ({ ...prev, [bid]: 'win' })); triggerMurmur('bet_innocent'); }}
                             className={cn(
                               'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'win'
@@ -464,7 +499,7 @@ export default function Courtroom() {
                           </button>
                           {/* 買他進牢房被重罰 (有罪) */}
                           <button
-                            onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'lose' }))}
+                            onClick={() => { setLocalBets((prev) => ({ ...prev, [bid]: 'lose' })); triggerMurmur('bet_guilty'); }}
                             className={cn(
                               'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'lose'
@@ -477,7 +512,7 @@ export default function Courtroom() {
                           </button>
                           {/* 人權律師不賭博 (略過) */}
                           <button
-                            onClick={() => setLocalBets((prev) => ({ ...prev, [bid]: 'none' }))}
+                            onClick={() => { setLocalBets((prev) => ({ ...prev, [bid]: 'none' })); triggerMurmur('bet_skip'); }}
                             className={cn(
                               'py-6 px-4 rounded-2xl border-2 font-black transition-all flex flex-col items-center gap-3 text-sm uppercase tracking-widest',
                               currentLocalBet === 'none'
@@ -556,7 +591,11 @@ export default function Courtroom() {
                     return (
                       <button
                         key={i}
-                        onClick={() => setSelectedOption(i)}
+                        onClick={() => {
+                          setSelectedOption(i);
+                          // 觸發法官碎碎念：根據辯護策略強度
+                          triggerMurmur(i === 0 ? 'defense_weak' : i === 1 ? 'defense_mid' : 'defense_strong');
+                        }}
                         className={cn(
                           'w-full px-8 py-6 rounded-3xl border-2 text-left transition-all flex flex-col gap-2 relative group leading-relaxed',
                           selectedOption === i
@@ -765,7 +804,7 @@ export default function Courtroom() {
                         <div className="w-full flex gap-4 max-w-md">
                           {/* 分岔路口：點擊放生放棄撤告，將乖乖接受 Stage 6 法院死刑宣判 */}
                           <button
-                            onClick={() => setTrialStage(6)}
+                            onClick={() => { triggerMurmur('lawyer_giveup'); setTrialStage(6); }}
                             className="flex-1 py-5 bg-white/5 border-2 border-white/10 text-slate-200 font-black rounded-2xl hover:bg-white/10 transition-all active:scale-95 uppercase tracking-widest text-sm"
                           >
                             {COURT_TEXT.PHASE_5.GIVE_UP_BTN}
@@ -774,6 +813,7 @@ export default function Courtroom() {
                           <button
                             disabled={!canAfford}
                             onClick={async () => {
+                              triggerMurmur('lawyer_withdraw');
                               await withdrawCase();
                             }}
                             className="flex-1 py-5 bg-amber-500 disabled:bg-slate-700 disabled:text-slate-500 text-black font-black rounded-2xl hover:bg-amber-400 disabled:hover:bg-slate-700 transition-all shadow-lg shadow-amber-500/20 disabled:shadow-none active:scale-95 disabled:active:scale-100 uppercase tracking-widest text-sm flex items-center justify-center gap-2 disabled:cursor-not-allowed"
@@ -792,6 +832,8 @@ export default function Courtroom() {
 
           {/* -------------------- 階段 6：一翻兩瞪眼，法院宣判死刑還是當庭釋放 -------------------- */}
           {trial.stage === 6 && (
+            <>
+            <VerdictMurmurTrigger triggerMurmur={triggerMurmur} isSuccess={trial.isDefenseSuccess} />
             <div className="space-y-4 animate-in zoom-in duration-700 text-center">
               {/* 【第一小階段：宣讀判決文字】 */}
               {!showPunishmentDetail && (
@@ -867,13 +909,22 @@ export default function Courtroom() {
                       {COURT_TEXT.PHASE_6.ACCEPT_BTN}
                     </button>
                   ) : (
-                    <button
-                      onClick={() => setShowPunishmentDetail(true)}
-                      className="w-full py-6 bg-red-600 border border-red-400 text-white font-black rounded-2xl hover:bg-red-500 transition-all text-2xl uppercase tracking-widest animate-pulse"
-                    >
-                      <Calculator size={24} className="inline mr-2" />
-                      查看處罰詳情與核算報告
-                    </button>
+                    <div className="flex flex-col gap-4 w-full">
+                      <button
+                        onClick={() => setShowPunishmentDetail(true)}
+                        className="w-full py-6 bg-red-600 border border-red-400 text-white font-black rounded-2xl hover:bg-red-500 transition-all text-2xl uppercase tracking-widest animate-pulse"
+                      >
+                        <Calculator size={24} className="inline mr-2" />
+                        查看處罰詳情與核算報告
+                      </button>
+                      <button
+                        onClick={() => setShowStoryDetail(true)}
+                        className="w-full py-5 bg-slate-800 border border-slate-600 hover:border-slate-400 text-slate-300 font-bold rounded-2xl hover:bg-slate-700 transition-all text-xl uppercase tracking-widest"
+                      >
+                        <BookOpen size={24} className="inline mr-2" />
+                        查看真實社會判例
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -975,7 +1026,135 @@ export default function Courtroom() {
                   </div>
                 </div>
               )}
+
+              {/* 【真實社會判例故事展示外框】 */}
+              {showStoryDetail && (
+                <div className="absolute inset-0 z-50 p-6 rounded-[50px] border-4 border-blue-500/50 bg-slate-900/95 shadow-2xl flex flex-col text-left space-y-6 animate-in zoom-in-95 backdrop-blur-3xl overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-6 shrink-0">
+                    <div className="flex items-center gap-4 text-blue-400">
+                      <BookOpen size={48} />
+                      <h3 className="text-4xl font-black uppercase tracking-widest">
+                        真實世界判例
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setShowStoryDetail(false)}
+                      className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white text-xl font-black tracking-widest uppercase rounded-2xl transition-all"
+                    >
+                      關閉卷宗
+                    </button>
+                  </div>
+                  
+                  <div className="flex-1 mt-4 p-8 bg-black/60 border border-blue-500/20 rounded-3xl overflow-y-auto text-slate-200">
+                    <h4 className="text-2xl text-slate-400 font-black mb-6 tracking-widest flex items-center gap-2">
+                      <Gavel size={24} className="opacity-50"/> 
+                      觸犯法條：{trial.lawCase.lawName}
+                    </h4>
+                    {(() => {
+                      const story = getLawStory(trial.lawCase.id);
+                      return (
+                        <div className="flex flex-col gap-10 pb-10">
+                          {/* 1. 背景區 */}
+                          {story.background && story.background.length > 0 && (
+                            <section className="space-y-4">
+                              <h5 className="text-lg font-black text-slate-500 tracking-widest mb-4 uppercase">1. 背景</h5>
+                              {story.background.map((paragraph, i) => (
+                                <p key={i} className="text-2xl text-slate-300 leading-relaxed font-serif tracking-wide">
+                                  {paragraph}
+                                </p>
+                              ))}
+                            </section>
+                          )}
+
+                          {/* 分隔線 */}
+                          {story.background && story.event.length > 0 && <div className="h-px bg-white/10 w-full" />}
+
+                          {/* 2. 事件區 */}
+                          {story.event && story.event.length > 0 && (
+                            <section className="space-y-4">
+                              <h5 className="text-lg font-black text-slate-500 tracking-widest mb-4 uppercase">2. 事件</h5>
+                              {story.event.map((paragraph, i) => {
+                                if (paragraph.startsWith('QUOTE:')) {
+                                  return (
+                                    <div key={i} className="bg-red-500/10 text-red-400 p-6 rounded-2xl border-l-4 border-red-500 font-bold text-2xl leading-relaxed my-6 shadow-inner tracking-wide">
+                                      {paragraph.replace('QUOTE:', '').trim()}
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <p key={i} className="text-2xl text-slate-300 leading-relaxed font-serif tracking-wide">
+                                    {paragraph}
+                                  </p>
+                                );
+                              })}
+                            </section>
+                          )}
+                          
+                          {/* 分隔線 */}
+                          {(story.suspect || story.reason) && <div className="h-px bg-white/10 w-full" />}
+
+                          {/* 3. 判決理由 */}
+                          {(story.suspect || story.reason) && (
+                            <section className="space-y-8">
+                              <h5 className="text-lg font-black text-slate-500 tracking-widest mb-4 uppercase">
+                                3. {trial.isDefenseSuccess ? '為什麼法院判他無罪' : '為什麼法院判他有罪'}
+                              </h5>
+                              
+                              {story.suspect && (
+                                <div className="space-y-4">
+                                  <p className="text-2xl text-slate-300 leading-relaxed font-serif tracking-wide whitespace-pre-line">
+                                    {story.suspect}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {story.reason && (
+                                <div className="space-y-4">
+                                  <p className="text-2xl text-slate-300 leading-relaxed font-serif tracking-wide whitespace-pre-line">
+                                    {story.reason}
+                                  </p>
+                                </div>
+                              )}
+                            </section>
+                          )}
+                          
+                          {/* 分隔線 */}
+                          {story.result && (story.reason || story.suspect || story.event.length > 0) && (
+                            <div className="h-px bg-white/10 w-full mt-4 mb-2" />
+                          )}
+
+                          {/* 4. 判決結果黑盒子 */}
+                          {story.result && (
+                            <section className="p-8 border border-white/10 bg-[#161a20] rounded-2xl space-y-4">
+                              <h5 className="text-lg font-black text-slate-400 tracking-widest mb-2">判決</h5>
+                              <p className="text-3xl font-black text-slate-100 tracking-widest whitespace-pre-line">
+                                {story.result}
+                              </p>
+                            </section>
+                          )}
+
+                          {/* 5. 外部卷宗連結 */}
+                          {story.link && (
+                            <div className="flex justify-start mt-2">
+                              <a
+                                href={story.link}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="inline-flex items-center gap-2 px-6 py-4 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 font-bold rounded-xl transition-all border border-blue-500/30 hover:border-blue-500 group"
+                              >
+                                <ExternalLink size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                <span>前往司法院檢視原始卷宗</span>
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
+            </>
           )}
 
           {/* -------------------- 階段 7 專屬：非常上訴過場動畫播放器 -------------------- */}
@@ -1169,4 +1348,92 @@ function Stage7Transition({ onComplete }: { onComplete: () => void }) {
       </div>
     </div>
   );
+}
+
+/**
+ * 法官碎碎念氣泡元件
+ * 以滑入動畫從頂部顯示法官的即時反應台詞，配合法官性格色調。
+ */
+function JudgeMurmurBubble({
+  text,
+  judgePersonality,
+}: {
+  text: string;
+  judgePersonality: JudgePersonality | null;
+}) {
+  const colorMap: Record<string, { border: string; bg: string; text: string; glow: string }> = {
+    traditionalist: {
+      border: 'border-amber-500/40',
+      bg: 'bg-amber-500/10',
+      text: 'text-amber-400',
+      glow: 'shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+    },
+    algorithmic: {
+      border: 'border-cyan-500/40',
+      bg: 'bg-cyan-500/10',
+      text: 'text-cyan-400',
+      glow: 'shadow-[0_0_20px_rgba(6,182,212,0.15)]',
+    },
+    elegant: {
+      border: 'border-purple-500/40',
+      bg: 'bg-purple-500/10',
+      text: 'text-purple-400',
+      glow: 'shadow-[0_0_20px_rgba(168,85,247,0.15)]',
+    },
+    pragmatic: {
+      border: 'border-rose-500/40',
+      bg: 'bg-rose-500/10',
+      text: 'text-rose-400',
+      glow: 'shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+    },
+    power_broker: {
+      border: 'border-emerald-500/40',
+      bg: 'bg-emerald-500/10',
+      text: 'text-emerald-400',
+      glow: 'shadow-[0_0_20px_rgba(16,185,129,0.15)]',
+    },
+  };
+
+  const colors = judgePersonality ? colorMap[judgePersonality] : null;
+  const borderClass = colors?.border ?? 'border-blue-500/40';
+  const bgClass = colors?.bg ?? 'bg-blue-500/10';
+  const textClass = colors?.text ?? 'text-blue-400';
+  const glowClass = colors?.glow ?? '';
+
+  return (
+    <div
+      className={cn(
+        'mx-10 px-6 py-4 rounded-2xl border-2 backdrop-blur-sm',
+        'flex items-start gap-3',
+        'animate-in fade-in slide-in-from-top-4 duration-500',
+        borderClass, bgClass, glowClass
+      )}
+    >
+      <Gavel size={20} className={cn('shrink-0 mt-0.5', textClass)} />
+      <p className={cn('text-lg font-bold italic leading-relaxed', textClass)}>
+        「{text}」
+      </p>
+    </div>
+  );
+}
+
+/**
+ * 宣判階段碎碎念觸發器
+ * 在 Stage 6 渲染時自動觸發一次判決碎碎念（利用 useEffect 確保只觸發一次）。
+ */
+function VerdictMurmurTrigger({
+  triggerMurmur,
+  isSuccess,
+}: {
+  triggerMurmur: (trigger: MurmurTrigger) => void;
+  isSuccess?: boolean;
+}) {
+  const hasFired = useRef(false);
+  useEffect(() => {
+    if (!hasFired.current) {
+      hasFired.current = true;
+      triggerMurmur(isSuccess ? 'verdict_innocent' : 'verdict_guilty');
+    }
+  }, []);
+  return null;
 }

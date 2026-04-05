@@ -646,10 +646,24 @@ export default function Home() {
                       {pendingScan.cardTitle}
                     </h3>
                   </div>
-                  <div className="p-10 bg-white/5 border border-white/5 rounded-3xl">
-                    <p className="text-3xl font-medium text-slate-300 leading-relaxed">
-                      {pendingScan.optionDescription}
-                    </p>
+                  <div className="p-10 bg-white/5 border border-white/5 rounded-3xl flex flex-col gap-8 shadow-inner">
+                    {/* 卡片背景情境描述 */}
+                    {pendingScan.cardDescription && (
+                      <p className="text-2xl text-slate-400 font-medium leading-relaxed pl-6 border-l-4 border-slate-600/50 italic">
+                        {pendingScan.cardDescription}
+                      </p>
+                    )}
+                    {/* 玩家選擇的行動決議 */}
+                    <div className="flex items-start gap-4">
+                      <div className="mt-1">
+                        <span className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 font-black">
+                          {pendingScan.optionIndex}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-bold text-slate-200 leading-relaxed flex-1">
+                        {pendingScan.optionDescription}
+                      </p>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-8">
                     {/* 取消一切沒事發生鈕 */}
