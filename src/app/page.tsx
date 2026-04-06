@@ -28,6 +28,7 @@ export default function Home() {
     initGame,
     resetGame,
     performAction,
+    judgePersonality,
     engineError,
     endingResult,
     clearEngineError,
@@ -99,11 +100,8 @@ export default function Home() {
         
         <GameHUD 
           turn={turn} 
-          judgePersonality={useGameStore.getState().judgePersonality} 
-          onReset={() => {
-            resetGame();
-            setIsSettingUp(false);
-          }} 
+          judgePersonality={judgePersonality} 
+          onEndTurn={() => useGameStore.getState().endTurn()}
         />
         
         <div className="flex-1 w-full relative overflow-y-auto no-scrollbar pt-28 pb-20 px-4 flex flex-col">
