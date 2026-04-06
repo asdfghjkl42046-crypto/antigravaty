@@ -2,7 +2,7 @@
 
 import { Network, Sparkles, ChevronRight } from 'lucide-react';
 import type { JudgeMode } from '@/types/game';
-import GlowLogo from './GlowLogo';
+import { GlowLogo } from './GlowLogo';
 import { cn } from '@/lib/utils';
 
 interface ModeSelectScreenProps {

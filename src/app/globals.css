@@ -109,6 +109,8 @@ body {
 .logo-particle:nth-child(4) { --left: 80%; --top: 60%; --delay: 0.8s; --duration: 3.1s; }
 .logo-particle:nth-child(5) { --left: 20%; --top: 65%; --delay: 1.5s; --duration: 2.6s; }
 .logo-particle:nth-child(6) { --left: 55%; --top: 40%; --delay: 0.3s; --duration: 2.9s; }
+.logo-particle:nth-child(7) { --left: 65%; --top: 55%; --delay: 1.0s; --duration: 2.5s; }
+.logo-particle:nth-child(8) { --left: 15%; --top: 45%; --delay: 1.8s; --duration: 3.2s; }
 
 /* 漂浮標籤細節設定 (GEMINI.md §6) */
 .court-float-tag:nth-child(1) {
@@ -206,15 +208,7 @@ body {
     stroke 0.3s ease;
 }
 
-/* GlowLogo 專用動畫：掃描光束特效 */
-@keyframes shine-sweep {
-  0% { transform: translate(-100%, -100%) rotate(45deg); opacity: 0; }
-  20% { opacity: 0.8; }
-  45% { transform: translate(100%, 100%) rotate(45deg); opacity: 0; }
-  100% { transform: translate(100%, 100%) rotate(45deg); opacity: 0; }
-}
-
-/* 高級發光脈動：增加多層次輝度變化 */
+/* GlowLogo 專用動畫：增加多層次輝度變化 */
 @keyframes glow-pulse {
   0%, 100% {
     opacity: 0.7;
@@ -239,8 +233,8 @@ body {
   }
 }
 
-.animate-shine-sweep {
-  animation: shine-sweep 3s ease-in-out infinite;
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 .animate-glow-pulse {
@@ -255,9 +249,3 @@ body {
   animation: spin 15s linear infinite;
 }
 
-/* 增加紋理雜訊 (Noise Texture) 透明疊層 */
-.noise-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-}
