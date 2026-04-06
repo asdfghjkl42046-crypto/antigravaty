@@ -16,6 +16,9 @@ import { CARDS_DB } from '@/data/cards/CardsDB';
 import HRShop from '@/components/HRShop';
 import QrScanner from '@/components/QrScanner';
 import { TerminalScanner } from '@/components/TerminalScanner';
+import { MobileHeader } from '@/components/MobileHeader';
+import { PlayerActionCard } from '@/components/PlayerActionCard';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export default function Home() {
   const {
@@ -28,6 +31,7 @@ export default function Home() {
     initGame,
     resetGame,
     performAction,
+    endTurn,
     judgePersonality,
     engineError,
     endingResult,
@@ -35,7 +39,7 @@ export default function Home() {
   } = useGameStore();
 
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'scan' | 'hrshop' | 'log'>('scan');
+  const [activeTab, setActiveTab] = useState<'home' | 'hrshop' | 'scan'>('home');
   const [isQrActive, setIsQrActive] = useState(false);
   
   // 記錄是否正在進行玩家設定，這是一個過渡狀態
@@ -46,9 +50,8 @@ export default function Home() {
 
   if (!mounted) return null;
 
-  // ... (初始階段 1 & 2 判斷保留)
+  // 初始模式選擇
   if (!players.length && phase === 'play' && !trial && !isSettingUp) {
-    if (activeTab !== 'scan') setActiveTab('scan');
     return (
       <ModeSelectScreen 
         onSelect={(mode) => {
@@ -59,6 +62,7 @@ export default function Home() {
     );
   }
 
+  // 玩家設定流程
   if (players.length === 0 && isSettingUp) {
     return (
       <main className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden">
@@ -77,34 +81,28 @@ export default function Home() {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  // 處理指令解碼
+  // 處理指令解碼執行
   const handleActionCode = async (cardId: string, optionIdx: number) => {
-    // 檢查卡片是否存在於資料庫
-    if (!CARDS_DB[cardId]) {
-      // 這裡理論上應由 Terminal 內部攔截，但這做為二次防禦
-      return; 
-    }
-    
-    // 發動核心行動引擎
+    if (!CARDS_DB[cardId]) return; 
     await performAction(cardId, optionIdx as 1 | 2 | 3);
-    
-    // 若掃描器開啟，自動關閉以顯示結果
     if (isQrActive) setIsQrActive(false);
+    // 執行成功後跳回主頁預覽數值
+    setActiveTab('home');
   };
 
   return (
     <main className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden font-sans">
-      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-black flex flex-col items-center overflow-hidden shadow-2xl border-x border-white/5 animate-in fade-in duration-700">
+      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-[#050505] flex flex-col items-center overflow-hidden shadow-2xl border-x border-white/5 animate-in fade-in duration-700">
         
-        <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.05] pointer-events-none" />
+        {/* 背景點點 */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px:20px] opacity-[0.2] pointer-events-none" />
         
-        <GameHUD 
-          turn={turn} 
-          judgePersonality={judgePersonality} 
-          onEndTurn={() => useGameStore.getState().endTurn()}
-        />
+        {/* 頂部 Header */}
+        <MobileHeader turn={turn} judgePersonality={judgePersonality} />
         
-        <div className="flex-1 w-full relative overflow-y-auto no-scrollbar pt-28 pb-20 px-4 flex flex-col">
+        {/* 主內容區 */}
+        <div className="flex-1 w-full relative overflow-y-auto no-scrollbar pb-32 px-4 flex flex-col">
+          
           {phase === 'courtroom' ? (
             <div className="flex-1 h-full w-full">
               <Courtroom />
@@ -123,48 +121,52 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <div className="space-y-6 flex flex-col h-full">
-              <PlayerSidebar players={players} currentPlayerIndex={currentPlayerIndex} />
-              <TabNavigation activeTab={activeTab} onTabChange={(tab) => {
-                setActiveTab(tab);
-                if (tab !== 'scan') setIsQrActive(false);
-              }} />
-              
-              <div className="flex-1">
-                {activeTab === 'scan' && (
-                  <div className="space-y-4">
-                    <TerminalScanner 
-                      onDecode={handleActionCode}
-                      onToggleQr={() => setIsQrActive(!isQrActive)}
-                      isQrActive={isQrActive}
-                      disabled={currentPlayer?.ap <= 0}
+            <div className="flex-1 flex flex-col">
+              {/* 基於當前分頁渲染內容 */}
+              {activeTab === 'home' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  {players.map((p, idx) => (
+                    <PlayerActionCard 
+                      key={p.id}
+                      player={p}
+                      isActive={idx === currentPlayerIndex}
+                      onEndTurn={() => {
+                        endTurn();
+                      }}
                     />
-                    
-                    {isQrActive && (
-                      <QrScanner 
-                        active={isQrActive}
-                        onScanSuccess={(code) => {
-                          // 解析 A-01-1 格式
-                          const match = code.trim().toUpperCase().match(/^([A-E]-\d{2})-([1-3])$/);
-                          if (match) {
-                            handleActionCode(match[1], parseInt(match[2]));
-                          }
-                        }}
-                        onClose={() => setIsQrActive(false)}
-                      />
-                    )}
-                  </div>
-                )}
+                  ))}
+                </div>
+              )}
 
-                {activeTab === 'log' && <GlobalActionLog />}
-                
-                {activeTab === 'hrshop' && (
-                  <HRShop onActionResult={(res) => {
-                    // 若有需求可在這裡處理升級後的全域通知
-                    console.log('HR Upgrade Result:', res);
-                  }} />
-                )}
-              </div>
+              {activeTab === 'scan' && (
+                <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <TerminalScanner 
+                    onDecode={handleActionCode}
+                    onToggleQr={() => setIsQrActive(!isQrActive)}
+                    isQrActive={isQrActive}
+                    disabled={currentPlayer?.ap <= 0}
+                  />
+                  
+                  {isQrActive && (
+                    <QrScanner 
+                      active={isQrActive}
+                      onScanSuccess={(code) => {
+                        const match = code.trim().toUpperCase().match(/^([A-E]-\d{2})-([1-3])$/);
+                        if (match) {
+                          handleActionCode(match[1], parseInt(match[2]));
+                        }
+                      }}
+                      onClose={() => setIsQrActive(false)}
+                    />
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'hrshop' && (
+                <div className="h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <HRShop onActionResult={() => {}} />
+                </div>
+              )}
             </div>
           )}
         </div>
