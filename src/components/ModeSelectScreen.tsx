@@ -53,10 +53,13 @@ export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
           {/* C1. 網站模式 (藍色系) */}
           <button
             onClick={() => onSelect('website')}
-            className="w-full group relative text-left outline-none transition-transform active:scale-[0.98]"
+            className="w-full group relative text-left outline-none transition-all active:scale-95 active:rotate-[1deg] active:brightness-[1.2]"
           >
             {/* 卡片本體 */}
             <div className="relative w-full rounded-[40px] border border-blue-500/20 bg-gradient-to-b from-[#0f172a] to-[#01050a] p-7 shadow-[0_20px_50px_rgba(0,0,0,1)] overflow-hidden">
+              {/* 點擊閃爍層 */}
+              <div className="absolute inset-0 bg-white opacity-0 group-active:opacity-10 transition-opacity pointer-events-none" />
+              
               {/* 背景內部發光 */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-[50px] pointer-events-none" />
               
@@ -85,9 +88,12 @@ export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
           {/* C2. AI 模式 (綠色系) */}
           <button
             onClick={() => onSelect('ai')}
-            className="w-full group relative text-left outline-none transition-transform active:scale-[0.98]"
+            className="w-full group relative text-left outline-none transition-all active:scale-95 active:rotate-[-1deg] active:brightness-[1.2]"
           >
             <div className="relative w-full rounded-[40px] border border-emerald-500/20 bg-gradient-to-b from-[#064e3b]/30 to-[#01050a] p-7 shadow-[0_20px_50px_rgba(0,0,0,1)] overflow-hidden">
+              {/* 點擊閃爍層 */}
+              <div className="absolute inset-0 bg-[#34d399] opacity-0 group-active:opacity-10 transition-opacity pointer-events-none" />
+
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-600/10 blur-[50px] pointer-events-none" />
               
               <div className="flex items-center gap-4 mb-4">

@@ -58,7 +58,7 @@ export default function Home() {
   if (!mounted) return null;
 
   // 1. 初始階段：若還沒選擇模式，也沒有設定玩家，則顯示模式選擇畫面
-  if (!players.length && phase === 'play' && !trial) {
+  if (!players.length && phase === 'play' && !trial && !isSettingUp) {
     if (activeTab !== 'scan') setActiveTab('scan'); // 強制重設
     return (
       <ModeSelectScreen 
