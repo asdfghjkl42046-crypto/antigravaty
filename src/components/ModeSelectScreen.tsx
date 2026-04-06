@@ -1,67 +1,112 @@
-'use client'; // 包含 onClick 互動事件，必須在客端註冊處理
+'use client';
 
-import { Scale } from 'lucide-react';
+import { Scale, Network, Sparkles } from 'lucide-react';
 import type { JudgeMode } from '@/types/game';
-import { SETUP_TEXT } from '@/data/setup/SetupData';
 
-// 對外接單合約：通知指揮總部 (page.tsx) 玩家選擇了哪一條不歸路
 interface ModeSelectScreenProps {
   onSelect: (mode: JudgeMode) => void;
 }
 
 /**
- * 遊戲模式選擇畫面
- * 讓玩家選擇要使用 AI 法官連線，還是原本的純網頁模式。
+ * 遊戲模式選擇畫面 (APP 風格 19.5:9 比例重構版)
  */
 export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
   return (
-    // 深海壓迫感浮現：透過極慢速的放大動畫，將這個抉擇沉重地壓在玩家面前
-    <div className="max-w-4xl w-full space-y-12 animate-in fade-in zoom-in duration-700 py-12 text-center select-none">
-      {/* 傾斜的最高法院天平標誌：一開始就暗示這場遊戲裡沒有絕對的公平 */}
-      <div className="space-y-4">
-        <div className="w-20 h-20 rounded-3xl bg-blue-600 flex items-center justify-center shadow-2xl mx-auto mb-6 rotate-12">
-          <Scale size={48} className="text-white" />
+    // 外層容器：確保置中並提供適當留白
+    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-[#0d1117] select-none">
+      
+      {/* 嚴格限制的 19.5:9 手機比例框 */}
+      <div className="relative w-full max-w-[390px] h-[844px] max-h-[90vh] bg-[#030612] rounded-[48px] border-[6px] border-[#0a1128] overflow-hidden flex flex-col items-center px-6 py-10 shadow-2xl shrink-0">
+        
+        {/* 背景粒子效果與漸層 */}
+        <div className="absolute inset-0 bg-[radial-gradient(#1e3a8a_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-blue-900/20 to-transparent pointer-events-none" />
+
+        {/* 頂部：擬真 3D App Icon */}
+        <div className="mt-4 relative group shrink-0">
+          <div className="absolute inset-0 bg-blue-500/30 blur-2xl rounded-full pointer-events-none" />
+          <div className="w-[120px] h-[120px] bg-gradient-to-b from-[#eef6ff] to-[#a0c4e8] p-[3px] rounded-[32px] shadow-[0_0_40px_rgba(59,130,246,0.3)] relative z-10 overflow-hidden shrink-0">
+            <div className="w-full h-full bg-gradient-to-br from-[#06113b] to-[#020516] rounded-[28px] flex flex-col items-center justify-center relative overflow-hidden">
+               {/* 內部藍色光暈 */}
+               <div className="absolute top-[-20%] right-[-20%] w-24 h-24 bg-blue-400/30 blur-2xl rounded-full" />
+               <div className="absolute bottom-[-10%] inset-x-0 h-1/2 bg-blue-600/30 blur-xl" />
+               {/* 內發光邊框 */}
+               <div className="absolute inset-2 border border-blue-400/40 rounded-[20px] pointer-events-none" />
+               
+               {/* 核心天平 */}
+               <Scale size={46} strokeWidth={1.5} className="text-blue-100 drop-shadow-[0_0_12px_rgba(96,165,250,1)] z-10 mb-1.5" />
+               <span className="text-[8px] font-black tracking-widest text-blue-100 z-10 drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">ANTIGRAVITY</span>
+            </div>
+          </div>
         </div>
-        <h1 className="text-5xl font-black italic text-white flex items-center justify-center gap-4 uppercase tracking-tighter">
-          {SETUP_TEXT.MODE_SELECT.TITLE_MAIN}{' '}
-          <span className="text-blue-500">{SETUP_TEXT.MODE_SELECT.TITLE_SUB}</span>
-        </h1>
-        <p className="text-slate-200 font-medium text-lg">{SETUP_TEXT.MODE_SELECT.PROMPT}</p>
-      </div>
 
-      {/* 魔鬼的左右手：兩種截然不同的受苦體驗 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* 溫室路線：連線內建的固定規則裁判，免付 API 保護費，適合只想過把癮的新少爺（採用寧靜藍） */}
-        <button
-          onClick={() => onSelect('website')}
-          className="group relative p-10 bg-[#0d1117] border-2 border-white/5 hover:border-blue-500/50 rounded-[40px] text-left transition-all hover:scale-[1.02] shadow-xl hover:shadow-blue-500/10 overflow-hidden"
-        >
-          <div className="relative z-10 space-y-6">
-            <h3 className="text-3xl font-black">{SETUP_TEXT.MODE_SELECT.WEBSITE_TITLE}</h3>
-            <p className="text-slate-200 text-sm italic font-medium">
-              {SETUP_TEXT.MODE_SELECT.WEBSITE_DESC}
-            </p>
-            <div className="w-full py-4 bg-blue-600/10 border border-blue-500/20 rounded-2xl text-center font-black text-blue-300 group-hover:bg-blue-600 group-hover:text-white transition-all uppercase tracking-widest text-xs">
-              {SETUP_TEXT.MODE_SELECT.WEBSITE_BTN}
-            </div>
-          </div>
-        </button>
+        {/* 標題區 */}
+        <div className="mt-8 flex flex-col items-center gap-1 mb-8 text-center shrink-0">
+          <span className="text-[10px] font-black tracking-[0.4em] text-[#3b5b9e] uppercase mb-2">Antigravity Terminal</span>
+          <h1 className="text-[34px] leading-[1.1] font-black text-slate-100 tracking-widest">
+            創業冒險<br />現代法律篇
+          </h1>
+        </div>
 
-        {/* 硬核連線路線：強制接管！真正的 AI 大模型要在雲端對你做出最變態、最隨機的制裁！（採用生化警告綠） */}
-        <button
-          onClick={() => onSelect('ai')}
-          className="group relative p-10 bg-[#0d1117] border-2 border-white/5 hover:border-emerald-500/50 rounded-[40px] text-left transition-all hover:scale-[1.02] shadow-xl hover:shadow-emerald-500/10 overflow-hidden"
-        >
-          <div className="relative z-10 space-y-6">
-            <h3 className="text-3xl font-black">{SETUP_TEXT.MODE_SELECT.AI_TITLE}</h3>
-            <p className="text-slate-200 text-sm italic font-medium">
-              {SETUP_TEXT.MODE_SELECT.AI_DESC}
-            </p>
-            <div className="w-full py-4 bg-emerald-600/10 border border-emerald-500/20 rounded-2xl text-center font-black text-emerald-300 group-hover:bg-emerald-600 group-hover:text-white transition-all uppercase tracking-widest text-xs">
-              {SETUP_TEXT.MODE_SELECT.AI_BTN}
+        {/* 模式選單 */}
+        <div className="w-full flex-1 flex flex-col gap-5 min-h-0 justify-start">
+          
+          {/* 網站模式卡片 (穩定體驗) */}
+          <button
+            onClick={() => onSelect('website')}
+            className="w-full group relative text-left"
+          >
+            <div className="absolute inset-0 bg-[#2563eb]/10 rounded-[32px] blur-xl transition-opacity group-hover:bg-[#2563eb]/20 pointer-events-none" />
+            <div className="relative w-full rounded-[30px] border border-[#2a3c68] bg-gradient-to-b from-[#101d3f] to-[#0c1328] p-5 sm:p-6 shadow-2xl transition-all hover:scale-[1.02]">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center shrink-0">
+                  <Network size={22} className="text-[#60a5fa] drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-[22px] font-black text-slate-100 tracking-wider">網站模式</h3>
+                  <p className="text-[10px] font-black tracking-widest text-[#4f6ea2] uppercase mt-0.5 truncate">Stable Experience</p>
+                </div>
+              </div>
+              <p className="text-[#8ba2cb] text-xs font-medium leading-[1.6] mb-5 sm:mb-6">
+                使用固定戲劇性文案模板，無需等待 AI 生成，享受極速判決體驗。
+              </p>
+              <div className="w-full py-3.5 sm:py-4 rounded-[18px] bg-[#3b82f6] text-white text-center font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(59,130,246,0.3)] group-hover:bg-blue-500 transition-colors relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                開始遊戲
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+
+          {/* AI模式卡片 (無限冒險) */}
+          <button
+            onClick={() => onSelect('ai')}
+            className="w-full group relative text-left"
+          >
+            <div className="absolute inset-0 bg-emerald-500/10 rounded-[32px] blur-xl transition-opacity group-hover:bg-emerald-500/20 pointer-events-none" />
+            <div className="relative w-full rounded-[30px] border border-[#1b4438] bg-gradient-to-b from-[#073627] to-[#041913] p-5 sm:p-6 shadow-2xl transition-all hover:scale-[1.02]">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
+                  <Sparkles size={22} className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-[22px] font-black text-slate-100 tracking-wider">AI 模式</h3>
+                  <p className="text-[10px] font-black tracking-widest text-[#3b8469] uppercase mt-0.5 truncate">Infinite Adventure</p>
+                </div>
+              </div>
+              <p className="text-[#6fa894] text-xs font-medium leading-[1.6] mb-5 sm:mb-6">
+                由 LLM 生成無限變化的判決，支援自由文字陳述，打造專屬你的冒險。
+              </p>
+              <div className="w-full py-3.5 sm:py-4 rounded-[18px] bg-[#22c55e] text-[#022c22] text-center font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(34,197,94,0.3)] group-hover:bg-emerald-400 transition-colors relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                開始遊戲
+              </div>
+            </div>
+          </button>
+
+        </div>
+        
+        {/* 手機底部的休眠指示條 (Home Bar) */}
+        <div className="w-1/3 h-1 bg-white/10 rounded-full mt-auto mb-2 shrink-0 pointer-events-none" />
       </div>
     </div>
   );
