@@ -15,18 +15,57 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
   const [isDesignMode, setIsDesignMode] = useState(false); // 控制排版模式
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 初始佈局數據 (根據使用者最新手動調校後的 JSON 更新)
+  // 初始原子佈局數據 (v5.0 極致顆粒度)
   const [layout, setLayout] = useState<Record<string, AlignmentElement>>({
-    p1: { top: 7, left: 20, width: 30, height: 26.5, radius: 30 },
-    p2: { top: 7, left: 53, width: 30, height: 26.5, radius: 30 },
-    p3: { top: 40, left: 20, width: 30, height: 26.5, radius: 30 },
-    p4: { top: 40, left: 53, width: 30, height: 26.5, radius: 30 },
-    confirm: { 
-      top: 72.81735834251363, 
-      left: 16.240476190476194, 
-      width: 67.61904761904762, 
-      height: 9.310248572981493, 
-      radius: 999 
+    header_title: {
+      top: 15,
+      left: 10,
+      width: 80,
+      height: 6,
+      fontSize: 32,
+      label: '選擇參與人數',
+    },
+    header_subtitle: {
+      top: 21,
+      left: 10,
+      width: 80,
+      height: 4,
+      fontSize: 14,
+      label: '請根據您的冒險需求...',
+    },
+
+    // P1
+    p1_box: { top: 30, left: 20, width: 30, height: 19, radius: 30, label: 'P1 容器' },
+    p1_num: { top: 35, left: 32.5, width: 5, height: 4, fontSize: 32, label: '1' },
+    p1_label: { top: 43, left: 30, width: 10, height: 2, fontSize: 9, label: 'PLAYER' },
+    p1_icon: { top: 40, left: 33, width: 4, height: 3, fontSize: 16, label: '小人' },
+
+    // P2
+    p2_box: { top: 30, left: 53, width: 30, height: 19, radius: 30, label: 'P2 容器' },
+    p2_num: { top: 35, left: 65.5, width: 5, height: 4, fontSize: 32, label: '2' },
+    p2_label: { top: 43, left: 63, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p2_icon: { top: 40, left: 66, width: 4, height: 3, fontSize: 16, label: '小人' },
+
+    // P3
+    p3_box: { top: 50, left: 20, width: 30, height: 19, radius: 30, label: 'P3 容器' },
+    p3_num: { top: 55, left: 32.5, width: 5, height: 4, fontSize: 32, label: '3' },
+    p3_label: { top: 63, left: 30, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p3_icon: { top: 60, left: 33, width: 4, height: 3, fontSize: 16, label: '小人' },
+
+    // P4
+    p4_box: { top: 50, left: 53, width: 30, height: 19, radius: 30, label: 'P4 容器' },
+    p4_num: { top: 55, left: 65.5, width: 5, height: 4, fontSize: 32, label: '4' },
+    p4_label: { top: 63, left: 63, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p4_icon: { top: 60, left: 66, width: 4, height: 3, fontSize: 16, label: '小人' },
+
+    confirm: {
+      top: 83.3,
+      left: 15,
+      width: 70,
+      height: 8,
+      radius: 999,
+      fontSize: 16,
+      label: '確認人數並開始冒險',
     },
   });
 
@@ -40,144 +79,199 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
     }
   }, [isDesignMode]);
 
+  // 動態定位類別注入 (支援 v5.0 原子化編輯器)
+  const layoutStyles = `
+    ${Object.entries(layout)
+      .map(
+        ([id, el]) => `
+      .${id}-pos { 
+        top: ${el.top}%; 
+        left: ${el.left}%; 
+        width: ${el.width}%; 
+        height: ${el.height}%; 
+        border-radius: ${el.radius || 0}px !important; 
+        font-size: ${el.fontSize || 14}px !important; 
+        position: absolute !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+    `
+      )
+      .join('\n')}
+  `;
+
   return (
     <div className="w-full h-full flex items-center justify-center overflow-hidden bg-[#020617]">
-      <div 
-        ref={containerRef} 
+      {/* 注入動態對位變數 */}
+      <style dangerouslySetInnerHTML={{ __html: layoutStyles }} />
+
+      <div
+        ref={containerRef}
         className="relative h-full max-h-[92dvh] w-full max-w-[420px] select-none text-white overflow-hidden flex flex-col items-center"
       >
         {/* 設計模式按鈕 (僅開發環境可見) */}
-        <button 
+        <button
           onClick={() => setIsDesignMode(!isDesignMode)}
           className="fixed top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
           title="切換排版模式"
         >
-          {isDesignMode ? <Eye className="w-5 h-5 text-emerald-400" /> : <Settings2 className="w-5 h-5" />}
+          {isDesignMode ? (
+            <Eye className="w-5 h-5 text-emerald-400" />
+          ) : (
+            <Settings2 className="w-5 h-5" />
+          )}
         </button>
 
         {/* 背景：數位網格與強化漸層 */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[#020617]" />
-          <div 
-            className="absolute inset-0 opacity-[0.12]" 
-            style={{ 
-              backgroundImage: `radial-gradient(#1e293b 1px, transparent 1px)`,
-              backgroundSize: '16px 16px'
-            }} 
-          />
+          <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(30,58,138,0.25)_0%,transparent_70%)]" />
         </div>
 
         {/* 頂部導航：左側返回，右側改為天平影片 */}
         <div className="w-full flex items-center justify-between ui-animate z-30 px-8 pt-6 relative">
-          <button 
+          <button
             onClick={onBack}
             className="w-12 h-12 flex items-center justify-center rounded-[18px] bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer backdrop-blur-md shadow-xl"
             title="BACK"
           >
             <ArrowLeft className="w-5 h-5 text-slate-300" />
           </button>
-          
+
           {/* 右上角 Logo 影片區：去白邊版本 */}
           <div className="relative ui-animate">
-            <div className="w-16 aspect-square rounded-2xl bg-transparent shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-              <div className="w-full h-full rounded-2xl overflow-hidden flex items-center justify-center">
+            <div className="w-16 aspect-square rounded-2xl bg-transparent shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black/20 backdrop-blur-xl group">
                 <video
                   src="/assets/logo_anim.mp4"
-                  autoPlay loop muted playsInline
-                  className="w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-all duration-700"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* 引導文字：向上微調騰出空間 */}
-        <div className="w-full mt-6 px-10 ui-animate relative z-10">
-          <h2 className="text-3xl font-black tracking-tight text-white">選擇參與人數</h2>
-          <p className="text-xs text-slate-400 mt-2 font-medium">請根據您的冒險需求選取合適的團隊規模</p>
+        {/* 引導文字：原子化 */}
+        {layout.header_title && (
+          <h2 className="header_title-pos font-black tracking-tight text-white reg-animate">
+            {layout.header_title.label}
+          </h2>
+        )}
+        {layout.header_subtitle && (
+          <p className="header_subtitle-pos text-slate-400 font-medium reg-animate">
+            {layout.header_subtitle.label}
+          </p>
+        )}
+
+        {/* 1-4 玩家選擇區原子化：疊加模式 */}
+        <div
+          className={`absolute inset-0 z-20 pointer-events-none transition-all duration-500 ${isDesignMode ? 'opacity-40 grayscale blur-[0.2px]' : 'opacity-100'}`}
+        >
+          {[1, 2, 3, 4].map((count, idx) => {
+            const prefix = `p${count}`;
+            if (!layout[`${prefix}_box`]) return null;
+            const isActive = selectedCount === count;
+            return (
+              <React.Fragment key={prefix}>
+                <button
+                  onClick={() => setSelectedCount(count)}
+                  className={`
+                        ui-animate flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group overflow-hidden pointer-events-auto
+                        ${prefix}_box-pos
+                        ${
+                          isActive
+                            ? 'bg-[#0f172a] border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3),inset_0_0_20px_rgba(59,130,246,0.2)] scale-105 z-30'
+                            : 'bg-[#0f172a]/40 border border-white/10 hover:border-white/30 z-20'
+                        }
+                      `}
+                  title={`${count} PLAYER`}
+                />
+
+                {/* 數字 */}
+                {layout[`${prefix}_num`] && (
+                  <div
+                    className={`${prefix}_num-pos font-black transition-colors pointer-events-none z-40 ${isActive ? 'text-white' : 'text-slate-300'}`}
+                  >
+                    {layout[`${prefix}_num`].label}
+                  </div>
+                )}
+
+                {/* 標籤 */}
+                {layout[`${prefix}_label`] && (
+                  <div
+                    className={`${prefix}_label-pos font-bold tracking-[0.2em] uppercase transition-colors pointer-events-none z-40 ${isActive ? 'text-blue-400' : 'text-slate-500'}`}
+                  >
+                    {layout[`${prefix}_label`].label}
+                  </div>
+                )}
+
+                {/* 圖示 (動態數量與靈動動畫) */}
+                {layout[`${prefix}_icon`] && (
+                  <div className={`${prefix}_icon-pos transition-all duration-500 pointer-events-none z-40 flex items-center justify-center
+                    ${isActive ? 'text-blue-400 drop-shadow-[0_0_12px_rgba(59,130,246,0.6)] scale-110' : 'text-slate-600 opacity-60 scale-100'}
+                  `}>
+                    <div className="relative w-full h-full animate-bounce-subtle">
+                      {idx === 0 && <User className="w-full h-full" />}
+                      {idx === 1 && (
+                        <>
+                          <User className="absolute -left-1 -top-1 w-4/5 h-4/5 opacity-50" />
+                          <User className="absolute left-1 top-1 w-full h-full" />
+                        </>
+                      )}
+                      {idx === 2 && (
+                        <div className="relative w-full h-full scale-100">
+                          <User className="absolute left-1/2 -translate-x-1/2 -top-1 w-3/4 h-3/4 z-10" />
+                          <User className="absolute left-0 bottom-0 w-2/3 h-2/3 opacity-60" />
+                          <User className="absolute right-0 bottom-0 w-2/3 h-2/3 opacity-60" />
+                        </div>
+                      )}
+                      {idx === 3 && (
+                        <div className="relative w-full h-full">
+                          <User className="absolute -left-1 -top-1 w-3/4 h-3/4 opacity-40" />
+                          <User className="absolute left-1 -top-1 w-3/4 h-3/4 opacity-70" />
+                          <Users className="absolute left-0 top-1 w-full h-full" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+
+          {/* 下方確認按鈕 */}
+          {layout.confirm && (
+            <button
+              onClick={() => onConfirm(selectedCount)}
+              className="ui-animate bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-[0.3em] text-sm shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer border border-white/10 flex items-center justify-center overflow-hidden group confirm-pos pointer-events-auto"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span>確認人數並開始冒險</span>
+            </button>
+          )}
         </div>
 
-        {/* 1-4 玩家選擇區 (排版控制區) */}
-        <div className="relative w-full flex-grow mt-4">
-          
-          {/* 排版工具 */}
-          {isDesignMode && (
-            <AlignmentTool 
+        {/* 排版工具 */}
+        {isDesignMode && (
+          <div className="absolute inset-0 z-30">
+            <AlignmentTool
               containerRef={containerRef}
               initialElements={layout}
               onUpdate={setLayout}
               renderElement={(id, el) => (
-                <div 
-                  className={`w-full h-full rounded-[${el.radius}px] flex flex-col items-center justify-center bg-blue-600/20 border-2 border-blue-400/50 shadow-lg`}
-                  style={{ borderRadius: `${el.radius}px` }}
-                >
+                <div className="w-full h-full flex flex-col items-center justify-center bg-blue-600/20 border-2 border-blue-400/50 shadow-lg">
                   <p className="font-black text-xs">{id.toUpperCase()}</p>
                 </div>
               )}
             />
-          )}
-
-          {/* 正常渲染區：同步新視覺風格 */}
-          {!isDesignMode && (
-            <div className="absolute inset-0">
-               {/* 渲染 4 個玩家按鈕 */}
-               {[1, 2, 3, 4].map((count) => {
-                  const id = `p${count}`;
-                  const isActive = selectedCount === count;
-                  const el = layout[id];
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => setSelectedCount(count)}
-                      className={`
-                        ui-animate absolute flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group overflow-hidden
-                        ${isActive 
-                          ? 'bg-[#0f172a] border-2 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3),inset_0_0_20px_rgba(59,130,246,0.2)] scale-105 z-20' 
-                          : 'bg-[#0f172a]/40 border border-white/10 hover:border-white/30 z-10'
-                        }
-                      `}
-                      style={{ 
-                        top: `${el.top}%`,
-                        left: `${el.left}%`,
-                        width: `${el.width}%`,
-                        height: `${el.height}%`,
-                        borderRadius: `${el.radius}px` 
-                      }}
-                      title={`${count} PLAYER`}
-                    >
-                      {/* 背景裝飾 */}
-                      {isActive && <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent pointer-events-none" />}
-                      
-                      <div className={`mb-3 p-3 rounded-2xl transition-all duration-300 ${isActive ? 'bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)]' : 'bg-white/5 text-slate-400 group-hover:bg-white/10'}`}>
-                        {count === 1 ? <User className="w-6 h-6" /> : <Users className="w-6 h-6" />}
-                      </div>
-                      <div className={`text-2xl font-black transition-colors ${isActive ? 'text-white' : 'text-slate-300'}`}>{count}</div>
-                      <div className={`text-[9px] font-bold tracking-[0.2em] uppercase transition-colors ${isActive ? 'text-blue-400' : 'text-slate-500'}`}>
-                        {count === 1 ? 'Player' : 'Players'}
-                      </div>
-                    </button>
-                  );
-                })}
-
-              {/* 下方確認按鈕 */}
-              <button 
-                onClick={() => onConfirm(selectedCount)}
-                className="ui-animate absolute bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-[0.3em] text-sm shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer border border-white/10 flex items-center justify-center overflow-hidden group"
-                style={{ 
-                  top: `${layout.confirm.top}%`,
-                  left: `${layout.confirm.left}%`,
-                  width: `${layout.confirm.width}%`,
-                  height: `${layout.confirm.height}%`,
-                  borderRadius: `${layout.confirm.radius}px` 
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span>確認人數並開始冒險</span>
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 底部裝飾：已移除 */}
       </div>

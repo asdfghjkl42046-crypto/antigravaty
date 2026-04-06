@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Network, Sparkles, Settings2, Eye, CircleDashed } from 'lucide-react';
+import { Network, Sparkles, Settings2, Eye, CircleDashed, Building2 } from 'lucide-react';
 import gsap from 'gsap';
 import AlignmentTool, { AlignmentElement } from './AlignmentTool';
 
@@ -13,21 +13,125 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
   const [isDesignMode, setIsDesignMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 根據使用者最新手動調校後的佈局數據更新預設值 (微調高度以適配內容)
+  // 初始原子佈局數據 (v5.0 極致顆粒度)
   const [layout, setLayout] = useState<Record<string, AlignmentElement>>({
-    website: { 
-      top: 0.6, 
-      left: 17, 
-      width: 66, 
-      height: 48, 
-      radius: 23 
+    header_title: {
+      top: 22,
+      left: 10,
+      width: 80,
+      height: 6,
+      fontSize: 36,
+      label: '創業冒險',
     },
-    ai: { 
-      top: 50.137381503841134, 
-      left: 17, 
-      width: 66, 
-      height: 48, 
-      radius: 23 
+    header_subtitle: {
+      top: 29,
+      left: 10,
+      width: 80,
+      height: 4,
+      fontSize: 28,
+      label: '現代法律篇',
+    },
+
+    // Website Mode 原子
+    wb_box: {
+      top: 38,
+      left: 15,
+      width: 70,
+      height: 26,
+      radius: 23,
+      label: '網站模式容器',
+    },
+    wb_title: {
+      top: 41.50000000000001,
+      left: 20,
+      width: 60,
+      height: 5,
+      fontSize: 24,
+      label: '網站模式',
+    },
+    wb_sub: {
+      top: 46.80000000000001,
+      left: 20,
+      width: 60,
+      height: 2,
+      fontSize: 10,
+      label: 'Web Mode',
+    },
+    wb_desc: {
+      top: 51,
+      left: 20,
+      width: 60,
+      height: 6,
+      fontSize: 11,
+      label: '使用固定戲劇性文案模板，無需等待 AI 生成',
+    },
+    wb_btn: {
+      top: 57.62618496158869,
+      left: 25,
+      width: 50,
+      height: 4.412144511523394,
+      radius: 999,
+      fontSize: 12,
+      label: '開始遊戲',
+    },
+    wb_icon: {
+      top: 41,
+      left: 68,
+      width: 6,
+      height: 6,
+      fontSize: 20,
+      label: '網站圖示',
+    },
+
+    // AI Mode 原子
+    ai_box: {
+      top: 67,
+      left: 15,
+      width: 70,
+      height: 26,
+      radius: 23,
+      label: 'AI 模式容器',
+    },
+    ai_title: {
+      top: 70.49999999999997,
+      left: 20,
+      width: 60,
+      height: 5,
+      fontSize: 24,
+      label: 'AI 模式',
+    },
+    ai_sub: {
+      top: 75.69999999999996,
+      left: 20,
+      width: 60,
+      height: 2,
+      fontSize: 10,
+      label: 'AI Mode',
+    },
+    ai_desc: {
+      top: 80,
+      left: 20,
+      width: 60,
+      height: 6,
+      fontSize: 11,
+      label: '由 LLM 生成無限變化的判決，支援自由文字陳述',
+    },
+    ai_btn: {
+      top: 86.62618496158869,
+      left: 25.238095238095237,
+      width: 50,
+      height: 4,
+      radius: 999,
+      fontSize: 12,
+      label: '開始遊戲',
+    },
+    ai_icon: {
+      top: 70,
+      left: 68,
+      width: 6,
+      height: 6,
+      fontSize: 24,
+      label: 'AI 圖示',
     },
   });
 
@@ -40,9 +144,30 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       );
     }
   }, [isDesignMode]);
+  
+  // 動態定位類別注入 (支援 v5.0 原子化編輯器)
+  const layoutStyles = `
+    ${Object.entries(layout).map(([id, el]) => `
+      .${id}-pos { 
+        top: ${el.top}%; 
+        left: ${el.left}%; 
+        width: ${el.width}%; 
+        height: ${el.height}%; 
+        border-radius: ${el.radius || 0}px !important; 
+        font-size: ${el.fontSize || 14}px !important; 
+        position: absolute !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+    `).join('\n')}
+  `;
 
   return (
     <div className="w-full h-full flex items-center justify-center overflow-hidden bg-[#020617]">
+      {/* 注入動態 CSS 變數 */}
+      <style dangerouslySetInnerHTML={{ __html: layoutStyles }} />
+      
       <div 
         ref={containerRef} 
         className="relative h-full max-h-[92dvh] w-full max-w-[420px] select-none text-white overflow-hidden flex flex-col items-center"
@@ -69,129 +194,124 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[#020617]" />
           <div 
-            className="absolute inset-0 opacity-[0.15]" 
-            style={{ 
-              backgroundImage: `radial-gradient(#1e293b 1px, transparent 1px)`,
-              backgroundSize: '24px 24px'
-            }} 
+            className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px]" 
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(30,58,138,0.3)_0%,transparent_70%)]" />
         </div>
 
-        {/* 頂部 Logo 區：向上移動騰出空間 */}
-        <div className="mt-6 relative z-10 ui-animate">
-          <div className="w-24 aspect-square rounded-[28px] bg-white p-[3px] shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-            <div className="w-full h-full rounded-[25px] overflow-hidden bg-black flex items-center justify-center border border-slate-200/50">
+        {/* 1. Logo 區 */}
+        {layout.logo && (
+          <div className="logo-pos flex items-center justify-center relative ui-animate">
+            <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-xl animate-pulse" />
+            <div className="relative w-full h-full rounded-[25%] overflow-hidden bg-black/20 shadow-2xl backdrop-blur-sm group">
               <video
                 src="/assets/logo_anim.mp4"
-                autoPlay loop muted playsInline
-                className="w-full h-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700"
               />
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent pointer-events-none" />
             </div>
           </div>
-        </div>
+        )}
 
-        {/* 標題區：縮減間距 */}
-        <div className="mt-4 text-center ui-animate relative z-10">
-          <p className="text-[#3b82f6] text-[9px] font-bold tracking-[0.4em] uppercase opacity-80 mb-2">ANTIGRAVITY TERMINAL</p>
-          <h1 className="text-4xl font-black tracking-tight text-white leading-tight">創業冒險</h1>
-          <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#93c5fd] to-[#3b82f6] tracking-tight drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] leading-tight">現代法律篇</h2>
-        </div>
+        {/* 標題區：原子化 */}
+        {layout.header_title && (
+          <h1 className="header_title-pos font-black tracking-tight text-white leading-tight ui-animate">
+            {layout.header_title.label}
+          </h1>
+        )}
+        {layout.header_subtitle && (
+          <h2 className="header_subtitle-pos font-black text-transparent bg-clip-text bg-gradient-to-b from-[#93c5fd] to-[#3b82f6] tracking-tight drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] leading-tight ui-animate">
+            {layout.header_subtitle.label}
+          </h2>
+        )}
 
-        {/* 模式選取卡片列表 (絕對定位渲染區) */}
-        <div className="relative w-full flex-grow mt-2">
-          
-          {/* 排版工具 */}
-          {isDesignMode && (
+        {/* 模式選取卡片列表原子化：疊加模式 */}
+        <div className={`absolute inset-0 z-20 pointer-events-none transition-all duration-500 ${isDesignMode ? 'opacity-40 grayscale blur-[0.2px]' : 'opacity-100'}`}>
+            {/* 網站模式系列原子 */}
+            {layout.wb_box && (
+              <div className="ui-animate group bg-[#0f172a]/95 border border-blue-500/40 transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(59,130,246,0.1)] wb_box-pos pointer-events-auto" />
+            )}
+            {layout.wb_title && (
+              <h3 className="wb_title-pos font-black text-white leading-none ui-animate">{layout.wb_title.label}</h3>
+            )}
+            {layout.wb_sub && (
+              <p className="wb_sub-pos font-bold tracking-[0.2em] text-blue-400/80 uppercase ui-animate">
+                {layout.wb_sub.label}
+              </p>
+            )}
+            {layout.wb_icon && (
+              <div className="wb_icon-pos text-blue-500/50 ui-animate z-30 pointer-events-none">
+                <Building2 className="w-full h-full" />
+              </div>
+            )}
+            {layout.wb_desc && (
+              <p className="wb_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate">
+                {layout.wb_desc.label}
+              </p>
+            )}
+            {layout.wb_btn && (
+              <button 
+                onClick={() => onStartGame('website')}
+                className="wb_btn-pos rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate pointer-events-auto"
+              >
+                <span>{layout.wb_btn.label}</span>
+              </button>
+            )}
+
+            {/* AI 模式系列原子 */}
+            {layout.ai_box && (
+              <div className="ui-animate group bg-[#061a1a]/95 border border-emerald-500/40 transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(16,185,129,0.1)] ai_box-pos pointer-events-auto" />
+            )}
+            {layout.ai_title && (
+              <h3 className="ai_title-pos font-black text-white leading-none ui-animate">{layout.ai_title.label}</h3>
+            )}
+            {layout.ai_sub && (
+              <p className="ai_sub-pos font-bold tracking-[0.2em] text-emerald-400/80 uppercase ui-animate">
+                {layout.ai_sub.label}
+              </p>
+            )}
+            {layout.ai_icon && (
+              <div className="ai_icon-pos text-emerald-500/50 ui-animate z-30 pointer-events-none">
+                <Sparkles className="w-full h-full" />
+              </div>
+            )}
+            {layout.ai_desc && (
+              <p className="ai_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate">
+                {layout.ai_desc.label}
+              </p>
+            )}
+            {layout.ai_btn && (
+              <button 
+                onClick={() => onStartGame('ai')}
+                className="ai_btn-pos rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(16,185,129,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate pointer-events-auto"
+              >
+                <span>{layout.ai_btn.label}</span>
+              </button>
+            )}
+          </div>
+
+        {/* 排版工具 */}
+        {isDesignMode && (
+          <div className="absolute inset-0 z-30">
             <AlignmentTool 
               containerRef={containerRef}
               initialElements={layout}
               onUpdate={setLayout}
               renderElement={(id, el) => (
                 <div 
-                  className={`w-full h-full border-2 border-white/50 flex flex-col items-center justify-center font-black text-xs
-                    ${id === 'website' ? 'bg-blue-600/20' : 'bg-emerald-600/20'}
-                  `}
-                  style={{ borderRadius: `${el.radius}px` }}
+                  className="w-full h-full border-2 border-white/50 flex flex-col items-center justify-center font-black text-xs bg-blue-600/20"
                 >
                   <p className="uppercase">{id}</p>
                   <p className="text-[8px] opacity-60">EDIT MODE</p>
                 </div>
               )}
             />
-          )}
-
-          {/* 正常渲染區：完美還原原圖細節 */}
-          {!isDesignMode && (
-            <div className="absolute inset-0">
-               {/* 網站模式卡片 */}
-               <div 
-                className="ui-animate group absolute bg-[#0f172a]/95 border border-blue-500/40 p-6 flex flex-col transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(59,130,246,0.1)]"
-                style={{ 
-                  top: `${layout.website.top}%`, 
-                  left: `${layout.website.left}%`,
-                  width: `${layout.website.width}%`,
-                  height: `${layout.website.height}%`,
-                  borderRadius: `${layout.website.radius}px`
-                }}
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)] shrink-0">
-                    <Network className="w-7 h-7 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-black text-white leading-none">網站模式</h3>
-                    <p className="text-[10px] font-bold text-blue-400/80 tracking-widest mt-2 uppercase">Stable Experience</p>
-                  </div>
-                </div>
-                
-                <p className="text-[10px] text-slate-400/90 leading-relaxed mt-3">
-                  使用固定戲劇性文案模板，無需等待 AI 生成，享受極速判決體驗。
-                </p>
-
-                <button 
-                  onClick={() => onStartGame('website')}
-                  className="mt-6 w-full h-12 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white text-xs font-black tracking-widest shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                >
-                  <span>開始遊戲</span>
-                </button>
-              </div>
-
-              {/* AI 輔助模式卡片 */}
-              <div 
-                className="ui-animate group absolute bg-[#061a1a]/95 border border-emerald-500/40 p-6 flex flex-col transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(16,185,129,0.1)]"
-                style={{ 
-                  top: `${layout.ai.top}%`, 
-                  left: `${layout.ai.left}%`,
-                  width: `${layout.ai.width}%`,
-                  height: `${layout.ai.height}%`,
-                  borderRadius: `${layout.ai.radius}px`
-                }}
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0">
-                    <Sparkles className="w-7 h-7 text-emerald-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-black text-white leading-none">AI 模式</h3>
-                    <p className="text-[10px] font-bold text-emerald-400/80 tracking-widest mt-2 uppercase">Infinite Adventure</p>
-                  </div>
-                </div>
-                
-                <p className="text-[10px] text-slate-400/90 leading-relaxed mt-3">
-                  由 LLM 生成無限變化的判決，支援自由文字陳述，打造專屬你的冒險。
-                </p>
-
-                <button 
-                  onClick={() => onStartGame('ai')}
-                  className="mt-6 w-full h-12 rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] text-white text-xs font-black tracking-widest shadow-[0_6px_20px_rgba(16,185,129,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                >
-                  <span>開始遊戲</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
