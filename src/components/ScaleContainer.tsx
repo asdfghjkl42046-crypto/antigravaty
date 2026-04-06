@@ -48,13 +48,11 @@ export const ScaleContainer: React.FC<ScaleContainerProps> = ({ children }) => {
       <div 
         ref={containerRef}
         style={{
-          width: `${BASE_WIDTH}px`,
-          height: `${BASE_HEIGHT}px`,
-          transform: `scale(${scale})`,
-          transformOrigin: 'center center',
-          flexShrink: 0
-        }}
-        className="relative bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden"
+          '--base-width': `${BASE_WIDTH}px`,
+          '--base-height': `${BASE_HEIGHT}px`,
+          '--scale-factor': scale
+        } as React.CSSProperties}
+        className="scale-canvas relative bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden origin-center shrink-0"
       >
         {children}
       </div>

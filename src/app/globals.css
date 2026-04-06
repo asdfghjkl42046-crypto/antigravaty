@@ -242,3 +242,12 @@ body {
   animation: spin 15s linear infinite;
 }
 
+/* --- Scale-to-Fit Canvas --- */
+.scale-canvas {
+  width: var(--base-width);
+  height: var(--base-height);
+  transform: scale(var(--scale-factor));
+  transform-origin: center center;
+  flex-shrink: 0;
+}
+
