@@ -178,9 +178,34 @@ body {
   line-clamp: 3;
 }
 
+
 /* Courtroom Circular Timer */
 .circular-timer-circle {
   transition:
     stroke-dashoffset 1s linear,
     stroke 0.3s ease;
+}
+
+/* GlowLogo 專用動畫 */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.8; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.5); }
+}
+
+@keyframes float-particle {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-30px) scale(1.5); opacity: 0; }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-float-particle {
+  animation: float-particle ease-out infinite;
+}
+
+.animate-spin-extra-slow {
+  animation: spin 12s linear infinite;
 }

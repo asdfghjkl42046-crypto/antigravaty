@@ -15,13 +15,13 @@ interface ModeSelectScreenProps {
  */
 export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
   return (
-    /* 1. 全域絕對置中底板 (Background Wrapper) */
     <div className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden z-[1000] select-none font-sans">
+      {/* 1. 全域絕對置中底板 (Background Wrapper) */}
       
       {/* 背景裝飾：更柔和的深沉光點 */}
       <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1.5px,transparent_1.5px)] [background-size:32px_32px] opacity-10 pointer-events-none" />
       
-      /* 2. 鎖定 19.5:9 核心容器 (Core Container) */
+      {/* 2. 鎖定 19.5:9 核心容器 (Core Container) */}
       <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-black flex flex-col items-center px-8 py-8 animate-in fade-in duration-1000">
         
         {/* 頂部發光氛圍 */}
