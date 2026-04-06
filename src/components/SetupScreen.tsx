@@ -24,13 +24,14 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
   });
 
   return (
-    <div ref={containerRef} className="relative h-full aspect-[9/19.5] mx-auto overflow-hidden bg-black select-none">
-      {/* 底圖 */}
-      <img
-        src="/ui/ref_setup.png"
-        alt="Setup Screen"
-        className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-      />
+    <div className="w-full h-full flex items-center justify-center overflow-hidden bg-black">
+      <div ref={containerRef} className="relative h-full w-fit select-none">
+        {/* 底圖 - 使用 w-auto h-full 撐開父容器，確保座標 100% 精確 */}
+        <img
+          src="/ui/ref_setup.png"
+          alt="Setup Screen"
+          className="h-full w-auto block pointer-events-none"
+        />
 
       {/* 交互按鈕層 (透明，僅用於點擊) */}
       {!isDevMode && (
@@ -75,6 +76,8 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
           onUpdate={setElements}
         />
       )}
+      </div>
     </div>
   );
 }
+
