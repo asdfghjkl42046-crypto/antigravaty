@@ -34,7 +34,7 @@ export default function Home() {
   } = useGameStore();
 
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'home' | 'hrshop' | 'scan'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'shop' | 'scan'>('home');
   const [isQrActive, setIsQrActive] = useState(false);
   
   // 記錄是否正在進行玩家設定
@@ -157,7 +157,7 @@ export default function Home() {
                 </div>
               )}
 
-              {activeTab === 'hrshop' && (
+              {activeTab === 'shop' && (
                 <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   <HRShop onActionResult={() => {}} />
                 </div>

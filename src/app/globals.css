@@ -1,10 +1,14 @@
 @import 'tailwindcss';
 html,
-:host,
-:root {
-  --background: #000;
-  --foreground: #ffffff;
-  height: 100dvh;
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #020617; /* Slate 950 */
+  background-image: 
+    radial-gradient(#ffffff0a 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: white;
+  min-height: 100dvh;
   overflow: hidden;
 }
 
