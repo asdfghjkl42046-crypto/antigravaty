@@ -95,8 +95,8 @@ export default function Home() {
         {/* 頂部 Header */}
         <MobileHeader turn={turn} judgePersonality={judgePersonality} />
         
-        {/* 主內容區 */}
-        <div className="flex-1 w-full relative overflow-y-auto no-scrollbar pb-32 px-4 flex flex-col">
+        {/* 主內容區：移除全域捲軸，改為固定比例分配 */}
+        <div className="flex-1 w-full relative overflow-hidden px-4 flex flex-col">
           
           {phase === 'courtroom' ? (
             <div className="flex-1 h-full w-full">
@@ -119,7 +119,7 @@ export default function Home() {
             <div className="flex-1 flex flex-col">
               {/* 基於當前分頁渲染內容 */}
               {activeTab === 'home' && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex-1 flex flex-col gap-2 py-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {players.map((p, idx) => (
                     <PlayerActionCard 
                       key={p.id}
