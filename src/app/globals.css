@@ -250,7 +250,10 @@ body {
 .scale-canvas {
   width: var(--base-width);
   height: var(--base-height);
-  transform: scale(var(--scale-factor));
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(var(--scale-factor));
   transform-origin: center center;
   flex-shrink: 0;
 }

@@ -112,7 +112,10 @@ export type JudgePersonality =
   | 'power_broker';
 
 /** 法庭運行模式：ai (GPT-4o 強力驅動動態辯論) | website (靜態文本對局) */
-export type JudgeMode = 'ai' | 'website';
+export type JudgeMode = 'ai' | 'website' | null;
+
+/** 導覽標籤類型 */
+export type NavTab = 'home' | 'shop' | 'scan';
 
 /** 開局與互動道具類型 */
 export type BribeItem = 'antique' | 'crypto' | 'art' | 'wine' | 'intel';

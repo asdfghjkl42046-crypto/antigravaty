@@ -94,13 +94,13 @@ export const useGameStore = create<GameStore>()(
       actionLogs: [], // 洗錢與黑箱操作的全域歷史稽核金流紀錄表
       trial: null, // 若有人被告，此物件會存放該案件的所有法庭庭審狀態
       judgePersonality: null, // 本屆最高法院的法官性格與裁決風格
-      judgeMode: 'website', // AI 法官連線模式設定
+      judgeMode: null, // 初始化為空，判斷是否已選擇進入設定頁面
       startNotifications: [], // 開局加成紅利廣播訊息存放陣列
       endingResult: null, // 全局破關或破產結算時的大表
       engineError: null, // 核心引擎致命錯誤攔截快照
 
-      // --- 基礎動作實作 ---
-      setJudgeMode: (mode: JudgeMode) => set({ judgeMode: mode }),
+      // --- 基礎系統生命週期動作 ---
+      setJudgeMode: (mode) => set({ judgeMode: mode }),
 
       // 開局大典：把選擇好黑心路線的玩家們全部拉進系統，並分配好他們天生的財產與業障
       initGame: async (configs) => {
