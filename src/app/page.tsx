@@ -14,6 +14,7 @@ import { TerminalScanner } from '@/components/TerminalScanner';
 import { MobileHeader } from '@/components/MobileHeader';
 import { PlayerActionCard } from '@/components/PlayerActionCard';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { ScaleContainer } from '@/components/ScaleContainer';
 
 export default function Home() {
   const {
@@ -21,7 +22,6 @@ export default function Home() {
     players,
     currentPlayerIndex,
     turn,
-    trial,
     setJudgeMode,
     initGame,
     resetGame,
@@ -37,31 +37,32 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'home' | 'hrshop' | 'scan'>('home');
   const [isQrActive, setIsQrActive] = useState(false);
   
-  // 記錄是否正在進行玩家設定，這是一個過渡狀態
+  // 記錄是否正在進行玩家設定
   const [isSettingUp, setIsSettingUp] = useState(false);
 
-  // 確保在客戶端與伺服器端渲染一致
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
 
-  // 初始模式選擇
-  if (!players.length && phase === 'play' && !trial && !isSettingUp) {
+  // --- 1. 模式選擇 ---
+  if (!players.length && phase === 'play' && !isSettingUp) {
     return (
-      <ModeSelectScreen 
-        onSelect={(mode) => {
-          setJudgeMode(mode);
-          setIsSettingUp(true);
-        }} 
-      />
+      <ScaleContainer>
+        <ModeSelectScreen 
+          onSelect={(mode) => {
+            setJudgeMode(mode);
+            setIsSettingUp(true);
+          }} 
+        />
+      </ScaleContainer>
     );
   }
 
-  // 玩家設定流程
+  // --- 2. 玩家設定 ---
   if (players.length === 0 && isSettingUp) {
     return (
-      <main className="fixed inset-0 w-screen h-[100dvh] bg-slate-950 flex items-center justify-center overflow-hidden">
-        <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border-x border-white/5 flex flex-col items-center px-6 py-8 overflow-y-auto no-scrollbar">
+      <ScaleContainer>
+        <div className="w-full h-full bg-black flex flex-col items-center px-6 py-8 overflow-y-auto no-scrollbar">
           <SetupScreen 
             onComplete={(configs) => {
               initGame(configs);
@@ -70,7 +71,7 @@ export default function Home() {
             onBack={() => setIsSettingUp(false)} 
           />
         </div>
-      </main>
+      </ScaleContainer>
     );
   }
 
@@ -81,21 +82,20 @@ export default function Home() {
     if (!CARDS_DB[cardId]) return; 
     await performAction(cardId, optionIdx as 1 | 2 | 3);
     if (isQrActive) setIsQrActive(false);
-    // 執行成功後跳回主頁預覽數值
     setActiveTab('home');
   };
 
+  // --- 3. 遊戲主標籤頁與判決畫面 ---
   return (
-    <main className="fixed inset-0 w-screen h-[100dvh] bg-slate-950 flex items-center justify-center overflow-hidden font-sans">
-      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] bg-[#050505] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col items-center overflow-hidden border-x border-white/5 animate-in fade-in duration-700">
-        
+    <ScaleContainer>
+      <div className="w-full h-full flex flex-col items-center animate-in fade-in duration-700 relative overflow-hidden">
         {/* 背景點點 */}
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.2] pointer-events-none" />
         
         {/* 頂部 Header */}
         <MobileHeader turn={turn} judgePersonality={judgePersonality} />
         
-        {/* 主內容區：移除全域捲軸，改為固定比例分配 */}
+        {/* 主內容區：移除捲軸，改為固定比例分配 */}
         <div className="flex-1 w-full relative overflow-hidden px-4 flex flex-col">
           
           {phase === 'courtroom' ? (
@@ -116,10 +116,10 @@ export default function Home() {
               )}
             </div>
           ) : (
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col overflow-hidden">
               {/* 基於當前分頁渲染內容 */}
               {activeTab === 'home' && (
-                <div className="flex-1 flex flex-col gap-2 py-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex-1 flex flex-col gap-2 py-2 animate-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   {players.map((p, idx) => (
                     <PlayerActionCard 
                       key={p.id}
@@ -134,7 +134,7 @@ export default function Home() {
               )}
 
               {activeTab === 'scan' && (
-                <div className="space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex-1 flex flex-col gap-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   <TerminalScanner 
                     onDecode={handleActionCode}
                     onToggleQr={() => setIsQrActive(!isQrActive)}
@@ -158,7 +158,7 @@ export default function Home() {
               )}
 
               {activeTab === 'hrshop' && (
-                <div className="h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
                   <HRShop onActionResult={() => {}} />
                 </div>
               )}
@@ -166,7 +166,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* 底部導覽欄位 (絕對定位在容器底部) */}
+        {/* 底部導覽欄位 */}
         <MobileBottomNav activeTab={activeTab} onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab !== 'scan') setIsQrActive(false);
@@ -182,6 +182,6 @@ export default function Home() {
           onReset={() => clearEngineError()} 
         />
       )}
-    </main>
+    </ScaleContainer>
   );
 }
