@@ -89,6 +89,27 @@ body {
   animation: courtFloatTag var(--duration) ease-in-out var(--delay) infinite;
 }
 
+.logo-particle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background-color: var(--color-cyan-400, #22d3ee);
+  border-radius: 9999px;
+  opacity: 0;
+  animation: float-particle ease-out infinite;
+  left: var(--left);
+  top: var(--top);
+  animation-delay: var(--delay);
+  animation-duration: var(--duration);
+}
+
+.logo-particle:nth-child(1) { --left: 25%; --top: 30%; --delay: 0s; --duration: 2.2s; }
+.logo-particle:nth-child(2) { --left: 70%; --top: 25%; --delay: 0.5s; --duration: 2.8s; }
+.logo-particle:nth-child(3) { --left: 40%; --top: 75%; --delay: 1.2s; --duration: 2.4s; }
+.logo-particle:nth-child(4) { --left: 80%; --top: 60%; --delay: 0.8s; --duration: 3.1s; }
+.logo-particle:nth-child(5) { --left: 20%; --top: 65%; --delay: 1.5s; --duration: 2.6s; }
+.logo-particle:nth-child(6) { --left: 55%; --top: 40%; --delay: 0.3s; --duration: 2.9s; }
+
 /* 漂浮標籤細節設定 (GEMINI.md §6) */
 .court-float-tag:nth-child(1) {
   --top: 8%;
@@ -178,7 +199,6 @@ body {
   line-clamp: 3;
 }
 
-
 /* Courtroom Circular Timer */
 .circular-timer-circle {
   transition:
@@ -188,14 +208,29 @@ body {
 
 /* GlowLogo 專用動畫 */
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.8; filter: brightness(1); }
-  50% { opacity: 1; filter: brightness(1.5); }
+  0%,
+  100% {
+    opacity: 0.8;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.5);
+  }
 }
 
 @keyframes float-particle {
-  0% { transform: translateY(0) scale(0); opacity: 0; }
-  50% { opacity: 0.8; }
-  100% { transform: translateY(-30px) scale(1.5); opacity: 0; }
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-30px) scale(1.5);
+    opacity: 0;
+  }
 }
 
 .animate-glow-pulse {
