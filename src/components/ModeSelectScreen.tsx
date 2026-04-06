@@ -1,112 +1,121 @@
 'use client';
 
-import { Scale, Network, Sparkles } from 'lucide-react';
+import { Network, Sparkles, ChevronRight } from 'lucide-react';
 import type { JudgeMode } from '@/types/game';
+import GlowLogo from './GlowLogo';
+import { cn } from '@/lib/utils';
 
 interface ModeSelectScreenProps {
   onSelect: (mode: JudgeMode) => void;
 }
 
 /**
- * 遊戲模式選擇畫面 (APP 風格 19.5:9 比例重構版)
+ * 遊戲模式選擇畫面 - 最終重構版 (Strict 19.5:9 Portrait)
+ * 放棄所有響應式縮放，鎖定置中手機佈局，呈現極致發光質感。
  */
 export default function ModeSelectScreen({ onSelect }: ModeSelectScreenProps) {
   return (
-    // 外層容器：確保置中並提供適當留白
-    <div className="w-full min-h-screen flex items-center justify-center p-4 bg-[#0d1117] select-none">
+    /* 1. 全域絕對置中底板 (Background Wrapper) */
+    <div className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden z-[1000] select-none font-sans">
       
-      {/* 嚴格限制的 19.5:9 手機比例框 */}
-      <div className="relative w-full max-w-[390px] h-[844px] max-h-[90vh] bg-[#030612] rounded-[48px] border-[6px] border-[#0a1128] overflow-hidden flex flex-col items-center px-6 py-10 shadow-2xl shrink-0">
+      {/* 背景裝飾：更柔和的深沉光點 */}
+      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1.5px,transparent_1.5px)] [background-size:32px_32px] opacity-10 pointer-events-none" />
+      
+      /* 2. 鎖定 19.5:9 核心容器 (Core Container) */
+      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-black flex flex-col items-center px-8 py-8 animate-in fade-in duration-1000">
         
-        {/* 背景粒子效果與漸層 */}
-        <div className="absolute inset-0 bg-[radial-gradient(#1e3a8a_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none" />
-        <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-blue-900/20 to-transparent pointer-events-none" />
+        {/* 頂部發光氛圍 */}
+        <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-blue-950/10 to-transparent pointer-events-none" />
 
-        {/* 頂部：擬真 3D App Icon */}
-        <div className="mt-4 relative group shrink-0">
-          <div className="absolute inset-0 bg-blue-500/30 blur-2xl rounded-full pointer-events-none" />
-          <div className="w-[120px] h-[120px] bg-gradient-to-b from-[#eef6ff] to-[#a0c4e8] p-[3px] rounded-[32px] shadow-[0_0_40px_rgba(59,130,246,0.3)] relative z-10 overflow-hidden shrink-0">
-            <div className="w-full h-full bg-gradient-to-br from-[#06113b] to-[#020516] rounded-[28px] flex flex-col items-center justify-center relative overflow-hidden">
-               {/* 內部藍色光暈 */}
-               <div className="absolute top-[-20%] right-[-20%] w-24 h-24 bg-blue-400/30 blur-2xl rounded-full" />
-               <div className="absolute bottom-[-10%] inset-x-0 h-1/2 bg-blue-600/30 blur-xl" />
-               {/* 內發光邊框 */}
-               <div className="absolute inset-2 border border-blue-400/40 rounded-[20px] pointer-events-none" />
-               
-               {/* 核心天平 */}
-               <Scale size={46} strokeWidth={1.5} className="text-blue-100 drop-shadow-[0_0_12px_rgba(96,165,250,1)] z-10 mb-1.5" />
-               <span className="text-[8px] font-black tracking-widest text-blue-100 z-10 drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">ANTIGRAVITY</span>
-            </div>
-          </div>
+        {/* 內部元件垂直排列 */}
+        
+        {/* A. 圓形 Logo */}
+        <div className="mt-8 mb-8 flex flex-col items-center">
+            <GlowLogo />
         </div>
 
-        {/* 標題區 */}
-        <div className="mt-8 flex flex-col items-center gap-1 mb-8 text-center shrink-0">
-          <span className="text-[10px] font-black tracking-[0.4em] text-[#3b5b9e] uppercase mb-2">Antigravity Terminal</span>
-          <h1 className="text-[34px] leading-[1.1] font-black text-slate-100 tracking-widest">
-            創業冒險<br />現代法律篇
+        {/* B. 文字標題區 */}
+        <div className="text-center mb-10 flex flex-col items-center gap-1.5 px-4">
+          <span className="text-[11px] font-black tracking-[0.4em] text-blue-500/80 uppercase">
+            Antigravity Terminal
+          </span>
+          <h1 className="text-[38px] leading-tight font-black text-white tracking-widest drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+            創業冒險
           </h1>
+          <h2 className="text-[28px] font-medium text-blue-100/70 tracking-widest mt-[-2px]">
+            現代法律篇
+          </h2>
         </div>
 
-        {/* 模式選單 */}
-        <div className="w-full flex-1 flex flex-col gap-5 min-h-0 justify-start">
+        {/* C. 模式選單卡片 (垂直堆疊) */}
+        <div className="w-full flex-1 flex flex-col gap-6 overflow-y-auto no-scrollbar pb-10">
           
-          {/* 網站模式卡片 (穩定體驗) */}
+          {/* C1. 網站模式 (藍色系) */}
           <button
             onClick={() => onSelect('website')}
-            className="w-full group relative text-left"
+            className="w-full group relative text-left outline-none transition-transform active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-[#2563eb]/10 rounded-[32px] blur-xl transition-opacity group-hover:bg-[#2563eb]/20 pointer-events-none" />
-            <div className="relative w-full rounded-[30px] border border-[#2a3c68] bg-gradient-to-b from-[#101d3f] to-[#0c1328] p-5 sm:p-6 shadow-2xl transition-all hover:scale-[1.02]">
-              <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center shrink-0">
-                  <Network size={22} className="text-[#60a5fa] drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+            {/* 卡片本體 */}
+            <div className="relative w-full rounded-[40px] border border-blue-500/20 bg-gradient-to-b from-[#0f172a] to-[#01050a] p-7 shadow-[0_20px_50px_rgba(0,0,0,1)] overflow-hidden">
+              {/* 背景內部發光 */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-[50px] pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center shrink-0">
+                  <Network size={26} className="text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-[22px] font-black text-slate-100 tracking-wider">網站模式</h3>
-                  <p className="text-[10px] font-black tracking-widest text-[#4f6ea2] uppercase mt-0.5 truncate">Stable Experience</p>
+                <div>
+                  <h3 className="text-2xl font-black text-white tracking-wider">網站模式</h3>
+                  <p className="text-[10px] font-black tracking-widest text-blue-500/60 uppercase mt-0.5">Stable Experience</p>
                 </div>
               </div>
-              <p className="text-[#8ba2cb] text-xs font-medium leading-[1.6] mb-5 sm:mb-6">
+              
+              <p className="text-slate-400 text-[13px] font-medium leading-relaxed mb-8 px-1">
                 使用固定戲劇性文案模板，無需等待 AI 生成，享受極速判決體驗。
               </p>
-              <div className="w-full py-3.5 sm:py-4 rounded-[18px] bg-[#3b82f6] text-white text-center font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(59,130,246,0.3)] group-hover:bg-blue-500 transition-colors relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
-                開始遊戲
+              
+              {/* 按鈕：藍色發光質感 */}
+              <div className="w-full py-4.5 rounded-[22px] bg-blue-600 text-white text-center font-black text-[15px] uppercase tracking-widest shadow-[0_10px_35px_rgba(37,99,235,0.4)] group-hover:bg-blue-500 transition-all flex items-center justify-center gap-2 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+                開始遊戲 <ChevronRight size={18} strokeWidth={3} />
               </div>
             </div>
           </button>
 
-          {/* AI模式卡片 (無限冒險) */}
+          {/* C2. AI 模式 (綠色系) */}
           <button
             onClick={() => onSelect('ai')}
-            className="w-full group relative text-left"
+            className="w-full group relative text-left outline-none transition-transform active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-emerald-500/10 rounded-[32px] blur-xl transition-opacity group-hover:bg-emerald-500/20 pointer-events-none" />
-            <div className="relative w-full rounded-[30px] border border-[#1b4438] bg-gradient-to-b from-[#073627] to-[#041913] p-5 sm:p-6 shadow-2xl transition-all hover:scale-[1.02]">
-              <div className="flex items-center gap-4 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
-                  <Sparkles size={22} className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+            <div className="relative w-full rounded-[40px] border border-emerald-500/20 bg-gradient-to-b from-[#064e3b]/30 to-[#01050a] p-7 shadow-[0_20px_50px_rgba(0,0,0,1)] overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-600/10 blur-[50px] pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
+                  <Sparkles size={26} className="text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.6)]" />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-[22px] font-black text-slate-100 tracking-wider">AI 模式</h3>
-                  <p className="text-[10px] font-black tracking-widest text-[#3b8469] uppercase mt-0.5 truncate">Infinite Adventure</p>
+                <div>
+                  <h3 className="text-2xl font-black text-white tracking-wider">AI 模式</h3>
+                  <p className="text-[10px] font-black tracking-widest text-emerald-500/60 uppercase mt-0.5">Infinite Adventure</p>
                 </div>
               </div>
-              <p className="text-[#6fa894] text-xs font-medium leading-[1.6] mb-5 sm:mb-6">
+              
+              <p className="text-slate-400 text-[13px] font-medium leading-relaxed mb-8 px-1">
                 由 LLM 生成無限變化的判決，支援自由文字陳述，打造專屬你的冒險。
               </p>
-              <div className="w-full py-3.5 sm:py-4 rounded-[18px] bg-[#22c55e] text-[#022c22] text-center font-black text-sm uppercase tracking-widest shadow-[0_4px_20px_rgba(34,197,94,0.3)] group-hover:bg-emerald-400 transition-colors relative overflow-hidden">
+              
+              {/* 按鈕：綠色發光質感 */}
+              <div className="w-full py-4.5 rounded-[22px] bg-[#10b981] text-[#022c22] text-center font-black text-[15px] uppercase tracking-widest shadow-[0_10px_35px_rgba(16,185,129,0.3)] group-hover:bg-[#15d191] transition-all flex items-center justify-center gap-2 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
-                開始遊戲
+                開始遊戲 <ChevronRight size={18} strokeWidth={4} />
               </div>
             </div>
           </button>
 
         </div>
-        
-        {/* 手機底部的休眠指示條 (Home Bar) */}
-        <div className="w-1/3 h-1 bg-white/10 rounded-full mt-auto mb-2 shrink-0 pointer-events-none" />
+
+        {/* 手機底部 Home Bar */}
+        <div className="w-1/3 h-[5px] bg-white/10 rounded-full mt-2 mb-2 shrink-0 pointer-events-none" />
       </div>
     </div>
   );

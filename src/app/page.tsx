@@ -1,6 +1,6 @@
-'use client'; // 宣告為 Next.js 用戶端渲染元件，因為用到大量 React 狀態 (useState) 與副作用 (useEffect)
+'use client';
 
-import { useState, useEffect, useRef, useSyncExternalStore, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { LAW_CASES_DB } from '../data/laws/LawCasesDB';
@@ -31,61 +31,30 @@ import RouletteOverlay, { RouletteOption } from '@/components/RouletteOverlay';
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 定義本機開發版的基準 UI 解析度 (為支援各種平板與寬螢幕)
-  const baseWidth = 2400;
-  const baseHeight = 1080; // V14.1 提高基準高度，讓 UI 邏輯在較矮視窗下能容納更多資訊並自動等比縮小
-
-  // 1. 讀取現在遊戲世界的全局現況：這回合換誰爽？有人破產了嗎？
+  // 1. 讀取現在遊戲世界的全局現況
   const {
-    players, // 場上存活的玩家名單
-    turn, // 目前整體環境回合進度
-    currentPlayerIndex, // 指出畫面右上角該秀出哪位玩家的回合
-    phase, // 當前畫面 (play 遊玩, courtroom 法庭, victory 獲勝/結束)
-    initGame, // 從大廳帶入參數進入遊戲正式關卡的發動機
-    performAction, // 全局唯一的選項刷卡送出派發器
-    endTurn, // 呼叫 Store 進入下一位玩家的回合
-    resetGame, // 洗除 localStorage 中所有進度打掉重來
-    judgePersonality, // 當前連線的隨機 AI 法官人設配置
-    startNotifications, // 存放開場階段因為天賦發動而應該跳出的推播文字
-    clearStartNotifications, // 確認關閉開場推播
-    endingResult, // 儲存遊戲被處刑破產或獲勝時的報表成績
-    setJudgeMode, // AI 法庭模式選項 (Cloud 還是 Local)
-    engineError, // 核心引擎致命錯誤攔截快照
-    hardReset, // 強制重啟系統
+    players,
+    turn,
+    currentPlayerIndex,
+    phase,
+    initGame,
+    performAction,
+    endTurn,
+    resetGame,
+    judgePersonality,
+    startNotifications,
+    clearStartNotifications,
+    endingResult,
+    setJudgeMode,
+    engineError,
+    hardReset,
   } = useGameStore();
 
-  // 2. 幕後載入防護網：
-  // 確保這場華麗的商戰舞台在特效素材都安裝好之前，不會提早曝光而發生畫面穿幫錯位。
-  const isMounted = useSyncExternalStore(
-    useCallback(() => () => {}, []),
-    () => true,
-    () => false
-  );
-
-  // 畫面自動縮放功能
-  // 不管螢幕大或小，都會自動調整比例，讓畫面不會跑版。
-  const subscribeScale = useCallback((callback: () => void) => {
-    window.addEventListener('resize', callback);
-    return () => window.removeEventListener('resize', callback);
-  }, []);
-
-  const getScaleSnapshot = useCallback(() => {
-    // 找出視窗寬高分別與標準解析度的比例，取最小者當作通用縮放係數 (維持長寬比不變形)
-    const sWidth = window.innerWidth / baseWidth;
-    const sHeight = window.innerHeight / baseHeight;
-    return Math.min(sWidth, sHeight);
-  }, [baseWidth, baseHeight]);
-
-  const scale = useSyncExternalStore(subscribeScale, getScaleSnapshot, () => 1);
-
-  // 每當畫面縮放係數變動，強制覆寫回 DOM 最頂層 Root 的 CSS 變數供全局取用
+  // 2. 幕後載入防護網
+  const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    if (isMounted && containerRef.current) {
-      containerRef.current.style.setProperty('--scale', scale.toString());
-      containerRef.current.style.setProperty('--width', `${baseWidth}px`);
-      containerRef.current.style.setProperty('--height', `${baseHeight}px`);
-    }
-  }, [isMounted, scale]);
+    setIsMounted(true);
+  }, []);
 
   // 單獨抽出現在這秒「握有掌控權」的玩家資料
   const currentPlayer = players[currentPlayerIndex] || null;
@@ -391,11 +360,10 @@ export default function Home() {
   if (!isMounted) return null;
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-slate-200 overflow-hidden flex flex-col items-start justify-start">
+    <div className="h-[100dvh] w-screen bg-black text-slate-200 overflow-hidden flex flex-col items-center justify-center">
       <div
         ref={containerRef}
-        // 電影級響應式外框：能隨著你的個人螢幕無限彈性縮放的遊戲主視覺版圖。
-        className="scale-wrapper flex flex-col flex-1 w-full min-h-0 transition-transform duration-300 ease-out"
+        className="flex flex-col flex-1 w-full h-full min-h-0 relative"
       >
         {/* =============== 分歧一：遊戲破關或宣告倒閉 =============== */}
         {(phase === 'gameover' || phase === 'victory') && endingResult ? (
@@ -423,11 +391,11 @@ export default function Home() {
         ) : (
           /* =============== 分歧四：所有事前準備就緒，進入正式遊戲大廳 =============== */
           <div className="flex flex-col flex-1 w-full text-slate-100 font-sans selection:bg-blue-500/30">
-            {/* 名譽過低 (RP <= 30) 的超級高能警報全螢幕外框閃動 */}
+            {/* 名譽過低 (RP <= 30) 的警報 */}
             {(currentPlayer?.rp ?? 100) <= 30 && (
-              <div className="fixed inset-0 z-[150] pointer-events-none border-[8px] border-red-600/50 animate-pulse flex justify-center">
-                <div className="mt-6 bg-red-600/90 backdrop-blur-md border border-red-400 text-white px-8 py-3 rounded-full font-black text-[13px] tracking-widest shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-bounce h-fit flex items-center gap-2">
-                  <AlertTriangle size={18} />
+              <div className="fixed inset-0 z-[150] pointer-events-none border-[4px] md:border-[8px] border-red-600/50 animate-pulse flex justify-center">
+                <div className="mt-20 md:mt-6 bg-red-600/90 backdrop-blur-md border border-red-400 text-white px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-[11px] md:text-[13px] tracking-widest shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-bounce h-fit flex items-center gap-2">
+                  <AlertTriangle size={16} />
                   {SYSTEM_MESSAGES.RP_WARNING}
                 </div>
               </div>
@@ -441,16 +409,16 @@ export default function Home() {
               onDebug={() => setShowDebug(true)}
             />
 
-            {/* 右上浮動控制台：結束回合與返回大廳 */}
-            <div className="fixed top-4 right-10 z-[100] flex items-center gap-4 p-2 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto">
-              {/* 回合計數：移至結束回合正左方 */}
-              <div className="flex flex-col items-center px-3">
-                <span className="text-[8px] uppercase tracking-widest text-slate-500 font-black leading-none mb-1">
+            {/* 右上浮動控制台：結束回合與返回大廳 (手機版縮小) */}
+            <div className="fixed top-4 right-4 md:right-10 z-[100] flex items-center gap-2 md:gap-4 p-1.5 md:p-2 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-[20px] md:rounded-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto">
+              {/* 回合計數 */}
+              <div className="flex flex-col items-center px-1.5 md:px-3">
+                <span className="text-[7px] md:text-[8px] uppercase tracking-widest text-slate-500 font-black leading-none mb-0.5 md:mb-1">
                   Round
                 </span>
                 <span
                   className={cn(
-                    'text-xl font-black tracking-tighter',
+                    'text-base md:text-xl font-black tracking-tighter',
                     turn >= 45
                       ? 'text-red-400 animate-pulse'
                       : turn >= 40
@@ -462,30 +430,30 @@ export default function Home() {
                 </span>
               </div>
 
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-6 md:h-8 bg-white/10" />
 
               <button
                 onClick={endTurn}
                 disabled={phase === 'courtroom'}
                 className={cn(
-                  'px-6 py-3 font-black rounded-2xl shadow-lg transition-all flex items-center gap-2',
+                  'px-3 md:px-6 py-2 md:py-3 font-black rounded-xl md:rounded-2xl shadow-lg transition-all flex items-center gap-1.5 md:gap-2 text-sm md:text-base',
                   phase === 'courtroom'
                     ? 'bg-slate-700 text-slate-500 cursor-not-allowed opacity-50'
                     : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 hover:scale-105 active:scale-95'
                 )}
               >
-                <Zap size={18} />
-                {GLOBAL_UI_TEXT.COMMON.END_TURN}
+                <Zap size={16} className="md:w-[18px] md:h-[18px]" />
+                <span className="hidden xs:inline">{GLOBAL_UI_TEXT.COMMON.END_TURN}</span>
               </button>
 
-              <div className="w-px h-8 bg-white/10 mx-1" />
+              <div className="w-px h-6 md:h-8 bg-white/10 mx-0.5 md:mx-1" />
 
               <button
                 onClick={resetGame}
                 title={GLOBAL_UI_TEXT.COMMON.BACK}
-                className="p-3 bg-white/5 hover:bg-red-500/20 border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-400 rounded-2xl transition-all"
+                className="p-2 md:p-3 bg-white/5 hover:bg-red-500/20 border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-400 rounded-xl md:rounded-2xl transition-all"
               >
-                <LogOut size={20} />
+                <LogOut size={16} className="md:w-[20px] md:h-[20px]" />
               </button>
             </div>
 
@@ -495,9 +463,9 @@ export default function Home() {
             {/* 核心引擎致命報錯遮罩：數值損毀 (NaN) 或邏輯斷裂時的最終防線 */}
             <EngineErrorModal error={engineError} onReset={hardReset} />
 
-            {/* 畫面中下大塊切版開始：內容區完全向上延展至頂端，實現全屏沈浸感 */}
-            <main className="flex-1 w-full max-w-[2332px] mx-auto px-4 pb-4 xl:px-8 xl:pb-8 flex gap-8 min-h-0 relative z-10">
-              {/* 左側首腦陣列板：你能夠隨時在這裡死命關注對手口袋裡的地底資金，以及他們到底買了幾位會計師。 */}
+            {/* 核心內容區：分左右板塊，手機版直列，桌機橫列 */}
+            <main className="flex-1 w-full mx-auto py-24 md:py-12 flex flex-col xl:flex-row gap-6 md:gap-10 overflow-y-auto xl:overflow-hidden relative z-10 px-4 md:px-8">
+              {/* 左側首腦陣列板 */}
               <PlayerSidebar players={players} currentPlayerIndex={currentPlayerIndex} />
 
               {/* 中間偏右巨大主視窗 */}

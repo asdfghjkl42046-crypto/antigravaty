@@ -2,8 +2,9 @@
 html,
 :host,
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000;
+  --foreground: #ffffff;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -154,14 +155,12 @@ body {
   --opacity: 0.04;
 }
 
-/* 全域縮放容器：透過 CSS 變數控制，避免 inline style */
+/* 全域自適應容器：不再強制縮放，統一遵循 19.5:9 核心 container 邏輯 */
 .scale-wrapper {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(var(--scale, 1));
-  width: var(--width, 1440px);
-  height: var(--height, 960px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 手動補強標準 line-clamp 屬性以滿足 IDE 相容性檢查 */
