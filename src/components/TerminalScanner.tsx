@@ -114,7 +114,8 @@ export const TerminalScanner: React.FC<TerminalScannerProps> = ({
             />
             <button
               type="submit"
-              disabled={disabled || !inputValue}
+              title="執行指令"
+              aria-label="執行指令"
               className="mr-2 w-14 h-14 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-600 transition-all flex items-center justify-center text-white shadow-lg active:scale-90"
             >
               <Cpu size={28} />
