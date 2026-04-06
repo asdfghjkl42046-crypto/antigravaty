@@ -60,8 +60,8 @@ export default function Home() {
   // 玩家設定流程
   if (players.length === 0 && isSettingUp) {
     return (
-      <main className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden">
-        <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-black flex flex-col items-center px-6 py-8 overflow-y-auto no-scrollbar border-x border-white/5">
+      <main className="fixed inset-0 w-screen h-[100dvh] bg-slate-950 flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border-x border-white/5 flex flex-col items-center px-6 py-8 overflow-y-auto no-scrollbar">
           <SetupScreen 
             onComplete={(configs) => {
               initGame(configs);
@@ -86,8 +86,8 @@ export default function Home() {
   };
 
   return (
-    <main className="fixed inset-0 w-screen h-[100dvh] bg-[#000] flex items-center justify-center overflow-hidden font-sans">
-      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-[#050505] flex flex-col items-center overflow-hidden shadow-2xl border-x border-white/5 animate-in fade-in duration-700">
+    <main className="fixed inset-0 w-screen h-[100dvh] bg-slate-950 flex items-center justify-center overflow-hidden font-sans">
+      <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] bg-[#050505] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col items-center overflow-hidden border-x border-white/5 animate-in fade-in duration-700">
         
         {/* 背景點點 */}
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.2] pointer-events-none" />
