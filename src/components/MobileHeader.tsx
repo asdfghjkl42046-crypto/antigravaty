@@ -20,8 +20,15 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({ turn, judgePersonali
     <header className="w-full h-24 px-6 flex items-center justify-between z-50">
       {/* 左側：Logo & 標題 */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center p-2 shadow-lg">
-          <img src="/assets/logo.png" alt="Logo" className="w-full h-full object-contain" />
+        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center overflow-hidden shadow-lg">
+          <video 
+            src="/assets/logo_anim.mp4" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover"
+          />
         </div>
         <div className="flex flex-col justify-center">
           <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">
