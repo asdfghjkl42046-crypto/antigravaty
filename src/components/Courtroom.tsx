@@ -221,8 +221,8 @@ export default function Courtroom() {
         {/* ======================= 法庭頂部儀表板：法官與被告身分 ======================= */}
         <div className="px-10 py-8 bg-gradient-to-r from-blue-600/10 via-transparent to-blue-600/10 border-b border-white/5 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-2xl bg-blue-600/20 border border-blue-500/30">
-              <Scale size={28} className="text-blue-400" />
+            <div className="p-3 rounded-2xl bg-blue-600/20 border border-blue-500/30 overflow-hidden">
+              <img src="/assets/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
             </div>
             <div>
               <h2 className="text-2xl font-black tracking-tight">{getStageTitle()}</h2>
@@ -440,7 +440,7 @@ export default function Courtroom() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
               <div className="p-6 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Scale size={24} className="text-blue-400" />
+                  <img src="/assets/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
                   <span className="text-lg font-black uppercase tracking-widest text-blue-400">
                     案件基礎公關難度
                   </span>

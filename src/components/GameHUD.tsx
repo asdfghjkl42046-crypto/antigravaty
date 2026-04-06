@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Scale, Bug } from 'lucide-react';
+import { Bug } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
 import { COURT_TEXT } from '@/data/court/CourtData';
@@ -32,9 +32,12 @@ export default function GameHUD({
     <div className="fixed top-4 left-10 z-[100] flex flex-col gap-4 pointer-events-none">
       <div className="flex items-center gap-4 pointer-events-auto">
         {/* 法官資訊標牌 */}
-        <div className="pl-5 pr-10 py-4 bg-slate-950/80 backdrop-blur-2xl border-2 border-amber-500/40 rounded-[40px] flex items-center gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all hover:scale-105 group">
-          <div className="w-20 h-20 rounded-3xl bg-amber-600 flex items-center justify-center shadow-lg shadow-amber-900/40 group-hover:bg-amber-500 transition-colors">
-            <Scale size={40} className="text-white" />
+        <div 
+          onClick={onReset}
+          className="pl-5 pr-10 py-4 bg-slate-950/80 backdrop-blur-2xl border-2 border-amber-500/40 rounded-[40px] flex items-center gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all hover:scale-105 group cursor-pointer"
+        >
+          <div className="w-20 h-20 rounded-3xl overflow-hidden bg-black/40 border border-amber-500/20 flex items-center justify-center shadow-lg transition-colors group-hover:border-amber-500/50">
+            <img src="/assets/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col">
             <span className="text-base font-black text-amber-500/80 uppercase tracking-[0.3em] leading-none mb-2">

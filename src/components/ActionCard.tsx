@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card } from '../types/game';
 import { CARD_UI_TEXT } from '../data/cards/CardsDB';
-import { Gavel, Scale, MousePointer2, Zap } from 'lucide-react';
+import { Gavel, MousePointer2, Zap } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -128,7 +128,7 @@ export default function ActionCard({ cardId, card, onSelect, disabled }: ActionC
       {/* 底部風險評估標籤 */}
       <div className="px-5 py-3 bg-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3 text-xl font-black uppercase tracking-widest opacity-60">
-          <Scale size={20} />
+          <img src="/assets/logo.png" alt="" className="w-8 h-8 object-contain" />
           <span>{CARD_UI_TEXT.RISK_ASSESSMENT}</span>
         </div>
         <MousePointer2 size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
