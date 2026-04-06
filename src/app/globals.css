@@ -178,13 +178,6 @@ body {
   --opacity: 0.04;
 }
 
-/* 全域自適應容器：不再強制縮放，統一遵循 19.5:9 核心 container 邏輯 */
-.scale-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
 
 /* 手動補強標準 line-clamp 屬性以滿足 IDE 相容性檢查 */
 .line-clamp-standard-2 {
