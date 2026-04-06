@@ -23,7 +23,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onT
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-24 bg-black/80 backdrop-blur-3xl border-t border-white/5 px-10 flex items-center justify-between z-[100] pb-6">
+    <nav className="absolute bottom-0 left-0 right-0 h-24 bg-black/90 backdrop-blur-3xl border-t border-white/5 px-10 flex items-center justify-between z-[100] pb-6">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         

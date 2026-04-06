@@ -90,7 +90,7 @@ export default function Home() {
       <div className="relative aspect-[9/19.5] h-full max-h-[100dvh] max-w-full bg-[#050505] flex flex-col items-center overflow-hidden shadow-2xl border-x border-white/5 animate-in fade-in duration-700">
         
         {/* 背景點點 */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px:20px] opacity-[0.2] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.2] pointer-events-none" />
         
         {/* 頂部 Header */}
         <MobileHeader turn={turn} judgePersonality={judgePersonality} />
@@ -166,7 +166,14 @@ export default function Home() {
           )}
         </div>
 
-        <div className="w-1/3 h-[4px] bg-white/10 rounded-full mb-3 shrink-0 pointer-events-none" />
+        {/* 底部導覽欄位 (絕對定位在容器底部) */}
+        <MobileBottomNav activeTab={activeTab} onTabChange={(tab) => {
+          setActiveTab(tab);
+          if (tab !== 'scan') setIsQrActive(false);
+        }} />
+        
+        {/* iPhone 指示線裝飾 */}
+        <div className="w-1/3 h-[4px] bg-white/10 rounded-full mb-3 shrink-0 z-[110] relative" />
       </div>
 
       {engineError && (
