@@ -288,6 +288,7 @@ export interface GameStateData {
   judgePersonality: JudgePersonality | null;
   judgeMode: JudgeMode;
   startNotifications: string[]; // 開局背景與路徑增益提示
+  usedCodes: string[]; // 已領取的實體卡片代碼紀錄
   endingResult: EndingResult | null;
   engineError: { context: string; message: string } | null; // 核心引擎致命錯誤攔截快照
 }

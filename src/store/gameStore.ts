@@ -45,6 +45,7 @@ interface GameStore extends GameStateData {
   setJudgeMode: (mode: JudgeMode) => void;
   clearStartNotifications: () => void;
   clearEngineError: () => void; // 清除並重置引擎報錯
+  processScan: (code: string) => { success: boolean; message: string };
 
   // --- 遊戲卡牌核心流程 ---
   performAction: (
@@ -96,11 +97,73 @@ export const useGameStore = create<GameStore>()(
       judgePersonality: null, // 本屆最高法院的法官性格與裁決風格
       judgeMode: null, // 初始化為空，判斷是否已選擇進入設定頁面
       startNotifications: [], // 開局加成紅利廣播訊息存放陣列
+      usedCodes: [], // 已領取的實體卡片代碼紀錄
       endingResult: null, // 全局破關或破產結算時的大表
       engineError: null, // 核心引擎致命錯誤攔截快照
 
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
+
+      // 解碼實體卡片：處理 A011 等編碼轉換為遊戲獎勵
+      processScan: (code: string) => {
+        const state = get();
+        const codeUpper = code.toUpperCase().trim();
+
+        // 1. 防重複領取檢查
+        if (state.usedCodes.includes(codeUpper)) {
+          return { success: false, message: '此代碼已領取過，無法重複使用。' };
+        }
+
+        // 2. 解析規則 (格式: 類別字母 + 二位編號 + 一位選項)
+        // A: 會計, G: 律師, B: 技術, R: 公關
+        const category = codeUpper[0];
+        const option = codeUpper[codeUpper.length - 1];
+
+        const { players, currentPlayerIndex } = get();
+        const player = players[currentPlayerIndex];
+        if (!player) return { success: false, message: '無效玩家狀態' };
+
+        let rewardMsg = '';
+        const updates: Partial<Player> = {};
+
+        switch (category) {
+          case 'A': // 會計 A卡: 資金 + IP
+            updates.g = player.g + 100;
+            updates.ip = player.ip + 50;
+            rewardMsg = '【會計備援】成功同步 A 類數據：資金 +100 萬，IP +50';
+            break;
+          case 'G': // 律師 G卡: 資金 + 黑料清除
+            updates.g = player.g + 50;
+            // 清除最舊的一筆黑料
+            if (player.blackMaterialSources.length > 0) {
+              updates.blackMaterialSources = player.blackMaterialSources.slice(1);
+            }
+            rewardMsg = '【律師備援】成功同步 G 類數據：資金 +50 萬，並銷毀了一筆舊黑料';
+            break;
+          case 'B': // 技術 B卡: AP 回復
+            updates.ap = Math.min(5, player.ap + 3);
+            rewardMsg = '【技術備援】成功同步 B 類數據：行動力 AP +3';
+            break;
+          case 'R': // 公關 R卡 (RP): 名聲 + IP
+            updates.rp = Math.min(100, player.rp + 20);
+            updates.ip = player.ip + 30;
+            rewardMsg = '【公關備援】成功同步 R 類數據：名聲 +20，IP +30';
+            break;
+          default:
+            return { success: false, message: '無效的卡片代碼，請檢查格式。' };
+        }
+
+        // 3. 更新狀態並存檔
+        const updatedPlayers = [...players];
+        updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
+
+        set({
+          players: updatedPlayers,
+          usedCodes: [...state.usedCodes, codeUpper],
+        });
+
+        return { success: true, message: rewardMsg };
+      },
 
       // 開局大典：把選擇好黑心路線的玩家們全部拉進系統，並分配好他們天生的財產與業障
       initGame: async (configs) => {
