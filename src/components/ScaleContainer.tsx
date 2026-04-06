@@ -36,6 +36,13 @@ export const ScaleContainer: React.FC<ScaleContainerProps> = ({ children }) => {
       }
       
       setScale(newScale);
+
+      // --- 命令式更新 CSS 變數，繞過 JSX Style 警告 ---
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--base-width', `${BASE_WIDTH}px`);
+        containerRef.current.style.setProperty('--base-height', `${BASE_HEIGHT}px`);
+        containerRef.current.style.setProperty('--scale-factor', newScale.toString());
+      }
     };
 
     updateScale();
@@ -47,11 +54,6 @@ export const ScaleContainer: React.FC<ScaleContainerProps> = ({ children }) => {
     <div className="fixed inset-0 bg-slate-950 flex items-center justify-center overflow-hidden overscroll-none touch-none">
       <div 
         ref={containerRef}
-        style={{
-          '--base-width': `${BASE_WIDTH}px`,
-          '--base-height': `${BASE_HEIGHT}px`,
-          '--scale-factor': scale
-        } as React.CSSProperties}
         className="scale-canvas relative bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden origin-center shrink-0"
       >
         {children}
