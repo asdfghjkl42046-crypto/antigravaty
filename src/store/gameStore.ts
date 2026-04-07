@@ -91,6 +91,12 @@ export const useGameStore = create<GameStore>()(
       processScan: (code: string) => {
         const state = get();
         const codeUpper = code.toUpperCase().trim();
+
+        // 處理特殊洗牌指令 (WASH)
+        if (codeUpper === 'WASH') {
+          return get().redrawCards();
+        }
+
         if (state.usedCodes.includes(codeUpper)) {
           return { success: false, message: '此代碼已領取過。' };
         }
