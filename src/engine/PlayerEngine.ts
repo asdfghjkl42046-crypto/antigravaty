@@ -10,6 +10,7 @@ import type {
   BlackMaterialSource,
   Tag,
   JudgePersonality,
+  PlayerConfig,
 } from '../types/game';
 import { sha256, roundUp } from './MathEngine';
 import { SETUP_TEXT } from '@/data/setup/SetupData';
@@ -219,12 +220,6 @@ async function createPlayerFromConfig(
     hasUsedExtraAppeal: false, // 非常上訴(緊急豁免) 權利保留尚未行使
     startBonusFineReduction: 0, // 在稍後的 init 廣播函式內才會計算賦予
   };
-}
-
-export interface PlayerConfig {
-  name: string;
-  path: StartPath;
-  bribeItem?: BribeItem;
 }
 
 /**

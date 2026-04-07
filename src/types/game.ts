@@ -278,6 +278,12 @@ export type GamePhase = 'play' | 'summary' | 'courtroom' | 'gameover' | 'victory
 /**
  * 遊戲目前的狀態
  */
+export interface PlayerConfig {
+  name: string;
+  path: StartPath;
+  bribeItem?: BribeItem;
+}
+
 export interface GameStateData {
   players: Player[]; // 所有的玩家
   turn: number; // 目前是第幾回合
@@ -291,6 +297,7 @@ export interface GameStateData {
   usedCodes: string[]; // 已領取的實體卡片代碼紀錄
   endingResult: EndingResult | null;
   engineError: { context: string; message: string } | null; // 核心引擎致命錯誤攔截快照
+  pendingTrialId?: string; // 引擎傳發：待處理的法庭起訴 ID
 }
 
 export type BetChoice = 'win' | 'lose' | 'none';

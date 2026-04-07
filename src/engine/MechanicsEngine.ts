@@ -18,6 +18,7 @@ import {
   throwLogicFailureError,
   throwNumericalCheckError,
 } from './errors/EngineErrors';
+import { CARDS_DB } from '../data/cards/CardsDB';
 
 // ============================================================
 // §1-2 信用不合格 (收益補丁)
@@ -367,4 +368,31 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   updates.trustFund = finalTrust;
 
   return updates;
+}
+
+/**
+ * 解析掃描編碼並回傳對應的卡牌決策結果
+ * 格式：[類別:A-E][編號:01-99][選項:1-3]
+ * 範例：A011 -> CARDS_DB['A-01'][1]
+ */
+export function resolveScanCode(code: string): { cardId: string; optionIdx: number } | null {
+  if (!code || code.length !== 4) return null;
+
+  const category = code.charAt(0).toUpperCase();
+  const idNum = code.substring(1, 3);
+  const optionIdx = parseInt(code.charAt(3), 10);
+
+  // 驗證類別是否為 A-E
+  if (!['A', 'B', 'C', 'D', 'E'].includes(category)) return null;
+  // 驗證選項是否為 1-3
+  if (isNaN(optionIdx) || optionIdx < 1 || optionIdx > 3) return null;
+
+  const cardId = `${category}-${idNum}`;
+  
+  // 驗證該卡片是否存在於資料庫中
+  if (!CARDS_DB[cardId]) return null;
+  // 驗證該選項是否存在於卡片中
+  if (!(CARDS_DB[cardId] as any)[optionIdx]) return null;
+
+  return { cardId, optionIdx };
 }

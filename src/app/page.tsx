@@ -35,12 +35,12 @@ export default function Home() {
     setPlannedPlayerCount(playerCount);
   };
 
-  const handleRegistrationConfirm = (config: any) => {
+  const handleRegistrationConfirm = async (config: any) => {
     const newList = [...registrationList, config];
     
-    if (newList.length === plannedPlayerCount) {
+    if (newList.length === (plannedPlayerCount || 0)) {
       // 全部註冊完畢
-      initGame(newList);
+      await initGame(newList);
       setPlannedPlayerCount(null);
       setCurrentRegIndex(0);
       setRegistrationList([]);
@@ -81,7 +81,13 @@ export default function Home() {
       )}
 
       {isDashboard && (
-        <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
+        <div className="relative w-full h-full">
+          <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
+          {/* 開發者模式：右下角狀態監視器 */}
+          <div className="fixed bottom-2 right-2 bg-black/80 border border-white/20 p-2 rounded text-[8px] font-mono text-white/40 pointer-events-none z-[9999]">
+            PHASE: {useGameStore.getState().phase} | TURN: {useGameStore.getState().turn}
+          </div>
+        </div>
       )}
     </main>
   );

@@ -11,6 +11,7 @@ import {
   getIndictmentChance,
   calculateConvictionPenalty,
   calculateSpectatorInfluence,
+  settleBet,
 } from './MechanicsEngine';
 import { LAW_CASES_DB, formatLawTags } from '../data/laws/LawCasesDB';
 import { removeBlackMaterialsByTag, getTotalBlackMaterials } from './PlayerEngine';
@@ -21,7 +22,7 @@ import {
   JUDGE_LABELS,
 } from '../data/judges/JudgeTemplatesDB';
 import { AIEngine } from './AIEngine';
-import { getWithdrawCaseCost, getLawyerDefenseBonus } from './RoleEngine';
+import { getWithdrawCaseCost, getLawyerDefenseBonus, applyPRDiscount } from './RoleEngine';
 import {
   throwTrialInitializationError,
   throwNumericalCheckError,
@@ -633,5 +634,37 @@ export class CourtEngine {
     updates.bribeItem = undefined;
 
     return updates; // 回傳給 store，透過 Zustand 改寫核心狀態
+  }
+
+  /**
+   * 結算法庭賭局對所有旁觀者的獎懲
+   */
+  static settleTrialBets(players: Player[], trial: TrialState, actualResult: boolean): Player[] {
+    return players.map((p) => {
+      // 被告本人不參與自己案子的賭局 (已單獨結算資產變動)
+      if (p.id === trial.defendantId) return p;
+
+      const playerBet = trial.bets.find((b) => b.playerId === p.id);
+      // 若該名旁觀者未進行任何下注，則略過處理
+      if (!playerBet || playerBet.choice === 'none') return p;
+
+      // 調用 MechanicsEngine 獲取基礎獲利與懲罰值
+      const betRes = settleBet(p, playerBet.choice, actualResult);
+
+      // 取得基礎名聲變動
+      let rpChange = betRes.rpGain;
+      // 若名聲變動為負，調用公關天賦折抵邏輯
+      if (rpChange < 0) {
+        rpChange = applyPRDiscount(p, rpChange);
+      }
+
+      // 將盈虧映射至新玩家物件並回傳
+      return {
+        ...p,
+        g: Math.max(0, p.g + betRes.gGain),
+        ip: Math.max(0, p.ip + betRes.ipGain),
+        rp: Math.max(0, Math.min(100, p.rp + rpChange)),
+      };
+    });
   }
 }

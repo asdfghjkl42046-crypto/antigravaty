@@ -13,10 +13,10 @@ import {
   Star,
   AlertTriangle,
   ChevronDown,
-  LayoutGrid,
   Scan,
   Gift,
   Check,
+  ChevronRight,
 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
@@ -311,7 +311,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         ) : activeTab === 'shop' ? (
           <StoreScreen />
         ) : (
-          <ScanScreen onBack={() => setActiveTab('home')} />
+          <ScanScreen onBack={() => setActiveTab('home')} onEndTurn={onEndTurn} />
         )}
       </div>
 

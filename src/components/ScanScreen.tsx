@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
-import { Scan, Keyboard, X, ShieldAlert, Cpu, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
+import { Scan, Keyboard, X, ShieldAlert, Cpu, CheckCircle2, AlertCircle, ChevronRight } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
 
 interface ScanScreenProps {
   onBack: () => void;
+  onEndTurn?: () => void;
 }
 
-export default function ScanScreen({ onBack }: ScanScreenProps) {
+export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
   const { processScan } = useGameStore();
   const [manualCode, setManualCode] = useState('');
   const [status, setStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({
@@ -31,6 +32,14 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
 
   const startScanning = async () => {
     if (!scannerRef.current) return;
+
+    if (typeof window !== 'undefined' && !window.isSecureContext) {
+      setStatus({ 
+        type: 'error', 
+        msg: '🚨 安全性限制：瀏覽器禁止在非加密連線 (HTTP) 下開啟相機。請將網址改為 https:// 或使用手動輸入編碼。' 
+      });
+      return;
+    }
     
     try {
       setIsCameraActive(true);
@@ -44,11 +53,11 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
           handleCodeSubmit(decodedText);
           stopScanning();
         },
-        () => {} // 忽略掃描中的錯誤
+        () => {} 
       );
     } catch (err) {
       console.error("Camera start failed:", err);
-      setStatus({ type: 'error', msg: '無法啟動相機，請檢查權限或改用手動輸入。' });
+      setStatus({ type: 'error', msg: '啟動失敗：請檢查權限設定，或嘗試重新整理頁面。' });
       setIsCameraActive(false);
     }
   };
@@ -67,7 +76,6 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
     if (result.success) {
       setStatus({ type: 'success', msg: result.message });
       setManualCode('');
-      // 成功後過 2 秒自動返回或清除狀態
       setTimeout(() => setStatus({ type: 'idle', msg: '' }), 3000);
     } else {
       setStatus({ type: 'error', msg: result.message });
@@ -76,10 +84,8 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-500 bg-slate-950 p-4 relative overflow-hidden">
-      {/* 背景裝飾：數據矩陣質感 */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:20px_20px]" />
       
-      {/* 頂部 Header */}
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center space-x-2">
           <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30">
@@ -99,10 +105,7 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
         </button>
       </div>
 
-      {/* 核心掃描區域 */}
       <div className="relative flex-1 flex flex-col items-center justify-center space-y-6">
-        
-        {/* 掃描框視窗 */}
         <div className="relative w-64 h-64 border-2 border-slate-800 rounded-[32px] overflow-hidden bg-black/40 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <div id="reader" className="w-full h-full object-cover" />
           
@@ -119,19 +122,16 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
             </div>
           )}
 
-          {/* 琥珀色動態雷射線 */}
           {isCameraActive && (
             <div className="absolute top-0 left-0 w-full h-[2px] bg-amber-500 shadow-[0_0_15px_#f59e0b] animate-scan-line z-20" />
           )}
           
-          {/* 四角裝飾物 */}
           <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-amber-500/50 rounded-tl-lg" />
           <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-amber-500/50 rounded-tr-lg" />
           <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-amber-500/50 rounded-bl-lg" />
           <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-amber-500/50 rounded-br-lg" />
         </div>
 
-        {/* 手動輸入區 (避免卡片汙損備援) */}
         <div className="w-full max-w-xs space-y-4">
           <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-5 shadow-inner">
             <div className="flex items-center space-x-2 mb-3">
@@ -149,16 +149,30 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
               />
               <button 
                 onClick={() => handleCodeSubmit(manualCode)}
-                title="解碼並送出"
+                title="解析並同步卡片"
+                aria-label="Decode and sync card"
                 className="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
               >
                 <Cpu size={18} />
               </button>
             </div>
           </div>
+
+          {/* 結束回合快速按鍵 (用戶要求：放在輸入代碼底下) */}
+          {onEndTurn && (
+            <button 
+              onClick={onEndTurn}
+              title="結束目前回合並儲存所有變動"
+              aria-label="End turn"
+              className="w-full mt-2 py-4 bg-red-600/20 hover:bg-red-600/40 border border-red-500/40 rounded-2xl transition-all active:scale-95 group flex items-center justify-center space-x-3 shadow-[0_4px_20px_rgba(239,68,68,0.2)]"
+            >
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-xs font-black text-red-100 uppercase tracking-[0.2em]">結束目前回合</span>
+              <ChevronRight size={16} className="text-red-400 group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
         </div>
 
-        {/* 狀態提示浮窗 */}
         {status.msg && (
           <div className={`fixed top-24 left-1/2 -translate-x-1/2 w-[80%] max-w-[300px] p-4 rounded-2xl border-2 backdrop-blur-xl flex items-start space-x-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 z-[100] ${
             status.type === 'success' ? 'bg-emerald-950/90 border-emerald-500 text-emerald-100' : 'bg-red-950/90 border-red-500 text-red-100'
@@ -173,7 +187,6 @@ export default function ScanScreen({ onBack }: ScanScreenProps) {
         )}
       </div>
 
-      {/* 底部裝飾 */}
       <div className="mt-auto mb-2 text-center opacity-20">
         <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.5em]">Antigravity Protocol Hardware Sync</p>
       </div>

@@ -18,8 +18,7 @@ import {
   Award,
 } from 'lucide-react';
 import gsap from 'gsap';
-import { PlayerConfig } from '@/store/gameStore';
-import { StartPath, BribeItem } from '@/types/game';
+import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
 import AlignmentTool, { AlignmentElement } from './AlignmentTool';
 
 // 定義天賦類型，對齊全域 StartPath
@@ -240,7 +239,7 @@ export default function PlayerRegistrationScreen({
     input_label: {
       top: 17.862618496158866,
       left: 10.238095238095237,
-      width: 24.76190476190476,
+      width: 28,
       height: 4.373815038411312,
       fontSize: 19,
       label: '企業名稱',

@@ -227,8 +227,8 @@ export function resolveGameStatus(
   }
 
   // 4. 回合上限保衛機制 (GEMINI.md §3-2: 遊戲只營運 50 回合)
+  // 當目前的「已嘗試切換後的回合」大於 50，代表第 50 輪已正式結束
   if (currentTurn > 50) {
-    // 時間到，強制送去審判看成績
     const ending = calculateEnding(player, 50);
     return { isGameOver: true, phase: 'gameover', endingResult: ending };
   }
