@@ -1,5 +1,22 @@
-import { GameStateData, Player, ActionResult, ActionLog, Tag, RoleType, PlayerConfig } from '../types/game';
-import { settleEndOfTurn, sortTurnOrder, resolveGameStatus, performAction, sha256, initializeGameSession, applyRedrawCards, applyRoleUpgrade } from './GameEngine';
+import {
+  GameStateData,
+  Player,
+  ActionResult,
+  ActionLog,
+  Tag,
+  RoleType,
+  PlayerConfig,
+} from '../types/game';
+import {
+  settleEndOfTurn,
+  sortTurnOrder,
+  resolveGameStatus,
+  performAction,
+  sha256,
+  initializeGameSession,
+  applyRedrawCards,
+  applyRoleUpgrade,
+} from './GameEngine';
 import { CourtEngine } from './CourtEngine';
 import { getCTOAntiTheftCount } from './RoleEngine';
 
@@ -74,9 +91,10 @@ export class GameFlowEngine {
     }
 
     // 5. 輪畢後的隨機法庭審計
-    const trialToTrigger = !trial && nextTurn > turn
-      ? CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn)
-      : null;
+    const trialToTrigger =
+      !trial && nextTurn > turn
+        ? CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn)
+        : null;
 
     return {
       players: finalPlayers,
@@ -241,7 +259,11 @@ export class GameFlowEngine {
   /**
    * 處理洗牌行動
    */
-  static handleRedrawCards(state: GameStateData): { success: boolean; message: string; updates: Partial<GameStateData> } {
+  static handleRedrawCards(state: GameStateData): {
+    success: boolean;
+    message: string;
+    updates: Partial<GameStateData>;
+  } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
     if (!player) return { success: false, message: '無效玩家', updates: {} };
@@ -257,7 +279,10 @@ export class GameFlowEngine {
   /**
    * 處理角色升級
    */
-  static handleUpgradeRole(state: GameStateData, role: RoleType): { success: boolean; message: string; updates: Partial<GameStateData> } {
+  static handleUpgradeRole(
+    state: GameStateData,
+    role: RoleType
+  ): { success: boolean; message: string; updates: Partial<GameStateData> } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
     if (!player) return { success: false, message: '無效玩家', updates: {} };
@@ -274,10 +299,10 @@ export class GameFlowEngine {
    * 處理法庭觸發邏輯
    */
   static handleTriggerTrial(
-    state: GameStateData, 
-    defendantId: string, 
-    forcedTagId?: number, 
-    isInevitable = false, 
+    state: GameStateData,
+    defendantId: string,
+    forcedTagId?: number,
+    isInevitable = false,
     reason = ''
   ): Partial<GameStateData> {
     const { players, judgeMode, judgePersonality } = state;
@@ -298,7 +323,11 @@ export class GameFlowEngine {
   /**
    * 處理辯護提交邏輯
    */
-  static handleSubmitDefense(state: GameStateData, idx: number, txt: string): Partial<GameStateData> {
+  static handleSubmitDefense(
+    state: GameStateData,
+    idx: number,
+    txt: string
+  ): Partial<GameStateData> {
     const { trial, players, judgeMode, turn } = state;
     if (!trial) return {};
     const def = players.find((p) => p.id === trial.defendantId);
@@ -320,8 +349,10 @@ export class GameFlowEngine {
       turn
     );
 
-    return { 
-      trial: { ...trial, ...outcome, chosenDefenseLabel: chosenLabel } as NonNullable<GameStateData['trial']> 
+    return {
+      trial: { ...trial, ...outcome, chosenDefenseLabel: chosenLabel } as NonNullable<
+        GameStateData['trial']
+      >,
     };
   }
 
@@ -334,7 +365,11 @@ export class GameFlowEngine {
     const idx = players.findIndex((p) => p.id === trial.defendantId);
     if (idx === -1) return {};
 
-    const res = CourtEngine.applyWithdrawCase(players[idx], trial.lawCase.tag, trial.lawCaseTagId || 0);
+    const res = CourtEngine.applyWithdrawCase(
+      players[idx],
+      trial.lawCase.tag,
+      trial.lawCaseTagId || 0
+    );
     if (!res.success) return {};
 
     const final = { ...players[idx], ...res.updates };

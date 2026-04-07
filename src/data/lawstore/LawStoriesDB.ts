@@ -26,11 +26,13 @@ export const LAW_STORIES_DB: Record<string, RealLawStory> = {
   ...STORIES_D,
   ...STORIES_E,
   ...STORIES_START,
-  
+
   // -- 預設回退文案 (當找不到對應法案故事時顯示) --
-  'DEFAULT': {
-    event: ['（關於此法條的真實判例故事尚未建檔，敬請期待後續更新。你可以在現實中多關注類似的新聞案件！）'],
-  }
+  DEFAULT: {
+    event: [
+      '（關於此法條的真實判例故事尚未建檔，敬請期待後續更新。你可以在現實中多關注類似的新聞案件！）',
+    ],
+  },
 };
 
 /**

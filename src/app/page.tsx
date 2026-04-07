@@ -37,7 +37,7 @@ export default function Home() {
 
   const handleRegistrationConfirm = async (config: any) => {
     const newList = [...registrationList, config];
-    
+
     if (newList.length === (plannedPlayerCount || 0)) {
       // 全部註冊完畢
       await initGame(newList);
@@ -63,20 +63,16 @@ export default function Home() {
 
   return (
     <main className="w-screen h-[100dvh] bg-black flex justify-center items-center overflow-hidden">
-      {isModeSelect && (
-        <ModeSelectScreen onStartGame={handleModeSelect} />
-      )}
-      
-      {isSetup && (
-        <SetupScreen onBack={handleBackToMode} onConfirm={handleStartSetup} />
-      )}
+      {isModeSelect && <ModeSelectScreen onStartGame={handleModeSelect} />}
+
+      {isSetup && <SetupScreen onBack={handleBackToMode} onConfirm={handleStartSetup} />}
 
       {isRegistration && plannedPlayerCount && (
-        <PlayerRegistrationScreen 
+        <PlayerRegistrationScreen
           playerIndex={currentRegIndex + 1}
-          totalPlayers={plannedPlayerCount} 
-          onBack={handleBackToSetup} 
-          onConfirm={handleRegistrationConfirm} 
+          totalPlayers={plannedPlayerCount}
+          onBack={handleBackToSetup}
+          onConfirm={handleRegistrationConfirm}
         />
       )}
 
@@ -92,4 +88,3 @@ export default function Home() {
     </main>
   );
 }
-

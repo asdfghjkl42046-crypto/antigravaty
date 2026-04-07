@@ -5,10 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import {
-  applyRoleUpgrade,
-  applyRedrawCards,
-} from '../engine/GameEngine';
+import { applyRoleUpgrade, applyRedrawCards } from '../engine/GameEngine';
 import { GameFlowEngine } from '../engine/GameFlowEngine';
 
 import {
@@ -176,17 +173,29 @@ export const useGameStore = create<GameStore>()(
         set({ trial: { ...t, ...updates } as any });
       },
 
-      nextBystander: () => set((s) => ({
-        trial: s.trial ? { ...s.trial, actingBystanderIndex: s.trial.actingBystanderIndex + 1, timer: 0 } : null 
-      })),
+      nextBystander: () =>
+        set((s) => ({
+          trial: s.trial
+            ? { ...s.trial, actingBystanderIndex: s.trial.actingBystanderIndex + 1, timer: 0 }
+            : null,
+        })),
 
-      addIntervention: (pid, txt) => set((s) => ({
-        trial: s.trial ? { ...s.trial, interventions: [...s.trial.interventions, { playerId: pid, text: txt }] } : null
-      })),
+      addIntervention: (pid, txt) =>
+        set((s) => ({
+          trial: s.trial
+            ? {
+                ...s.trial,
+                interventions: [...s.trial.interventions, { playerId: pid, text: txt }],
+              }
+            : null,
+        })),
 
-      placeBet: (pid, choice) => set((s) => ({
-        trial: s.trial ? { ...s.trial, bets: [...s.trial.bets, { playerId: pid, choice }] } : null
-      })),
+      placeBet: (pid, choice) =>
+        set((s) => ({
+          trial: s.trial
+            ? { ...s.trial, bets: [...s.trial.bets, { playerId: pid, choice }] }
+            : null,
+        })),
 
       submitDefense: (idx, txt) => {
         const updates = GameFlowEngine.handleSubmitDefense(get(), idx, txt);

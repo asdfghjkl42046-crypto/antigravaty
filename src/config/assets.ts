@@ -14,7 +14,7 @@ export const BRAND_ASSETS = {
       MUTED: true,
       PLAYS_INLINE: true,
       POSTER: '/assets/logo.png', // 影片加載前的替代圖
-    }
+    },
   },
   // 未來可擴充其他品牌資產
 };

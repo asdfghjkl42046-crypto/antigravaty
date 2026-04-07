@@ -213,9 +213,11 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
 
                 {/* 圖示 (動態數量與靈動動畫) */}
                 {layout[`${prefix}_icon`] && (
-                  <div className={`${prefix}_icon-pos transition-all duration-500 pointer-events-none z-40 flex items-center justify-center
+                  <div
+                    className={`${prefix}_icon-pos transition-all duration-500 pointer-events-none z-40 flex items-center justify-center
                     ${isActive ? 'text-blue-400 drop-shadow-[0_0_12px_rgba(59,130,246,0.6)] scale-110' : 'text-slate-600 opacity-60 scale-100'}
-                  `}>
+                  `}
+                  >
                     <div className="relative w-full h-full animate-bounce-subtle">
                       {idx === 0 && <User className="w-full h-full" />}
                       {idx === 1 && (

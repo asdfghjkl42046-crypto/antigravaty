@@ -388,7 +388,7 @@ export function resolveScanCode(code: string): { cardId: string; optionIdx: numb
   if (isNaN(optionIdx) || optionIdx < 1 || optionIdx > 3) return null;
 
   const cardId = `${category}-${idNum}`;
-  
+
   // 驗證該卡片是否存在於資料庫中
   if (!CARDS_DB[cardId]) return null;
   // 驗證該選項是否存在於卡片中

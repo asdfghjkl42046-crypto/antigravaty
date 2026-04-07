@@ -1,5 +1,5 @@
 export const STORIES_C: Record<string, any> = {
-    'C-01-3': {
+  'C-01-3': {
     background: [],
     event: [],
     suspect: '',
@@ -7,7 +7,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-02-2': {
+  'C-02-2': {
     background: [],
     event: [],
     suspect: '',
@@ -15,7 +15,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-03-2': {
+  'C-03-2': {
     background: [],
     event: [],
     suspect: '',
@@ -23,7 +23,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-04-1': {
+  'C-04-1': {
     background: [],
     event: [],
     suspect: '',
@@ -31,7 +31,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-05-3': {
+  'C-05-3': {
     background: [],
     event: [],
     suspect: '',
@@ -39,7 +39,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-06-1': {
+  'C-06-1': {
     background: [],
     event: [],
     suspect: '',
@@ -47,7 +47,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-07-3': {
+  'C-07-3': {
     background: [],
     event: [],
     suspect: '',
@@ -55,7 +55,7 @@ export const STORIES_C: Record<string, any> = {
     result: '',
     link: '',
   },
-    'C-08-2': {
+  'C-08-2': {
     background: [],
     event: [],
     suspect: '',

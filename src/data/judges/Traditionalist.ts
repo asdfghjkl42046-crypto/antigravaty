@@ -22,16 +22,11 @@ export const TRADITIONALIST_JUDGMENT: JudgmentTemplate = {
     `你說：「{defense}」\n在我這裡說不過去。\n你做的是：「{hIntent}」\n有罪。做了就是做了，沒什麼好說的。`,
     `我聽完了。\n你說：「{defense}」\n但你做的是：「{hIntent}」\n有罪。說再多也是這個結果。`,
   ],
-  silence: [
-    `不說話。\n好。\n有罪。`,
-    `你選擇沉默。\n我尊重——但沉默在這裡換不到什麼。有罪。`,
-  ],
+  silence: [`不說話。\n好。\n有罪。`, `你選擇沉默。\n我尊重——但沉默在這裡換不到什麼。有罪。`],
   appeal_win: [
     `你花了錢，我重新看了。\n你說：「{defense}」——這次說得過去。撤訴。\n規矩是規矩，我不能不認。`,
   ],
-  appeal_lose: [
-    `你花了錢，我重新看了。\n還是：「{hIntent}」，有罪。\n錢是你的事，結果是我的事。`,
-  ],
+  appeal_lose: [`你花了錢，我重新看了。\n還是：「{hIntent}」，有罪。\n錢是你的事，結果是我的事。`],
 };
 
 export const TRADITIONALIST_INTERROGATION = [

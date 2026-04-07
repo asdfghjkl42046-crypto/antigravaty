@@ -1,5 +1,5 @@
 export const STORIES_B: Record<string, any> = {
-    'B-01-2': {
+  'B-01-2': {
     background: [],
     event: [],
     suspect: '',
@@ -7,7 +7,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-01-3': {
+  'B-01-3': {
     background: [],
     event: [],
     suspect: '',
@@ -15,7 +15,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-03-1': {
+  'B-03-1': {
     background: [],
     event: [],
     suspect: '',
@@ -23,7 +23,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-03-2': {
+  'B-03-2': {
     background: [],
     event: [],
     suspect: '',
@@ -31,7 +31,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-03-3': {
+  'B-03-3': {
     background: [],
     event: [],
     suspect: '',
@@ -39,7 +39,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-04-1': {
+  'B-04-1': {
     background: [],
     event: [],
     suspect: '',
@@ -47,7 +47,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-05-1': {
+  'B-05-1': {
     background: [],
     event: [],
     suspect: '',
@@ -55,7 +55,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-05-2': {
+  'B-05-2': {
     background: [],
     event: [],
     suspect: '',
@@ -63,7 +63,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-06-1': {
+  'B-06-1': {
     background: [],
     event: [],
     suspect: '',
@@ -71,7 +71,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-06-2': {
+  'B-06-2': {
     background: [],
     event: [],
     suspect: '',
@@ -79,7 +79,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-06-3': {
+  'B-06-3': {
     background: [],
     event: [],
     suspect: '',
@@ -87,7 +87,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-07-1': {
+  'B-07-1': {
     background: [],
     event: [],
     suspect: '',
@@ -95,7 +95,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-07-2': {
+  'B-07-2': {
     background: [],
     event: [],
     suspect: '',
@@ -103,7 +103,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-08-1': {
+  'B-08-1': {
     background: [],
     event: [],
     suspect: '',
@@ -111,7 +111,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-08-2': {
+  'B-08-2': {
     background: [],
     event: [],
     suspect: '',
@@ -119,7 +119,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-09-1': {
+  'B-09-1': {
     background: [],
     event: [],
     suspect: '',
@@ -127,7 +127,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-09-3': {
+  'B-09-3': {
     background: [],
     event: [],
     suspect: '',
@@ -135,7 +135,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-10-1': {
+  'B-10-1': {
     background: [],
     event: [],
     suspect: '',
@@ -143,7 +143,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-10-2': {
+  'B-10-2': {
     background: [],
     event: [],
     suspect: '',
@@ -151,7 +151,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-10-3': {
+  'B-10-3': {
     background: [],
     event: [],
     suspect: '',
@@ -159,7 +159,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-11-1': {
+  'B-11-1': {
     background: [],
     event: [],
     suspect: '',
@@ -167,7 +167,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-11-3': {
+  'B-11-3': {
     background: [],
     event: [],
     suspect: '',
@@ -175,7 +175,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-12-1': {
+  'B-12-1': {
     background: [],
     event: [],
     suspect: '',
@@ -183,7 +183,7 @@ export const STORIES_B: Record<string, any> = {
     result: '',
     link: '',
   },
-    'B-12-2': {
+  'B-12-2': {
     background: [],
     event: [],
     suspect: '',

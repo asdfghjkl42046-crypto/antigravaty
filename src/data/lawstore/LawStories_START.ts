@@ -1,5 +1,5 @@
 export const STORIES_START: Record<string, any> = {
-    'START-01': {
+  'START-01': {
     background: [],
     event: [],
     suspect: '',
@@ -7,7 +7,7 @@ export const STORIES_START: Record<string, any> = {
     result: '',
     link: '',
   },
-    'START-02': {
+  'START-02': {
     background: [],
     event: [],
     suspect: '',

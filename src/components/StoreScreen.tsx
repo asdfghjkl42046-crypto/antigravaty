@@ -22,13 +22,17 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
       className={`relative bg-slate-950/40 border-2 rounded-[32px] px-4 py-6 transition-all duration-500 h-[285px] flex flex-col justify-center items-center shadow-2xl group cursor-pointer ${
         showDetail ? 'z-50 scale-[1.02]' : 'z-10'
       } ${
-        isMax 
+        isMax
           ? `border-${role.color}-500/60 bg-${role.color}-500/5 ${
-              role.color === 'amber' ? 'shadow-[0_0_20px_rgba(245,158,11,0.15)]' :
-              role.color === 'emerald' ? 'shadow-[0_0_20px_rgba(16,185,129,0.15)]' :
-              role.color === 'blue' ? 'shadow-[0_0_20px_rgba(59,130,246,0.15)]' :
-              role.color === 'pink' ? 'shadow-[0_0_20px_rgba(236,72,153,0.15)]' :
-              'shadow-[0_0_20px_rgba(255,255,255,0.05)]'
+              role.color === 'amber'
+                ? 'shadow-[0_0_20px_rgba(245,158,11,0.15)]'
+                : role.color === 'emerald'
+                  ? 'shadow-[0_0_20px_rgba(16,185,129,0.15)]'
+                  : role.color === 'blue'
+                    ? 'shadow-[0_0_20px_rgba(59,130,246,0.15)]'
+                    : role.color === 'pink'
+                      ? 'shadow-[0_0_20px_rgba(236,72,153,0.15)]'
+                      : 'shadow-[0_0_20px_rgba(255,255,255,0.05)]'
             }`
           : `${colors.border.replace('border-2', '')} opacity-90 hover:opacity-100 hover:shadow-[0_0_25px_rgba(255,255,255,0.05)]`
       }`}
@@ -57,8 +61,8 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
               <div
                 key={lv}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-700 ${
-                  lv <= currentLevel 
-                    ? colors.badge + ' scale-125 shadow-[0_0_10px_currentColor]' 
+                  lv <= currentLevel
+                    ? colors.badge + ' scale-125 shadow-[0_0_10px_currentColor]'
                     : 'bg-white/10'
                 }`}
               />
@@ -70,9 +74,10 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
       {/* 覆蓋式詳情面板 (Overlay) */}
       {showDetail && (
         <div
-          className={`absolute inset-0 z-50 bg-[#020617] rounded-[30px] px-3.5 py-5 flex flex-col justify-between border-2 animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_60px_rgba(0,0,0,1)] overflow-hidden ${
-            colors.border.replace('border-2', 'border-opacity-100')
-          }`}
+          className={`absolute inset-0 z-50 bg-[#020617] rounded-[30px] px-3.5 py-5 flex flex-col justify-between border-2 animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_60px_rgba(0,0,0,1)] overflow-hidden ${colors.border.replace(
+            'border-2',
+            'border-opacity-100'
+          )}`}
           onClick={(e) => {
             e.stopPropagation();
             setShowDetail(false);
@@ -95,17 +100,17 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
                 <div
                   key={idx}
                   className={`relative px-1.5 py-1 flex items-start space-x-2 rounded-lg transition-all duration-500 border-2 border-transparent ${
-                    isUnlocked 
-                      ? 'opacity-100 bg-white/5' 
-                      : isCurrentTarget 
-                        ? 'opacity-40 border-dashed border-slate-500/40 animate-pulse' 
+                    isUnlocked
+                      ? 'opacity-100 bg-white/5'
+                      : isCurrentTarget
+                        ? 'opacity-40 border-dashed border-slate-500/40 animate-pulse'
                         : 'opacity-20'
                   }`}
                 >
                   <div
                     className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isUnlocked 
-                        ? colors.badge + ' shadow-[0_0_10px_currentColor]' 
+                      isUnlocked
+                        ? colors.badge + ' shadow-[0_0_10px_currentColor]'
                         : 'bg-white/5 border border-white/20'
                     }`}
                   >
@@ -140,11 +145,15 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
               ) : (
                 /* 無法購買：白色虛線框 (Ghost Style) */
                 <div className="w-full py-2 rounded-xl border-dashed border-2 border-white/60 flex items-center justify-center bg-transparent">
-                   <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">預算 / 人脈不足</span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">
+                    預算 / 人脈不足
+                  </span>
                 </div>
               )
             ) : (
-              <div className={`w-full py-1.5 rounded-xl bg-opacity-10 border border-opacity-30 text-[9px] font-black flex items-center justify-center uppercase tracking-[0.3em] ${colors.badge} ${colors.text.replace('text-', 'border-')}`}>
+              <div
+                className={`w-full py-1.5 rounded-xl bg-opacity-10 border border-opacity-30 text-[9px] font-black flex items-center justify-center uppercase tracking-[0.3em] ${colors.badge} ${colors.text.replace('text-', 'border-')}`}
+              >
                 <ShieldCheck size={12} className="mr-2 opacity-50" />
                 ACTIVE CONTRACT
               </div>

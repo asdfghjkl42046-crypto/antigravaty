@@ -142,7 +142,14 @@ export default function PlayerRegistrationScreen({
   const [showBribeModal, setShowBribeModal] = useState(false);
   const [selectedBribe, setSelectedBribe] = useState<BribeItem | null>(null);
 
-  const BRIBE_OPTIONS: { id: BribeItem; name: string; icon: any; desc: string; color: string; glow: string }[] = [
+  const BRIBE_OPTIONS: {
+    id: BribeItem;
+    name: string;
+    icon: any;
+    desc: string;
+    color: string;
+    glow: string;
+  }[] = [
     {
       id: 'antique',
       name: '傳世古董',
@@ -533,7 +540,7 @@ export default function PlayerRegistrationScreen({
 
         {/* 標題與人員標記：原子化 */}
         {layout.back_btn && (
-          <button 
+          <button
             onClick={onBack}
             title="返回"
             className="back_btn-pos bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer backdrop-blur-md shadow-xl flex items-center justify-center reg-animate z-30"
@@ -546,13 +553,13 @@ export default function PlayerRegistrationScreen({
           <div className="logo-pos relative ui-animate z-30">
             <div className="w-full h-full rounded-2xl bg-transparent shadow-[0_0_25px_rgba(59,130,246,0.2)]">
               <div className="relative w-full h-full rounded-2xl overflow-hidden bg-black/20 backdrop-blur-xl group">
-                <video 
-                  src="/assets/logo_anim.mp4" 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline 
-                  className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-all duration-700" 
+                <video
+                  src="/assets/logo_anim.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-all duration-700"
                 />
               </div>
             </div>
@@ -676,16 +683,23 @@ export default function PlayerRegistrationScreen({
 
                 {/* 賄賂道具標籤回饋：僅在選中且非白手起家時顯示 */}
                 {isActive && selectedBribe && type !== 'self-made' && (
-                  <div className={`${prefix}_box-pos pointer-events-none flex items-end justify-start p-3`}>
-                    <div 
+                  <div
+                    className={`${prefix}_box-pos pointer-events-none flex items-end justify-start p-3`}
+                  >
+                    <div
                       key={selectedBribe}
                       className={`bg-black/60 border px-3 py-1 rounded-lg backdrop-blur-md flex items-center space-x-2 animate-bounce-subtle bribe-glow-${selectedBribe}`}
                     >
-                      {React.createElement(BRIBE_OPTIONS.find(o => o.id === selectedBribe)?.icon || Shield, { 
-                        className: `w-3 h-3 ${BRIBE_OPTIONS.find(o => o.id === selectedBribe)?.color}` 
-                      })}
-                      <span className={`text-[9px] font-black tracking-widest uppercase ${BRIBE_OPTIONS.find(o => o.id === selectedBribe)?.color}`}>
-                        已備妥：{BRIBE_OPTIONS.find(o => o.id === selectedBribe)?.name}
+                      {React.createElement(
+                        BRIBE_OPTIONS.find((o) => o.id === selectedBribe)?.icon || Shield,
+                        {
+                          className: `w-3 h-3 ${BRIBE_OPTIONS.find((o) => o.id === selectedBribe)?.color}`,
+                        }
+                      )}
+                      <span
+                        className={`text-[9px] font-black tracking-widest uppercase ${BRIBE_OPTIONS.find((o) => o.id === selectedBribe)?.color}`}
+                      >
+                        已備妥：{BRIBE_OPTIONS.find((o) => o.id === selectedBribe)?.name}
                       </span>
                     </div>
                   </div>

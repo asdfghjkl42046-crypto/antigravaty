@@ -21,26 +21,26 @@ import type { JudgePersonality } from '../../types/game';
 /** 法官碎碎念資料結構 */
 export interface JudgeMurmurs {
   // --- 階段 2：旁觀者干預 ---
-  bystander_support: string[];  // 有人支持被告
-  bystander_attack: string[];   // 有人質疑被告
+  bystander_support: string[]; // 有人支持被告
+  bystander_attack: string[]; // 有人質疑被告
 
   // --- 階段 3：押注階段 ---
-  bet_guilty: string[];         // 有人押敗訴（有罪）
-  bet_innocent: string[];       // 有人押勝訴（無罪）
-  bet_skip: string[];           // 有人放棄押注
+  bet_guilty: string[]; // 有人押敗訴（有罪）
+  bet_innocent: string[]; // 有人押勝訴（無罪）
+  bet_skip: string[]; // 有人放棄押注
 
   // --- 階段 4：答辯選擇 ---
-  defense_weak: string[];       // 選了最弱辯護 (J, +0%)
-  defense_mid: string[];        // 選了中等辯護 (K, +5%)
-  defense_strong: string[];     // 選了最強辯護 (L, +10%)
+  defense_weak: string[]; // 選了最弱辯護 (J, +0%)
+  defense_mid: string[]; // 選了中等辯護 (K, +5%)
+  defense_strong: string[]; // 選了最強辯護 (L, +10%)
 
   // --- 階段 5：律師介入 ---
-  lawyer_withdraw: string[];    // 律師撤告成功
-  lawyer_giveup: string[];      // 放棄撤告，接受判決
+  lawyer_withdraw: string[]; // 律師撤告成功
+  lawyer_giveup: string[]; // 放棄撤告，接受判決
 
   // --- 階段 6：宣判後補刀 ---
-  verdict_guilty: string[];     // 有罪判決後的補刀
-  verdict_innocent: string[];   // 無罪後的評語
+  verdict_guilty: string[]; // 有罪判決後的補刀
+  verdict_innocent: string[]; // 無罪後的評語
 }
 
 // ============================================================

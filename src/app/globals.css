@@ -4,8 +4,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #020617; /* Slate 950 */
-  background-image: 
-    radial-gradient(#ffffff0a 1px, transparent 1px);
+  background-image: radial-gradient(#ffffff0a 1px, transparent 1px);
   background-size: 20px 20px;
   color: white;
   min-height: 100dvh;
@@ -107,14 +106,54 @@ body {
   animation-duration: var(--duration);
 }
 
-.logo-particle:nth-child(1) { --left: 25%; --top: 30%; --delay: 0s; --duration: 2.2s; }
-.logo-particle:nth-child(2) { --left: 70%; --top: 25%; --delay: 0.5s; --duration: 2.8s; }
-.logo-particle:nth-child(3) { --left: 40%; --top: 75%; --delay: 1.2s; --duration: 2.4s; }
-.logo-particle:nth-child(4) { --left: 80%; --top: 60%; --delay: 0.8s; --duration: 3.1s; }
-.logo-particle:nth-child(5) { --left: 20%; --top: 65%; --delay: 1.5s; --duration: 2.6s; }
-.logo-particle:nth-child(6) { --left: 55%; --top: 40%; --delay: 0.3s; --duration: 2.9s; }
-.logo-particle:nth-child(7) { --left: 65%; --top: 55%; --delay: 1.0s; --duration: 2.5s; }
-.logo-particle:nth-child(8) { --left: 15%; --top: 45%; --delay: 1.8s; --duration: 3.2s; }
+.logo-particle:nth-child(1) {
+  --left: 25%;
+  --top: 30%;
+  --delay: 0s;
+  --duration: 2.2s;
+}
+.logo-particle:nth-child(2) {
+  --left: 70%;
+  --top: 25%;
+  --delay: 0.5s;
+  --duration: 2.8s;
+}
+.logo-particle:nth-child(3) {
+  --left: 40%;
+  --top: 75%;
+  --delay: 1.2s;
+  --duration: 2.4s;
+}
+.logo-particle:nth-child(4) {
+  --left: 80%;
+  --top: 60%;
+  --delay: 0.8s;
+  --duration: 3.1s;
+}
+.logo-particle:nth-child(5) {
+  --left: 20%;
+  --top: 65%;
+  --delay: 1.5s;
+  --duration: 2.6s;
+}
+.logo-particle:nth-child(6) {
+  --left: 55%;
+  --top: 40%;
+  --delay: 0.3s;
+  --duration: 2.9s;
+}
+.logo-particle:nth-child(7) {
+  --left: 65%;
+  --top: 55%;
+  --delay: 1s;
+  --duration: 2.5s;
+}
+.logo-particle:nth-child(8) {
+  --left: 15%;
+  --top: 45%;
+  --delay: 1.8s;
+  --duration: 3.2s;
+}
 
 /* 漂浮標籤細節設定 (GEMINI.md §6) */
 .court-float-tag:nth-child(1) {
@@ -182,7 +221,6 @@ body {
   --opacity: 0.04;
 }
 
-
 /* 手動補強標準 line-clamp 屬性以滿足 IDE 相容性檢查 */
 .line-clamp-standard-2 {
   display: -webkit-box;
@@ -207,7 +245,8 @@ body {
 
 /* GlowLogo 專用動畫：增加多層次輝度變化 */
 @keyframes glow-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     filter: brightness(1.2) drop-shadow(0 0 15px rgba(34, 211, 238, 0.4));
   }
@@ -223,7 +262,9 @@ body {
     transform: translateY(0) scale(0);
     opacity: 0;
   }
-  20% { opacity: 0.9; }
+  20% {
+    opacity: 0.9;
+  }
   100% {
     transform: translateY(-80px) scale(1.2) translateX(20px);
     opacity: 0;
@@ -260,7 +301,8 @@ body {
 
 /* 靈動小人：微浮動動畫 */
 @keyframes bounce-subtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -271,4 +313,3 @@ body {
 .animate-bounce-subtle {
   animation: bounce-subtle 3s ease-in-out infinite;
 }
-
