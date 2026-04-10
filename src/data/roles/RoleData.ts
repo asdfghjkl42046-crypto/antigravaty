@@ -21,7 +21,7 @@ export const ROLE_DATA: {
     icon: Gavel,
     color: 'amber',
     levels: [
-      { type: '被動', desc: '法律護盾：親自上陣答辯，勝訴機率如有神助，整整提升 30%' },
+      { type: '被動', desc: '法律護盾：上陣協助，勝訴機率如有神助，提升 30%' },
       {
         type: '被動',
         desc: '讀穿把戲：答辯時自動剔除 1 個錯誤選項；同時掌握法庭勝率情報',

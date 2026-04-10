@@ -138,6 +138,7 @@ export default function PlayerRegistrationScreen({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [currentName, setCurrentName] = useState('');
+  const [isReady, setIsReady] = useState(false); // 動畫完成前禁止點擊提交
   const [selectedTalent, setSelectedTalent] = useState<Talent>('self-made');
   const [showBribeModal, setShowBribeModal] = useState(false);
   const [selectedBribe, setSelectedBribe] = useState<BribeItem | null>(null);
@@ -218,9 +219,9 @@ export default function PlayerRegistrationScreen({
       radius: 0,
     },
     player_badge: {
-      top: 12.824289023046793,
-      left: 64.2857142857143,
-      width: 35.38095238095239,
+      top: 12.8,
+      left: 52, // 往左移騰出空間
+      width: 44, // 放寬以容納文字
       height: 5.373815038411312,
       fontSize: 12,
       label: 'PLAYER X/Y',
@@ -429,19 +430,43 @@ export default function PlayerRegistrationScreen({
     },
   });
 
+  // 提交按鈕 ref，用於獨立動畫控制
+  const submitRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
-    if (containerRef.current && !isDesignMode) {
-      gsap.fromTo(
-        '.reg-animate',
-        { opacity: 0, x: 20 },
-        { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
-      );
-    }
     // [修正] 切換玩家時重置所有暫存狀態
     setCurrentName('');
     setSelectedTalent('self-made');
     setSelectedBribe(null);
     setShowBribeModal(false);
+    setIsReady(false);
+
+    if (containerRef.current && !isDesignMode) {
+      // 確保提交按鈕在動畫開始時完全隱藏
+      if (submitRef.current) {
+        gsap.set(submitRef.current, { opacity: 0, x: 20, pointerEvents: 'none' });
+      }
+
+      // 其餘元素的 stagger 進場動畫
+      gsap.fromTo(
+        '.reg-animate',
+        { opacity: 0, x: 20 },
+        {
+          opacity: 1, x: 0, duration: 0.4, ease: 'power3.out',
+          onComplete: () => {
+            // 全部元素動畫完成後，才讓提交按鈕獨立淡入
+            setIsReady(true);
+            if (submitRef.current) {
+              gsap.fromTo(
+                submitRef.current,
+                { opacity: 0, x: 20 },
+                { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out', pointerEvents: 'auto' }
+              );
+            }
+          },
+        }
+      );
+    }
   }, [playerIndex, isDesignMode]);
 
   // 動態定位類別注入 (支援 v5.0 原子化編輯器)
@@ -507,12 +532,12 @@ export default function PlayerRegistrationScreen({
 
       <div
         ref={containerRef}
-        className="relative h-full max-h-[92dvh] w-full max-w-[420px] select-none text-white overflow-hidden flex flex-col items-center"
+        className="relative w-full h-full select-none text-white overflow-hidden flex flex-col items-center"
       >
         {/* 設計模式按鈕 */}
         <button
           onClick={() => setIsDesignMode(!isDesignMode)}
-          className="fixed top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
+          className="absolute top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
           title="切換排版模式"
         >
           {isDesignMode ? (
@@ -573,7 +598,7 @@ export default function PlayerRegistrationScreen({
         )}
 
         {layout.player_badge && (
-          <div className="player_badge-pos px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black tracking-[0.2em] reg-animate">
+          <div className="player_badge-pos px-2 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black tracking-widest flex items-center justify-center whitespace-nowrap reg-animate">
             PLAYER {playerIndex} / {totalPlayers}
           </div>
         )}
@@ -589,7 +614,7 @@ export default function PlayerRegistrationScreen({
             </label>
           )}
           {layout.input_field && (
-            <div className="input_field-pos group reg-animate pointer-events-auto">
+            <div className={`input_field-pos group reg-animate ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}>
               <input
                 type="text"
                 value={currentName}
@@ -622,7 +647,7 @@ export default function PlayerRegistrationScreen({
                     }
                   }}
                   className={`
-                      ${prefix}_box-pos border-2 transition-all cursor-pointer group talent-${type} pointer-events-auto reg-animate
+                      ${prefix}_box-pos border-2 transition-all cursor-pointer group talent-${type} ${isReady ? 'pointer-events-auto' : 'pointer-events-none'} reg-animate
                       ${isActive ? 'talent-active scale-[1.02]' : 'talent-inactive hover:border-white/20'}
                     `}
                 />
@@ -725,8 +750,10 @@ export default function PlayerRegistrationScreen({
 
           {layout.submit && (
             <button
+              ref={submitRef}
               onClick={handleNext}
-              className="submit-pos bg-gradient-to-r from-blue-600 to-blue-500 text-white font-black tracking-[0.3em] flex items-center justify-center group shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer pointer-events-auto reg-animate"
+              disabled={!isReady}
+              className={`submit-pos bg-gradient-to-r from-blue-600 to-blue-500 text-white font-black tracking-[0.3em] flex items-center justify-center group shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer opacity-0 pointer-events-none`}
             >
               <span>{playerIndex === totalPlayers ? '開始冒險' : '下一位玩家'}</span>
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -736,7 +763,7 @@ export default function PlayerRegistrationScreen({
 
         {/* 賄賂選擇彈窗 (黑箱準備) */}
         {showBribeModal && (
-          <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
+          <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
             <div className="relative w-full max-w-[360px] bg-slate-900/90 border border-white/10 rounded-[32px] p-8 overflow-hidden shadow-2xl">
               {/* 背景裝飾 */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50" />

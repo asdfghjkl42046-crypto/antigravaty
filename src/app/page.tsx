@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import GameCanvas from '@/components/GameCanvas';
 import ModeSelectScreen from '@/components/ModeSelectScreen';
 import SetupScreen from '@/components/SetupScreen';
 import PlayerRegistrationScreen from '@/components/PlayerRegistrationScreen';
@@ -62,7 +63,7 @@ export default function Home() {
   };
 
   return (
-    <main className="w-screen h-[100dvh] bg-black flex justify-center items-center overflow-hidden">
+    <GameCanvas>
       {isModeSelect && <ModeSelectScreen onStartGame={handleModeSelect} />}
 
       {isSetup && <SetupScreen onBack={handleBackToMode} onConfirm={handleStartSetup} />}
@@ -79,12 +80,8 @@ export default function Home() {
       {isDashboard && (
         <div className="relative w-full h-full">
           <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
-          {/* 開發者模式：右下角狀態監視器 */}
-          <div className="fixed bottom-2 right-2 bg-black/80 border border-white/20 p-2 rounded text-[8px] font-mono text-white/40 pointer-events-none z-[9999]">
-            PHASE: {useGameStore.getState().phase} | TURN: {useGameStore.getState().turn}
-          </div>
         </div>
       )}
-    </main>
+    </GameCanvas>
   );
 }

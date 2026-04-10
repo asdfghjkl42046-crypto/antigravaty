@@ -1,4 +1,10 @@
 @import 'tailwindcss';
+
+/* 全域隱藏滾動條（保留滾動功能） */
+*::-webkit-scrollbar {
+  display: none;
+}
+
 html,
 body {
   margin: 0;

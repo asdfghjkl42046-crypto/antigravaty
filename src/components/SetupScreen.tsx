@@ -69,12 +69,17 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
     },
   });
 
+  const [isReady, setIsReady] = useState(false);
+
   useEffect(() => {
+    setIsReady(false);
     if (containerRef.current && !isDesignMode) {
       gsap.fromTo(
         '.ui-animate',
         { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' }
+        { opacity: 1, x: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out',
+          onComplete: () => setIsReady(true),
+        }
       );
     }
   }, [isDesignMode]);
@@ -108,12 +113,12 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
 
       <div
         ref={containerRef}
-        className="relative h-full max-h-[92dvh] w-full max-w-[420px] select-none text-white overflow-hidden flex flex-col items-center"
+        className="relative w-full h-full select-none text-white overflow-hidden flex flex-col items-center"
       >
         {/* 設計模式按鈕 (僅開發環境可見) */}
         <button
           onClick={() => setIsDesignMode(!isDesignMode)}
-          className="fixed top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
+          className="absolute top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
           title="切換排版模式"
         >
           {isDesignMode ? (
@@ -182,7 +187,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
                 <button
                   onClick={() => setSelectedCount(count)}
                   className={`
-                        ui-animate flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group overflow-hidden pointer-events-auto
+                        ui-animate flex flex-col items-center justify-center transition-all duration-300 cursor-pointer group overflow-hidden ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}
                         ${prefix}_box-pos
                         ${
                           isActive
@@ -251,7 +256,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
           {layout.confirm && (
             <button
               onClick={() => onConfirm(selectedCount)}
-              className="ui-animate bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-[0.3em] text-sm shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer border border-white/10 flex items-center justify-center overflow-hidden group confirm-pos pointer-events-auto"
+              className={`ui-animate bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-[0.3em] text-sm shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer border border-white/10 flex items-center justify-center overflow-hidden group confirm-pos ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <span>確認人數並開始冒險</span>

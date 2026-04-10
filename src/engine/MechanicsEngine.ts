@@ -396,3 +396,19 @@ export function resolveScanCode(code: string): { cardId: string; optionIdx: numb
 
   return { cardId, optionIdx };
 }
+
+/**
+ * 解析人才卡 QR Code 代碼
+ * 將掃描到的代碼映射至對應的職能類型 (RoleType)
+ * 代碼格式可隨時替換，只需修改此映射表
+ */
+const TALENT_CODE_MAP: Record<string, import('../types/game').RoleType> = {
+  'TALENT_LAWYER': 'lawyer',
+  'TALENT_PR': 'pr',
+  'TALENT_ACCOUNTANT': 'accountant',
+  'TALENT_CTO': 'cto',
+};
+
+export function resolveTalentCode(code: string): import('../types/game').RoleType | null {
+  return TALENT_CODE_MAP[code.toUpperCase().trim()] ?? null;
+}

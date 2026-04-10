@@ -135,12 +135,17 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
     },
   });
 
+  const [isReady, setIsReady] = useState(false);
+
   useEffect(() => {
     if (containerRef.current && !isDesignMode) {
+      setIsReady(false);
       gsap.fromTo(
         '.ui-animate',
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: 'power4.out' }
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power4.out',
+          onComplete: () => setIsReady(true),
+        }
       );
     }
   }, [isDesignMode]);
@@ -174,12 +179,12 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
 
       <div
         ref={containerRef}
-        className="relative h-full max-h-[92dvh] w-full max-w-[420px] select-none text-white overflow-hidden flex flex-col items-center"
+        className="relative w-full h-full select-none text-white overflow-hidden flex flex-col items-center"
       >
         {/* 設計模式按鈕 */}
         <button
           onClick={() => setIsDesignMode(!isDesignMode)}
-          className="fixed top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
+          className="absolute top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
           title="切換排版模式"
         >
           {isDesignMode ? (
@@ -241,7 +246,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
         >
           {/* 網站模式系列原子 */}
           {layout.wb_box && (
-            <div className="ui-animate group bg-[#0f172a]/95 border border-blue-500/40 transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(59,130,246,0.1)] wb_box-pos pointer-events-auto" />
+          <div className="ui-animate group bg-[#0f172a]/95 border border-blue-500/40 transition-all overflow-hidden shadow-[inset_0_0_30px_rgba(59,130,246,0.1)] wb_box-pos pointer-events-auto" />
           )}
           {layout.wb_title && (
             <h3 className="wb_title-pos font-black text-white leading-none ui-animate">
@@ -266,7 +271,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
           {layout.wb_btn && (
             <button
               onClick={() => onStartGame('website')}
-              className="wb_btn-pos rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate pointer-events-auto"
+              className={`wb_btn-pos rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
               <span>{layout.wb_btn.label}</span>
             </button>
@@ -299,7 +304,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
           {layout.ai_btn && (
             <button
               onClick={() => onStartGame('ai')}
-              className="ai_btn-pos rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(16,185,129,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate pointer-events-auto"
+              className={`ai_btn-pos rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] text-white font-black tracking-widest shadow-[0_6px_20px_rgba(16,185,129,0.4)] active:scale-95 transition-all cursor-pointer flex items-center justify-center ui-animate ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
               <span>{layout.ai_btn.label}</span>
             </button>

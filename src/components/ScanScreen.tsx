@@ -3,7 +3,6 @@ import { Html5Qrcode } from 'html5-qrcode';
 import {
   Scan,
   Keyboard,
-  X,
   ShieldAlert,
   Cpu,
   CheckCircle2,
@@ -11,14 +10,20 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
+import { PlayerCard } from './DashboardScreen';
 
 interface ScanScreenProps {
   onBack: () => void;
   onEndTurn?: () => void;
+  onNavigate?: (tab: 'home' | 'shop') => void;
 }
 
-export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
-  const { processScan } = useGameStore();
+export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreenProps) {
+  const { processScan, players, currentPlayerIndex } = useGameStore();
+
+  const currentPlayer = players[currentPlayerIndex];
+  const nextPlayerIndex = (currentPlayerIndex + 1) % Math.max(1, players.length);
+  const nextPlayer = players[nextPlayerIndex];
   const [manualCode, setManualCode] = useState('');
   const [status, setStatus] = useState<{ type: 'idle' | 'success' | 'error'; msg: string }>({
     type: 'idle',
@@ -26,17 +31,46 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
   });
   const [isCameraActive, setIsCameraActive] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const lastScannedRef = useRef<string>(''); // 防抖：避免鏡頭連續掃到同一張卡
 
-  // 初始化相機掃描
+  // 初始化相機掃描並自動啟動
   useEffect(() => {
+    let isMounted = true;
     const html5QrCode = new Html5Qrcode('reader');
     scannerRef.current = html5QrCode;
 
-    return () => {
-      if (scannerRef.current?.isScanning) {
-        scannerRef.current.stop().catch(console.error);
+    // 自動啟動相機
+    const autoStart = async () => {
+      try {
+        if (!isMounted) return;
+        setIsCameraActive(true);
+        await html5QrCode.start(
+          { facingMode: 'environment' },
+          { fps: 10, aspectRatio: 1.0 },
+          (decodedText) => {
+            if (decodedText === lastScannedRef.current) return;
+            lastScannedRef.current = decodedText;
+            setTimeout(() => {
+              lastScannedRef.current = '';
+            }, 2000);
+            handleCodeSubmit(decodedText);
+          },
+          () => {}
+        );
+      } catch {
+        // 自動啟動失敗（權限等），回退到手動模式
+        if (isMounted) setIsCameraActive(false);
       }
     };
+    autoStart();
+
+    return () => {
+      isMounted = false;
+      if (scannerRef.current?.isScanning) {
+        scannerRef.current.stop().catch(() => {}); // 忽略停止時的錯誤
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startScanning = async () => {
@@ -54,13 +88,15 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
       setIsCameraActive(true);
       await scannerRef.current.start(
         { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
+        { fps: 10, aspectRatio: 1.0 },
         (decodedText) => {
+          // 冷卻機制：同一代碼 2 秒內不重複處理
+          if (decodedText === lastScannedRef.current) return;
+          lastScannedRef.current = decodedText;
+          setTimeout(() => {
+            lastScannedRef.current = '';
+          }, 2000);
           handleCodeSubmit(decodedText);
-          stopScanning();
         },
         () => {}
       );
@@ -85,40 +121,28 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
     if (result.success) {
       setStatus({ type: 'success', msg: result.message });
       setManualCode('');
-      setTimeout(() => setStatus({ type: 'idle', msg: '' }), 3000);
+
+      // 延遲跳轉以確保玩家能看見成功訊息
+      setTimeout(() => {
+        if (result.type === 'talent') onNavigate?.('shop');
+      }, 1000);
     } else {
       setStatus({ type: 'error', msg: result.message });
     }
+    // 所有提示統一 2.5 秒後自動消失（確保使用者能看清回饋）
+    setTimeout(() => setStatus({ type: 'idle', msg: '' }), 2500);
   };
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-500 bg-slate-950 p-4 relative overflow-hidden">
+    <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-500 bg-slate-950 py-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:20px_20px]" />
 
-      <div className="flex items-center justify-between mb-6 relative z-10">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 bg-amber-500/20 rounded-lg border border-amber-500/30">
-            <Scan className="w-5 h-5 text-amber-500 animate-pulse" />
-          </div>
-          <div>
-            <h2 className="text-xl font-black tracking-tighter text-white uppercase italic">
-              數據解碼終端
-            </h2>
-            <p className="text-[9px] font-bold text-amber-500/60 tracking-widest uppercase">
-              Encryption Link Established
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onBack}
-          title="關閉掃描器"
-          className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-500"
-        >
-          <X size={24} />
-        </button>
+      {/* 企業資源與數據看板 (原裝 UI 重用) */}
+      <div className="w-full flex-shrink-0 z-[100] relative mb-1 mt-4">
+        {currentPlayer && <PlayerCard player={currentPlayer} isActive={true} />}
       </div>
 
-      <div className="relative flex-1 flex flex-col items-center justify-center space-y-6">
+      <div className="relative flex-1 flex flex-col items-center justify-center space-y-4">
         <div className="relative w-64 h-64 border-2 border-slate-800 rounded-[32px] overflow-hidden bg-black/40 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <div id="reader" className="w-full h-full object-cover" />
 
@@ -182,8 +206,8 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
               className="w-full mt-2 py-4 bg-red-600/20 hover:bg-red-600/40 border border-red-500/40 rounded-2xl transition-all active:scale-95 group flex items-center justify-center space-x-3 shadow-[0_4px_20px_rgba(239,68,68,0.2)]"
             >
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs font-black text-red-100 uppercase tracking-[0.2em]">
-                結束目前回合
+              <span className="text-xs font-black text-red-100 uppercase tracking-widest whitespace-nowrap">
+                {currentPlayer?.name}結束回合，換{nextPlayer?.name}
               </span>
               <ChevronRight
                 size={16}
@@ -195,7 +219,7 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
 
         {status.msg && (
           <div
-            className={`fixed top-24 left-1/2 -translate-x-1/2 w-[80%] max-w-[300px] p-4 rounded-2xl border-2 backdrop-blur-xl flex items-start space-x-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 z-[100] ${
+            className={`absolute top-24 left-1/2 -translate-x-1/2 w-[80%] max-w-[300px] p-4 rounded-2xl border-2 backdrop-blur-xl flex items-start space-x-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 z-[100] ${
               status.type === 'success'
                 ? 'bg-emerald-950/90 border-emerald-500 text-emerald-100'
                 : 'bg-red-950/90 border-red-500 text-red-100'
@@ -215,11 +239,7 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
         )}
       </div>
 
-      <div className="mt-auto mb-2 text-center opacity-20">
-        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.5em]">
-          Antigravity Protocol Hardware Sync
-        </p>
-      </div>
+
 
       <style jsx>{`
         @keyframes scan-line {
@@ -232,6 +252,40 @@ export default function ScanScreen({ onBack, onEndTurn }: ScanScreenProps) {
         }
         .animate-scan-line {
           animation: scan-line 2.5s linear infinite;
+        }
+
+        /* 覆蓋 html5-qrcode 函式庫內部樣式，避免畫面分裂 */
+        #reader {
+          position: relative !important;
+          overflow: hidden !important;
+          border: none !important;
+        }
+        #reader video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+        /* 隱藏函式庫自帶的掃描框與多餘 UI */
+        #reader img,
+        #reader canvas,
+        #reader__scan_region > br,
+        #reader__dashboard,
+        #reader__header_message,
+        #qr-shaded-region {
+          display: none !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+        #reader__scan_region {
+          width: 100% !important;
+          height: 100% !important;
+          min-height: unset !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
         }
       `}</style>
     </div>

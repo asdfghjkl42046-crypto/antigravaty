@@ -173,7 +173,7 @@ export default function StoreScreen() {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-500">
-      <div className="grid grid-cols-2 gap-4 pb-14 pt-1">
+      <div className="grid grid-cols-2 gap-4 pb-14 mt-2">
         {ROLE_DATA.map((role) => (
           <TalentCard key={role.key} role={role} player={player} upgradeRole={upgradeRole} />
         ))}

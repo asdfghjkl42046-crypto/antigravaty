@@ -20,7 +20,7 @@ import {
   PlayerConfig,
 } from '../types/game';
 import { CourtEngine } from '../engine/CourtEngine';
-import { resolveScanCode } from '../engine/MechanicsEngine';
+import { resolveScanCode, resolveTalentCode } from '../engine/MechanicsEngine';
 
 interface GameStore extends GameStateData {
   // --- 基礎系統生命週期動作 ---
@@ -29,7 +29,7 @@ interface GameStore extends GameStateData {
   setJudgeMode: (mode: JudgeMode) => void;
   clearStartNotifications: () => void;
   clearEngineError: () => void;
-  processScan: (code: string) => { success: boolean; message: string };
+  processScan: (code: string) => { success: boolean; message: string; type?: 'location' | 'talent' | 'wash' };
 
   // --- 遊戲卡牌核心流程 ---
   performAction: (
@@ -94,7 +94,14 @@ export const useGameStore = create<GameStore>()(
 
         // 處理特殊洗牌指令 (WASH)
         if (codeUpper === 'WASH') {
-          return get().redrawCards();
+          return { ...get().redrawCards(), type: 'wash' };
+        }
+
+        // 處理人才卡實體掃描購買 (可重複掃描升級，不記入 usedCodes)
+        const talentRole = resolveTalentCode(codeUpper);
+        if (talentRole) {
+          const result = get().upgradeRole(talentRole);
+          return { ...result, type: 'talent' };
         }
 
         if (state.usedCodes.includes(codeUpper)) {
@@ -106,7 +113,7 @@ export const useGameStore = create<GameStore>()(
 
         get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');
         set((s) => ({ usedCodes: [...s.usedCodes, codeUpper] }));
-        return { success: true, message: `成功同步卡片 ${res.cardId}。` };
+        return { success: true, message: `成功同步卡片 ${res.cardId}。`, type: 'location' };
       },
 
       initGame: async (configs) => {
