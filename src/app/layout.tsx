@@ -26,6 +26,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
+
 /**
  * 系統最根部的佈局容器組件 (Root Layout)
  * 負責在最底層注入全局字體變數、Global CSS 以及抗鋸齒 (antialiased) 渲染樣式，
