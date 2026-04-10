@@ -94,24 +94,21 @@ function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLab
 }
 
 /**
- * 玩家卡片組件：管理自身摺疊狀態
+ * 玩家卡片組件
  */
-export function PlayerCard({ player, isActive }: any) {
-  const [showTags, setShowTags] = React.useState(false);
+export function PlayerCard({ player, isActive, onShowTags }: any) {
   const bmCount = getTotalBlackMaterials(player);
 
   return (
     <div
       className={`dashboard-animate relative p-4 py-3 rounded-[28px] border-2 backdrop-blur-xl transition-all duration-500 overflow-visible
-      ${showTags ? 'z-[100]' : 'z-10'}
-      ${
-        isActive
+      ${isActive
           ? 'border-amber-400 bg-[#1a1205]/95 shadow-[0_12px_40px_rgba(0,0,0,0.7)]'
           : 'border-white/25 bg-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
       }
     `}
     >
-      {/* 獨立呼吸發光層 - 加強快速閃爍效果 */}
+      {/* 獨立呼吸發光層 */}
       {isActive && (
         <div className="absolute inset-0 rounded-[28px] border-[3px] border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.5)] animate-[pulse_1.2s_ease-in-out_infinite] pointer-events-none z-0" />
       )}
@@ -155,7 +152,7 @@ export function PlayerCard({ player, isActive }: any) {
         </div>
       </div>
 
-      {/* 數值圓盤 (黃金比例回彈) */}
+      {/* 數值圓盤 */}
       <div className="flex items-center justify-between space-x-1.5 mb-2 relative z-10">
         <StatDisc
           label="資金"
@@ -172,48 +169,8 @@ export function PlayerCard({ player, isActive }: any) {
           isLabelWhite={true}
           colorClass="text-orange-500"
           hasArrow={true}
-          onClick={() => setShowTags(!showTags)}
+          onClick={onShowTags}
         />
-
-        {/* 犯罪標籤懸浮雲 */}
-        {showTags && (
-          <div className="absolute left-0 top-full mt-2 w-full bg-slate-950/98 border border-orange-500/40 backdrop-blur-2xl p-4 rounded-2xl shadow-[0_25px_50px_rgba(0,0,0,0.7)] z-[100] animate-in fade-in slide-in-from-top-3 duration-300">
-            <div className="flex flex-wrap gap-2">
-              {player.tags.length > 0 ? (
-                (() => {
-                  // 聚合相同標籤並計數 (明確定義類型)
-                  const tagCounts = player.tags.reduce(
-                    (acc: Record<string, number>, t: any) => {
-                      acc[t.text] = (acc[t.text] || 0) + 1;
-                      return acc;
-                    },
-                    {} as Record<string, number>
-                  );
-
-                  return Object.entries(tagCounts).map(([text, count], tIdx) => (
-                    <div
-                      key={tIdx}
-                      className="px-3 py-1.5 bg-orange-950/40 border border-orange-500/20 rounded-lg flex items-center space-x-2"
-                    >
-                      <span className="text-[10px] font-black text-orange-400 tracking-wider uppercase">
-                        {text}
-                      </span>
-                      {(count as number) > 1 && (
-                        <span className="text-[9px] font-black text-orange-600 bg-orange-400/10 px-1 rounded animate-pulse">
-                          *{count as number}
-                        </span>
-                      )}
-                    </div>
-                  ));
-                })()
-              ) : (
-                <span className="text-[9px] text-slate-600 font-bold tracking-widest italic">
-                  前科清白
-                </span>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -233,6 +190,11 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
   const [showBonusModal, setShowBonusModal] = React.useState(startNotifications.length > 0);
   const [currentBonusIdx, setCurrentBonusIdx] = React.useState(0);
+  
+  // 前科彈窗狀態
+  const [tagViewPlayerIdx, setTagViewPlayerIdx] = React.useState<number | null>(null);
+  const [tagViewItemIdx, setTagViewItemIdx] = React.useState(0);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const logoVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -254,6 +216,20 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   }, []);
 
   const judgeInfo = judgePersonality ? JUDGE_LABELS[judgePersonality] : null;
+
+  // 處理前科資料聚合
+  const getAggregatedTags = (playerIdx: number | null) => {
+    if (playerIdx === null || !players[playerIdx]) return [];
+    const player = players[playerIdx];
+    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: any) => {
+      acc[t.text] = (acc[t.text] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(tagCounts).map(([text, count]) => ({ text, count }));
+  };
+
+  const currentViewTags = getAggregatedTags(tagViewPlayerIdx);
+  const hasMultipleTags = currentViewTags.length > 1;
 
   return (
     <div className="w-full h-full flex flex-col bg-[#020617] text-white overflow-hidden relative font-sans">
@@ -358,12 +334,81 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         </div>
       )}
 
+      {/* ⚠️ 前科記錄彈窗 (Sequential View) */}
+      {tagViewPlayerIdx !== null && (
+        <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="relative w-full max-w-sm bg-[#0a0a0a] border-2 border-orange-600/40 rounded-[40px] p-8 shadow-[0_0_50px_rgba(154,52,18,0.3)] flex flex-col items-center">
+            {/* 裝飾背景 */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(154,52,18,0.2),transparent_70%)] rounded-[38px] pointer-events-none" />
+
+            {/* 右上角進度顯示 */}
+            <div className="absolute top-8 right-10 text-orange-500/40 text-[10px] font-black tracking-widest">
+              {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0} / {currentViewTags.length}
+            </div>
+
+            {/* 警示圖示 */}
+            <div className="w-20 h-20 bg-orange-600 rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(234,88,12,0.4)]">
+              <AlertTriangle className="w-10 h-10 text-black" strokeWidth={2.5} />
+            </div>
+
+            <h2 className="text-xl font-black text-white mb-2 tracking-widest uppercase">
+              犯罪前科紀錄
+            </h2>
+            <p className="text-[10px] font-bold text-orange-500/70 mb-8 tracking-[0.2em] uppercase">
+              {players[tagViewPlayerIdx]?.name} 的檔案
+            </p>
+
+            {/* 標籤顯示 */}
+            <div className="w-full mb-10 min-h-[120px] flex items-center justify-center">
+              {currentViewTags.length > 0 ? (
+                <div key={tagViewItemIdx} className="w-full bg-orange-950/20 border border-orange-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all animate-in zoom-in-95 duration-300">
+                  <span className="text-2xl font-black text-white tracking-widest mb-2 uppercase">
+                    {currentViewTags[tagViewItemIdx].text}
+                  </span>
+                  {currentViewTags[tagViewItemIdx].count > 1 && (
+                    <span className="bg-orange-500 text-black px-3 py-0.5 rounded-full text-[10px] font-black animate-pulse">
+                      REPEATED x{currentViewTags[tagViewItemIdx].count}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="text-slate-500 font-bold italic text-sm">無任何犯罪紀錄</div>
+              )}
+            </div>
+
+            {/* 控制器 */}
+            <button
+              onClick={() => {
+                if (tagViewItemIdx < currentViewTags.length - 1) {
+                  setTagViewItemIdx(tagViewItemIdx + 1);
+                } else {
+                  setTagViewPlayerIdx(null);
+                  setTagViewItemIdx(0);
+                }
+              }}
+              className="w-full bg-orange-600 hover:bg-orange-500 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-[0_4px_15px_rgba(154,52,18,0.3)] flex items-center justify-center space-x-2 text-lg"
+            >
+              <span>{tagViewItemIdx < currentViewTags.length - 1 ? '下一條前科' : '關閉卷宗'}</span>
+              <ChevronRight size={20} className="opacity-50" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 2. Main Content: 切換首頁、商店或掃描 */}
       <div className="flex-1 overflow-y-auto px-4 pb-24 custom-scrollbar relative z-10 space-y-4">
         {activeTab === 'home' ? (
           <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {players.map((player, idx) => (
-              <PlayerCard key={player.id} player={player} isActive={idx === currentPlayerIndex} />
+              <PlayerCard 
+                key={player.id} 
+                player={player} 
+                isActive={idx === currentPlayerIndex} 
+                onShowTags={() => {
+                  setTagViewPlayerIdx(idx);
+                  setTagViewItemIdx(0);
+                }}
+              />
             ))}
           </div>
         ) : activeTab === 'shop' ? (

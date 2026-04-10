@@ -90,7 +90,7 @@ export const useGameStore = create<GameStore>()(
 
       processScan: (code: string) => {
         const state = get();
-        const codeUpper = code.toUpperCase().trim();
+        const codeUpper = code.toUpperCase().replace(/-/g, '').trim();
 
         // 處理特殊洗牌指令 (WASH)
         if (codeUpper === 'WASH') {
