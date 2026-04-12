@@ -139,19 +139,12 @@ export class CourtEngine {
     // 以充滿沉浸感的文字給予玩家自由發揮的辯護空間
     const question = getRandomTemplate(INTERROGATION_TEMPLATES[personality], {
       tag: formatLawTags(lawCase.tag),
-      lawName: lawCase.lawName,
-      hIntent: lawCase.hidden_intent,
       defense: '', // 開場階段尚無玩家選擇的辯護內容
     });
-    // 隨機選取入場提審宣言模板，並在適當時機帶入證物清單提升臨場感
-    const evidenceSnippet = lawCase.evidence_list?.length
-      ? `檢方已列舉【${lawCase.evidence_list[0]}】等重要證物。`
-      : '';
-
     const narratives = [
-      `「檢方已取得決定性證據：被告於經營期間涉嫌『${formatLawTags(lawCase.tag)}』行為，觸犯《${lawCase.lawName}》。${evidenceSnippet}正式公訴！」`,
-      `「針對被告企業之『${formatLawTags(lawCase.tag)}』異常紀錄，本庭依《${lawCase.lawName}》宣告進入審理時序。${evidenceSnippet}」`,
-      `「法庭肅靜！被告涉嫌『${formatLawTags(lawCase.tag)}』此為重大犯罪，現依《${lawCase.lawName}》開庭審理！${evidenceSnippet}」`,
+      `「檢方已取得決定性證據：被告於經營期間涉嫌『${formatLawTags(lawCase.tag)}』行為，正式提起公訴！」`,
+      `「針對被告企業之『${formatLawTags(lawCase.tag)}』異常紀錄，本庭宣告進入審理時序。」`,
+      `「法庭肅靜！被告涉嫌『${formatLawTags(lawCase.tag)}』此為重大犯罪，現在開庭審理！」`,
     ];
     return {
       narrative: narratives[Math.floor(Math.random() * narratives.length)],
@@ -179,11 +172,23 @@ export class CourtEngine {
     } else {
       let specificText = '';
       if (trial.chosenDefenseLabel === trial.lawCase.defense_j && trial.lawCase.web_judgment_j) {
-        specificText = trial.lawCase.web_judgment_j + (trial.lawCase.edu_j ? `\n\n📌 法律教育：\n${trial.lawCase.edu_j}` : '');
-      } else if (trial.chosenDefenseLabel === trial.lawCase.defense_k && trial.lawCase.web_judgment_k) {
-        specificText = trial.lawCase.web_judgment_k + (trial.lawCase.edu_k ? `\n\n📌 法律教育：\n${trial.lawCase.edu_k}` : '');
-      } else if (trial.chosenDefenseLabel === trial.lawCase.defense_l && trial.lawCase.web_judgment_l) {
-        specificText = trial.lawCase.web_judgment_l + (trial.lawCase.edu_l ? `\n\n📌 法律教育：\n${trial.lawCase.edu_l}` : '');
+        specificText =
+          trial.lawCase.web_judgment_j +
+          (trial.lawCase.edu_j ? `\n\n📌 法律教育：\n${trial.lawCase.edu_j}` : '');
+      } else if (
+        trial.chosenDefenseLabel === trial.lawCase.defense_k &&
+        trial.lawCase.web_judgment_k
+      ) {
+        specificText =
+          trial.lawCase.web_judgment_k +
+          (trial.lawCase.edu_k ? `\n\n📌 法律教育：\n${trial.lawCase.edu_k}` : '');
+      } else if (
+        trial.chosenDefenseLabel === trial.lawCase.defense_l &&
+        trial.lawCase.web_judgment_l
+      ) {
+        specificText =
+          trial.lawCase.web_judgment_l +
+          (trial.lawCase.edu_l ? `\n\n📌 法律教育：\n${trial.lawCase.edu_l}` : '');
       }
 
       if (specificText) {
@@ -198,8 +203,6 @@ export class CourtEngine {
     // 依據玩家的答辯文本，從模板庫挑選文案並填入動態變數
     const generatedTemplate = getRandomTemplate(templates, {
       tag: formatLawTags(trial.lawCase.tag),
-      lawName: trial.lawCase.lawName,
-      hIntent: trial.lawCase.hidden_intent,
       defense: trial.chosenDefenseLabel || '',
       bm: (defendant.blackMaterialSources || []).reduce((acc, s) => acc + s.count, 0), // 計算總量
       trials: defendant.totalTrials + (isSuccess ? 0 : 1), // 更新累計涉案次數以便帶入語氣之中

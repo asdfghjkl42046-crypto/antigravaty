@@ -45,10 +45,7 @@ ${judge.prompt_injection}
     // 將複雜的巢狀物件狀態轉譯為具備高度結構化的 Markdown 文本報告，以利大語言模型理解具體案情
     return `請根據以下案件數據產出判決陳詞：
 
-【當前案件】：${trial.lawCase?.tag} (引用法條 §${trial.lawCase?.lawName})
-【法律抗辯術語】：
-- 被告主張 (表面說詞)：${trial.lawCase?.surface_term}
-- 實際行為 (動機)：${trial.lawCase?.hidden_intent}
+【起訴事實】：${trial.lawCase?.indictment || '（未提供詳細起訴狀）'}
 
 【被告資料】：
 - 企業名聲 (RP): ${rp}
@@ -56,9 +53,8 @@ ${judge.prompt_injection}
 - 違法標籤 (Trials): ${trials}
 
 【辯論紀錄】：
-- 核心主張：${trial.isDefenseSuccess ? `勝訴/勉強接受「${trial.lawCase?.surface_term}」` : `敗訴/指控成立：實際上是「${trial.lawCase?.hidden_intent}」`}
+- 判決結果：${trial.isDefenseSuccess ? '勝訴/無罪' : '敗訴/有罪'}
 - 被告陳述 (用於判決風格化)：${trial.defenseText || '（未提供額外陳述）'}
-- 檢方提供證物：${trial.lawCase?.evidence_list?.join('、') || '（未標註具體證物）'}
 - 旁觀者干預：${trial.interventions.map((i) => i.text).join('; ') || '（無干預）'}
 
 請以此為基礎，用你被分配的法官人設回傳判決文。`;
@@ -66,22 +62,19 @@ ${judge.prompt_injection}
 
   /**
    * 建立【辯護選項生成】說明
-   * 要求 AI 根據案情寫出 J、K、L 三種不同強度的辯護文。
+   * 要求 AI 根據案情寫出 J、K、L 三種不同強度的辯護文案。
    */
   static assembleOptionsPrompt(lawCase: LawCase, defendant: Player): string {
-    return `請根據以下案情，為被告企業生成三種不同策略強度的辯護文案（JKL 選項）：
+    return `請根據以下起訴案情，為被告企業生成三種不同策略強度的辯護文案（JKL 選項）：
 
+【起訴事實】：${lawCase.indictment || '（未提供詳細起訴狀）'}
 【起訴罪名】：${lawCase.tag.join('/')}
-【引用法條】：${lawCase.lawName}
-【表面術語】：${lawCase.surface_term}
-【違法動機】：${lawCase.hidden_intent}
-【預期生路】：${lawCase.escape}
 
 請回傳以下 JSON 格式（僅回傳 JSON）：
 {
-  "j": "（常規/弱勢辯護：主要重複表面術語，較無說服力，+0% 勝率）",
-  "k": "（中度/技術性辯護：結合法律細節或程序正義進行防禦，+5% 勝率）",
-  "l": "（強效/策略性辯護：深度結合『預期生路』中的邏輯，精準反擊起訴動機，+10% 勝率）"
+  "j": "（常規/弱勢辯護：語法平淡，較無說服力，+0% 勝率）",
+  "k": "（中度/技術性辯護：結合法律程序或管理漏洞，+5% 勝率）",
+  "l": "（強效/策略性辯護：精準反擊起訴事實中的關鍵點，邏輯嚴密，+10% 勝率）"
 }
 
 文案要求：語氣專業、簡潔，每項不超過 50 字。`;

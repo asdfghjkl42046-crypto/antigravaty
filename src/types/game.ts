@@ -136,6 +136,7 @@ export type SpecialTag = 'sue' | 'declareLogic' | 'skip_next';
 /** 選項基礎規格 */
 export interface BaseOption {
   label?: string; // UI 標題
+  description?: string; // 詳盡敘事 (Legal Noir)
   ap?: number; // 行動力消耗 (若不填則由引擎預設為 1)
   costG?: number; // 固定資金成本消耗
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
@@ -260,10 +261,8 @@ export interface ActionLog {
 export interface LawCase {
   id: string; // 內部編號 (對應 LawCasesDB Key)
   tag: string[]; // 行動關聯標籤 (支援多重標籤)
-  lawName: string; // 引用法典正名 (e.g., 「洗錢防制法 §5」)
-  hidden_intent: string; // 敗訴之違法背後動機
+  indictment?: string; // 精確的法庭起訴狀文本 (起訴公訴敘事)
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
-  evidence_list: string[]; // 採樣之法庭證據清單
   // --- 網站模式專屬 JKL 辯護選項 (預留填充區) ---
   // --- 網站模式專屬 JKL 辯護選項與專屬法庭反駁 ---
   defense_j?: string; // 選項 J：+0%
