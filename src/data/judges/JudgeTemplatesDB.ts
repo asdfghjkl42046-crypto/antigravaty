@@ -9,14 +9,6 @@ import type { JudgePersonality } from '../../types/game';
 // 型別定義
 // ============================================================
 
-/** 判決對話範本：包含各種判決結果下的對話 */
-export interface JudgmentTemplate {
-  win: string[]; // 撤訴或判無罪時的對話
-  lose: string[]; // 宣判有罪時的對話
-  silence: string[]; // 保持沉默時的對話
-  appeal_win: string[]; // 非常上訴成功（改判無罪）時的對話
-  appeal_lose: string[]; // 非常上訴失敗（維持原判）時的對話
-}
 
 /** 對話內容的變數：用來填入人名、款項、罪名等 */
 export interface TemplateVars {
@@ -42,18 +34,6 @@ export interface JudgeLabel {
   prompt_injection: string; // AI 法官的性格設定（給 AI 的指令）
 }
 
-// ============================================================
-// 判決模板資料庫
-// ============================================================
-
-/** 判決對話資料庫：收納五位法官在結案時的所有台詞 */
-export const JUDGMENT_TEMPLATES: Record<JudgePersonality, JudgmentTemplate> = {
-  traditionalist: Traditionalist.JUDGMENT,
-  algorithmic: Algorithmic.JUDGMENT,
-  elegant: Elegant.JUDGMENT,
-  pragmatic: Pragmatic.JUDGMENT,
-  power_broker: PowerBroker.JUDGMENT,
-};
 
 // ============================================================
 // 質詢 / 開場模板

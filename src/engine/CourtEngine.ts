@@ -16,13 +16,13 @@ import {
 import { LAW_CASES_DB, formatLawTags } from '../data/laws/LawCasesDB';
 import { removeBlackMaterialsByTag, getTotalBlackMaterials } from './PlayerEngine';
 import {
-  JUDGMENT_TEMPLATES,
   INTERROGATION_TEMPLATES,
   getRandomTemplate,
   JUDGE_LABELS,
 } from '../data/judges/JudgeTemplatesDB';
 import { AIEngine } from './AIEngine';
 import { getWithdrawCaseCost, getLawyerDefenseBonus, applyPRDiscount } from './RoleEngine';
+import { AI_LAW_CASES_DB } from '../data/ailaws/AILawCasesDB';
 import {
   throwTrialInitializationError,
   throwNumericalCheckError,
@@ -169,9 +169,31 @@ export class CourtEngine {
     defendant: Player,
     isSuccess: boolean
   ): { judgment: string; userPrompt: string } {
-    const templates = isSuccess
-      ? JUDGMENT_TEMPLATES[personality].win
-      : JUDGMENT_TEMPLATES[personality].lose;
+    let templates: string[];
+
+    if (mode === 'ai') {
+      const aiCase = AI_LAW_CASES_DB[trial.lawCase.id];
+      const aiWin = aiCase?.ai_judgment_win || '【AI法官判決台詞尚未填寫】';
+      const aiLose = aiCase?.ai_judgment_lose || '【AI法官判決台詞尚未填寫】';
+      templates = isSuccess ? [aiWin] : [aiLose];
+    } else {
+      let specificText = '';
+      if (trial.chosenDefenseLabel === trial.lawCase.defense_j && trial.lawCase.web_judgment_j) {
+        specificText = trial.lawCase.web_judgment_j + (trial.lawCase.edu_j ? `\n\n📌 法律教育：\n${trial.lawCase.edu_j}` : '');
+      } else if (trial.chosenDefenseLabel === trial.lawCase.defense_k && trial.lawCase.web_judgment_k) {
+        specificText = trial.lawCase.web_judgment_k + (trial.lawCase.edu_k ? `\n\n📌 法律教育：\n${trial.lawCase.edu_k}` : '');
+      } else if (trial.chosenDefenseLabel === trial.lawCase.defense_l && trial.lawCase.web_judgment_l) {
+        specificText = trial.lawCase.web_judgment_l + (trial.lawCase.edu_l ? `\n\n📌 法律教育：\n${trial.lawCase.edu_l}` : '');
+      }
+
+      if (specificText) {
+        templates = [specificText];
+      } else {
+        const webWin = trial.lawCase.web_judgment_win || '【網站模式預設勝訴】你說得過去，撤訴。';
+        const webLose = trial.lawCase.web_judgment_lose || '【網站模式預設敗訴】你說不過去，有罪。';
+        templates = isSuccess ? [webWin] : [webLose];
+      }
+    }
 
     // 依據玩家的答辯文本，從模板庫挑選文案並填入動態變數
     const generatedTemplate = getRandomTemplate(templates, {

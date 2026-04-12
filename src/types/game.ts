@@ -265,9 +265,24 @@ export interface LawCase {
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
   evidence_list: string[]; // 採樣之法庭證據清單
   // --- 網站模式專屬 JKL 辯護選項 (預留填充區) ---
+  // --- 網站模式專屬 JKL 辯護選項與專屬法庭反駁 ---
   defense_j?: string; // 選項 J：+0%
+  defense_j_text?: string;
+  web_judgment_j?: string;
+  edu_j?: string;
+
   defense_k?: string; // 選項 K：+5%
+  defense_k_text?: string;
+  web_judgment_k?: string;
+  edu_k?: string;
+
   defense_l?: string; // 選項 L：+10%
+  defense_l_text?: string;
+  web_judgment_l?: string;
+  edu_l?: string;
+
+  web_judgment_win?: string; // 網站模式通用勝訴法官台詞 (Fallback)
+  web_judgment_lose?: string; // 網站模式通用敗訴法官台詞 (Fallback)
   surface_term?: string;
   escape?: string;
 }

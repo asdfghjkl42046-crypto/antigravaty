@@ -18,9 +18,20 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '那個條件是我在談判過程中提出來的，我當時的想法是確認對方真的有我們需要的東西，不是要他去做非法的事。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '他說他能帶來的資源，我以為是他自己合法擁有的東西，我沒有叫他去偷或複製任何受保護的資料。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '如果他帶來的東西有問題，那是他自己的決定，我沒有明確指示他要怎麼取得那些資料。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-01-3': {
     id: 'B-01-3',
@@ -36,8 +47,19 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '那幾次會面是以技術交流的名義進行的，錄音是我自己的習慣，我平常開會都會錄，不是特別針對他。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k: '我錄音是為了保護自己，避免事後說不清楚，我沒有想過要用那些錄音去威脅或要脅任何人。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '留下紀錄是很正常的商業做法，我當時只是覺得萬一之後有爭議，有錄音比較說得清楚。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-03-1': {
     id: 'B-03-1',
@@ -53,10 +75,20 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '客戶名單的部分是我在談薪水時順口提到的，我以為他自己有辦法合法取得，沒有要他去做違規的事。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '他當時還沒有正式離職，我不知道他用的帳號已經不該再存取，那個邊界我當時沒有想得很清楚。',
-    defense_l:
-      '我想要的是他的市場人脈和業務能力，不是要他去拿任何不屬於他的東西，這中間有一個誤會。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我想要的是他的市場人脈和業務能力，不是要他去拿任何不屬於他的東西，這中間有一個誤會。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-03-2': {
     id: 'B-03-2',
@@ -72,10 +104,20 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '那個要求是我說的，但我的理解是他有存取權限就代表他可以使用那些資料，我沒有叫他去駭任何系統。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我當時覺得他在職期間有權限，帶走這些東西跟他自己的工作成果是有關聯的，我沒有意識到這已經違法了。',
-    defense_l:
-      '如果那個行為有問題，我應該在提出要求前先讓法務確認，那是我的疏失，但我的出發點不是要他去犯罪。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '如果那個行為有問題，我應該在提出要求前先讓法務確認，那是我的疏失，但我的出發點不是要他去犯罪。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-03-3': {
     id: 'B-03-3',
@@ -86,10 +128,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['證件簽收切備書', '加班發放紀錄', '薪資轉帳明細'],
     defense_j:
       '那份合約是法務部門起草的，我核准的時候以為那些條款在法律上是允許的，沒有想到會有問題。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '違約金和工時條款是雙方都看過才簽的，他有機會在簽約前提出異議，那是一個雙方同意的結果。',
-    defense_l:
-      '我的目的讓合作關係穩定，不是要困住任何人，條款設計得嚴格是因為我們提供的薪水也是超出市場的。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我的目的讓合作關係穩定，不是要困住任何人，條款設計得嚴格是因為我們提供的薪水也是超出市場的。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-04-1': {
     id: 'B-04-1',
@@ -100,9 +152,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['簽約金協議書', '誠信聲明書', '資金往來紀錄'],
     defense_j:
       '我有接觸那幾個工程師，但我說的搬家費是正常的簽約金，至於原型圖的事我沒有明確開口要求。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我只是問他們有沒有辦法讓我們更快了解他們的技術能力，我沒有叫他們去拿任何公司的機密文件。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '如果他們帶了什麼東西過來，那是他們自己的判斷，我沒有把帶原型圖當成錄取的條件。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-05-1': {
     id: 'B-05-1',
@@ -113,10 +176,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['打卡紀錄', '薪資發放明細', '承攬合約書', '績效考核紀錄'],
     defense_j:
       '那份合約是法務部門提供的範本，我當時認為用承攬制是合法的彈性用人方式，不是要規避任何義務。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '承攬合約是雙方都同意才簽的，裡面的條款他們有機會看過，我以為這是一個合法的商業安排。',
-    defense_l:
-      '我的出發點是要找到真的願意配合公司彈性需求的人，不是要困住任何員工或剝奪他們的權利。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我的出發點是要找到真的願意配合公司彈性需求的人，不是要困住任何員工或剝奪他們的權利。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-05-2': {
     id: 'B-05-2',
@@ -127,10 +200,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['出勤紀錄', '加給明細', '違約金條約'],
     defense_j:
       '工時的安排是公司文化的一部分，我們有給股票期權作為補償，我以為那是一個雙方都接受的條件。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '那些員工入職前就知道公司的工作節奏，股票期權的潛在價值遠超過加班費，我認為整體條件是合理的。',
-    defense_l:
-      '我沒有強迫任何人留下來，不接受這個條件的人可以選擇離開，我以為這是一個透明的合作條件。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我沒有強迫任何人留下來，不接受這個條件的人可以選擇離開，我以為這是一個透明的合作條件。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-06-1': {
     id: 'B-06-1',
@@ -141,10 +224,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['子公司營登', '顧問費撥款紀錄', '業務重疊性分析'],
     defense_j:
       '那個安排是他自己提出來的，他說這樣帳面上比較好處理，我只是配合他的需求做了相應的架構。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '子公司的顧問合作在法律形式上跟競業條款限制的僱傭關係不一樣，我當時認為這個區隔是成立的。',
-    defense_l:
-      '我沒有要他去違反他自己的保密協議，我們合作的是一個新的研究方向，跟他前東家的東西沒有關係。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我沒有要他去違反他自己的保密協議，我們合作的是一個新的研究方向，跟他前東家的東西沒有關係。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-06-2': {
     id: 'B-06-2',
@@ -154,9 +247,20 @@ export const LAWS_B: Record<string, LawCase> = {
     survival_rate: 0.01,
     evidence_list: ['不實勞務合約', '规避扣繳金流圖', '異常資金迴流紀錄'],
     defense_j: '那個架構是他提出來的，他說他需要這樣的安排才能配合，我只是接受了他開出的合作條件。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '海外公司付款是因為業務本來就涉及跨境的研究合作，加密貨幣支付在這個領域裡也不是罕見的方式。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '我沒有叫他去洩漏任何前東家的資料，我們要的是他的研究能力，不是他帶來的任何機密。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-06-3': {
     id: 'B-06-3',
@@ -167,10 +271,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['訴訟資助協議紀錄', '內部挖角指示清單', '與員工之秘密通訊'],
     defense_j:
       '我們提供的是法律資訊上的協助，讓他知道自己有什麼選擇，沒有要求他做任何特定的事或承諾什麼。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '協助一個可能在勞資關係上受到不公平對待的人了解自身權益，我認為這是正當的事，跟挖角不一樣。',
-    defense_l:
-      '我們後來的合作是在他自己解決完那個問題之後才開始的，兩件事的時間點是分開的，不是一個預謀的計畫。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我們後來的合作是在他自己解決完那個問題之後才開始的，兩件事的時間點是分開的，不是一個預謀的計畫。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-07-1': {
     id: 'B-07-1',
@@ -181,10 +295,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['伺服器金鑰', '內部套話清單', '技術細節紀錄'],
     defense_j:
       '那個接觸是業務部門自己去談的，我知道有這件事，但開發環境設定檔那個條件的細節我沒有親自確認過。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我當時的理解是簽約金是吸引人才的正常工具，我沒有意識到要求他們帶走設定檔已經踩到法律的紅線。',
-    defense_l:
-      '如果那個條件有問題，責任在於提出條件的人，我核准的是招募這批工程師，不是要他們去拿任何公司的東西。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '如果那個條件有問題，責任在於提出條件的人，我核准的是招募這批工程師，不是要他們去拿任何公司的東西。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-07-2': {
     id: 'B-07-2',
@@ -195,9 +319,19 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['技術紀錄對照', '交流會議紀錄'],
     defense_j:
       '那幾次聚餐是技術主管自己安排的，我知道有這件事，但定位是交流活動，我沒有叫他去套取什麼機密。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k: '技術人員之間互相交流想法在業界很正常，我們沒有要求對方透露任何受保護的內部資訊。',
-    defense_l:
-      '朋友吃飯聊天本來就會提到工作上的事，我沒有辦法控制對話的每一個細節，我們的出發點是建立關係。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '朋友吃飯聊天本來就會提到工作上的事，我沒有辦法控制對話的每一個細節，我們的出發點是建立關係。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-08-1': {
     id: 'B-08-1',
@@ -208,10 +342,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['不實薪資申報單', '內部拆薪紀錄', '實際轉帳明細'],
     defense_j:
       '那個薪資結構是會計師建議的，他說這在業界是常見的做法，我當時認為是合法的薪資設計方式。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '津貼是真實存在的，不是虛構出來的，員工的實領金額也確實比較多，我以為這對雙方都是有利的安排。',
-    defense_l:
-      '我沒有要欺騙任何人，員工都知道自己的薪水結構，這是一個雙方都清楚的安排，不是單方面的操作。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我沒有要欺騙任何人，員工都知道自己的薪水結構，這是一個雙方都清楚的安排，不是單方面的操作。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-08-2': {
     id: 'B-08-2',
@@ -221,10 +365,20 @@ export const LAWS_B: Record<string, LawCase> = {
     survival_rate: 0.01,
     evidence_list: ['自願放棄投保聲明書', '通訊威脅紀錄', '投保回條'],
     defense_j: '那份切結書是法務部門準備的，他們說在法律上是可行的，我沒有理由不相信他們的判斷。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我們有幫員工保團體意外險，不是完全沒有任何保障，我當時認為這個替代方案對雙方都是合理的。',
-    defense_l:
-      '員工是自願簽那份切結書的，我沒有強迫任何人，不接受這個條件的人我也沒有不讓他們來上班。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '員工是自願簽那份切結書的，我沒有強迫任何人，不接受這個條件的人我也沒有不讓他們來上班。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-09-1': {
     id: 'B-09-1',
@@ -235,10 +389,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['打卡紀錄', '行政指揮紀錄', '不實勞務申報'],
     defense_j:
       '那份合約範本是合夥人帶來的，他說法律上沒有問題，我在沒有深入查核的情況下就接受了他的說法。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '合約上的條款是雙方簽署的，員工在簽約前有機會看清楚，我以為既然他們同意就代表這個安排是可以的。',
-    defense_l:
-      '我想要的是一個更有彈性的用人結構，不是要剝奪任何人的保障，那個邊界我當時沒有判斷清楚。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我想要的是一個更有彈性的用人結構，不是要剝奪任何人的保障，那個邊界我當時沒有判斷清楚。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-09-3': {
     id: 'B-09-3',
@@ -249,9 +413,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['商務承攬合約', '打卡紀錄', '福利發放紀錄'],
     defense_j:
       '我們的安排是依照工作性質來區分的，專案型的工作本來就比較適合承攬，這不是一刀切的決定。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '核心員工的正職待遇我們一直有維持，承攬的部分也是雙方協商出來的，我認為這個分類有合理的業務邏輯。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '我沒有把所有人都改成承攬來逃避法律責任，我們是依照實際的工作型態做了有區別的安排。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-10-1': {
     id: 'B-10-1',
@@ -262,10 +437,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['威脅性通訊文字', '不實考績紀錄', '向第三方傳播紀錄'],
     defense_j:
       '「那些考績紀錄是公司的正式文件，我說的是如果他繼續這樣，我們會依照公司程序處理相關紀錄。」',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '「那個說法是在氣頭上透過中間人傳出去的，我的本意是提醒他在職期間的紀錄會影響他的專業信譽。」',
-    defense_l:
-      '「我傳達的是公司有權公開在職期間的績效紀錄，我認為那是公司正當可以行使的權利，不是威脅。」',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '「我傳達的是公司有權公開在職期間的績效紀錄，我認為那是公司正當可以行使的權利，不是威脅。」',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-10-2': {
     id: 'B-10-2',
@@ -276,9 +461,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['恐嚇性律師函', '缺乏補償金之合約'],
     defense_j:
       '那封律師函是法務部門評估之後建議發的，我核准的時候認為公司的利益有必要透過法律管道保護。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我們對競業協議是否有效有合理的疑慮，在釐清之前先發函通知對方我認為是正當的法律預防措施。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
     defense_l: '律師函是正式的法律工具，我沒有在外面散布任何不實的指控，我們走的是合法的程序。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-10-3': {
     id: 'B-10-3',
@@ -288,10 +484,20 @@ export const LAWS_B: Record<string, LawCase> = {
     survival_rate: 0.01,
     evidence_list: ['不實公開聲明稿', '名譽損害紀錄'],
     defense_j: '那份聲明是HR部門起草的，我核准的時候認為公司有權利公開表達保護商業機密的立場。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我們懷疑有商業機密外洩的問題，在調查尚未完成之前先表明公司的立場我認為是正當的預防措施。',
-    defense_l:
-      '那份聲明沒有點任何人的全名，是針對行為而不是針對特定個人，我覺得這跟惡意中傷是不一樣的事。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '那份聲明沒有點任何人的全名，是針對行為而不是針對特定個人，我覺得這跟惡意中傷是不一樣的事。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-11-1': {
     id: 'B-11-1',
@@ -307,10 +513,20 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '入侵帳號的事我不知道是誰去做的，我只說要把那個repo處理掉，沒有叫任何人去駭進他的帳戶。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '放風的部分是我說的，但那不是造謠，我們確實認為他拿走的東西是公司的，我只是讓業界知道這件事。',
-    defense_l:
-      '我當時非常生氣，說了一些不該說的話，但那是情緒下的反應，我沒有一個完整的計畫要去毀掉他的職涯。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我當時非常生氣，說了一些不該說的話，但那是情緒下的反應，我沒有一個完整的計畫要去毀掉他的職涯。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-11-3': {
     id: 'B-11-3',
@@ -321,10 +537,20 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['無實質產出之顧問合約', '異常金流紀錄', '秘密協議文件'],
     defense_j:
       '我主動去找他談是因為我想用最快的方式解決這件事，給他一筆錢換取刪除我認為是我們公司的東西。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '那筆錢是以顧問費名義給的，我的理解是我們達成了一個雙方都接受的和解，不是在買他的沉默。',
-    defense_l:
-      '我沒有威脅他，他可以選擇不接受，最後是他自己決定要簽那個協議的，這是一個雙方同意的結果。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我沒有威脅他，他可以選擇不接受，最後是他自己決定要簽那個協議的，這是一個雙方同意的結果。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-12-1': {
     id: 'B-12-1',
@@ -335,9 +561,19 @@ export const LAWS_B: Record<string, LawCase> = {
     evidence_list: ['空殼公司代付協議', '非法抓取數據紀錄'],
     defense_j:
       '空殼公司的安排是他自己提出來的條件，我接受是因為我需要他的能力，架構怎麼設計不是我主導的。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k: '舊帳號的部分我當時不知道他還有權限，我以為他離職前公司之後那些存取就已經被停掉了。',
-    defense_l:
-      '我要的是他對那個市場的判斷和人脈，不是要他去偷任何東西，如果他自己去做了超出範圍的事那是他的決定。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我要的是他對那個市場的判斷和人脈，不是要他去偷任何東西，如果他自己去做了超出範圍的事那是他的決定。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
   'B-12-2': {
     id: 'B-12-2',
@@ -353,9 +589,19 @@ export const LAWS_B: Record<string, LawCase> = {
     ],
     defense_j:
       '那個安排是他提出來的條件，我接受是因為我真的需要他的市場能力，不是我主動設計要規避什麼。',
+    defense_j_text: "",
+    web_judgment_j: "",
+    edu_j: "",
     defense_k:
       '我告訴自己那是彈性用人的一種形式，加密貨幣付款在某些跨境合作裡也是被接受的，我沒有想到這已經有問題了。',
-    defense_l:
-      '我沒有叫他去拿前公司的任何東西，我要的是他的人脈和判斷力，那些東西在他腦子裡，不在任何系統裡。',
+    defense_k_text: "",
+    web_judgment_k: "",
+    edu_k: "",
+    defense_l: '我沒有叫他去拿前公司的任何東西，我要的是他的人脈和判斷力，那些東西在他腦子裡，不在任何系統裡。',
+    defense_l_text: "",
+    web_judgment_l: "",
+    edu_l: "",
+    web_judgment_win: '',
+    web_judgment_lose: '',
   },
 };
