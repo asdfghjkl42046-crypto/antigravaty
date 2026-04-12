@@ -277,7 +277,7 @@ export default function PlayerRegistrationScreen({
       width: 30,
       height: 4,
       fontSize: 18,
-      label: '一、白手起家', // 引用自背景故事標題
+      label: '白手起家',
     },
     t1_money: {
       top: 31,
@@ -327,7 +327,7 @@ export default function PlayerRegistrationScreen({
       width: 30,
       height: 4,
       fontSize: 18,
-      label: '二、融資創業', // 引用自背景故事標題
+      label: '融資創業',
     },
     t2_money: {
       top: 42,
@@ -377,7 +377,7 @@ export default function PlayerRegistrationScreen({
       width: 30,
       height: 4,
       fontSize: 18,
-      label: '三、家族企業', // 引用自背景故事標題
+      label: '家族企業',
     },
     t3_money: {
       top: 53,
@@ -452,7 +452,10 @@ export default function PlayerRegistrationScreen({
         '.reg-animate',
         { opacity: 0, x: 20 },
         {
-          opacity: 1, x: 0, duration: 0.4, ease: 'power3.out',
+          opacity: 1,
+          x: 0,
+          duration: 0.4,
+          ease: 'power3.out',
           onComplete: () => {
             // 全部元素動畫完成後，才讓提交按鈕獨立淡入
             setIsReady(true);
@@ -614,7 +617,9 @@ export default function PlayerRegistrationScreen({
             </label>
           )}
           {layout.input_field && (
-            <div className={`input_field-pos group reg-animate ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+            <div
+              className={`input_field-pos group reg-animate ${isReady ? 'pointer-events-auto' : 'pointer-events-none'}`}
+            >
               <input
                 type="text"
                 value={currentName}
