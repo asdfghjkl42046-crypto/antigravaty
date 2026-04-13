@@ -39,13 +39,17 @@ export default function DebugPanel() {
   if (!isOpen) {
     return (
       <Draggable bounds="parent" nodeRef={nodeRefButton}>
-        <div ref={nodeRefButton} className="absolute top-4 right-4 z-[9999] opacity-50 hover:opacity-100 transition-opacity">
+        <div 
+          ref={nodeRefButton} 
+          className="absolute top-20 right-4 z-[9999] opacity-80 md:opacity-50 hover:opacity-100 transition-opacity touch-none"
+        >
           <button
             onClick={() => setIsOpen(true)}
+            onPointerDown={(e) => e.stopPropagation()}
             title="開啟外掛面板"
-            className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:scale-110 active:scale-95 transition-transform animate-pulse cursor-pointer"
+            className="w-12 h-12 md:w-10 md:h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:scale-110 active:scale-95 transition-transform animate-pulse cursor-pointer"
           >
-            <Bug className="w-5 h-5 text-white pointer-events-none" />
+            <Bug className="w-6 h-6 md:w-5 md:h-5 text-white pointer-events-none" />
           </button>
         </div>
       </Draggable>
@@ -54,7 +58,10 @@ export default function DebugPanel() {
 
   return (
     <Draggable handle=".drag-handle" bounds="parent" nodeRef={nodeRefPanel}>
-      <div ref={nodeRefPanel} className="absolute top-4 right-4 z-[9999] w-72 bg-slate-950/95 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-300">
+      <div 
+        ref={nodeRefPanel} 
+        className="absolute top-20 right-4 z-[9999] w-[calc(100vw-32px)] max-w-72 bg-slate-950/95 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-300 touch-none"
+      >
         {/* 標題列 (拖曳區) */}
         <div className="drag-handle cursor-move flex items-center justify-between px-4 py-3 border-b border-red-500/20 bg-red-950/20 rounded-t-xl">
           <div className="flex items-center space-x-2 pointer-events-none">
@@ -65,10 +72,11 @@ export default function DebugPanel() {
           </div>
           <button
             onClick={() => setIsOpen(false)}
+            onPointerDown={(e) => e.stopPropagation()}
             title="關閉外掛面板"
-            className="p-1 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
           >
-            <X className="w-4 h-4 text-slate-500 pointer-events-none" />
+            <X className="w-5 h-5 md:w-4 md:h-4 text-slate-500 pointer-events-none" />
           </button>
         </div>
 
@@ -98,17 +106,19 @@ export default function DebugPanel() {
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => handleAdjust(key as string, -step)}
+                onPointerDown={(e) => e.stopPropagation()}
                 title={`減少 ${step}`}
-                className="w-7 h-7 bg-red-500/20 hover:bg-red-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90"
+                className="w-8 h-8 md:w-7 md:h-7 bg-red-500/20 hover:bg-red-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90"
               >
-                <ChevronDown className="w-3.5 h-3.5 text-red-400" />
+                <ChevronDown className="w-4 h-4 md:w-3.5 md:h-3.5 text-red-400" />
               </button>
               <button
                 onClick={() => handleAdjust(key as string, step)}
+                onPointerDown={(e) => e.stopPropagation()}
                 title={`增加 ${step}`}
-                className="w-7 h-7 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90"
+                className="w-8 h-8 md:w-7 md:h-7 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90"
               >
-                <ChevronUp className="w-3.5 h-3.5 text-emerald-400" />
+                <ChevronUp className="w-4 h-4 md:w-3.5 md:h-3.5 text-emerald-400" />
               </button>
             </div>
           </div>
@@ -118,7 +128,8 @@ export default function DebugPanel() {
         <div className="pt-2 border-t border-white/5 space-y-2">
           <button
             onClick={() => triggerTrial(player.id)}
-            className="w-full py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-[10px] font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full py-3 md:py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-[10px] font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2"
           >
             <Gavel className="w-3.5 h-3.5" />
             <span>強制開庭 (測試 UI)</span>
@@ -128,7 +139,8 @@ export default function DebugPanel() {
             onClick={() =>
               debugUpdatePlayer(player.id, { g: 9999, ip: 999, rp: 100, ap: 5 })
             }
-            className="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl text-[10px] font-black text-amber-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-full py-3 md:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl text-[10px] font-black text-amber-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2"
           >
             <Zap className="w-3.5 h-3.5" />
             <span>滿血復活 (全資源拉滿)</span>
@@ -139,3 +151,4 @@ export default function DebugPanel() {
     </Draggable>
   );
 }
+
