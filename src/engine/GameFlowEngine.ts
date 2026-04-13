@@ -333,12 +333,12 @@ export class GameFlowEngine {
     const def = players.find((p) => p.id === trial.defendantId);
     if (!def) return {};
 
-    const optionMap: Record<number, string | undefined> = {
-      0: trial.lawCase.defense_j,
-      1: trial.lawCase.defense_k,
-      2: trial.lawCase.defense_l,
+    const optionLabels: Record<number, string> = {
+      0: '方案 J',
+      1: '方案 K',
+      2: '方案 L',
     };
-    const chosenLabel = optionMap[idx] || '正當業務行為';
+    const chosenLabel = optionLabels[idx] || '正當業務行為';
 
     const outcome = CourtEngine.determineDefenseOutcome(
       def,

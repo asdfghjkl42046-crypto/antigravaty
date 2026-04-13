@@ -7,9 +7,10 @@ import ModeSelectScreen from '@/components/ModeSelectScreen';
 import SetupScreen from '@/components/SetupScreen';
 import PlayerRegistrationScreen from '@/components/PlayerRegistrationScreen';
 import DashboardScreen from '@/components/DashboardScreen';
+import CourtroomScreen from '@/components/CourtroomScreen';
 
 export default function Home() {
-  const { players, judgeMode, setJudgeMode, initGame, endTurn, resetGame } = useGameStore();
+  const { players, judgeMode, setJudgeMode, initGame, endTurn, resetGame, phase } = useGameStore();
   const [mounted, setMounted] = useState(false);
   const [plannedPlayerCount, setPlannedPlayerCount] = useState<number | null>(null);
   const [currentRegIndex, setCurrentRegIndex] = useState(0);
@@ -80,6 +81,7 @@ export default function Home() {
       {isDashboard && (
         <div className="relative w-full h-full">
           <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
+          {phase === 'courtroom' && <CourtroomScreen />}
         </div>
       )}
     </GameCanvas>

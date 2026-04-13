@@ -247,12 +247,13 @@ export function calculateSpectatorInfluence(interventions: { text: string }[]): 
       );
     }
 
-    // 根據預定義的公版文字來匹配干預力
-    if (iv.text.includes('合理商業範疇')) {
-      totalInfluence += 0.1; // 支持被告 (+10%)
-    } else if (iv.text.includes('深表懷疑')) {
-      totalInfluence -= 0.1; // 質疑被告
+    // 根據 UI 傳入的精確指令關鍵字來匹配干預力
+    if (iv.text.includes('SUPPORT')) {
+      totalInfluence += 0.1; // 支持被告 (+10% 勝率)
+    } else if (iv.text.includes('OPPOSE')) {
+      totalInfluence -= 0.1; // 反對被告 (-10% 勝率)
     }
+    // ABSTAIN 或其他文字維持 0 影響力
   });
 
   return totalInfluence;

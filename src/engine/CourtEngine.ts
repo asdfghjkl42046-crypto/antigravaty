@@ -135,19 +135,14 @@ export class CourtEngine {
     personality: JudgePersonality,
     lawCase: LawCase
   ): { narrative: string; question: string } {
-    // 統一從各大惡棍法官資料庫中隨機抓取罐頭對白並植入動態變數
-    // 以充滿沉浸感的文字給予玩家自由發揮的辯護空間
-    const question = getRandomTemplate(INTERROGATION_TEMPLATES[personality], {
-      tag: formatLawTags(lawCase.tag),
-      defense: '', // 開場階段尚無玩家選擇的辯護內容
-    });
-    const narratives = [
-      `「檢方已取得決定性證據：被告於經營期間涉嫌『${formatLawTags(lawCase.tag)}』行為，正式提起公訴！」`,
-      `「針對被告企業之『${formatLawTags(lawCase.tag)}』異常紀錄，本庭宣告進入審理時序。」`,
-      `「法庭肅靜！被告涉嫌『${formatLawTags(lawCase.tag)}』此為重大犯罪，現在開庭審理！」`,
-    ];
+    // 嚴格遵循「沒寫的文案就不要硬加」：只讀取資料庫定義的起訴狀，若無則顯示標準標籤
+    const narrative = lawCase.indictment || `【起訴事實：${formatLawTags(lawCase.tag)}】`;
+
+    // 移除系統生成的質詢問題，確保不再出現 Page 2 的冗餘提示
+    const question = ''; 
+
     return {
-      narrative: narratives[Math.floor(Math.random() * narratives.length)],
+      narrative,
       question,
     };
   }
@@ -171,19 +166,19 @@ export class CourtEngine {
       templates = isSuccess ? [aiWin] : [aiLose];
     } else {
       let specificText = '';
-      if (trial.chosenDefenseLabel === trial.lawCase.defense_j && trial.lawCase.web_judgment_j) {
+      if (trial.chosenDefenseLabel === trial.lawCase.defense_j_text && trial.lawCase.web_judgment_j) {
         specificText =
           trial.lawCase.web_judgment_j +
           (trial.lawCase.edu_j ? `\n\n📌 法律教育：\n${trial.lawCase.edu_j}` : '');
       } else if (
-        trial.chosenDefenseLabel === trial.lawCase.defense_k &&
+        trial.chosenDefenseLabel === trial.lawCase.defense_k_text &&
         trial.lawCase.web_judgment_k
       ) {
         specificText =
           trial.lawCase.web_judgment_k +
           (trial.lawCase.edu_k ? `\n\n📌 法律教育：\n${trial.lawCase.edu_k}` : '');
       } else if (
-        trial.chosenDefenseLabel === trial.lawCase.defense_l &&
+        trial.chosenDefenseLabel === trial.lawCase.defense_l_text &&
         trial.lawCase.web_judgment_l
       ) {
         specificText =
@@ -194,8 +189,8 @@ export class CourtEngine {
       if (specificText) {
         templates = [specificText];
       } else {
-        const webWin = trial.lawCase.web_judgment_win || '【網站模式預設勝訴】你說得過去，撤訴。';
-        const webLose = trial.lawCase.web_judgment_lose || '【網站模式預設敗訴】你說不過去，有罪。';
+        const webWin = '【網站模式預設勝訴】你說得過去，撤訴。';
+        const webLose = '【網站模式預設敗訴】你說不過去，有罪。';
         templates = isSuccess ? [webWin] : [webLose];
       }
     }

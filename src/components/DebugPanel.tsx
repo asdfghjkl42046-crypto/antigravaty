@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Bug, X, ChevronUp, ChevronDown, Zap } from 'lucide-react';
+import { Bug, X, ChevronUp, ChevronDown, Zap, Gavel } from 'lucide-react';
 import Draggable from 'react-draggable';
 import { useGameStore } from '@/store/gameStore';
 
@@ -12,7 +12,7 @@ import { useGameStore } from '@/store/gameStore';
  */
 export default function DebugPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const { players, currentPlayerIndex, debugUpdatePlayer } = useGameStore();
+  const { players, currentPlayerIndex, debugUpdatePlayer, triggerTrial } = useGameStore();
   const player = players[currentPlayerIndex];
 
   // React 19 需要為 react-draggable 傳入 nodeRef 以避免 findDOMNode 報錯
@@ -116,6 +116,14 @@ export default function DebugPanel() {
 
         {/* 快速操作 */}
         <div className="pt-2 border-t border-white/5 space-y-2">
+          <button
+            onClick={() => triggerTrial(player.id)}
+            className="w-full py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-[10px] font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2"
+          >
+            <Gavel className="w-3.5 h-3.5" />
+            <span>強制開庭 (測試 UI)</span>
+          </button>
+          
           <button
             onClick={() =>
               debugUpdatePlayer(player.id, { g: 9999, ip: 999, rp: 100, ap: 5 })

@@ -176,9 +176,6 @@ async function createPlayerFromConfig(
         isResolved: false,
         timestamp,
         hash: newHash,
-        surface_term: lawCase.surface_term,
-        hidden_intent: lawCase.hidden_intent,
-        escape: lawCase.escape,
         netIncome: initialBooty, // 存入起始黑金基數
         lawCaseIds: [lawCaseId], // 寫入精確 ID
       });

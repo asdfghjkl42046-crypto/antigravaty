@@ -291,9 +291,6 @@ export async function performAction(
           netIncome: bonusRewardG,
           lawCaseIds: baseLawCaseIds,
           rpChange: baseRewardRP,
-          surface_term: opt.surface_term,
-          hidden_intent: opt.hidden_intent,
-          escape: opt.escape,
           multiplier: tagMultiplier,
           multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
         });
@@ -378,9 +375,6 @@ export async function performAction(
               netIncome: totalG,
               lawCaseIds: succLawCaseIds,
               rpChange: finalRPChange,
-              surface_term: opt.surface_term,
-              hidden_intent: opt.hidden_intent,
-              escape: opt.escape,
             });
           }
         }
@@ -449,9 +443,6 @@ export async function performAction(
           netIncome: s.netIncome,
           lawCaseIds: s.lawCaseIds,
           rpChange: s.rpChange,
-          surface_term: s.surface_term,
-          hidden_intent: s.hidden_intent,
-          escape: s.escape,
           isResolved: false,
         });
         // 更新最新一筆的防偽亂碼

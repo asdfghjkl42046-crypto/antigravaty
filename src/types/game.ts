@@ -57,9 +57,6 @@ export interface Tag {
   isResolved?: boolean; // 結案標記：勝訴後設為 True，其關聯黑材料將被「一案一清」
   multiplier?: number; // 獲取倍率 (如 x2)
   multiplierSource?: string; // 倍率來源 (如 'CTO')
-  surface_term?: string;
-  hidden_intent?: string;
-  escape?: string;
 }
 
 /**
@@ -263,27 +260,18 @@ export interface LawCase {
   tag: string[]; // 行動關聯標籤 (支援多重標籤)
   indictment?: string; // 精確的法庭起訴狀文本 (起訴公訴敘事)
   survival_rate: number; // 原始脫身勝訴率 (0.1 - 0.9)
-  // --- 網站模式專屬 JKL 辯護選項 (預留填充區) ---
   // --- 網站模式專屬 JKL 辯護選項與專屬法庭反駁 ---
-  defense_j?: string; // 選項 J：+0%
   defense_j_text?: string;
   web_judgment_j?: string;
   edu_j?: string;
 
-  defense_k?: string; // 選項 K：+5%
   defense_k_text?: string;
   web_judgment_k?: string;
   edu_k?: string;
 
-  defense_l?: string; // 選項 L：+10%
   defense_l_text?: string;
   web_judgment_l?: string;
   edu_l?: string;
-
-  web_judgment_win?: string; // 網站模式通用勝訴法官台詞 (Fallback)
-  web_judgment_lose?: string; // 網站模式通用敗訴法官台詞 (Fallback)
-  surface_term?: string;
-  escape?: string;
 }
 
 /** 遊戲宏觀階段 */
