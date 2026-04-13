@@ -104,9 +104,7 @@ export const useGameStore = create<GameStore>()(
           return { ...result, type: 'talent' };
         }
 
-        if (state.usedCodes.includes(codeUpper)) {
-          return { success: false, message: '此代碼已領取過。' };
-        }
+        // removed usedCodes check locally so location cards can be rescanned.
 
         const res = resolveScanCode(codeUpper);
         if (!res) return { success: false, message: '無效代碼。' };

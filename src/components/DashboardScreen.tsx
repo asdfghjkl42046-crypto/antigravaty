@@ -17,6 +17,7 @@ import {
   Gift,
   Check,
   ChevronRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
@@ -244,7 +245,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
             title="返回模式選擇"
             aria-label="Back to Mode Select"
           >
-            <History className="w-4 h-4 text-slate-400 group-hover:text-blue-400 rotate-180" />
+            <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:text-blue-400" />
           </button>
 
           <div className="w-10 h-10 rounded-xl bg-slate-900 border border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] overflow-hidden">

@@ -181,7 +181,8 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
         ref={containerRef}
         className="relative w-full h-full select-none text-white overflow-hidden flex flex-col items-center"
       >
-        {/* 設計模式按鈕 */}
+        {/* 設計模式按鈕 - 已隱藏 */}
+        {/*
         <button
           onClick={() => setIsDesignMode(!isDesignMode)}
           className="absolute top-20 right-4 z-[2000] p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 text-white"
@@ -193,6 +194,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
             <Settings2 className="w-5 h-5" />
           )}
         </button>
+        */}
 
         {/* 底層參考圖 (設計模式) */}
         {isDesignMode && (

@@ -322,3 +322,29 @@ body {
 .animate-bounce-subtle {
   animation: bounce-subtle 3s ease-in-out infinite;
 }
+
+/* 3D 效果輔助類 */
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.paragraph-indent {
+  text-indent: 2em;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+.carousel-container-tilt {
+  transform: rotateX(-10deg);
+}

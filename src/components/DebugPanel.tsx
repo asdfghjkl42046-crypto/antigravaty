@@ -39,7 +39,7 @@ export default function DebugPanel() {
   if (!isOpen) {
     return (
       <Draggable bounds="parent" nodeRef={nodeRefButton}>
-        <div ref={nodeRefButton} className="absolute top-4 left-4 z-[9999] opacity-50 hover:opacity-100 transition-opacity">
+        <div ref={nodeRefButton} className="absolute top-4 right-4 z-[9999] opacity-50 hover:opacity-100 transition-opacity">
           <button
             onClick={() => setIsOpen(true)}
             title="開啟外掛面板"
@@ -54,7 +54,7 @@ export default function DebugPanel() {
 
   return (
     <Draggable handle=".drag-handle" bounds="parent" nodeRef={nodeRefPanel}>
-      <div ref={nodeRefPanel} className="absolute top-4 left-4 z-[9999] w-72 bg-slate-950/95 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-300">
+      <div ref={nodeRefPanel} className="absolute top-4 right-4 z-[9999] w-72 bg-slate-950/95 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in zoom-in-95 duration-300">
         {/* 標題列 (拖曳區) */}
         <div className="drag-handle cursor-move flex items-center justify-between px-4 py-3 border-b border-red-500/20 bg-red-950/20 rounded-t-xl">
           <div className="flex items-center space-x-2 pointer-events-none">

@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronRight,
+  AlertTriangle,
 } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
 import { PlayerCard } from './DashboardScreen';
@@ -32,6 +33,23 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
   const [isCameraActive, setIsCameraActive] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const lastScannedRef = useRef<string>(''); // 防抖：避免鏡頭連續掃到同一張卡
+
+  // 前科彈窗狀態
+  const [tagViewPlayerIdx, setTagViewPlayerIdx] = useState<number | null>(null);
+  const [tagViewItemIdx, setTagViewItemIdx] = useState(0);
+
+  // 處理前科資料聚合
+  const getAggregatedTags = (playerIdx: number | null) => {
+    if (playerIdx === null || !players[playerIdx]) return [];
+    const player = players[playerIdx];
+    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: any) => {
+      acc[t.text] = (acc[t.text] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(tagCounts).map(([text, count]) => ({ text, count }));
+  };
+
+  const currentViewTags = getAggregatedTags(tagViewPlayerIdx);
 
   // 初始化相機掃描並自動啟動
   useEffect(() => {
@@ -139,8 +157,65 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
 
       {/* 企業資源與數據看板 (原裝 UI 重用) */}
       <div className="w-full flex-shrink-0 z-[100] relative mb-1 mt-4">
-        {currentPlayer && <PlayerCard player={currentPlayer} isActive={true} />}
+        {currentPlayer && <PlayerCard player={currentPlayer} isActive={true} onShowTags={() => {
+          setTagViewPlayerIdx(currentPlayerIndex);
+          setTagViewItemIdx(0);
+        }} />}
       </div>
+
+      {/* ⚠️ 前科記錄彈窗 (Sequential View) */}
+      {tagViewPlayerIdx !== null && (
+        <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="relative w-full max-w-sm bg-[#0a0a0a] border-2 border-orange-600/40 rounded-[40px] p-8 shadow-[0_0_50px_rgba(154,52,18,0.3)] flex flex-col items-center">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(154,52,18,0.2),transparent_70%)] rounded-[38px] pointer-events-none" />
+
+            <div className="absolute top-8 right-10 text-orange-500/40 text-[10px] font-black tracking-widest">
+              {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0} / {currentViewTags.length}
+            </div>
+
+            <div className="w-20 h-20 bg-orange-600 rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(234,88,12,0.4)]">
+              <AlertTriangle className="w-10 h-10 text-black" strokeWidth={2.5} />
+            </div>
+
+            <h2 className="text-xl font-black text-white mb-2 tracking-widest uppercase">犯罪前科紀錄</h2>
+            <p className="text-[10px] font-bold text-orange-500/70 mb-8 tracking-[0.2em] uppercase">
+              {players[tagViewPlayerIdx]?.name} 的檔案
+            </p>
+
+            <div className="w-full mb-10 min-h-[120px] flex items-center justify-center">
+              {currentViewTags.length > 0 ? (
+                <div key={tagViewItemIdx} className="w-full bg-orange-950/20 border border-orange-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all animate-in zoom-in-95 duration-300">
+                  <span className="text-2xl font-black text-white tracking-widest mb-2 uppercase">
+                    {currentViewTags[tagViewItemIdx].text}
+                  </span>
+                  {currentViewTags[tagViewItemIdx].count > 1 && (
+                    <span className="bg-orange-500 text-black px-3 py-0.5 rounded-full text-[10px] font-black animate-pulse">
+                      REPEATED x{currentViewTags[tagViewItemIdx].count}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="text-slate-500 font-bold italic text-sm">無任何犯罪紀錄</div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                if (tagViewItemIdx < currentViewTags.length - 1) {
+                  setTagViewItemIdx(tagViewItemIdx + 1);
+                } else {
+                  setTagViewPlayerIdx(null);
+                  setTagViewItemIdx(0);
+                }
+              }}
+              className="w-full bg-orange-600 hover:bg-orange-500 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-[0_4px_15px_rgba(154,52,18,0.3)] flex items-center justify-center space-x-2 text-lg"
+            >
+              <span>{tagViewItemIdx < currentViewTags.length - 1 ? '下一條前科' : '關閉卷宗'}</span>
+              <ChevronRight size={20} className="opacity-50" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="relative flex-1 flex flex-col items-center justify-center space-y-4">
         <div className="relative w-64 h-64 border-2 border-slate-800 rounded-[32px] overflow-hidden bg-black/40 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
