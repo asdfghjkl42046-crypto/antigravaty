@@ -514,72 +514,62 @@ const DefenseCarousel: React.FC<{
               ref={(el) => {
                 cardsRef.current[i] = el;
               }}
-              className="absolute w-64 h-[440px] select-none overflow-hidden rounded-xl"
+              className="absolute w-64 h-[440px] select-none transform-style-3d"
             >
-              {isFrontVisible ? (
-                /* ===== 正面：文字卡 ===== */
-                <div className="absolute inset-0 bg-[#0a0f1e] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl p-5 flex flex-col justify-between overflow-hidden">
-                  {/* 文字內容 */}
-                  <div className="flex-grow overflow-y-auto custom-scrollbar pr-1 pt-2 text-left">
-                    <div className="text-slate-200 text-sm leading-relaxed font-serif tracking-tight">
-                      {opt.text
-                        .replace(/([。！？]」?)/g, '$1\n')
-                        .split('\n')
-                        .map((segment, idx) => {
-                          const trimmed = segment.trim();
-                          if (!trimmed) return null;
-                          return (
-                            <div
-                              key={idx}
-                              className={`mb-2 last:mb-0 ${trimmed.startsWith('「') ? '' : 'indent-[2em]'}`}
-                            >
-                              {trimmed}
-                            </div>
-                          );
-                        })}
-                    </div>
+              /* ===== 正面：文字卡 ===== */
+              <div className="absolute inset-0 bg-[#0a0f1e] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl p-5 flex flex-col justify-between overflow-hidden backface-hidden">
+                {/* 文字內容 */}
+                <div className="flex-grow overflow-y-auto custom-scrollbar pr-1 pt-2 text-left">
+                  <div className="text-slate-200 text-sm leading-relaxed font-serif tracking-tight">
+                    {opt.text
+                      .replace(/([。！？]」?)/g, '$1\n')
+                      .split('\n')
+                      .map((segment, idx) => {
+                        const trimmed = segment.trim();
+                        if (!trimmed) return null;
+                        return (
+                          <div
+                            key={idx}
+                            className={`mb-2 last:mb-0 ${trimmed.startsWith('「') ? '' : 'indent-[2em]'}`}
+                          >
+                            {trimmed}
+                          </div>
+                        );
+                      })}
                   </div>
-
-                  {/* 確認按鈕 */}
-                  <div className="mt-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (opt.id === activeId) onSelect(opt.id, opt.text);
-                      }}
-                      className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] active:scale-95 transition-all"
-                    >
-                      確認
-                    </button>
-                  </div>
-
-                  {/* 裝飾線條 */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
                 </div>
-              ) : (
-                /* ===== 背面：影片卡 ===== */
-                <div className="absolute inset-0 bg-[#0a0e1a] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl overflow-hidden">
-                  {/* 底層：放大 20 倍並定錨在右上角，只取影片右上角 10% 沒有天平的區域作為動態背景 */}
-                  <video
-                    src="/logo_anim.mp4"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover brightness-[0.25] scale-[20] origin-top-right"
-                  />
-                  {/* 上層：縮小的天平內容，位於外層且調亮 */}
-                  <video
-                    src="/logo_anim.mp4"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="absolute inset-0 z-10 w-full h-full object-contain brightness-[0.9] scale-75"
-                  />
+
+                {/* 確認按鈕 */}
+                <div className="mt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (opt.id === activeId) onSelect(opt.id, opt.text);
+                    }}
+                    className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] active:scale-95 transition-all"
+                  >
+                    確認
+                  </button>
                 </div>
-              )}
+
+                {/* 裝飾線條 */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
+              </div>
+
+              /* ===== 背面：影片卡 ===== */
+              <div className="absolute inset-0 bg-[#0a0e1a] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl overflow-hidden backface-hidden [transform:rotateY(180deg)]">
+                {/* 簡化為單一影片元素，已包含調整後的天平內容 */}
+                <video
+                  src="/assets/logo2_anim.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  webkit-playsinline="true"
+                  className="absolute inset-0 w-full h-full object-cover brightness-[0.9]"
+                />
+              </div>
             </div>
           );
         })}
