@@ -1,4 +1,4 @@
-﻿import type { LawCase } from '../../types/game';
+import type { LawCase } from '../../types/game';
 
 /**
  * 法律案例資料庫：A 類（辦公室行動相關法庭）
@@ -79,7 +79,7 @@ export const LAWS_A: Record<string, LawCase> = {
   },
   'A-03-1': {
     id: 'A-03-1',
-    tag: ['證券交易法, 商業會計法'],
+    tag: ['證券交易法', '商業會計法'],
     indictment:
       '「被告身為商業負責人，明知合約尚未成立，仍指示財務人員提前認列尚未實現之收入，致使財務報告內容與實際交易狀況不符，涉嫌違反證券交易法第174條及商業會計法第71條。」',
     survival_rate: 0,

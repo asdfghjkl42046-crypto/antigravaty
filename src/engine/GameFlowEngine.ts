@@ -207,7 +207,7 @@ export class GameFlowEngine {
 
     // 1. 結算旁觀者下注
     const isSuccess = trial.isDefenseSuccess || false;
-    let updatedPlayers = CourtEngine.settleTrialBets(players, trial, isSuccess);
+    const updatedPlayers = CourtEngine.settleTrialBets(players, trial, isSuccess);
 
     // 2. 結算被告裁決
     const updates = CourtEngine.applyTrialResolution(

@@ -14,14 +14,11 @@ import type {
   SpecialTag,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
-import { LAW_CASES_DB, getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
-import { roundUp, sha256 } from './MathEngine';
+import { getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
+import { sha256 } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP } from './RoleEngine';
 import {
-  throwDataDefinitionError,
-  throwLogicFailureError,
-  throwEnvironmentError,
   throwNumericalCheckError,
 } from './errors/EngineErrors';
 
@@ -174,9 +171,9 @@ export async function performAction(
     const updates: Partial<Player> = {};
     const snapshots: ActionResult['appliedTags'] = [];
 
-    // [核心邏輯] CTO 反制觸發限定在 B 類型的 Y/Z 選項
-    const isBTypeYZ = cardId.startsWith('B-') && (opt?.type === 'Y' || opt?.type === 'Z');
-    const tagMultiplier = isBTypeYZ ? 1 + counterCTOCount : 1;
+    // [核心邏輯修正] 現在根據文案判定的 'poachtalent' 標籤來觸發 CTO 反制，不再依賴視覺上的等級 (SR/SSR/UR)
+    const isBTypeRisky = cardId.startsWith('B-') && (opt?.special === 'poachtalent');
+    const tagMultiplier = isBTypeRisky ? 1 + counterCTOCount : 1;
 
     // [新增] 破產狀態鎖定：已宣告破產之玩家不允許再執行任何行動
     if (player.isBankrupt) {
@@ -276,9 +273,10 @@ export async function performAction(
 
     // 基礎收益給會計天賦判定，看有沒有額外的灰色收入加成
     const bonusRewardG = applyAccountantBonus(player, cardId, baseRewardG);
-    // [核心修正] C 類卡片的 Z 選項，即使申報也要過機率檢定；A 類選項申報則維持百分百成功
-    const isCTypeZOption = cardId.startsWith('C-') && opt.type === 'Z';
-    const skipRandomCheck = isDeclaration && !isCTypeZOption;
+    // [核心修正] C 類卡片的選項，若帶有 declareLogic 標籤，即使申報也要過機率檢定；A 類選項申報則維持百分百成功
+    const isCTypeOptionWithUI = cardId.startsWith('C-') && opt.special === 'declareLogic';
+    const isCTypeZOption = isCTypeOptionWithUI; // 保留變數名以減少後續改動
+    const skipRandomCheck = isDeclaration && !isCTypeOptionWithUI;
 
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
@@ -298,7 +296,18 @@ export async function performAction(
       if (choice === 'skip') {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
-    } // [修正] 移除冗餘的「隱匿金流」備援區塊，因所有具備申報面板之卡牌均已帶有 lawCaseIds。
+    } else {
+      // [補回核心邏輯] 隱匿金流：為沒有明確法條關聯的商業行為（例如 SR 卡）補上操作紀錄，確保在「企業總部」清單中可見
+      snapshots.push({
+        tag: [opt.label && opt.label.length < 15 ? opt.label : '特殊商業行為'],
+        netIncome: bonusRewardG,
+        lawCaseIds: [],
+        rpChange: baseRewardRP,
+      });
+      if (choice === 'skip') {
+        message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
+      }
+    }
 
     // 4. 行動機率(骰子檢定)判定
     if (opt.succRate !== undefined && !skipRandomCheck) {
@@ -346,15 +355,24 @@ export async function performAction(
         if (opt.succ?.bm === 'all') {
           // 成功洗白所有黑材料
           updates.blackMaterialSources = [];
-        } else if (typeof opt.succ?.bm === 'number') {
-          // 隨機抽取黑材料進行抹平
+        } else if (opt.succ?.bm !== undefined) {
           const sources = JSON.parse(JSON.stringify(player.blackMaterialSources || []));
-          let pointsToRemove = opt.succ.bm;
+          let pointsToRemove = 0;
+
+          if (typeof opt.succ.bm === 'number') {
+            pointsToRemove = opt.succ.bm;
+          } else if (typeof opt.succ.bm === 'string' && (opt.succ.bm as string).includes('%')) {
+            // [新增] 百分比扣除邏輯：計算總量並採無條件進位
+            const totalBM = sources.reduce((sum: number, s: BlackMaterialSource) => sum + s.count, 0);
+            const ratio = parseInt(opt.succ.bm) / 100;
+            pointsToRemove = Math.ceil(totalBM * ratio);
+          }
+
           while (pointsToRemove > 0) {
             const valid = sources
               .map((s: BlackMaterialSource, idx: number) => (s.count > 0 ? idx : -1))
               .filter((idx: number) => idx !== -1);
-            if (valid.length === 0) break; // 若玩家目前無黑材料則停止清除
+            if (valid.length === 0) break; 
             const target = valid[Math.floor(Math.random() * valid.length)];
             sources[target].count -= 1;
             pointsToRemove -= 1;
@@ -535,27 +553,28 @@ export async function performAction(
         timestamp: new Date().toISOString(),
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err as Error & { category?: string };
     // [核爆處理]：透過 instanceof 對錯誤進行分類，提供玩家更有意義的修復建議。
-    console.error(`[Fatal Action Engine Error]`, err);
+    console.error(`[Fatal Action Engine Error]`, error);
 
     let categoryPrefix = '🚫 系統嚴重錯誤';
     let suggestion = '請截圖並聯繫開發者。';
 
-    if (err.category === 'Data') {
+    if (error.category === 'Data') {
       categoryPrefix = '📁 資料損毀錯誤';
       suggestion = '請嘗試重新整理網頁或重新啟動遊戲。';
-    } else if (err.category === 'Calculation') {
+    } else if (error.category === 'Calculation') {
       categoryPrefix = '🔢 數值算力錯誤';
       suggestion = '偵測到非法數值運算，請聯繫開發人員。';
-    } else if (err.category === 'Flow') {
+    } else if (error.category === 'Flow') {
       categoryPrefix = '🌐 環境流程錯誤';
       suggestion = '目前環境可能不支持某些功能，請使用現代瀏覽器。';
     }
 
     return {
       success: false,
-      message: `${categoryPrefix}：${err?.message || '未知錯誤'}。\n【建議】${suggestion}`,
+      message: `${categoryPrefix}：${error?.message || '未知錯誤'}。\n【建議】${suggestion}`,
       updates: {},
       appliedTags: [],
       hashedTags: [],

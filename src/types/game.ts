@@ -128,7 +128,7 @@ export type StartPath = 'normal' | 'backdoor' | 'blackbox';
  * declareLogic: 洗錢二階 (C 類卡牌必備，偵測到此標籤則開啟二階申報/隱匿選單)
  * skip_next: 跳過下回合首張卡片 (政府管制或特定負面事件)
  */
-export type SpecialTag = 'sue' | 'declareLogic' | 'skip_next';
+export type SpecialTag = 'sue' | 'declareLogic' | 'skip_next' | 'poachtalent';
 
 /** 選項基礎規格 */
 export interface BaseOption {
@@ -142,62 +142,66 @@ export interface BaseOption {
   ip?: number; // 預設技術資產 (IP) (§5-4)
   g?: number; // 預設資金收益 (用於扁平結構)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
+  type?: OptionType; // 選項類型分類 (GEMINI.md §5-2 / §6-1)
   surface_term?: string;
   hidden_intent?: string;
   escape?: string;
 }
 
 /** 選項類型分類 (GEMINI.md §5-2 / §6-1) */
-export type OptionType = 'X' | 'Y' | 'Z';
+export type OptionType = 'SR' | 'SSR' | 'SSSR' | 'UR' | 'Z'; // SR: 無罪, SSR: 1標籤, SSSR: 2標籤, UR: 3標籤, Z: 專屬機制
 export type LocationType = 'A' | 'B' | 'C' | 'D' | 'E';
 
-/** X 型 (合法型)：透明商業行為。不觸發任何法律風險 (無標籤/無 BM)。 */
-export interface OptionX extends BaseOption {
-  type: 'X';
-  succRate: number; // 基礎成功率 (通常 > 0.8)
-  succ: {
-    g?: number;
-    rp?: number;
-    ip?: number;
-    bm?: number | 'all'; // 用於消除/減少現有黑材料
-    lawCaseIds?: string[];
-  };
-  fail: {
-    g?: number;
-    rp?: number;
-    ip?: number;
-    loss?: number;
-  };
-}
-
-/** Y 型 (灰色型)：遊走灰色地帶。法律風險 (BM) 依所屬法案標籤數累計。其中 C 類卡無此選項。 */
-export interface OptionY extends BaseOption {
-  type: 'Y';
-  succRate?: number; // 支援機率檢定
+/** SR 型 (無罪/合法型)：透明商業行為。不觸發任何法律風險 (無標籤/無 BM)。 */
+export interface OptionSR extends BaseOption {
+  type?: 'SR';
+  succRate?: number; // 基礎成功率 (通常 > 0.8)
   succ?: {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number;
+    bm?: number | 'all' | string; // 用於消除/減少現有黑材料 (支援 '70%' 等格式)
     lawCaseIds?: string[];
   };
   fail?: {
     g?: number;
     rp?: number;
     ip?: number;
+    loss?: number;
+    special?: 'sue';
+  };
+}
+
+/** Risk 型 (風險型)：遊走灰色地帶或違法。法律風險 (BM) 依所屬法案標籤數累計。包含 SSR, SSSR, UR。 */
+export interface OptionRisk extends BaseOption {
+  type?: 'SSR' | 'SSSR' | 'UR';
+  succRate?: number; // 支援機率檢定
+  succ?: {
+    g?: number;
+    rp?: number;
+    ip?: number;
+    bm?: number | string;
+    lawCaseIds?: string[];
+  };
+  fail?: {
+    g?: number;
+    rp?: number;
+    ip?: number;
+    loss?: number;
+    special?: 'sue';
     lawCaseIds?: string[];
   };
 }
 
 /** Z 型 (違法型)：明顯違法行為。法律風險依標籤數累計；C 類卡將觸發申報/略過機制 (略過額外 +2 BM)。 */
 export interface OptionZ extends BaseOption {
-  type: 'Z';
+  type?: 'Z';
   succRate?: number;
   succ?: {
     g?: number;
     rp?: number;
     ip?: number;
-    bm?: number | 'all';
+    bm?: number | 'all' | string;
     lawCaseIds?: string[];
   };
   fail?: SpecialFail;
@@ -226,7 +230,7 @@ export interface ActionResult {
   bm?: number; // 當次決策產生的新增黑材料點數
 }
 
-export type CardOption = OptionX | OptionY | OptionZ;
+export type CardOption = OptionSR | OptionRisk | OptionZ;
 
 /** 區域情境卡牌 (1+3 結構) */
 export interface Card {

@@ -5,12 +5,10 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { applyRoleUpgrade, applyRedrawCards } from '../engine/GameEngine';
 import { GameFlowEngine } from '../engine/GameFlowEngine';
 
 import {
   Player,
-  ActionLog,
   GameStateData,
   ActionResult,
   BetChoice,
@@ -89,7 +87,6 @@ export const useGameStore = create<GameStore>()(
       setJudgeMode: (mode) => set({ judgeMode: mode }),
 
       processScan: (code: string) => {
-        const state = get();
         const codeUpper = code.toUpperCase().replace(/-/g, '').trim();
 
         // 處理特殊洗牌指令 (WASH)
@@ -181,7 +178,7 @@ export const useGameStore = create<GameStore>()(
         const t = get().trial;
         if (!t) return;
         const updates = CourtEngine.determineNextTrialStage(t, stage);
-        set({ trial: { ...t, ...updates } as any });
+        set({ trial: { ...t, ...updates } });
       },
 
       nextBystander: () =>

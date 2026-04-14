@@ -142,8 +142,7 @@ export function calculateConvictionPenalty(
   netIncome: number,
   currentTurn: number = 999, // 預設 999 防呆，避免沒傳到的地方炸掉
   isPreexisting: boolean = false, // 標記是否為開局既有的前科 (Turn 0)
-  isAppeal: boolean = false, // 標記是否為非常上訴回合 (重審)
-  personality?: JudgePersonality
+  isAppeal: boolean = false // 標記是否為非常上訴回合 (重審)
 ): {
   fine: number;
   rpLoss: number;
@@ -393,7 +392,8 @@ export function resolveScanCode(code: string): { cardId: string; optionIdx: numb
   // 驗證該卡片是否存在於資料庫中
   if (!CARDS_DB[cardId]) return null;
   // 驗證該選項是否存在於卡片中
-  if (!(CARDS_DB[cardId] as any)[optionIdx]) return null;
+  const card = CARDS_DB[cardId] as unknown as Record<string, unknown>;
+  if (!card || !card[optionIdx]) return null;
 
   return { cardId, optionIdx };
 }

@@ -7,7 +7,7 @@
  * 無條件進位
  * 只要計算結果有小數點，一律往上加 1（例如 220.1 變成 221）。
  */
-import { throwEnvironmentError, throwNumericalCheckError } from './errors/EngineErrors';
+import { throwNumericalCheckError } from './errors/EngineErrors';
 
 /**
  * §1-1 無條件進位 (Round Up)
@@ -42,7 +42,7 @@ export async function sha256(message: string): Promise<string> {
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[MathEngine] 原生 sha256 計算失敗，嘗試使用後備方案。', err);
     return fallbackSha256(message);
   }
@@ -54,7 +54,6 @@ export async function sha256(message: string): Promise<string> {
  */
 function fallbackSha256(message: string): string {
   const utf8 = new TextEncoder().encode(message);
-  const words = new Uint32Array(64);
   const h = new Uint32Array([
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
   ]);

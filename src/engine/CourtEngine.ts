@@ -1,4 +1,4 @@
-import { COURT_TEXT } from '../data/court/CourtData';
+
 import {
   Player,
   LawCase,
@@ -16,7 +16,6 @@ import {
 import { LAW_CASES_DB, formatLawTags } from '../data/laws/LawCasesDB';
 import { removeBlackMaterialsByTag, getTotalBlackMaterials } from './PlayerEngine';
 import {
-  INTERROGATION_TEMPLATES,
   getRandomTemplate,
   JUDGE_LABELS,
 } from '../data/judges/JudgeTemplatesDB';
@@ -26,7 +25,6 @@ import { AI_LAW_CASES_DB } from '../data/ailaws/AILawCasesDB';
 import {
   throwTrialInitializationError,
   throwNumericalCheckError,
-  throwDataCorruptionError,
   throwDataDefinitionError,
 } from './errors/EngineErrors';
 
@@ -254,9 +252,9 @@ export class CourtEngine {
     const lastTag = relatedTags[relatedTags.length - 1];
     let netIncome = lastTag.netIncome!;
 
-    // 專案客製化需求：E卡相關的直接起訴案件，罰金不看原始不法所得，改為強制抓取玩家當前可用資金(不含信託)的 20%
+    // 專案客製化需求：E卡相關的直接起訴案件，罰金不看原始不法所得，改為強制以 500 萬為基數 (仍受倍率影響)
     if (lastTag.lawCaseIds && lastTag.lawCaseIds.some((id) => id.startsWith('E-'))) {
-      netIncome = Math.floor((player.g || 0) * 0.2);
+      netIncome = 500;
     }
 
     // 判定是否為開局既有前科 (Turn 0)
@@ -268,8 +266,7 @@ export class CourtEngine {
       netIncome,
       currentTurn,
       isPreexisting,
-      isAppeal,
-      personality
+      isAppeal
     );
   }
 
@@ -410,7 +407,7 @@ export class CourtEngine {
         finalSurvivalRate: res.rate, // 保存發生當時的機率留抵紀錄
         defenseText: text,
         punishment,
-        punishmentDetail: (punishment as any)?.detail,
+        punishmentDetail: punishment?.detail,
         stage: 5, // 推進至「王牌律師撤告確認程序」
       };
     }
@@ -431,7 +428,7 @@ export class CourtEngine {
       defenseText: text,
       chosenDefenseLabel: trial.chosenDefenseLabel,
       punishment,
-      punishmentDetail: (punishment as any)?.detail,
+      punishmentDetail: punishment?.detail,
       judgment: judge.judgment,
       userPrompt: judge.userPrompt,
       stage: 6,
