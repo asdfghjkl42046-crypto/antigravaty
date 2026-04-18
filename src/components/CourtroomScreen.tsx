@@ -389,6 +389,61 @@ const PaperFlip: React.FC<{
 };
 
 /**
+ * LoopingVideo - 受控影片組件，支援片段循環播放
+ */
+const LoopingVideo: React.FC<{
+  src: string;
+  startTime: number;
+  endTime: number;
+  className?: string;
+}> = ({ src, startTime, endTime, className }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // 當影片進度更新時檢查是否超出範圍
+    const handleTimeUpdate = () => {
+      if (video.currentTime >= endTime) {
+        video.currentTime = startTime;
+      }
+    };
+
+    // 確保一開始就跳到起始點
+    const handleLoadedMetadata = () => {
+      video.currentTime = startTime;
+      video.play().catch(() => {
+        /* 處理自動播放限制 */
+      });
+    };
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [startTime, endTime]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      muted
+      playsInline
+      className={className}
+      // 額外保險：如果影片因為任何原因結束，跳回起點
+      onEnded={(e) => {
+        e.currentTarget.currentTime = startTime;
+        e.currentTarget.play();
+      }}
+    />
+  );
+};
+
+/**
  * DefenseCarousel - 真·3D 無限圓周動態選擇器
  */
 const DefenseCarousel: React.FC<{
@@ -557,16 +612,13 @@ const DefenseCarousel: React.FC<{
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
               </div>
 
-              /* ===== 背面：影片卡 ===== */
+                /* ===== 背面：影片卡 ===== */
               <div className="absolute inset-0 bg-[#0a0e1a] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl overflow-hidden backface-hidden [transform:rotateY(180deg)]">
-                {/* 簡化為單一影片元素，已包含調整後的天平內容 */}
-                <video
+                {/* 使用 LoopingVideo 限制播放區間為 1s ~ 8s */}
+                <LoopingVideo
                   src="/assets/logo2_anim.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  webkit-playsinline="true"
+                  startTime={1}
+                  endTime={8}
                   className="absolute inset-0 w-full h-full object-cover brightness-[0.9]"
                 />
               </div>
