@@ -17,7 +17,10 @@ import {
   Pyramid,
   Gavel,
   CircleSlash,
-  Clock
+  Clock,
+  PenTool,
+  Search,
+  FileText
 } from 'lucide-react';
 
 export default function EndingScreen() {
@@ -56,6 +59,14 @@ export default function EndingScreen() {
       "+=0.3"
     );
 
+    // 裝飾物件浮現
+    tl.fromTo(
+      '.ending-prop',
+      { scale: 0, opacity: 0, rotate: -30 },
+      { scale: 1, opacity: 1, rotate: 0, duration: 0.8, stagger: 0.1, ease: 'back.out(1.7)' },
+      "-=1"
+    );
+
     // 按鈕浮現
     tl.fromTo(
       '.ending-btn',
@@ -66,7 +77,7 @@ export default function EndingScreen() {
 
   if (!endingResult) return null;
 
-  const isVictory = ['saint', 'tycoon', 'dragonhead'].includes(endingResult.type);
+  const isLimit = endingResult.type === 'limit';
 
   return (
     <div 
@@ -75,44 +86,70 @@ export default function EndingScreen() {
     >
       {/* 偵探書桌背景 */}
       <div className="absolute inset-0 bg-[#0c0a09]">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')] opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-amber-900/10" />
-        {/* 檯燈光源效果 */}
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-amber-500/10 blur-[120px] rounded-full" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')] opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-amber-900/20" />
+        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-amber-500/5 blur-[150px] rounded-full animate-pulse" />
       </div>
+
+      {/* 裝飾性背景紙張 (增加厚度感) */}
+      <div className="absolute w-[480px] aspect-[3/4] bg-[#d6cab0] shadow-2xl rotate-[-3deg] -translate-x-2 -translate-y-2 rounded-sm border-l-8 border-black/5 opacity-80" />
+      <div className="absolute w-[490px] aspect-[3/4] bg-[#decfae] shadow-xl rotate-[2deg] translate-x-3 translate-y-1 rounded-sm border-l-8 border-black/5 opacity-60" />
 
       {/* 主體案卷 (Dossier) */}
       <div 
         ref={dossierRef}
-        className="relative w-[90%] max-w-[500px] aspect-[3/4] bg-[#e8dcc4] shadow-[20px_40px_80px_rgba(0,0,0,0.9),inset_0_0_100px_rgba(0,0,0,0.1)] p-8 sm:p-12 flex flex-col items-center border-l-[15px] border-[#c4a484] rounded-r-lg"
+        className="relative w-[90%] max-w-[500px] aspect-[3/4] bg-[#e8dcc4] shadow-[20px_40px_100px_rgba(0,0,0,1),inset_0_0_100px_rgba(0,0,0,0.1)] p-8 sm:p-12 flex flex-col items-center border-l-[15px] border-[#c4a484] rounded-r-sm"
       >
-        {/* 羊皮紙紋理與污漬 */}
+        {/* 羊皮紙紋理與更明顯的污漬 */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] opacity-40 pointer-events-none" />
-        <div className="absolute top-10 right-10 w-24 h-24 bg-amber-900/5 blur-xl rounded-full pointer-events-none" />
-        <div className="absolute bottom-20 left-10 w-32 h-12 bg-black/5 blur-lg rotate-12 pointer-events-none" />
+        <div className="absolute top-10 right-10 w-32 h-32 bg-amber-900/10 blur-2xl rounded-full pointer-events-none" />
+        <div className="absolute bottom-20 left-10 w-40 h-20 bg-black/10 blur-xl rotate-12 pointer-events-none" />
+        {/* 咖啡漬 */}
+        <div className="absolute top-1/4 right-8 w-16 h-16 border-4 border-amber-900/10 rounded-full blur-[1px] opacity-30 rotate-12" />
 
         {/* 頂部標識 */}
-        <div className="w-full flex justify-between items-start mb-12 border-b-2 border-black/10 pb-4">
+        <div className="w-full flex justify-between items-start mb-8 border-b-2 border-black/10 pb-4">
           <div className="flex flex-col">
-            <span className="text-[10px] sm:text-xs font-black text-black/40 uppercase tracking-[0.3em]">
-              Confidential Dossier
+            <span className="text-[10px] sm:text-[11px] font-black text-black/40 uppercase tracking-[0.4em]">
+              絕密調查案卷
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-black/60 italic">
-              Case Ref: {endingResult.playerId.slice(0, 8).toUpperCase()}
+            <span className="text-[10px] sm:text-xs font-bold text-black/60 italic mt-1 font-serif">
+              案件編號: {endingResult.playerId.slice(0, 8).toUpperCase()}
             </span>
           </div>
-          <FileSearch className="w-6 h-6 text-black/20" />
+          <FileText className="w-5 h-5 text-black/30" />
         </div>
 
-        {/* 結局標題與人物 */}
+        {/* 結局頭像區域 */}
         <div className="flex flex-col items-center mb-8 w-full">
-          <div className="w-20 h-20 rounded-full border-4 border-black/10 overflow-hidden mb-6 shadow-lg grayscale focus-within:grayscale-0 transition-all duration-700">
-            <img
-              src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
-              alt="Avatar"
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {isLimit ? (
+            /* 集體頭像 (創業夢碎) */
+            <div className="flex -space-x-4 mb-6 ending-text">
+              {players.map((p, i) => (
+                <div 
+                  key={p.id}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl grayscale hover:grayscale-0 transition-all duration-500 relative"
+                  style={{ zIndex: players.length - i }}
+                >
+                  <img
+                    src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.name}`}
+                    alt={p.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* 單一頭像 (個人成就/失敗) */
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl grayscale focus-within:grayscale-0 transition-all duration-700">
+              <img
+                src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           
           <h2 className="ending-text text-3xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight mb-2 text-center drop-shadow-sm">
             {endingResult.title}
@@ -159,37 +196,37 @@ export default function EndingScreen() {
                 color: isFake ? 'text-amber-900/40' : 'text-amber-600', 
                 border: isFake ? 'border-amber-950/30' : 'border-amber-600/60',
                 icon: isFake ? ShieldAlert : Crown, 
-                label: isFake ? 'MASKED' : 'DIVINE' 
+                label: isFake ? '偽善者' : '神格化' 
               },
               tycoon: { 
                 color: 'text-slate-900', 
                 border: 'border-slate-900/60', 
                 icon: Pyramid, 
-                label: 'DOMINATED' 
+                label: '絕對支配' 
               },
               dragonhead: { 
                 color: 'text-blue-900', 
                 border: 'border-blue-900/60', 
                 icon: Star, 
-                label: 'APPROVED' 
+                label: '正式核准' 
               },
               arrested: { 
                 color: 'text-rose-950', 
                 border: 'border-rose-950/70', 
                 icon: Gavel, 
-                label: 'GUILTY' 
+                label: '有罪判定' 
               },
               bankrupt: { 
                 color: 'text-stone-700', 
                 border: 'border-stone-700/60', 
                 icon: CircleSlash, 
-                label: 'REJECTED' 
+                label: '全盤否決' 
               },
               limit: { 
                 color: 'text-slate-500', 
                 border: 'border-slate-500/50', 
                 icon: Clock, 
-                label: 'EXPIRED' 
+                label: '時效終止' 
               }
             };
 
@@ -218,9 +255,38 @@ export default function EndingScreen() {
         </button>
       </div>
 
+      {/* 環境裝飾物件 (福爾摩斯書桌) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* 老式鋼筆 */}
+        <div className="ending-prop absolute bottom-[15%] left-[10%] sm:left-[20%] -rotate-[35deg] drop-shadow-[10px_10px_15px_rgba(0,0,0,0.8)]">
+          <div className="relative">
+            <div className="w-1.5 h-48 bg-gradient-to-b from-[#1a1a1a] via-[#333] to-[#1a1a1a] rounded-full" />
+            <PenTool className="absolute -top-4 -left-3 w-8 h-8 text-amber-600/80 rotate-[15deg]" />
+          </div>
+        </div>
+
+        {/* 放大鏡 */}
+        <div className="ending-prop absolute top-[20%] right-[5%] sm:right-[15%] rotate-[25deg] drop-shadow-[15px_15px_20px_rgba(0,0,0,0.9)]">
+          <div className="relative flex items-center justify-center">
+            <div className="w-24 h-24 border-[10px] border-[#c4a484] rounded-full bg-white/5 backdrop-blur-[2px] shadow-inner" />
+            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-3 h-20 bg-gradient-to-b from-[#c4a484] to-[#8b4513] rounded-b-lg shadow-lg" />
+            <Search className="absolute w-12 h-12 text-white/5" />
+          </div>
+        </div>
+
+        {/* 散落的證言紙張 */}
+        <div className="ending-prop absolute bottom-10 right-[10%] rotate-3 opacity-20 hidden md:block">
+          <div className="w-32 h-44 bg-white/50 border border-black/10 shadow-lg p-4 flex flex-col space-y-2">
+            <div className="w-full h-1 bg-black/20" />
+            <div className="w-2/3 h-1 bg-black/20" />
+            <div className="w-full h-1 bg-black/20" />
+          </div>
+        </div>
+      </div>
+
       {/* 底部裝飾 */}
       <div className="absolute bottom-8 text-[10px] font-serif text-white/10 uppercase tracking-[1em] pointer-events-none">
-        Antigravity // System Terminated // Successor Selection Over
+        反重力數據系統 // 程序已終止 // 繼承人選拔結束
       </div>
     </div>
   );

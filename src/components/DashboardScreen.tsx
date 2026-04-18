@@ -368,7 +368,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                   </span>
                   {currentViewTags[tagViewItemIdx].count > 1 && (
                     <span className="bg-orange-500 text-black px-3 py-0.5 rounded-full text-[10px] font-black animate-pulse">
-                      REPEATED x{currentViewTags[tagViewItemIdx].count}
+                      累積次數 x{currentViewTags[tagViewItemIdx].count}
                     </span>
                   )}
                 </div>

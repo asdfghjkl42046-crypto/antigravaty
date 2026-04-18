@@ -23,11 +23,11 @@ export default function DebugPanel() {
 
   // 可調整的數值欄位定義
   const fields: { key: keyof typeof player; label: string; step: number; color: string }[] = [
-    { key: 'g', label: '資金 (G)', step: 100, color: 'text-emerald-400' },
-    { key: 'ip', label: '人脈 (IP)', step: 50, color: 'text-blue-400' },
-    { key: 'rp', label: '名聲 (RP)', step: 10, color: 'text-yellow-400' },
-    { key: 'ap', label: '行動力 (AP)', step: 1, color: 'text-purple-400' },
-    { key: 'trustFund', label: '信託金', step: 100, color: 'text-cyan-400' },
+    { key: 'g', label: '流動資金', step: 100, color: 'text-emerald-400' },
+    { key: 'ip', label: '人脈資源', step: 50, color: 'text-blue-400' },
+    { key: 'rp', label: '社會名聲', step: 10, color: 'text-yellow-400' },
+    { key: 'ap', label: '剩餘行動力', step: 1, color: 'text-purple-400' },
+    { key: 'trustFund', label: '信託基金', step: 100, color: 'text-cyan-400' },
   ];
 
   const handleAdjust = (key: string, delta: number) => {
@@ -68,7 +68,7 @@ export default function DebugPanel() {
           <div className="flex items-center space-x-2 pointer-events-none">
             <Bug className="w-4 h-4 text-red-400" />
             <span className="text-xs font-black text-red-400 uppercase tracking-widest">
-              Debug 外掛
+              開發者控制台
             </span>
           </div>
           <button
@@ -137,7 +137,7 @@ export default function DebugPanel() {
             className="w-full py-4 md:py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-xs md:text-[10px] font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
           >
             <Gavel className="w-4 h-4 md:w-3.5 md:h-3.5" />
-            <span>強制開庭 (測試 UI)</span>
+            <span>強制開啟庭審</span>
           </button>
           
           <button
@@ -149,7 +149,7 @@ export default function DebugPanel() {
             className="w-full py-4 md:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl text-xs md:text-[10px] font-black text-amber-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
           >
             <Zap className="w-4 h-4 md:w-3.5 md:h-3.5" />
-            <span>滿血復活 (全資源拉滿)</span>
+            <span>狀態恢復 (資源全滿)</span>
           </button>
         </div>
 
