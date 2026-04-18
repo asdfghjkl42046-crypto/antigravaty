@@ -155,8 +155,8 @@ export default function EndingScreen() {
               {players.map((p, i) => (
                 <div 
                   key={p.id}
-                  className="w-16 h-16 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative dynamic-page"
-                  style={{ '--page-z': players.length - i } as React.CSSProperties}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
+                  style={{ zIndex: players.length - i }}
                 >
                   <img
                     src={MASTERPIECES[p.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.name}`}
@@ -170,7 +170,7 @@ export default function EndingScreen() {
             </div>
           ) : (
             /* 單一頭像 (個人成就/失敗) */
-            <div className="w-20 h-20 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl focus-within:scale-105 transition-all duration-700">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl focus-within:scale-105 transition-all duration-700">
               <img
                 src={MASTERPIECES[player?.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
                 alt="Avatar"
@@ -214,7 +214,7 @@ export default function EndingScreen() {
         </div>
 
         {/* 頂級火漆印章 (Premium Wax Seal) */}
-        <div className="absolute right-0 bottom-24 pointer-events-none select-none z-10">
+        <div className="absolute right-0 bottom-24 sm:right-2 sm:bottom-28 pointer-events-none select-none z-10">
           {(() => {
             const isFake = endingResult.title.includes('偽');
             
@@ -267,23 +267,23 @@ export default function EndingScreen() {
 
             return (
               <div 
-                className="ending-stamp relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] dynamic-rotate-z"
-                style={{ '--rotate-z': '-15deg' } as React.CSSProperties}
+                className="ending-stamp relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
+                style={{ transform: 'rotate(-15deg)' }}
               >
                 {/* 火漆外圈隆起邊緣 (不規則圓形) */}
                 <div 
-                  className="absolute inset-0 rounded-[45%_55%_50%_50%] opacity-90 shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),inset_5px_5px_15px_rgba(255,255,255,0.1)] dynamic-color"
-                  style={{ '--dynamic-bg': config.baseColor } as React.CSSProperties}
+                  className="absolute inset-0 rounded-[45%_55%_50%_50%] opacity-90 shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),inset_5px_5px_15px_rgba(255,255,255,0.1)]"
+                  style={{ backgroundColor: config.baseColor }}
                 />
                 
                 {/* 火漆中心壓印區域 */}
                 <div 
-                  className="absolute w-[80%] h-[80%] rounded-[50%] shadow-[inset_5px_5px_10px_rgba(0,0,0,0.6),inset_-2px_-2px_8px_rgba(255,255,255,0.1)] flex flex-col items-center justify-center p-2 dynamic-color"
-                  style={{ '--dynamic-bg': config.baseColor } as React.CSSProperties}
+                  className="absolute w-[80%] h-[80%] rounded-[50%] shadow-[inset_5px_5px_10px_rgba(0,0,0,0.6),inset_-2px_-2px_8px_rgba(255,255,255,0.1)] flex flex-col items-center justify-center p-2"
+                  style={{ backgroundColor: config.baseColor }}
                 >
-                  <div className="flex flex-col items-center dynamic-color" style={{ '--dynamic-color': config.innerColor } as React.CSSProperties}>
+                  <div className="flex flex-col items-center" style={{ color: config.innerColor }}>
                     <Icon size={34} strokeWidth={2.5} className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-0.5" />
-                    <span className="text-[10px] font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    <span className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {config.label}
                     </span>
                   </div>
@@ -312,12 +312,12 @@ export default function EndingScreen() {
 
         {/* 復古放大鏡 */}
         <div 
-          className="ending-prop absolute top-[15%] right-[2%] drop-shadow-[25px_15px_35px_rgba(0,0,0,0.9)]"
+          className="ending-prop absolute top-[15%] right-[2%] sm:right-[10%] drop-shadow-[25px_15px_35px_rgba(0,0,0,0.9)]"
           style={{ transform: 'rotate(-45deg)' }}
         >
           <div className="relative flex flex-col items-center">
             {/* 鏡框與鏡片 */}
-            <div className="relative w-28 h-28 border-[8px] border-[#c4a484] rounded-full bg-white/10 backdrop-blur-[3px] shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_5px_15px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 border-[8px] border-[#c4a484] rounded-full bg-white/10 backdrop-blur-[3px] shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_5px_15px_rgba(0,0,0,0.5)] overflow-hidden">
               <div className="absolute top-1/4 left-1/4 w-full h-full bg-gradient-to-br from-white/20 to-transparent rounded-full opacity-40" />
               <Search className="absolute inset-0 m-auto w-12 h-12 text-white/5" />
             </div>
@@ -333,6 +333,14 @@ export default function EndingScreen() {
           </div>
         </div>
 
+        {/* 散落的證言紙張 */}
+        <div className="ending-prop absolute bottom-10 right-[10%] rotate-3 opacity-20 hidden md:block">
+          <div className="w-32 h-44 bg-white/50 border border-black/10 shadow-lg p-4 flex flex-col space-y-2">
+            <div className="w-full h-1 bg-black/20" />
+            <div className="w-2/3 h-1 bg-black/20" />
+            <div className="w-full h-1 bg-black/20" />
+          </div>
+        </div>
       </div>
 
       {/* 底部裝飾 */}

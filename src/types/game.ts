@@ -77,7 +77,7 @@ export interface BlackMaterialSource {
  * 遊戲內所有交互之核心狀態存儲。
  */
 export interface Player {
-  id: string; // 系統唯一 UUID
+  id: string; // 系統唯一 UUID，嚴禁隨意覆寫
   name: string; // 企業名稱 (例如：XX 科技)
   ownerName: string; // 總裁姓名 (你本人)
   g: number; // 企業現金 (萬 G)。如果歸零且沒海外信託，就直接破產！
@@ -145,7 +145,7 @@ export interface BaseOption {
   special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
   rp?: MoneyValue; // 預設名聲
   ip?: MoneyValue; // 預設技術資產 (IP) (§5-4)
-  g?: MoneyValue; // 預設資金收益 (用於扁平結構)
+  g?: MoneyValue; // 預設資金收益 (用於替換簡單數值)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
   type?: OptionType; // 選項類型分類 (GEMINI.md §5-2 / §6-1)
   surface_term?: string;
