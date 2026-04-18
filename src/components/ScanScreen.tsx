@@ -133,9 +133,10 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
   };
 
   const handleCodeSubmit = (code: string) => {
-    if (!code.trim()) return;
+    const normalizedCode = code.trim().toUpperCase();
+    if (!normalizedCode) return;
 
-    const result = processScan(code);
+    const result = processScan(normalizedCode);
     if (result.success) {
       setStatus({ type: 'success', msg: result.message });
       setManualCode('');

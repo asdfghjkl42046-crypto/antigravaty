@@ -30,7 +30,8 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
   if (!lawCaseIds || lawCaseIds.length === 0) return [];
   const tagSet = new Set<string>();
   for (const id of lawCaseIds) {
-    const law = LAW_CASES_DB[id];
+    const normalizedId = id.toUpperCase();
+    const law = LAW_CASES_DB[normalizedId];
     if (law && law.tag) {
       if (Array.isArray(law.tag)) {
         law.tag.forEach((t) => tagSet.add(t));
