@@ -19,7 +19,7 @@ import {
   ChevronRight,
   ArrowLeft,
 } from 'lucide-react';
-import { useGameStore } from '@/store/gameStore';
+import { useGameStore, MASTERPIECES } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
 import { getTotalBlackMaterials } from '@/engine/PlayerEngine';
 import gsap from 'gsap';
@@ -128,9 +128,10 @@ export function PlayerCard({ player, isActive, onShowTags }: any) {
             `}
             >
               <img
-                src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${player.name}`}
+                src={MASTERPIECES[player.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player.name}`}
                 alt="Avatar"
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </div>
           </div>

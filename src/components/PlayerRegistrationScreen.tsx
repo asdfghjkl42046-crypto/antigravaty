@@ -19,6 +19,7 @@ import gsap from 'gsap';
 import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
 import { START_PATH_NAMES } from '@/data/setup/SetupData';
 import ParchmentBook from './ParchmentBook';
+import { MASTERPIECES } from '@/store/gameStore';
 
 interface PlayerRegistrationScreenProps {
   playerIndex: number;
@@ -39,6 +40,7 @@ export default function PlayerRegistrationScreen({
   const [isBookFocused, setIsBookFocused] = useState(false); // 決定書是否放大可翻動
   const [showBribeModal, setShowBribeModal] = useState(false);
   const [selectedBribe, setSelectedBribe] = useState<BribeItem | null>(null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<number>(0);
   const [isReady, setIsReady] = useState(false);
 
   const BRIBE_OPTIONS: { id: BribeItem; name: string; icon: any; color: string; glow: string }[] = [
@@ -116,6 +118,7 @@ export default function PlayerRegistrationScreen({
       name: currentName.trim() || `企業 ${playerIndex}`,
       path: selectedPath,
       bribeItem: selectedBribe || undefined,
+      avatarId: selectedAvatarId,
     });
   };
 
@@ -130,6 +133,7 @@ export default function PlayerRegistrationScreen({
       name: currentName.trim() || `企業 ${playerIndex}`,
       path: selectedPath!,
       bribeItem: selectedBribe,
+      avatarId: selectedAvatarId,
     });
     setShowBribeModal(false);
   };
@@ -150,30 +154,73 @@ export default function PlayerRegistrationScreen({
 
       <div
         className={`relative z-10 w-full max-w-7xl h-full flex flex-col items-center ${
-          isBookFocused
-            ? 'justify-center pt-0 overflow-hidden'
-            : 'justify-start pt-32 overflow-y-auto overflow-x-hidden'
-        } custom-scrollbar pb-10 transition-all duration-700`}
+          isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16'
+        } overflow-hidden pb-10 transition-all duration-700`}
       >
         {/* 1. 企業命名 - 響應式寬度與間距 */}
         {!isBookFocused && (
-          <div className="w-full max-w-[360px] px-6 mb-8 ui-fade-in transition-all duration-700 ease-out">
-            <div className="relative group">
-              <input
-                type="text"
-                value={currentName}
-                onChange={(e) => setCurrentName(e.target.value)}
-                placeholder="請輸入企業名稱"
-                className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl"
-              />
-              <Briefcase className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-blue-500/50 transition-colors" />
+          <div className="w-full flex flex-col items-center">
+            {/* 企業命名 */}
+            <div className="w-full max-w-[360px] px-6 mb-4 ui-fade-in transition-all duration-700 ease-out">
+              <div className="relative group">
+                <input
+                  type="text"
+                  value={currentName}
+                  onChange={(e) => setCurrentName(e.target.value)}
+                  placeholder="請輸入企業名稱"
+                  className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl"
+                />
+                <Briefcase className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-blue-500/50 transition-colors" />
+              </div>
+            </div>
+
+            {/* 名畫頭像選取 */}
+            <div className="w-full max-w-4xl px-6 mb-2 ui-fade-in">
+              <div className="flex flex-col items-center gap-6">
+                
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3 sm:gap-4">
+                  {MASTERPIECES.map((m) => {
+                    const isSelected = selectedAvatarId === m.id;
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => setSelectedAvatarId(m.id)}
+                        className={`relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110 active:scale-95' : 'grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105'}`}
+                      >
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
+                        <img 
+                          src={m.url} 
+                          alt={m.title} 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                        {isSelected && (
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in-0 duration-300">
+                            <Gem size={10} className="text-black" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="h-6 flex flex-col items-center">
+                  <span className="text-sm font-bold text-amber-400 tracking-[0.3em] animate-in fade-in slide-in-from-top-1">
+                    {MASTERPIECES[selectedAvatarId].title}
+                  </span>
+                  <span className="text-[9px] text-white/30 tracking-tighter uppercase">
+                    {MASTERPIECES[selectedAvatarId].author}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* 2. 交互區 */}
         {!isBookFocused ? (
-          <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4">
+          <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4 mt-12">
             {/* 扇形展開場景 - 響應式容器 */}
             <div className="relative w-full max-w-[500px] h-[300px] flex items-center justify-center transform-style-3d">
               {(['normal', 'backdoor', 'blackbox'] as StartPath[]).map((path, idx) => {
@@ -244,11 +291,6 @@ export default function PlayerRegistrationScreen({
             <div
               className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}
             >
-              <div className="flex items-center gap-4 bg-blue-600/10 px-12 py-5 rounded-2xl border border-blue-500/30 backdrop-blur-xl shadow-2xl">
-                <span className="text-2xl font-black tracking-[0.3em] text-white">
-                  {selectedPath ? START_PATH_NAMES[selectedPath] : ''}
-                </span>
-              </div>
 
               <button
                 onClick={() => setIsBookFocused(true)}

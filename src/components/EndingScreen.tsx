@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { useGameStore } from '@/store/gameStore';
+import { useGameStore, MASTERPIECES } from '@/store/gameStore';
 import { EndingType } from '@/types/game';
 import gsap from 'gsap';
 import { 
@@ -51,19 +51,45 @@ export default function EndingScreen() {
       { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, ease: 'power2.out' }
     );
     
-    // 印章蓋下動畫
+    // 印章蓋下動畫 (強力落印 + 畫面震動)
     tl.fromTo(
       '.ending-stamp',
-      { scale: 3, opacity: 0, rotation: 45 },
-      { scale: 1, opacity: 1, rotation: -15, duration: 0.4, ease: 'bounce.out' },
+      { scale: 5, opacity: 0, rotation: 45 },
+      { 
+        scale: 1, 
+        opacity: 1, 
+        rotation: -15, 
+        duration: 0.3, 
+        ease: 'power4.in',
+        onComplete: () => {
+          // 落印瞬間地震效果 (Dossier 微震)
+          gsap.to(dossierRef.current, {
+            x: '+=3',
+            y: '+=3',
+            duration: 0.05,
+            repeat: 5,
+            yoyo: true,
+            ease: 'none'
+          });
+        }
+      },
       "+=0.3"
     );
 
-    // 裝飾物件浮現
+    // 落地回彈 (微小回震)
+    tl.to('.ending-stamp', {
+      scale: 1.05,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1,
+      ease: 'power2.out'
+    });
+
+    // 裝飾物件浮現 (明確指定結束旋轉角度以避免衝突)
     tl.fromTo(
       '.ending-prop',
-      { scale: 0, opacity: 0, rotate: -30 },
-      { scale: 1, opacity: 1, rotate: 0, duration: 0.8, stagger: 0.1, ease: 'back.out(1.7)' },
+      { scale: 0, opacity: 0, rotation: -30 },
+      { scale: 1, opacity: 1, rotation: -45, duration: 0.8, stagger: 0.1, ease: 'back.out(1.7)' },
       "-=1"
     );
 
@@ -128,25 +154,27 @@ export default function EndingScreen() {
               {players.map((p, i) => (
                 <div 
                   key={p.id}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl grayscale hover:grayscale-0 transition-all duration-500 relative"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
                   style={{ zIndex: players.length - i }}
                 >
                   <img
-                    src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.name}`}
+                    src={MASTERPIECES[p.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.name}`}
                     alt={p.name}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-black/20" />
+                  <div className="absolute inset-0 bg-black/5" />
                 </div>
               ))}
             </div>
           ) : (
             /* 單一頭像 (個人成就/失敗) */
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl grayscale focus-within:grayscale-0 transition-all duration-700">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl focus-within:scale-105 transition-all duration-700">
               <img
-                src={`https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
+                src={MASTERPIECES[player?.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
                 alt="Avatar"
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
             </div>
           )}
@@ -186,45 +214,50 @@ export default function EndingScreen() {
           </div>
         </div>
 
-        {/* 印章層 */}
-        <div className="absolute right-6 bottom-32 sm:right-12 sm:bottom-40 pointer-events-none">
+        {/* 頂級火漆印章 (Premium Wax Seal) */}
+        <div className="absolute right-0 bottom-24 sm:right-2 sm:bottom-28 pointer-events-none select-none z-10">
           {(() => {
             const isFake = endingResult.title.includes('偽');
             
-            const stampConfig: Record<string, { color: string, border: string, icon: any, label: string }> = {
+            const stampConfig: Record<string, { 
+              baseColor: string, 
+              innerColor: string, 
+              label: string, 
+              icon: any 
+            }> = {
               saint: { 
-                color: isFake ? 'text-amber-900/40' : 'text-amber-600', 
-                border: isFake ? 'border-amber-950/30' : 'border-amber-600/60',
+                baseColor: isFake ? '#5c4d37' : '#d4af37', 
+                innerColor: isFake ? '#3a3124' : '#fcf6ba',
                 icon: isFake ? ShieldAlert : Crown, 
                 label: isFake ? '偽善者' : '神格化' 
               },
               tycoon: { 
-                color: 'text-slate-900', 
-                border: 'border-slate-900/60', 
+                baseColor: '#0f172a', 
+                innerColor: '#475569', 
                 icon: Pyramid, 
                 label: '絕對支配' 
               },
               dragonhead: { 
-                color: 'text-blue-900', 
-                border: 'border-blue-900/60', 
+                baseColor: '#1e3a8a', 
+                innerColor: '#60a5fa', 
                 icon: Star, 
                 label: '正式核准' 
               },
               arrested: { 
-                color: 'text-rose-950', 
-                border: 'border-rose-950/70', 
+                baseColor: '#4c0519', 
+                innerColor: '#be123c', 
                 icon: Gavel, 
                 label: '有罪判定' 
               },
               bankrupt: { 
-                color: 'text-stone-700', 
-                border: 'border-stone-700/60', 
+                baseColor: '#444', 
+                innerColor: '#888', 
                 icon: CircleSlash, 
                 label: '全盤否決' 
               },
               limit: { 
-                color: 'text-slate-500', 
-                border: 'border-slate-500/50', 
+                baseColor: '#2d2d2d', 
+                innerColor: '#555', 
                 icon: Clock, 
                 label: '時效終止' 
               }
@@ -234,11 +267,31 @@ export default function EndingScreen() {
             const Icon = config.icon;
 
             return (
-              <div className={`ending-stamp w-24 h-24 sm:w-32 sm:h-32 border-8 ${config.border} rounded-full flex items-center justify-center -rotate-12`}>
-                <div className={`flex flex-col items-center ${config.color} font-black`}>
-                  <Icon size={32} />
-                  <span className="text-sm sm:text-base tracking-widest uppercase">{config.label}</span>
+              <div 
+                className="ending-stamp relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
+                style={{ transform: 'rotate(-15deg)' }}
+              >
+                {/* 火漆外圈隆起邊緣 (不規則圓形) */}
+                <div 
+                  className="absolute inset-0 rounded-[45%_55%_50%_50%] opacity-90 shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),inset_5px_5px_15px_rgba(255,255,255,0.1)]"
+                  style={{ backgroundColor: config.baseColor }}
+                />
+                
+                {/* 火漆中心壓印區域 */}
+                <div 
+                  className="absolute w-[80%] h-[80%] rounded-[50%] shadow-[inset_5px_5px_10px_rgba(0,0,0,0.6),inset_-2px_-2px_8px_rgba(255,255,255,0.1)] flex flex-col items-center justify-center p-2"
+                  style={{ backgroundColor: config.baseColor }}
+                >
+                  <div className="flex flex-col items-center" style={{ color: config.innerColor }}>
+                    <Icon size={34} strokeWidth={2.5} className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-0.5" />
+                    <span className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                      {config.label}
+                    </span>
+                  </div>
                 </div>
+
+                {/* 微弱高光塗抹層 (模擬光澤) */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent rounded-full pointer-events-none" />
               </div>
             );
           })()}
@@ -265,12 +318,26 @@ export default function EndingScreen() {
           </div>
         </div>
 
-        {/* 放大鏡 */}
-        <div className="ending-prop absolute top-[20%] right-[5%] sm:right-[15%] rotate-[25deg] drop-shadow-[15px_15px_20px_rgba(0,0,0,0.9)]">
-          <div className="relative flex items-center justify-center">
-            <div className="w-24 h-24 border-[10px] border-[#c4a484] rounded-full bg-white/5 backdrop-blur-[2px] shadow-inner" />
-            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-3 h-20 bg-gradient-to-b from-[#c4a484] to-[#8b4513] rounded-b-lg shadow-lg" />
-            <Search className="absolute w-12 h-12 text-white/5" />
+        {/* 復古放大鏡 */}
+        <div 
+          className="ending-prop absolute top-[15%] right-[2%] sm:right-[10%] drop-shadow-[25px_15px_35px_rgba(0,0,0,0.9)]"
+          style={{ transform: 'rotate(-45deg)' }}
+        >
+          <div className="relative flex flex-col items-center">
+            {/* 鏡框與鏡片 */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 border-[8px] border-gradient-to-br from-[#d4af37] via-[#c4a484] to-[#8b4513] border-[#c4a484] rounded-full bg-white/10 backdrop-blur-[3px] shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_5px_15px_rgba(0,0,0,0.5)] overflow-hidden">
+              <div className="absolute top-1/4 left-1/4 w-full h-full bg-gradient-to-br from-white/20 to-transparent rounded-full opacity-40" />
+              <Search className="absolute inset-0 m-auto w-12 h-12 text-white/5" />
+            </div>
+
+            {/* 金屬頸部 (連接鏡框與手把) */}
+            <div className="w-4 h-4 bg-gradient-to-r from-[#8b4513] via-[#c4a484] to-[#8b4513] -mt-1 shadow-md z-10" />
+
+            {/* 復古流線木質手把 */}
+            <div 
+              className="w-5 h-24 bg-gradient-to-b from-[#3a1d0a] via-[#5d2e13] to-[#2a1408] rounded-[50%_50%_40%_40%] shadow-[inset_2px_0_5px_rgba(255,255,255,0.1),2px_5px_10px_rgba(0,0,0,0.6)]"
+              style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 90% 80%, 100% 95%, 80% 100%, 20% 100%, 0% 95%, 10% 80%, 0% 20%)' }}
+            />
           </div>
         </div>
 

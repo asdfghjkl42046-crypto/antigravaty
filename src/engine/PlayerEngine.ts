@@ -104,13 +104,14 @@ const INITIAL_FINE_MULTIPLIER = 1.0;
 export async function createInitialPlayer(
   name: string,
   path: StartPath,
+  avatarId: number,
   bribeItem?: BribeItem
 ): Promise<Player> {
   // 自動產生具備時間戳與隨機亂碼的唯一玩家編號
   const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
   // 建立玩家專屬的防偽出生證明碼
   const genesis = await sha256(`GENESIS_${id}_${name}_${path}`);
-  return createPlayerFromConfig(id, name, path, genesis, bribeItem);
+  return createPlayerFromConfig(id, name, path, avatarId, genesis, bribeItem);
 }
 
 /**
@@ -132,6 +133,7 @@ async function createPlayerFromConfig(
   id: string,
   name: string,
   path: StartPath,
+  avatarId: number,
   genesis: string,
   bribeItem?: BribeItem
 ): Promise<Player> {
@@ -216,6 +218,7 @@ async function createPlayerFromConfig(
     totalTagsCount: tags.length,
     hasUsedExtraAppeal: false, // 非常上訴(緊急豁免) 權利保留尚未行使
     startBonusFineReduction: 0, // 在稍後的 init 廣播函式內才會計算賦予
+    avatarId,
   };
 }
 
@@ -237,7 +240,7 @@ export async function initializeGameSession(
 
   // 透過配置檔非同步並行調用工廠，實例化出每位玩家
   const players = await Promise.all(
-    configs.map((c) => createInitialPlayer(c.name, c.path, c.bribeItem))
+    configs.map((c) => createInitialPlayer(c.name, c.path, c.avatarId, c.bribeItem))
   );
 
   // 利用外部傳入的引擎排序邏輯決定第一回合的第一動名單輪次

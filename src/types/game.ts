@@ -98,6 +98,7 @@ export interface Player {
   totalTagsCount: number; // 違法階梯：每 40 標籤提升 10% 起訴下限 (§2-1)
   hasUsedExtraAppeal: boolean; // 每局限用 1 次的非常上訴權限 (§4-4)
   startBonusFineReduction?: number; // 開局永久罰金減免比例 (例如 0.05 代表 5%)
+  avatarId: number; // 選取的名畫頭像索引 (0-9)
 }
 
 /** 法官性格風格：影響案件減免、裁決機率與特定對話風格 */
@@ -288,6 +289,7 @@ export interface PlayerConfig {
   name: string;
   path: StartPath;
   bribeItem?: BribeItem;
+  avatarId: number; // 名畫頭像索引
 }
 
 export interface GameStateData {
