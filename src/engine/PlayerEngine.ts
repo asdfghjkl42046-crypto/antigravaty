@@ -156,7 +156,10 @@ async function createPlayerFromConfig(
   // 2. 把天生自帶的犯罪紀錄也寫進防偽系統中
   const tags: Tag[] = [];
   let currentHash = genesis;
-  const startId = Date.now();
+  // [修正] 加入玩家專屬偏移量，避免 Promise.all 並行建立時 Date.now() 撞號
+  // 從 genesis hash 取出後 6 碼轉數字作為唯一偏移，確保每位玩家的 tag ID 絕不相同
+  const hashSuffix = parseInt(genesis.slice(-6), 16) || Math.floor(Math.random() * 100000);
+  const startId = Date.now() + hashSuffix;
   const timestamp = new Date().toISOString();
 
   // 遍歷該路徑帶來的法案，展開其下的所有標籤，並實例化寫入玩家犯罪史

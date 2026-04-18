@@ -52,12 +52,16 @@ export class CourtEngine {
     if (activePlayers.length === 0) return null;
 
     let totalBM = 0;
-    // 步驟 2：統計活躍玩家黑材料總數
-    const candidates = activePlayers.map((p) => {
-      const bm = getTotalBlackMaterials(p);
-      totalBM += bm;
-      return { player: p, bm };
-    });
+    // 步驟 2：統計活躍玩家黑材料總數（僅考慮身上有黑材料的人）
+    const candidates = activePlayers
+      .map((p) => {
+        const bm = getTotalBlackMaterials(p);
+        return { player: p, bm };
+      })
+      .filter((c) => c.bm > 0);
+
+    // 重新結算總量
+    candidates.forEach((c) => (totalBM += c.bm));
 
     // 步驟 3：如果大家都沒做壞事，就不會有人上法庭
     if (totalBM === 0) {
@@ -230,22 +234,34 @@ export class CourtEngine {
     // 統一處理標籤轉字串，便於後續搜尋與比對
     const searchTag = formatLawTags(tagText);
 
+    // [除錯追蹤] 印出罰金計算的完整輸入參數
+    console.log(
+      `[calculatePenalty] 玩家: ${player.name}, 搜尋標籤: [${searchTag}], tagId: ${tagId}, 玩家 tags 數量: ${player.tags.length}`
+    );
+    player.tags.forEach((t, i) => {
+      console.log(
+        `  [Tag ${i}] id=${t.id}, text="${t.text}", netIncome=${t.netIncome}, isResolved=${t.isResolved}`
+      );
+    });
+
     // 從玩家歷程中擷取與當前黑材料有關連的標籤，用其淨收入來設定沒收基準點
     // 優化邏輯：優先使用 tagId 精準定位，若無則回歸字串包含判定 (處理複合標籤如 A/B)
     const relatedTags = player.tags.filter((t) => {
-      const isIdMatch = tagId !== undefined && t.id === tagId;
+      const isIdMatch = tagId !== undefined && tagId !== 0 && t.id === tagId;
       // 複合標籤處理：檢查法典標籤是否包含原本的獨立標籤，或者是完全相等
       const isTextMatch = searchTag.includes(t.text) || t.text.includes(searchTag);
       return (isIdMatch || isTextMatch) && t.netIncome !== undefined;
     });
 
-    // 總裁指示：如果連淨利紀錄都遺失，代表資料完整性有問題
+    console.log(`[calculatePenalty] relatedTags 命中: ${relatedTags.length}`);
+
+    // [修正] 若找不到任何對應標籤，改用玩家現金的 30% 作為最低保底罰金基數，而非 0 元
     if (relatedTags.length === 0) {
+      const fallbackIncome = Math.max(100, Math.ceil(player.g * 0.3));
       console.warn(
-        `[GameLogic Warning] 玩家 ${player.name} 被定罪標籤 [${tagText}] (ID: ${tagId})，找不到帶有計費依據 (netIncome) 的紀錄。將以 0 元基數計算。`
+        `[GameLogic Warning] 玩家 ${player.name} 被定罪標籤 [${tagText}] (ID: ${tagId})，找不到帶有計費依據 (netIncome) 的紀錄。改以保底 ${fallbackIncome} 萬計算。`
       );
-      // 改為平滑回退，不再拋出致命錯誤導致遊戲中斷
-      return calculateConvictionPenalty(player, 0, currentTurn);
+      return calculateConvictionPenalty(player, fallbackIncome, currentTurn);
     }
 
     // 取出最新的那筆關聯收益作為罰金基數
@@ -486,6 +502,13 @@ export class CourtEngine {
       throwTrialInitializationError('法庭初始化', `找不到指定被告 ID: ${defendantId}`);
     }
 
+    // [核心修正] 安全機制：如果被告人身上乾乾淨淨（黑材料為 0），則不應發動任何形式的起訴。
+    // 這防止了「強迫清白玩家被告」的邏輯空洞。
+    if (getTotalBlackMaterials(defendant) === 0) {
+      console.log(`[prepareTrial] 被告 ${defendant.name} 身上無任何黑材料，系統自動撤案。`);
+      return null;
+    }
+
     // 將場上其餘並未破產存活者作為「陪審員/旁觀者」納入陣列清單
     const bystanderIds = players
       .filter((p) => !p.isBankrupt && p.id !== defendantId)
@@ -526,15 +549,18 @@ export class CourtEngine {
     if (!lawCase) {
       const res = this.pickLawCase(defendant);
       if (!res) {
-        // 如果進得來這裡代表俄羅斯輪盤判定這名玩家身上有黑材料 (totalBM > 0)
-        // 但 pickLawCase 卻遍尋不著尚未結案的違規標籤，這是嚴重的邏輯斷層或發牌 BUG
-        throwTrialInitializationError(
-          '法庭初始化',
-          `玩家 ${defendant.name} 被起訴，但搜不到任何有效且未結案的犯罪標籤 (Tag)！可能原因：ActionEngine 產生了無標籤的黑材料(BM)。`
-        );
+        // [修正] 原本拋出 throwTrialInitializationError 會導致崩潰。
+        // 當系統發現玩家有黑材料 (BM) 卻沒有對應的未結案犯罪標籤，我們自動套用預設「妨害電腦使用罪」來繼續流程。
+        const fallbackLaw = LAW_CASES_DB['A-01-1'] || Object.values(LAW_CASES_DB)[0];
+        if (!fallbackLaw) {
+          throwTrialInitializationError('法庭初始化', '資料庫沒有任何可用法條。');
+        }
+        lawCase = fallbackLaw;
+        tagId = 9999;
+      } else {
+        lawCase = res.lawCase;
+        tagId = res.tagId;
       }
-      lawCase = res.lawCase;
-      tagId = res.tagId;
     }
 
     // 將該次罪嫌行動發生當下所儲存的術語跟意圖同步回拷到審理案件上，確保對白貼齊案情
@@ -621,6 +647,9 @@ export class CourtEngine {
       });
     } else {
       // 敗訴情況：嚴厲制裁 (附上回合數支援開局新手保護期判定，並鎖定標籤 ID)
+      console.log(
+        `[applyTrialResolution] 敗訴結算開始 - 玩家: ${player.name}, lawCaseTag: ${tagText}, lawCaseTagId: ${lawCaseTagId}, currentTurn: ${currentTurn}`
+      );
       const penalty = this.calculatePenalty(
         player,
         lawCaseTag,
@@ -628,6 +657,9 @@ export class CourtEngine {
         lawCaseTagId,
         isAppeal,
         personality
+      );
+      console.log(
+        `[applyTrialResolution] 計算結果 - fine: ${penalty.fine}, rpLoss: ${penalty.rpLoss}, detail: ${penalty.detail}`
       );
       // 添上一筆打死不認的敗訴歷史傷疤以利後續懲罰連坐
       updates.totalTrials = (player.totalTrials || 0) + 1;
@@ -644,6 +676,9 @@ export class CourtEngine {
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
       updates.tags = player.tags.map((t) =>
         t.id === lawCaseTagId ? { ...t, isResolved: true } : t
+      );
+      console.log(
+        `[applyTrialResolution] 結算完成 - 新餘額 G: ${updates.g}, RP: ${updates.rp}, BM 剩餘: ${updates.blackMaterialSources?.length}`
       );
     }
 

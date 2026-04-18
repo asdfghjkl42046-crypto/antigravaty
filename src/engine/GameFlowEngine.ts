@@ -90,9 +90,9 @@ export class GameFlowEngine {
       };
     }
 
-    // 5. 輪畢後的隨機法庭審計
+    // 5. 結束每位玩家回合後的隨機法庭審計 (現在不再綁定一輪結束，而是每個人動完都有機會)
     const trialToTrigger =
-      !trial && nextTurn > turn
+      !trial && finalPlayers.some(p => !p.isBankrupt)
         ? CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn)
         : null;
 
@@ -214,7 +214,7 @@ export class GameFlowEngine {
       updatedPlayers[idx],
       isSuccess,
       trial.lawCase.tag,
-      trial.lawCaseTagId || 0,
+      trial.lawCaseTagId ?? 0,
       trial.judgePersonality,
       turn,
       trial.isAppeal || false

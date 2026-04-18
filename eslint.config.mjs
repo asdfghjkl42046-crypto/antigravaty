@@ -31,6 +31,16 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // 🟢 視覺自由機制：正式允許 3D UI 使用動態 Inline Style
+  {
+    files: ['src/components/**/*.tsx'],
+    rules: {
+      '@next/next/no-img-element': 'off', // 允許使用原生 img (配合 masterpiece url)
+      'react/forbid-dom-props': 'off',     // 允許在 DOM 上使用 style 等屬性
+      'react/style-prop-object': 'off',    // 允許傳遞非標準的 style 物件
+      'react/no-inline-styles': 'off',     // 允許直接使用內聯樣式物件
+    },
+  },
 ]);
 
 export default eslintConfig;

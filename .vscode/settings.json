@@ -4,5 +4,6 @@
   "go.useLanguageServer": false,
   "webhint.enable": false,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "css.validate": false
 }
