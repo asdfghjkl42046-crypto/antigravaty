@@ -620,27 +620,6 @@ const DefenseCarousel: React.FC<{
                   </div>
                 </div>
 
-                {/* 確認按鈕 */}
-                <div className="mt-4">
-                  <button
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    onPointerUp={(e) => {
-                      e.stopPropagation();
-                      // 極致放寬判定至 35px (確保 iPhone 手指大範圍接觸也能點中)
-                      if (dragTotalDist.current > 35) return;
-                      onSelect(opt.id, opt.text);
-                    }}
-                    onMouseUp={(e) => e.stopPropagation()}
-                    onTouchEnd={(e) => e.stopPropagation()}
-                    className="w-full py-5 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] transition-all relative z-[999] pointer-events-auto [transform:translateZ(80px)] select-none touch-manipulation cursor-pointer min-h-[64px]"
-                  >
-                    確定選擇
-                  </button>
-                </div>
 
                 {/* 裝飾線條 */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
@@ -671,6 +650,20 @@ const DefenseCarousel: React.FC<{
             />
           ))}
         </div>
+      </div>
+
+      {/* ===== 核心修正：2D 靜態點擊層 (完全脫離 3D 矩陣，解決 iOS 無法點擊的問題) ===== */}
+      <div className="absolute bottom-18 left-1/2 -translate-x-1/2 z-[1000] w-48 pointer-events-auto">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const activeOpt = options[activeIndex];
+            if (activeOpt) onSelect(activeOpt.id, activeOpt.text);
+          }}
+          className="w-full py-3 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-xs border-2 border-blue-400 ring-1 ring-blue-500 shadow-[0_10px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(37,99,235,0.4)] hover:brightness-125 active:scale-95 transition-all cursor-pointer rounded-lg"
+        >
+          確認選擇
+        </button>
       </div>
     </div>
   );
