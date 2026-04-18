@@ -461,6 +461,7 @@ const DefenseCarousel: React.FC<{
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const isInitialized = useRef(false);
   const snapTweenRef = useRef<gsap.core.Tween | null>(null); // 用於儲存對齊動畫
+  const dragTotalDist = useRef(0); // 追蹤單次操作的累計位移
 
   const options = useMemo(
     () => [
@@ -519,12 +520,16 @@ const DefenseCarousel: React.FC<{
     setIsDragging(true);
     startX.current = 'touches' in e ? e.touches[0].clientX : e.clientX;
     startRotation.current = rotationRef.current;
+    dragTotalDist.current = 0; // 重置位移紀錄
   };
 
   const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
     const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const delta = currentX - startX.current;
+    // 累計位移，用於判定是拖曳還是點擊
+    dragTotalDist.current = Math.max(dragTotalDist.current, Math.abs(delta));
+    
     // 靈敏度下調至 0.3，避免過於輕飄，操作更精準
     const nextRot = startRotation.current + delta * 0.3;
     setRotation(nextRot);
@@ -618,15 +623,22 @@ const DefenseCarousel: React.FC<{
                 {/* 確認按鈕 */}
                 <div className="mt-4">
                   <button
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                    }}
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}
-                    onClick={(e) => {
+                    onPointerUp={(e) => {
                       e.stopPropagation();
+                      // 極致放寬判定至 35px (確保 iPhone 手指大範圍接觸也能點中)
+                      if (dragTotalDist.current > 35) return;
                       onSelect(opt.id, opt.text);
                     }}
-                    className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] active:scale-95 transition-all relative z-[100] pointer-events-auto [transform:translateZ(20px)] select-none"
+                    onMouseUp={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    className="w-full py-5 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] transition-all relative z-[999] pointer-events-auto [transform:translateZ(80px)] select-none touch-manipulation cursor-pointer min-h-[64px]"
                   >
-                    確認選擇
+                    確定選擇
                   </button>
                 </div>
 
