@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Bug, X, ChevronUp, ChevronDown, Zap, Gavel } from 'lucide-react';
+import { Bug, X, ChevronUp, ChevronDown, Zap, Gavel, Crown, Skull, Banknote, Scroll, Siren, Timer } from 'lucide-react';
 import Draggable from 'react-draggable';
 import { useGameStore } from '@/store/gameStore';
 
@@ -12,7 +12,7 @@ import { useGameStore } from '@/store/gameStore';
  */
 export default function DebugPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const { players, currentPlayerIndex, debugUpdatePlayer, triggerTrial } = useGameStore();
+  const { players, currentPlayerIndex, debugUpdatePlayer, triggerTrial, debugTriggerEnding } = useGameStore();
   const player = players[currentPlayerIndex];
 
   // React 19 需要為 react-draggable 傳入 nodeRef 以避免 findDOMNode 報錯
@@ -151,6 +151,62 @@ export default function DebugPanel() {
             <Zap className="w-4 h-4 md:w-3.5 md:h-3.5" />
             <span>滿血復活 (全資源拉滿)</span>
           </button>
+        </div>
+
+        {/* 結局捷徑 */}
+        <div className="pt-3 border-t border-white/5">
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3">結局快速跳轉 (測試 UI)</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => debugTriggerEnding('saint', false)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 rounded-lg text-[9px] font-black text-yellow-500 transition-all active:scale-95"
+            >
+              <Crown size={12} /> <span>真．聖皇</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('saint', true)}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-amber-700/10 hover:bg-amber-700/20 border border-amber-700/20 rounded-lg text-[9px] font-black text-amber-600 transition-all active:scale-95"
+            >
+              <Crown size={12} className="opacity-50" /> <span>聖皇(偽)</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('tycoon')}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg text-[9px] font-black text-emerald-400 transition-all active:scale-95"
+            >
+              <Banknote size={12} /> <span>代號巨頭</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('dragonhead')}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg text-[9px] font-black text-blue-400 transition-all active:scale-95"
+            >
+              <Scroll size={12} /> <span>優良龍頭</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('arrested')}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-[9px] font-black text-red-500 transition-all active:scale-95"
+            >
+              <Siren size={12} /> <span>身敗名裂</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('bankrupt')}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-slate-500/10 hover:bg-slate-500/20 border border-slate-500/20 rounded-lg text-[9px] font-black text-slate-400 transition-all active:scale-95"
+            >
+              <Skull size={12} /> <span>經濟破產</span>
+            </button>
+            <button
+              onClick={() => debugTriggerEnding('limit')}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="flex items-center space-x-2 p-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-lg text-[9px] font-black text-purple-400 transition-all active:scale-95"
+            >
+              <Timer size={12} /> <span>創業夢碎</span>
+            </button>
+          </div>
         </div>
       </div>
       </div>

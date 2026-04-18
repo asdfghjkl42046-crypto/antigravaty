@@ -8,6 +8,7 @@ import SetupScreen from '@/components/SetupScreen';
 import PlayerRegistrationScreen from '@/components/PlayerRegistrationScreen';
 import DashboardScreen from '@/components/DashboardScreen';
 import CourtroomScreen from '@/components/CourtroomScreen';
+import EndingScreen from '@/components/EndingScreen';
 
 export default function Home() {
   const { players, judgeMode, setJudgeMode, initGame, endTurn, resetGame, phase } = useGameStore();
@@ -82,6 +83,7 @@ export default function Home() {
         <div className="relative w-full h-full">
           <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
           {phase === 'courtroom' && <CourtroomScreen />}
+          {(phase === 'victory' || phase === 'gameover') && <EndingScreen />}
         </div>
       )}
     </GameCanvas>

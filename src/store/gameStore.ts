@@ -16,6 +16,7 @@ import {
   RoleType,
   JudgeMode,
   PlayerConfig,
+  EndingType,
 } from '../types/game';
 import { CourtEngine } from '../engine/CourtEngine';
 import { resolveScanCode, resolveTalentCode } from '../engine/MechanicsEngine';
@@ -62,6 +63,7 @@ interface GameStore extends GameStateData {
 
   // --- 開發人員偵錯工具 ---
   debugUpdatePlayer: (playerId: string, updates: Partial<Player>) => void;
+  debugTriggerEnding: (type: EndingType, isFake?: boolean) => void;
   hardReset: () => void;
 }
 
@@ -231,6 +233,50 @@ export const useGameStore = create<GameStore>()(
       getCurrentPlayer: () => get().players[get().currentPlayerIndex] || null,
       debugUpdatePlayer: (pid, upd) =>
         set((s) => ({ players: s.players.map((p) => (p.id === pid ? { ...p, ...upd } : p)) })),
+      
+      debugTriggerEnding: (type, isFake = false) => {
+        const player = get().players[get().currentPlayerIndex];
+        if (!player) return;
+
+        const mockStats = {
+          totalProfit: player.g + (player.trustFund || 0),
+          totalFines: player.totalFinesPaid || 0,
+          finalRp: player.rp,
+        };
+
+        const titles: Record<EndingType, string> = {
+          saint: isFake ? '聖皇(偽)' : '聖皇',
+          tycoon: '企業巨頭',
+          dragonhead: '優良龍頭企業',
+          arrested: '身敗名裂',
+          bankrupt: '經濟破產',
+          limit: '創業夢碎'
+        };
+
+        const descs: Record<EndingType, string> = {
+          saint: isFake 
+            ? '您表面上名譽極高且財富驚人，但背後累積的暗盤交易讓這份皇冠沾滿了灰塵。'
+            : '您的企業已超越了凡俗的法律，在商業戰中成為了誠信與財富的化身。',
+          tycoon: '您建立了一個無可撼動的商業帝國，雖然名聲並非完美，但力量足以支配整個市場。',
+          dragonhead: '您成功地在利潤與社會責任之間取得了平衡，是業界公認的典範。',
+          arrested: '您的企業名聲已徹底臭名昭著，判定信用破產，您被強制退出商業舞台。',
+          bankrupt: '企業資金鏈完全斷裂，積欠龐大債務，您只能黯然宣告破產，退下商業舞台。',
+          limit: '在漫長的 50 回合後，您仍未能建立起卓越的成就，創業之路就此止步。'
+        };
+
+        set({
+          phase: (type === 'saint' || type === 'tycoon' || type === 'dragonhead') ? 'victory' : 'gameover',
+          endingResult: {
+            playerId: player.id,
+            type,
+            title: titles[type],
+            evaluation: '測試用評價 / 偵錯模式',
+            description: descs[type],
+            stats: mockStats
+          }
+        });
+      },
+
       hardReset: () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('antigravity-game-storage');

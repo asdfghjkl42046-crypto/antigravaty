@@ -7,10 +7,11 @@ import {
   Briefcase,
   ChevronRight,
   Wallet,
-  Zap,
+  Coins,
   Gem,
   Award,
   Feather,
+  Wine,
   BookOpen,
   ArrowLeft,
 } from 'lucide-react';
@@ -65,7 +66,7 @@ export default function PlayerRegistrationScreen({
     {
       id: 'wine',
       name: '特供紅酒',
-      icon: Zap,
+      icon: Wine,
       color: 'text-rose-400',
       glow: 'rgba(244, 63, 94, 0.4)',
     },
@@ -118,14 +119,19 @@ export default function PlayerRegistrationScreen({
     });
   };
 
-  const handleBribeFinalSelect = (bribe: BribeItem | null) => {
+  const handleBribeSelect = (bribe: BribeItem) => {
     setSelectedBribe(bribe);
-    setShowBribeModal(false);
+  };
+
+  const handleFinalConfirm = () => {
+    if (!selectedBribe) return;
+    
     onConfirm({
       name: currentName.trim() || `企業 ${playerIndex}`,
       path: selectedPath!,
-      bribeItem: bribe || undefined,
+      bribeItem: selectedBribe,
     });
+    setShowBribeModal(false);
   };
 
   return (
@@ -146,7 +152,7 @@ export default function PlayerRegistrationScreen({
         className={`relative z-10 w-full max-w-7xl h-full flex flex-col items-center ${
           isBookFocused
             ? 'justify-center pt-0 overflow-hidden'
-            : 'justify-start pt-32 sm:pt-40 overflow-y-auto overflow-x-hidden'
+            : 'justify-start pt-32 overflow-y-auto overflow-x-hidden'
         } custom-scrollbar pb-10 transition-all duration-700`}
       >
         {/* 1. 企業命名 - 響應式寬度與間距 */}
@@ -267,7 +273,7 @@ export default function PlayerRegistrationScreen({
               </button>
             </div>
 
-            <div className="w-full flex justify-center scale-90 sm:scale-110 sm:translate-x-20 transition-transform duration-700">
+            <div className="w-full flex justify-center scale-90 transition-transform duration-700">
               <ParchmentBook 
                 key={selectedPath} 
                 activePath={selectedPath!} 
@@ -291,50 +297,51 @@ export default function PlayerRegistrationScreen({
 
       {/* 賄賂選擇彈窗 */}
       {showBribeModal && (
-        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-6">
-          <div className="relative w-full max-w-[460px] bg-slate-900 border border-white/10 rounded-[48px] p-12 shadow-[0_50px_100px_rgba(0,0,0,0.9)] overflow-hidden">
+        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4 sm:p-6">
+          <div className="relative w-full max-w-[460px] max-h-[90vh] bg-slate-900 border border-white/10 rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 shadow-[0_50px_100px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-[80px]" />
-            <div className="flex items-center gap-6 mb-12">
-              <div className="p-4 bg-blue-500/20 rounded-2xl shadow-inner">
-                <Zap className="w-7 h-7 text-blue-400" />
+            
+            <div className="flex items-center gap-4 sm:gap-6 mb-6 sm:mb-8 flex-shrink-0">
+              <div className="p-3 sm:p-4 bg-blue-500/20 rounded-2xl shadow-inner">
+                <Coins className="w-6 h-6 sm:w-7 h-7 text-blue-400" />
               </div>
-              <h3 className="text-2xl font-black tracking-widest text-white">路徑初始化手段</h3>
+              <h3 className="text-xl sm:text-2xl font-black tracking-widest text-white">賄賂選項</h3>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mb-12">
-              {BRIBE_OPTIONS.map((opt) => (
-                <div
-                  key={opt.id}
-                  onClick={() => handleBribeFinalSelect(opt.id)}
-                  className={`flex items-center gap-6 p-6 rounded-[28px] border transition-all cursor-pointer hover:bg-white/5 active:scale-95 ${selectedBribe === opt.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/5 bg-black/30'}`}
-                >
-                  <div className={`p-4 rounded-xl ${opt.color} bg-white/5 shadow-inner`}>
-                    <opt.icon className="w-7 h-7" />
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar mb-6 sm:mb-8">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                {BRIBE_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.id}
+                    onClick={() => handleBribeSelect(opt.id)}
+                    className={`flex items-center gap-4 sm:gap-6 p-4 sm:p-6 rounded-[24px] sm:rounded-[28px] border transition-all cursor-pointer hover:bg-white/5 active:scale-95 ${selectedBribe === opt.id ? 'border-blue-500 bg-blue-500/30' : 'border-white/5 bg-black/30'}`}
+                  >
+                    <div className={`p-3 sm:p-4 rounded-xl ${opt.color} bg-white/5 shadow-inner`}>
+                      <opt.icon className="w-6 h-6 sm:w-7 h-7" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-black tracking-widest text-lg sm:text-xl text-white/90">
+                        {opt.name}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-black tracking-widest text-xl text-white/90">
-                      {opt.name}
-                    </span>
-                    <span className="text-xs text-slate-500 mt-1">已納入初始資產庫</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <button
-              onClick={() => handleBribeFinalSelect(null)}
-              className="w-full py-5 text-xs font-black tracking-[0.5em] uppercase text-slate-500 hover:text-white transition-colors"
-            >
-              直接繼承權力
-            </button>
+            {/* 新增的確認按鈕 */}
+            <div className={`transition-all duration-500 ease-out ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+              <button
+                onClick={handleFinalConfirm}
+                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl tracking-[0.6em] shadow-[0_20px_40px_rgba(37,99,235,0.3)] active:scale-95 transition-all text-sm uppercase"
+              >
+                確認開始
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* 底部裝飾 */}
-      <div className="absolute bottom-8 text-[11px] font-black tracking-[1.2em] text-white/10 uppercase select-none pointer-events-none">
-        九龍區司法行政系統
-      </div>
     </div>
   );
 }
