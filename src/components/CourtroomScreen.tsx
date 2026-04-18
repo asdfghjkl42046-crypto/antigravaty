@@ -260,7 +260,9 @@ const PaperFlip: React.FC<{
     const isCompleted = idx === pages.length - 1;
 
     return (
-      <div className={`absolute inset-0 border rounded-sm p-6 shadow-2xl flex flex-col backface-hidden ${styles.base}`}>
+      <div
+        className={`absolute inset-0 border rounded-sm p-6 shadow-2xl flex flex-col backface-hidden ${styles.base}`}
+      >
         <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]" />
         <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/20 to-transparent pointer-events-none" />
         {page.type === 'cover' && (
@@ -358,11 +360,11 @@ const PaperFlip: React.FC<{
 
         {/* Layer 1: 當前靜態頁 (Base N) - zIndex 10，往前翻時隱藏 */}
         {(() => {
-          const isFlippingForward = (targetPage !== null && targetPage > currentPage) || (startX.current !== null && dragOffset > 0);
+          const isFlippingForward =
+            (targetPage !== null && targetPage > currentPage) ||
+            (startX.current !== null && dragOffset > 0);
           return !isFlippingForward ? (
-            <div className="absolute inset-0 z-[10]">
-              {renderPage(currentPage)}
-            </div>
+            <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
           ) : null;
         })()}
 
@@ -458,19 +460,23 @@ const DefenseCarousel: React.FC<{
   const startRotation = useRef(0);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const isInitialized = useRef(false);
+  const snapTweenRef = useRef<gsap.core.Tween | null>(null); // 用於儲存對齊動畫
 
   const options = useMemo(
     () => [
-      { id: 'J' as const, text: lawCase.defense_j_text || '', angle: 0 },
-      { id: 'K' as const, text: lawCase.defense_k_text || '', angle: 120 },
-      { id: 'L' as const, text: lawCase.defense_l_text || '', angle: 240 },
+      { id: 'J' as const, text: lawCase.defense_j_text || '', angle: 0, key: 'J1' },
+      { id: 'K' as const, text: lawCase.defense_k_text || '', angle: 60, key: 'K1' },
+      { id: 'L' as const, text: lawCase.defense_l_text || '', angle: 120, key: 'L1' },
+      { id: 'J' as const, text: lawCase.defense_j_text || '', angle: 180, key: 'J2' },
+      { id: 'K' as const, text: lawCase.defense_k_text || '', angle: 240, key: 'K2' },
+      { id: 'L' as const, text: lawCase.defense_l_text || '', angle: 300, key: 'L2' },
     ],
     [lawCase]
   );
 
   // 更新卡牌位置 (真 3D 圓柱座標)
   const updatePositions = useCallback(
-    (rot: number, instant: boolean = false) => {
+    (rot: number, speed: number = 0.6) => {
       options.forEach((opt, i) => {
         const card = cardsRef.current[i];
         if (!card) return;
@@ -478,11 +484,9 @@ const DefenseCarousel: React.FC<{
         const totalAngle = opt.angle + rot;
         const theta = totalAngle * (Math.PI / 180);
 
-        const radius = 160;
+        const radius = 290;
         const x = Math.sin(theta) * radius;
-        const z = Math.cos(theta) * radius - radius;
-
-        const normalizedAngle = ((totalAngle % 360) + 360) % 360;
+        const z = Math.cos(theta) * radius - radius - 100;
 
         // 3D 位置計算
         gsap.to(card, {
@@ -490,8 +494,8 @@ const DefenseCarousel: React.FC<{
           z: z,
           rotateY: totalAngle,
           zIndex: Math.round(z + 2000),
-          duration: instant ? 0 : 0.6,
-          ease: 'power3.out',
+          duration: speed, // 使用動態速度
+          ease: speed === 0 ? 'none' : 'power3.out',
           overwrite: 'auto',
         });
       });
@@ -500,55 +504,66 @@ const DefenseCarousel: React.FC<{
   );
 
   useEffect(() => {
-    const isFirst = !isInitialized.current;
-    updatePositions(rotation, isFirst);
-    if (isFirst) isInitialized.current = true;
+    // 拖曳中直接設為 0 实现 1:1 绝对跟手，對齊時用 0.3s 展現俐落感
+    updatePositions(rotation, isDragging ? 0 : 0.3);
     rotationRef.current = rotation;
-  }, [rotation, updatePositions]);
+  }, [rotation, isDragging, updatePositions]);
 
   // 手勢處理
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
+    // 立即殺死所有正在進行的對齊動畫，將主控權還給手指
+    if (snapTweenRef.current) {
+      snapTweenRef.current.kill();
+      snapTweenRef.current = null;
+    }
     setIsDragging(true);
     startX.current = 'touches' in e ? e.touches[0].clientX : e.clientX;
     startRotation.current = rotationRef.current;
-    gsap.killTweensOf(rotationRef);
   };
 
   const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
     const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const delta = currentX - startX.current;
-    const nextRot = startRotation.current + delta * 0.5;
+    // 靈敏度下調至 0.3，避免過於輕飄，操作更精準
+    const nextRot = startRotation.current + delta * 0.3;
     setRotation(nextRot);
   };
 
   const handleEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
-    const nearestSnap = Math.round(rotationRef.current / 120) * 120;
+    // 改為 60 度對齊
+    const nearestSnap = Math.round(rotationRef.current / 60) * 60;
     const obj = { val: rotationRef.current };
-    gsap.to(obj, {
+
+    // 紀錄並執行對齊動畫
+    snapTweenRef.current = gsap.to(obj, {
       val: nearestSnap,
-      duration: 0.6,
-      ease: 'back.out(1.7)',
+      duration: 0.3, // 縮短對齊時間
+      ease: 'power3.out', // 改為更俐落的緩動
       onUpdate: () => setRotation(obj.val),
+      onComplete: () => {
+        snapTweenRef.current = null;
+      },
     });
   };
 
-  // 判斷當前正面的卡牌 ID
-  const activeId = useMemo(() => {
-    const snapRot = Math.round(rotation / 120) * 120;
+  // 判斷當前正面的索引 (0~5)
+  const activeIndex = useMemo(() => {
+    const snapRot = Math.round(rotation / 60) * 60;
     const normalizedSnap = ((-snapRot % 360) + 360) % 360;
-    if (normalizedSnap === 0) return 'J';
-    if (normalizedSnap === 120) return 'K';
-    if (normalizedSnap === 240) return 'L';
-    return 'K';
+    const index = Math.round(normalizedSnap / 60) % 6;
+    return index;
   }, [rotation]);
+
+  // 獲取當前正式的 ID
+  const activeId = options[activeIndex]?.id || 'J';
 
   return (
     <div className="relative w-full h-[500px] flex flex-col items-center justify-center select-none overflow-visible [perspective:5000px]">
       <div
-        className="relative w-full h-full flex items-center justify-center transform-style-3d cursor-grab active:cursor-grabbing carousel-container-tilt"
+        className="relative w-full h-full flex items-center justify-center transform-style-3d cursor-grab active:cursor-grabbing carousel-container-tilt translate-y-12"
         onMouseDown={handleStart}
         onMouseMove={handleMove}
         onMouseUp={handleEnd}
@@ -565,14 +580,20 @@ const DefenseCarousel: React.FC<{
 
           return (
             <div
-              key={opt.id}
+              key={opt.key}
               ref={(el) => {
                 cardsRef.current[i] = el;
               }}
               className="absolute w-64 h-[440px] select-none transform-style-3d"
             >
               /* ===== 正面：文字卡 ===== */
-              <div className="absolute inset-0 bg-[#0a0f1e] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl p-5 flex flex-col justify-between overflow-hidden backface-hidden">
+              <div className="absolute inset-0 bg-[#0a0f1e] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl p-5 flex flex-col justify-between backface-hidden">
+                {/* 左上角紅色懸掛圓標 (123123) - 增加 translateZ 使其真實懸浮 */}
+                <div className="absolute top-[-2px] left-[-2px] w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-white/40 shadow-[0_0_20px_rgba(239,68,68,0.6)] flex items-center justify-center z-[200] [transform:translateZ(50px)]">
+                  <span className="text-white font-black text-lg italic translate-x-[-2px]">
+                    {opt.id === 'J' ? '1' : opt.id === 'K' ? '2' : '3'}
+                  </span>
+                </div>
                 {/* 文字內容 */}
                 <div className="flex-grow overflow-y-auto custom-scrollbar pr-1 pt-2 text-left">
                   <div className="text-slate-200 text-sm leading-relaxed font-serif tracking-tight">
@@ -597,13 +618,15 @@ const DefenseCarousel: React.FC<{
                 {/* 確認按鈕 */}
                 <div className="mt-4">
                   <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (opt.id === activeId) onSelect(opt.id, opt.text);
+                      onSelect(opt.id, opt.text);
                     }}
-                    className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] active:scale-95 transition-all"
+                    className="w-full py-4 bg-gradient-to-b from-blue-400 to-blue-800 text-white font-black uppercase tracking-widest text-sm border-t border-blue-300 ring-1 ring-blue-500 shadow-[0_0_20px_rgba(37,99,235,0.6)] hover:brightness-125 hover:shadow-[0_0_30px_rgba(37,99,235,0.8)] active:scale-95 transition-all relative z-[100] pointer-events-auto [transform:translateZ(20px)] select-none"
                   >
-                    確認
+                    確認選擇
                   </button>
                 </div>
 
@@ -611,8 +634,7 @@ const DefenseCarousel: React.FC<{
                 <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
               </div>
-
-                /* ===== 背面：影片卡 ===== */
+              /* ===== 背面：影片卡 ===== */
               <div className="absolute inset-0 bg-[#0a0e1a] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl overflow-hidden backface-hidden [transform:rotateY(180deg)]">
                 {/* 使用 LoopingVideo 限制播放區間為 1s ~ 8s */}
                 <LoopingVideo
@@ -628,17 +650,14 @@ const DefenseCarousel: React.FC<{
       </div>
 
       {/* 圓周動態提示 */}
-      <div className="mt-4 flex flex-col items-center gap-2">
-        <div className="flex gap-4 items-center">
-          <div
-            className={`w-2 h-2 rounded-full transition-all ${activeId === 'J' ? 'bg-cyan-400 scale-125' : 'bg-slate-800'}`}
-          />
-          <div
-            className={`w-2 h-2 rounded-full transition-all ${activeId === 'K' ? 'bg-cyan-400 scale-125' : 'bg-slate-800'}`}
-          />
-          <div
-            className={`w-2 h-2 rounded-full transition-all ${activeId === 'L' ? 'bg-cyan-400 scale-125' : 'bg-slate-800'}`}
-          />
+      <div className="mt-8 flex flex-col items-center gap-2">
+        <div className="flex gap-3 items-center">
+          {options.map((_, idx) => (
+            <div
+              key={idx}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === idx ? 'bg-cyan-400 scale-150 shadow-[0_0_10px_rgba(34,211,238,0.8)]' : 'bg-slate-800'}`}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -852,14 +871,14 @@ export default function CourtroomScreen() {
   const renderDefense = () => {
     if (!defendant) return null;
     return (
-      <div className="h-full flex flex-col">
-        <div className="mb-8 border-l-4 border-cyan-500 pl-4">
-          <h2 className="text-2xl font-black text-cyan-400 uppercase tracking-[0.15em] italic">
+      <div className="h-full flex flex-col relative pt-4">
+        <div className="absolute top-[-30] left-5 border-l-4 border-cyan-500 pl-4 z-[20]">
+          <h2 className="text-2xl font-black text-white uppercase tracking-[0.15em] italic text-noir-glow">
             被告答辯: {defendant.name}
           </h2>
         </div>
 
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center pt-2">
           <DefenseCarousel
             lawCase={trial.lawCase}
             onSelect={(id, text) => {

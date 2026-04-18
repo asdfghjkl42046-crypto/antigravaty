@@ -346,5 +346,10 @@ body {
 }
 
 .carousel-container-tilt {
-  transform: rotateX(-10deg);
+  transform: rotateX(-20deg);
+}
+
+.text-noir-glow {
+  -webkit-text-stroke: 1px rgba(34, 211, 238, 0.5);
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 1)) drop-shadow(0 0 20px rgba(34, 211, 238, 0.6));
 }
