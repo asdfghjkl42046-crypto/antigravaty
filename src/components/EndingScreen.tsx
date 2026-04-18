@@ -310,13 +310,6 @@ export default function EndingScreen() {
 
       {/* 環境裝飾物件 (福爾摩斯書桌) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* 老式鋼筆 */}
-        <div className="ending-prop absolute bottom-[15%] left-[10%] sm:left-[20%] -rotate-[35deg] drop-shadow-[10px_10px_15px_rgba(0,0,0,0.8)]">
-          <div className="relative">
-            <div className="w-1.5 h-48 bg-gradient-to-b from-[#1a1a1a] via-[#333] to-[#1a1a1a] rounded-full" />
-            <PenTool className="absolute -top-4 -left-3 w-8 h-8 text-amber-600/80 rotate-[15deg]" />
-          </div>
-        </div>
 
         {/* 復古放大鏡 */}
         <div 

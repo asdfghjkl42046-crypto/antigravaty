@@ -76,7 +76,7 @@ export const START_PATH_NAMES: Record<StartPath, string> = {
  * 從 CARDS_START 動態獲取開局路徑的劇情內容
  */
 export const START_PATH_LABELS: Record<StartPath, string[]> = {
-  normal: splitDescriptionToPages(CARDS_START.START_PATHS[1].description),
-  backdoor: splitDescriptionToPages(CARDS_START.START_PATHS[2].description),
-  blackbox: splitDescriptionToPages(CARDS_START.START_PATHS[3].description),
+  normal: splitDescriptionToPages(CARDS_START.START_PATHS[1].description || ''),
+  backdoor: splitDescriptionToPages(CARDS_START.START_PATHS[2].description || ''),
+  blackbox: splitDescriptionToPages(CARDS_START.START_PATHS[3].description || ''),
 };
