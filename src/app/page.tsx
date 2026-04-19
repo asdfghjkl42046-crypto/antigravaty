@@ -66,12 +66,13 @@ export default function Home() {
 
   return (
     <GameCanvas>
-      {isModeSelect && <ModeSelectScreen onStartGame={handleModeSelect} />}
+      {isModeSelect && <ModeSelectScreen key="mode-select" onStartGame={handleModeSelect} />}
 
-      {isSetup && <SetupScreen onBack={handleBackToMode} onConfirm={handleStartSetup} />}
+      {isSetup && <SetupScreen key="game-setup" onBack={handleBackToMode} onConfirm={handleStartSetup} />}
 
       {isRegistration && plannedPlayerCount && (
         <PlayerRegistrationScreen
+          key="registration-screen"
           playerIndex={currentRegIndex + 1}
           totalPlayers={plannedPlayerCount}
           onBack={handleBackToSetup}
@@ -80,10 +81,10 @@ export default function Home() {
       )}
 
       {isDashboard && (
-        <div className="relative w-full h-full">
+        <div key="game-dashboard" className="relative w-full h-full">
           <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
-          {phase === 'courtroom' && <CourtroomScreen />}
-          {(phase === 'victory' || phase === 'gameover') && <EndingScreen />}
+          {phase === 'courtroom' && <CourtroomScreen key="court" />}
+          {(phase === 'victory' || phase === 'gameover') && <EndingScreen key="ending" />}
         </div>
       )}
     </GameCanvas>

@@ -19,6 +19,7 @@ import { getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
 import { sha256, resolveMoneyValue } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP, applyPRDiscount } from './RoleEngine';
+import { SystemStrings } from '../data/SystemStrings';
 import {
   throwNumericalCheckError,
 } from './errors/EngineErrors';
@@ -302,7 +303,7 @@ export async function performAction(
     
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
-      message = `【安全申報】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
+      message = `【${SystemStrings.ACTION.DECLARATION_LABEL || '安全申報'}】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
     } else if (isRiskyRank && resolvedBaseTags.length > 0) {
       // 僅在非法申報且等級為高風險（SSR 以上）時，才記錄標籤
       for (let i = 0; i < tagMultiplier; i++) {
@@ -319,7 +320,7 @@ export async function performAction(
     } else {
       // SR 行動或是無 ID 標籤：即便略過申報也僅更新訊息，不產生任何 snapshot 黑材料紀錄
       if (!isDeclaration) {
-        message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
+        message += ` (${SystemStrings.ACTION.SKIP_DECLARATION_LABEL || '已略過申報'}，扣除成本 ${costToDeduct} 萬)`;
       }
     }
 
@@ -419,10 +420,10 @@ export async function performAction(
         const isDirectSuccess = opt.succRate === 1.0;
 
         if (!message || message.startsWith(' (')) {
-          const prefix = isDirectSuccess ? '' : '【成功】';
-          message = `${prefix}${opt.label || '計畫執行成功'}。${message}`;
-        } else if (!message.includes('【成功】') && !isDirectSuccess) {
-          message = `【成功】${message}`;
+          const prefix = isDirectSuccess ? '' : SystemStrings.ACTION.SUCCESS_PREFIX;
+          message = `${prefix}${opt.label || SystemStrings.ACTION.DEFAULT_SUCCESS_LABEL}。${message}`;
+        } else if (!message.includes(SystemStrings.ACTION.SUCCESS_PREFIX) && !isDirectSuccess) {
+          message = `${SystemStrings.ACTION.SUCCESS_PREFIX}${message}`;
         }
       }
     } else {

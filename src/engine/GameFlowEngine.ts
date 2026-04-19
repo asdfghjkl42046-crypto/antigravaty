@@ -19,6 +19,7 @@ import {
 } from './GameEngine';
 import { CourtEngine } from './CourtEngine';
 import { getCTOAntiTheftCount } from './RoleEngine';
+import { SystemStrings } from '../data/SystemStrings';
 
 /**
  * 遊戲流程引擎 (Game Flow Engine)
@@ -122,12 +123,12 @@ export class GameFlowEngine {
     // 1. [統一攔截點] 基本效驗：破產者或 AP 不足者禁止發起行動
     if (player.isBankrupt) {
       return {
-        result: { success: false, message: '🚫 行動終止：您的企業已宣告破產，無法再進行商業活動。', updates: {} } as ActionResult,
+        result: { success: false, message: SystemStrings.ERRORS.BANKRUPT_BLOCK, updates: {} } as ActionResult,
       };
     }
     if (player.ap <= 0) {
       return {
-        result: { success: false, message: '🚫 體力不足：您的 AP 已歸零，請結束回合以恢復精力。', updates: {} } as ActionResult,
+        result: { success: false, message: SystemStrings.ERRORS.INSUFFICIENT_AP, updates: {} } as ActionResult,
       };
     }
 
@@ -269,7 +270,7 @@ export class GameFlowEngine {
   } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
-    if (!player) return { success: false, message: '無效玩家', updates: {} };
+    if (!player) return { success: false, message: SystemStrings.ERRORS.INVALID_PLAYER, updates: {} };
 
     const res = applyRedrawCards(player);
     if (!res.success) return { success: false, message: res.message, updates: {} };
@@ -288,7 +289,7 @@ export class GameFlowEngine {
   ): { success: boolean; message: string; updates: Partial<GameStateData> } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
-    if (!player) return { success: false, message: '無效玩家', updates: {} };
+    if (!player) return { success: false, message: SystemStrings.ERRORS.INVALID_PLAYER, updates: {} };
 
     const res = applyRoleUpgrade(player, role);
     if (!res.success) return { success: false, message: res.message, updates: {} };

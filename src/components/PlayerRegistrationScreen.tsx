@@ -192,7 +192,7 @@ export default function PlayerRegistrationScreen({
             <div className="w-full max-w-4xl px-6 mb-2 ui-fade-in">
               <div className="flex flex-col items-center gap-6">
                 
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3 sm:gap-4">
+                <div className="grid grid-cols-5 gap-2">
                   {MASTERPIECES.map((m) => {
                     const isSelected = selectedAvatarId === m.id;
                     return (
@@ -201,7 +201,7 @@ export default function PlayerRegistrationScreen({
                         onClick={() => setSelectedAvatarId(m.id)}
                         className={`relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110 active:scale-95' : 'grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105'}`}
                       >
-                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
+                      <div className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
                         <img 
                           src={m.url} 
                           alt={m.title} 
@@ -240,7 +240,7 @@ export default function PlayerRegistrationScreen({
               {(['normal', 'backdoor', 'blackbox'] as StartPath[]).map((path, idx) => {
                 const isSelected = selectedPath === path;
                 const rotations = [-18, 0, 18];
-                const offsets = [-130, 0, 130];
+                const offsets = [-95, 0, 95];
 
                 return (
                   <div
@@ -254,7 +254,7 @@ export default function PlayerRegistrationScreen({
                     }}
                   >
                     <div
-                      className="w-[180px] h-[250px] rounded-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-r-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-5"
+                      className="w-[145px] h-[200px] rounded-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-r-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-4"
                       style={{
                         backgroundColor:
                           path === 'normal'

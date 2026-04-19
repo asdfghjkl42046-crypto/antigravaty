@@ -20,7 +20,7 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
   const coverRef = useRef<HTMLDivElement>(null);
   const baseRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
+
   const [isCoverOpened, setIsCoverOpened] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -29,19 +29,23 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
   const pages = useMemo(() => START_PATH_LABELS[activePath] || [], [activePath]);
   const totalInternalPages = pages.length;
 
-  // 初始化 pageRefs 陣列長度
-  useEffect(() => {
-    pageRefs.current = pageRefs.current.slice(0, totalInternalPages);
-  }, [totalInternalPages]);
+  const prevPathRef = useRef<StartPath>(activePath);
 
   useEffect(() => {
-    setIsCoverOpened(false);
-    setCurrentPage(0);
-    // 重置所有頁面位置 - 使用 Ref 確保精確度
-    if (coverRef.current) gsap.set(coverRef.current, { rotationY: 0, z: 80 });
-    pageRefs.current.forEach(ref => {
-      if (ref) gsap.set(ref, { rotationY: -5, z: 0 });
-    });
+    // 只有當路徑真正改變時（切換天賦），才重置書本狀態
+    // 避免因為父組件（如畫布縮放）重渲染導致書本自動蓋回
+    if (prevPathRef.current !== activePath) {
+      setIsCoverOpened(false);
+      setCurrentPage(0);
+
+      // 重置所有頁面位置
+      if (coverRef.current) gsap.set(coverRef.current, { rotationY: 0, z: 80 });
+      pageRefs.current.forEach((ref) => {
+        if (ref) gsap.set(ref, { rotationY: -5, z: 0 });
+      });
+
+      prevPathRef.current = activePath;
+    }
   }, [activePath]);
 
   const dossierStyle = useMemo(() => {
@@ -83,7 +87,8 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
     if (!isCoverOpened) {
       if (deltaX < 0) {
         const rot = Math.max(-180, (deltaX / 300) * 180);
-        if (coverRef.current) gsap.to(coverRef.current, { rotationY: rot, duration: 0.1, overwrite: true });
+        if (coverRef.current)
+          gsap.to(coverRef.current, { rotationY: rot, duration: 0.1, overwrite: true });
       }
     } else {
       if (Math.abs(deltaX) > 20) {
@@ -95,8 +100,10 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
           return;
         }
 
-        const targetPageRef = isForward ? pageRefs.current[currentPage] : pageRefs.current[currentPage - 1];
-        const startRot = isForward ? -5 : -160; 
+        const targetPageRef = isForward
+          ? pageRefs.current[currentPage]
+          : pageRefs.current[currentPage - 1];
+        const startRot = isForward ? -5 : -160;
         const rot = startRot + (deltaX / 300) * 150;
         if (targetPageRef) {
           gsap.to(targetPageRef, {
@@ -119,35 +126,37 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
     if (!isCoverOpened) {
       if (deltaX < -60) {
         setIsCoverOpened(true);
-        if (coverRef.current) gsap.to(coverRef.current, { rotationY: -180, z: -10, duration: 0.8, ease: 'power2.out' });
+        if (coverRef.current)
+          gsap.to(coverRef.current, { rotationY: -180, z: -10, duration: 0.8, ease: 'power2.out' });
       } else {
-        if (coverRef.current) gsap.to(coverRef.current, { rotationY: 0, z: 80, duration: 0.5, ease: 'back.out(1.7)' });
+        if (coverRef.current)
+          gsap.to(coverRef.current, { rotationY: 0, z: 80, duration: 0.5, ease: 'back.out(1.7)' });
       }
     } else {
       if (Math.abs(deltaX) > 80) {
         if (deltaX < 0 && currentPage < totalInternalPages) {
           const target = pageRefs.current[currentPage];
           if (target) {
-            gsap.to(target, { 
-              rotationY: -160, 
-              z: 2, 
-              duration: 0.6, 
-              ease: 'power2.out' 
+            gsap.to(target, {
+              rotationY: -160,
+              z: 2,
+              duration: 0.6,
+              ease: 'power2.out',
             });
           }
-          setCurrentPage(prev => prev + 1);
+          setCurrentPage((prev) => prev + 1);
         } else if (deltaX > 0) {
           if (currentPage > 0) {
             const target = pageRefs.current[currentPage - 1];
             if (target) {
-              gsap.to(target, { 
-                rotationY: -5, 
-                z: 1, 
-                duration: 0.6, 
-                ease: 'power2.out' 
+              gsap.to(target, {
+                rotationY: -5,
+                z: 1,
+                duration: 0.6,
+                ease: 'power2.out',
               });
             }
-            setCurrentPage(prev => prev - 1);
+            setCurrentPage((prev) => prev - 1);
           } else {
             // 已在第一頁，禁止往回翻，直接重置當前狀態保持開啟
             resetCurrentPage();
@@ -164,7 +173,7 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
   const resetCurrentPage = () => {
     const cur = pageRefs.current[currentPage];
     if (cur) gsap.to(cur, { rotationY: -5, z: 1, duration: 0.5, ease: 'back.out(1.2)' });
-    
+
     if (currentPage > 0) {
       const prev = pageRefs.current[currentPage - 1];
       if (prev) {
@@ -188,9 +197,9 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
         className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d rotate-x-4 rotate-y-[-2deg] touch-none"
       >
         {/* 1. 書殼底座 (底面與背面) - 核心隔離標記 */}
-        <div 
+        <div
           ref={baseRef}
-          className="absolute inset-0 transform-style-3d pointer-events-none shadow-[0_40px_100px_rgba(0,0,0,0.8)]" 
+          className="absolute inset-0 transform-style-3d pointer-events-none shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
           style={{ transform: 'translateZ(-150px)', zIndex: 1 }}
         >
           {/* 右底蓋 */}
@@ -223,20 +232,26 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
         </div>
 
         {/* 2. 內頁 */}
-        <div className="absolute inset-0 transform-style-3d shadow-2xl" style={{ transform: 'translateZ(40px)', zIndex: 20 }}>
+        <div
+          className="absolute inset-0 transform-style-3d shadow-2xl"
+          style={{ transform: 'translateZ(40px)', zIndex: 20 }}
+        >
           {/* 內層書脊陰影 - 移至此層以增強立體感 */}
           <div className="absolute left-[-22px] top-[-10px] bottom-[-10px] w-14 bg-gradient-to-r from-black/80 via-black/20 to-transparent translate-z-[-1px] blur-[3px] rounded-l-full opacity-60 pointer-events-none" />
-          
+
           {pages.map((content, idx) => (
             <div
               key={idx}
-              ref={(el) => { pageRefs.current[idx] = el; }}
+              ref={(el) => {
+                pageRefs.current[idx] = el;
+              }}
               className="absolute inset-0 origin-left transform-style-3d dossier-page"
               style={{
-                // 利用物理 Z 軸間距 (idx * 0.1px) 解決 Z-Fighting 問題，取代不穩定的 zIndex
-                transform: idx < currentPage 
-                  ? `rotateY(-160deg) translateZ(${idx * 0.1}px)` 
-                  : `rotateY(-5deg) translateZ(${(totalInternalPages - idx) * 0.1}px)`,
+                // 利用物理 Z 軸間距 (idx * 0.5px) 解決 Z-Fighting 問題，取代不穩定的 zIndex
+                transform:
+                  idx < currentPage
+                    ? `rotateY(-160deg) translateZ(${idx * 0.5}px)`
+                    : `rotateY(-5deg) translateZ(${(totalInternalPages - idx) * 0.5}px)`,
               }}
             >
               {/* 正面 */}
@@ -251,7 +266,7 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
                 />
                 {/* 固定的摺痕陰影：現在放在内容層下方，背景層上方，確保不受文字影響 */}
                 <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/40 via-black/5 to-transparent pointer-events-none z-[5]" />
-                
+
                 <div
                   className="absolute inset-0 flex flex-col relative z-10"
                   style={{
@@ -273,7 +288,6 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
                         lineHeight: '1.8',
                         textAlign: 'justify',
                         wordBreak: 'break-all',
-                        textShadow: '0 0.5px 0.5px rgba(0,0,0,0.05)', // 微量文字投影增加質感，而非長度渲染
                       }}
                     >
                       {content}
@@ -297,9 +311,9 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
         <div
           ref={coverRef}
           className="absolute inset-0 origin-left transform-style-3d book-cover"
-          style={{ 
+          style={{
             zIndex: isCoverOpened ? 5 : 200,
-            transform: isCoverOpened ? 'rotateY(-180deg) translateZ(-10px)' : 'translateZ(80px)'
+            transform: isCoverOpened ? 'rotateY(-180deg) translateZ(-10px)' : 'translateZ(80px)',
           }}
         >
           {/* 封面正面 */}
@@ -325,8 +339,9 @@ export default function ParchmentBook({ activePath, onPathChange }: ParchmentBoo
             className="absolute inset-0 [transform:rotateY(-180deg)_translateZ(0.5px)] backface-hidden rounded-l-xl shadow-inner"
             style={{
               backgroundColor: '#1a2f23', // 暗綠色絲絨
-              backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.4), transparent), radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 80%)',
-              borderLeft: '12px solid rgba(0,0,0,0.6)'
+              backgroundImage:
+                'linear-gradient(to right, rgba(0,0,0,0.4), transparent), radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 80%)',
+              borderLeft: '12px solid rgba(0,0,0,0.6)',
             }}
           >
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/felt.png')]" />

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
 import { PlayerCard } from './DashboardScreen';
+import { SystemStrings } from '../data/SystemStrings';
 
 interface ScanScreenProps {
   onBack: () => void;
@@ -97,7 +98,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
     if (typeof window !== 'undefined' && !window.isSecureContext) {
       setStatus({
         type: 'error',
-        msg: '🚨 安全性限制：瀏覽器禁止在非加密連線 (HTTP) 下開啟相機。請將網址改為 https:// 或使用手動輸入編碼。',
+        msg: SystemStrings.ERRORS.SECURE_CONTEXT_REQUIRED,
       });
       return;
     }
@@ -120,7 +121,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
       );
     } catch (err) {
       console.error('Camera start failed:', err);
-      setStatus({ type: 'error', msg: '啟動失敗：請檢查權限設定，或嘗試重新整理頁面。' });
+      setStatus({ type: 'error', msg: SystemStrings.ERRORS.CAMERA_START_FAIL });
       setIsCameraActive(false);
     }
   };

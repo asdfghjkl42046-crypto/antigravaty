@@ -21,6 +21,7 @@ import {
 import { CourtEngine } from '../engine/CourtEngine';
 import { resolveScanCode, resolveTalentCode } from '../engine/MechanicsEngine';
 import * as EndingEngine from '../engine/EndingEngine';
+import { SystemStrings } from '../data/SystemStrings';
 
 export const MASTERPIECES = [
   { id: 0, title: '蒙娜麗莎', author: '達文西', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg&w=400' },
@@ -121,7 +122,7 @@ export const useGameStore = create<GameStore>()(
         }
 
         const res = resolveScanCode(codeUpper);
-        if (!res) return { success: false, message: '無效代碼。' };
+        if (!res) return { success: false, message: SystemStrings.ERRORS.INVALID_CODE };
 
         // [核心修正] 等待行動結算，捕捉真實的成功/失敗狀態 (例如 AP不足)
         const actionResult = await get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');

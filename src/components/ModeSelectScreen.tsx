@@ -15,8 +15,16 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
 
   // 初始原子佈局數據 (v5.0 極致顆粒度)
   const [layout, setLayout] = useState<Record<string, AlignmentElement>>({
+    logo: {
+      top: 8,
+      left: 35,
+      width: 30,
+      height: 15,
+      radius: 40,
+      label: '核心標誌',
+    },
     header_title: {
-      top: 22,
+      top: 26,
       left: 10,
       width: 80,
       height: 6,
@@ -24,7 +32,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '創業冒險',
     },
     header_subtitle: {
-      top: 29,
+      top: 33,
       left: 10,
       width: 80,
       height: 4,
@@ -34,7 +42,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
 
     // Website Mode 原子
     wb_box: {
-      top: 38,
+      top: 42,
       left: 15,
       width: 70,
       height: 26,
@@ -42,7 +50,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '網站模式容器',
     },
     wb_title: {
-      top: 41.50000000000001,
+      top: 45.5,
       left: 20,
       width: 60,
       height: 5,
@@ -50,7 +58,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '網站模式',
     },
     wb_sub: {
-      top: 46.80000000000001,
+      top: 50.8,
       left: 20,
       width: 60,
       height: 2,
@@ -58,7 +66,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: 'Web Mode',
     },
     wb_desc: {
-      top: 51,
+      top: 55,
       left: 20,
       width: 60,
       height: 6,
@@ -66,16 +74,16 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '使用固定戲劇性文案模板，無需等待 AI 生成',
     },
     wb_btn: {
-      top: 57.62618496158869,
+      top: 61.6,
       left: 25,
       width: 50,
-      height: 4.412144511523394,
+      height: 4.4,
       radius: 999,
       fontSize: 12,
       label: '開始遊戲',
     },
     wb_icon: {
-      top: 41,
+      top: 45,
       left: 68,
       width: 6,
       height: 6,
@@ -85,7 +93,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
 
     // AI Mode 原子
     ai_box: {
-      top: 67,
+      top: 71,
       left: 15,
       width: 70,
       height: 26,
@@ -93,7 +101,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: 'AI 模式容器',
     },
     ai_title: {
-      top: 70.49999999999997,
+      top: 74.5,
       left: 20,
       width: 60,
       height: 5,
@@ -101,7 +109,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: 'AI 模式',
     },
     ai_sub: {
-      top: 75.69999999999996,
+      top: 79.7,
       left: 20,
       width: 60,
       height: 2,
@@ -109,7 +117,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: 'AI Mode',
     },
     ai_desc: {
-      top: 80,
+      top: 84,
       left: 20,
       width: 60,
       height: 6,
@@ -117,8 +125,8 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '由 LLM 生成無限變化的判決，支援自由文字陳述',
     },
     ai_btn: {
-      top: 86.62618496158869,
-      left: 25.238095238095237,
+      top: 90.6,
+      left: 25.2,
       width: 50,
       height: 4,
       radius: 999,
@@ -126,7 +134,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       label: '開始遊戲',
     },
     ai_icon: {
-      top: 70,
+      top: 74,
       left: 68,
       width: 6,
       height: 6,
@@ -136,6 +144,8 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
   });
 
   const [isReady, setIsReady] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (containerRef.current && !isDesignMode) {
@@ -147,6 +157,16 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
           onComplete: () => setIsReady(true),
         }
       );
+
+      // 強制嘗試播放影片，修復行動端與 iOS 的自動播放限制問題
+      if (videoRef.current) {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.warn('[Video] Autoplay was prevented. User interaction required or Low Power Mode active.', error);
+          });
+        }
+      }
     }
   }, [isDesignMode]);
 
@@ -218,11 +238,14 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
             <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-xl animate-pulse" />
             <div className="relative w-full h-full rounded-[25%] overflow-hidden bg-black/20 shadow-2xl backdrop-blur-sm group">
               <video
+                ref={videoRef}
                 src="/assets/logo_anim.mp4"
+                poster="/ui/logo_poster.png"
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="auto"
                 className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent pointer-events-none" />

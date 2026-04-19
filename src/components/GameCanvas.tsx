@@ -37,11 +37,15 @@ export default function GameCanvas({
 
   useEffect(() => {
     const calcScale = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
+      // 防止視窗尺寸異常（如 8px）導致的縮放坍塌
+      const vw = Math.max(window.innerWidth, 320);
+      const vh = Math.max(window.innerHeight, 400); 
+      
       // 取較小的縮放因子，確保畫布完整顯示
       const s = Math.min(vw / designWidth, vh / designHeight);
-      setScale(s);
+      
+      // 計算目前的縮放比率，並確保不低於 0.3 以維持基本可見度
+      setScale(Math.max(s, 0.3));
     };
 
     calcScale();
@@ -60,20 +64,60 @@ export default function GameCanvas({
   return (
     <>
       <style jsx>{`
+        /* 全域背景容器 - 強制層次隔離 */
         .game-canvas-bg {
           background-color: ${bgColor};
+          position: fixed;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          z-index: 0;
+          isolation: isolate;
         }
+        
+        /* 環境光效果 (改用獨立背景層) */
+        .ambient-glow {
+          position: absolute;
+          inset: 0;
+          background: 
+            radial-gradient(circle at 50% 50%, rgba(30, 58, 138, 0.25) 0%, transparent 70%),
+            radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: -1;
+        }
+
         .game-canvas-inner {
           width: ${designWidth}px;
           height: ${designHeight}px;
-          transform: scale(${scale});
+          transform: scale(${scale}) translateZ(0); /* 強制開啟 GPU 硬體層 */
           transform-origin: center center;
+          position: relative;
+          overflow: hidden;
+          flex-shrink: 0;
+          z-index: 10;
+          backface-visibility: hidden;
+          will-change: transform;
+        }
+
+        /* 桌面端手機框質感 (移除導致重影的大面積散光陰影) */
+        @media (min-width: 500px) {
+          .game-canvas-inner {
+            outline: 8px solid #0f172a;
+            border-radius: 44px;
+            box-shadow: 
+              0 0 0 10px #1e293b,
+              0 24px 48px rgba(0, 0, 0, 0.6); /* 僅保留基本深度陰影 */
+          }
         }
       `}</style>
-      <div className="game-canvas-bg fixed inset-0 flex items-center justify-center overflow-hidden">
+      <div className="game-canvas-bg">
+        {/* 背景環境裝飾 */}
+        <div className="ambient-glow" />
         <div
           ref={containerRef}
-          className="game-canvas-inner relative overflow-hidden flex-shrink-0"
+          className="game-canvas-inner"
         >
           {children}
         </div>
