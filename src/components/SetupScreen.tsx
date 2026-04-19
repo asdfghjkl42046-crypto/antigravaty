@@ -72,7 +72,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setIsReady(false);
+    // 移除同步 setIsReady(false) 避免渲染循環，因為初始值已為 false
     if (containerRef.current && !isDesignMode) {
       gsap.fromTo(
         '.ui-animate',

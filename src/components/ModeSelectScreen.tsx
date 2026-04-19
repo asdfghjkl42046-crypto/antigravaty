@@ -149,7 +149,9 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
 
   useEffect(() => {
     if (containerRef.current && !isDesignMode) {
-      setIsReady(false);
+      // ⚠️ 修正 V26: 避免在 Effect 中同步觸發 setState
+      requestAnimationFrame(() => setIsReady(false));
+      
       gsap.fromTo(
         '.ui-animate',
         { opacity: 0, y: 30 },

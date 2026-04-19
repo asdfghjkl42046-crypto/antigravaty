@@ -9,17 +9,21 @@ import PlayerRegistrationScreen from '@/components/PlayerRegistrationScreen';
 import DashboardScreen from '@/components/DashboardScreen';
 import CourtroomScreen from '@/components/CourtroomScreen';
 import EndingScreen from '@/components/EndingScreen';
+import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {
   const { players, judgeMode, setJudgeMode, initGame, endTurn, resetGame, phase } = useGameStore();
   const [mounted, setMounted] = useState(false);
   const [plannedPlayerCount, setPlannedPlayerCount] = useState<number | null>(null);
   const [currentRegIndex, setCurrentRegIndex] = useState(0);
-  const [registrationList, setRegistrationList] = useState<any[]>([]);
+  const [registrationList, setRegistrationList] = useState<PlayerConfig[]>([]);
 
   useEffect(() => {
     resetGame(); // 開發階段：每次重整強制清除暫存，必定回到封面
-    setMounted(true);
+    
+    // 使用非同步方式設置以避免渲染循環警告
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, [resetGame]);
 
   if (!mounted) return null;
@@ -38,7 +42,7 @@ export default function Home() {
     setPlannedPlayerCount(playerCount);
   };
 
-  const handleRegistrationConfirm = async (config: any) => {
+  const handleRegistrationConfirm = async (config: PlayerConfig) => {
     const newList = [...registrationList, config];
 
     if (newList.length === (plannedPlayerCount || 0)) {

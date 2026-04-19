@@ -348,7 +348,7 @@ const PaperFlip: React.FC<{
           let underlyingIdx: number | null = null;
           if (targetPage !== null && targetPage > currentPage) {
             underlyingIdx = targetPage;
-          } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+          } else if (dragOffset > 0 && currentPage + 1 < pages.length) {
             underlyingIdx = currentPage + 1;
           }
           return underlyingIdx !== null ? (
@@ -362,7 +362,7 @@ const PaperFlip: React.FC<{
         {(() => {
           const isFlippingForward =
             (targetPage !== null && targetPage > currentPage) ||
-            (startX.current !== null && dragOffset > 0);
+            (dragOffset > 0);
           return !isFlippingForward ? (
             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
           ) : null;
@@ -591,7 +591,7 @@ const DefenseCarousel: React.FC<{
               }}
               className="absolute w-64 h-[440px] select-none transform-style-3d"
             >
-              /* ===== 正面：文字卡 ===== */
+              {/* ===== 正面：文字卡 ===== */}
               <div className="absolute inset-0 bg-[#0a0f1e] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl p-5 flex flex-col justify-between backface-hidden">
                 {/* 左上角紅色懸掛圓標 (123123) - 增加 translateZ 使其真實懸浮 */}
                 <div className="absolute top-[-2px] left-[-2px] w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-white/40 shadow-[0_0_20px_rgba(239,68,68,0.6)] flex items-center justify-center z-[200] [transform:translateZ(50px)]">
@@ -625,7 +625,7 @@ const DefenseCarousel: React.FC<{
                 <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
               </div>
-              /* ===== 背面：影片卡 ===== */
+              {/* ===== 背面：影片卡 ===== */}
               <div className="absolute inset-0 bg-[#0a0e1a] border-2 border-cyan-500/60 ring-1 ring-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.3)] rounded-xl overflow-hidden backface-hidden [transform:rotateY(180deg)]">
                 {/* 使用 LoopingVideo 限制播放區間為 1s ~ 8s */}
                 <LoopingVideo

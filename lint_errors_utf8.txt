@@ -1,0 +1,274 @@
+﻿
+> antigravaty@0.1.0 lint
+> eslint --quiet
+
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\brand\scripts\extract-colors.cjs
+  21:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  22:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\brand\scripts\inject-brand-context.cjs
+  15:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  16:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\brand\scripts\sync-brand-to-tokens.cjs
+  12:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  13:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  14:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\brand\scripts\validate-asset.cjs
+  16:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  17:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\design-system\scripts\embed-tokens.cjs
+  13:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  14:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\design-system\scripts\generate-tokens.cjs
+  10:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  11:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\.agents\skills\ui-ux-pro-max-skill-main\.claude\skills\design-system\scripts\validate-tokens.cjs
+  11:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  12:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\scratch\migrate_laws.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\scripts\upgrade_laws_jkl.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Users\asdfg\Desktop\antigravaty\src\app\page.tsx
+  18:60  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-explicit-any
+  22:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\asdfg\Desktop\antigravaty\src\app\page.tsx:22:5
+  20 |   useEffect(() => {
+  21 |     resetGame(); // ??挾嚗?甈⊿??游撥?嗆??斗摮?敹??撠
+> 22 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |   }, [resetGame]);
+  24 |
+  25 |   if (!mounted) return null;  react-hooks/set-state-in-effect
+  41:52  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-explicit-any
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                                              react-hooks/refs
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                                              react-hooks/refs
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                                              react-hooks/refs
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                            react-hooks/refs
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                            react-hooks/refs
+  351:22  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:351:22
+  349 |           if (targetPage !== null && targetPage > currentPage) {
+  350 |             underlyingIdx = targetPage;
+> 351 |           } else if (startX.current !== null && dragOffset > 0 && currentPage + 1 < pages.length) {
+      |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  352 |             underlyingIdx = currentPage + 1;
+  353 |           }
+  354 |           return underlyingIdx !== null ? (                                                                                            react-hooks/refs
+  364:13  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:364:13
+  362 |         {(() => {
+  363 |           const isFlippingForward =
+> 364 |             (targetPage !== null && targetPage > currentPage) ||
+      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 365 |             (startX.current !== null && dragOffset > 0);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  366 |           return !isFlippingForward ? (
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;  react-hooks/refs
+  365:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:365:14
+  363 |           const isFlippingForward =
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+> 365 |             (startX.current !== null && dragOffset > 0);
+      |              ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  366 |           return !isFlippingForward ? (
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;                                                                                                                         react-hooks/refs
+  365:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:365:14
+  363 |           const isFlippingForward =
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+> 365 |             (startX.current !== null && dragOffset > 0);
+      |              ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  366 |           return !isFlippingForward ? (
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;                                                                                                                         react-hooks/refs
+  365:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:365:14
+  363 |           const isFlippingForward =
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+> 365 |             (startX.current !== null && dragOffset > 0);
+      |              ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  366 |           return !isFlippingForward ? (
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;                                                                                                                         react-hooks/refs
+  365:14  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:365:14
+  363 |           const isFlippingForward =
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+> 365 |             (startX.current !== null && dragOffset > 0);
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  366 |           return !isFlippingForward ? (
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;                                                                                                       react-hooks/refs
+  366:19  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:366:19
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+  365 |             (startX.current !== null && dragOffset > 0);
+> 366 |           return !isFlippingForward ? (
+      |                   ^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;
+  369 |         })()}                                                                                                                                                react-hooks/refs
+  366:19  error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\CourtroomScreen.tsx:366:19
+  364 |             (targetPage !== null && targetPage > currentPage) ||
+  365 |             (startX.current !== null && dragOffset > 0);
+> 366 |           return !isFlippingForward ? (
+      |                   ^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  367 |             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
+  368 |           ) : null;
+  369 |         })()}                                                                                                                                                react-hooks/refs
+  593:14  error  Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react/jsx-no-comment-textnodes
+  627:21  error  Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react/jsx-no-comment-textnodes
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\DashboardScreen.tsx
+   33:92  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  226:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\DebugPanel.tsx
+   48:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\EndingScreen.tsx
+  225:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\ModeSelectScreen.tsx
+  152:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\ModeSelectScreen.tsx:152:7
+  150 |   useEffect(() => {
+  151 |     if (containerRef.current && !isDesignMode) {
+> 152 |       setIsReady(false);
+      |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  153 |       gsap.fromTo(
+  154 |         '.ui-animate',
+  155 |         { opacity: 0, y: 30 },  react-hooks/set-state-in-effect
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\PlayerRegistrationScreen.tsx
+   47:61  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+  402:97  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\PlayerRegistrationScreen.tsx:402:97
+  400 |             <div className="absolute bottom-4 left-10 right-10 flex justify-between opacity-10 pointer-events-none">
+  401 |               <span className="text-[8px] font-mono font-bold tracking-widest uppercase">AUTH_LEVEL_04</span>
+> 402 |               <span className="text-[8px] font-mono font-bold tracking-widest uppercase">TR_ID_{Math.random().toString(36).substring(7).toUpperCase()}</span>
+      |                                                                                                 ^^^^^^^^^^^^^ Cannot call impure function
+  403 |             </div>
+  404 |           </div>
+  405 |         </div>  react-hooks/purity
+
+C:\Users\asdfg\Desktop\antigravaty\src\components\ScanScreen.tsx
+  46:75  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+??47 problems (47 errors, 0 warnings)
+

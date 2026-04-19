@@ -2,11 +2,29 @@ import React from 'react';
 import { ROLE_DATA, COLOR_MAP } from '../data/roles/RoleData';
 import { useGameStore } from '../store/gameStore';
 import { Users, ChevronDown, Check, ShieldCheck } from 'lucide-react';
+import type { Player, RoleType } from '../types/game';
+
+interface RoleData {
+  key: RoleType;
+  name: string;
+  emoji: string;
+  icon: React.ElementType;
+  color: string;
+  levels: { type: string; desc: string }[];
+}
 
 /**
  * 個別人才卡片組件：高度色彩同步，按鈕與邊框根據職位螢光色呈現
  */
-function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upgradeRole: any }) {
+function TalentCard({ 
+  role, 
+  player, 
+  upgradeRole 
+}: { 
+  role: RoleData; 
+  player: Player; 
+  upgradeRole: (roleKey: RoleType) => void 
+}) {
   const [showDetail, setShowDetail] = React.useState(false);
   const currentLevel = player.roles?.[role.key] || 0;
   const isMax = currentLevel >= 3;
@@ -91,7 +109,7 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
               </span>
             </div>
 
-            {role.levels.map((level: any, idx: number) => {
+            {role.levels.map((level: { type: string; desc: string }, idx: number) => {
               const targetLv = idx + 1;
               const isUnlocked = currentLevel >= targetLv;
               const isCurrentTarget = !isMax && currentLevel === idx;

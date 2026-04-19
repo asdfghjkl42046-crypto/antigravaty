@@ -208,20 +208,18 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         >
           {/* 右底蓋 */}
           <div 
-            className="absolute left-0 right-[-10px] inset-y-[-5px] rounded-r-xl border-r-[10px] border-black/30 shadow-2xl"
+            className="absolute left-0 right-[-10px] inset-y-[-5px] rounded-r-xl border-r-[10px] border-black/30 shadow-2xl bg-leather-texture dynamic-color"
             style={{ 
-              backgroundColor: theme.coverColor,
-              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")'
-            }}
+              '--dynamic-bg': theme.coverColor
+            } as React.CSSProperties}
           />
           {/* 左底蓋 (僅在開啟後顯眼) */}
           <div 
-            className="absolute left-[-420px] right-0 inset-y-[-5px] rounded-l-xl border-l-[10px] border-black/30"
+            className="absolute left-[-420px] right-0 inset-y-[-5px] rounded-l-xl border-l-[10px] border-black/30 bg-leather-texture dynamic-color"
             style={{ 
-              backgroundColor: theme.coverColor,
-              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+              '--dynamic-bg': theme.coverColor,
               transform: isCoverOpened ? 'rotateY(0deg)' : 'rotateY(90deg)'
-            }}
+            } as React.CSSProperties}
           />
         </div>
 
@@ -231,24 +229,19 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
             <div
               key={idx}
               ref={(el) => { pageRefs.current[idx] = el; }}
-              className="absolute inset-0 origin-left transform-style-3d"
+              className="absolute inset-0 origin-left transform-style-3d dynamic-page"
               style={{
-                // 核心 Z 軸排序邏輯：解決 Z-Fighting (視覺 100% 還原為 0.5px 間距)
-                transform: idx < currentPage 
-                  ? `rotateY(-160deg) translateZ(${idx * 0.5}px)` 
-                  : `rotateY(-5deg) translateZ(${(totalPages - idx) * 0.5}px)`,
-                zIndex: idx === flippingIndex ? 500 : (idx < currentPage ? 5 + idx : 100 - idx)
-              }}
+                '--page-rotate-y': idx < currentPage ? '-160deg' : '-5deg',
+                '--page-tz': idx < currentPage ? `${idx * 0.5}px` : `${(totalPages - idx) * 0.5}px`,
+                '--page-z': idx === flippingIndex ? 500 : (idx < currentPage ? 5 + idx : 100 - idx)
+              } as React.CSSProperties}
             >
               {/* [正面層] */}
               <div className="absolute inset-0 transform-style-3d backface-hidden">
                 {/* 1. 100% 不透明物理背板 - 殺死重影的關鍵 */}
                 <div 
-                  className="absolute inset-0 bg-[#ecd8b0] shadow-inner"
-                  style={{ 
-                    backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
-                    zIndex: 1
-                  }}
+                  className="absolute inset-0 bg-[#ecd8b0] shadow-inner bg-paper-texture"
+                  style={{ zIndex: 1 }}
                 />
                 
                 {/* 2. 摺痕陰影層 */}
@@ -270,11 +263,10 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
 
               {/* [背面層] - 模擬紙張背面的材質質感 */}
               <div 
-                className="absolute inset-0 backface-hidden [transform:rotateY(-180deg)]"
+                className="absolute inset-0 backface-hidden [transform:rotateY(-180deg)] bg-paper-texture"
                 style={{ 
                   backgroundColor: '#d9c5a3',
-                  backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
-                  zIndex: 0
+                  zIndex: 0 
                 }}
               />
             </div>
@@ -284,19 +276,19 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         {/* 3. 2.0版 封面系統 */}
         <div
           ref={coverRef}
-          className="absolute inset-0 origin-left transform-style-3d"
+          className="absolute inset-0 origin-left transform-style-3d dynamic-page"
           style={{
-            zIndex: isCoverOpened ? 5 : 200,
-            transform: isCoverOpened ? 'rotateY(-180deg) translateZ(-5px)' : 'translateZ(80px)'
-          }}
+            '--page-z': isCoverOpened ? 5 : 200,
+            '--page-rotate-y': isCoverOpened ? '-180deg' : '0deg',
+            '--page-tz': isCoverOpened ? '-5px' : '80px'
+          } as React.CSSProperties}
         >
           {/* 封面正面 */}
           <div 
-            className="absolute inset-0 rounded-r-xl border-r-[12px] border-black/30 flex flex-col items-center justify-center p-12 backface-hidden shadow-2xl"
+            className="absolute inset-0 rounded-r-xl border-r-[12px] border-black/30 flex flex-col items-center justify-center p-12 backface-hidden shadow-2xl bg-leather-texture dynamic-color"
             style={{ 
-              backgroundColor: theme.coverColor,
-              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")'
-            }}
+              '--dynamic-bg': theme.coverColor
+            } as React.CSSProperties}
           >
             <div className={`w-full h-full border-2 ${theme.accent} border-dashed flex flex-col items-center justify-center p-8`}>
               <div className="mb-6 opacity-30">{theme.icon}</div>

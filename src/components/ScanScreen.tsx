@@ -13,6 +13,7 @@ import {
 import { useGameStore } from '../store/gameStore';
 import { PlayerCard } from './DashboardScreen';
 import { SystemStrings } from '../data/SystemStrings';
+import type { Player, Tag } from '../types/game';
 
 interface ScanScreenProps {
   onBack: () => void;
@@ -22,6 +23,10 @@ interface ScanScreenProps {
 
 export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreenProps) {
   const { processScan, players, currentPlayerIndex } = useGameStore();
+
+  const randomLogId = React.useMemo(() => 
+    Math.random().toString(36).substring(7).toUpperCase(), 
+  []);
 
   const currentPlayer = players[currentPlayerIndex];
   const nextPlayerIndex = (currentPlayerIndex + 1) % Math.max(1, players.length);
@@ -43,7 +48,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
   const getAggregatedTags = (playerIdx: number | null) => {
     if (playerIdx === null || !players[playerIdx]) return [];
     const player = players[playerIdx];
-    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: any) => {
+    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: Tag) => {
       acc[t.text] = (acc[t.text] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -296,40 +301,53 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
 
         {status.msg && (
           <div
-            className={`absolute top-24 left-4 right-4 max-w-[320px] p-0 rounded-2xl border backdrop-blur-3xl flex flex-col items-start shadow-[0_50px_100px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-left-4 duration-500 z-[100] overflow-hidden ${
+            className={`absolute top-24 left-4 right-4 max-w-[320px] rounded-sm border-t-2 border-l border-white/5 backdrop-blur-3xl flex flex-col items-start shadow-[0_40px_80px_rgba(0,0,0,0.9)] animate-in fade-in slide-in-from-left-4 duration-500 z-[100] overflow-hidden ${
               status.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/30'
-                : 'bg-red-950/40 border-red-500/30'
+                ? 'bg-emerald-950/60 border-t-emerald-400'
+                : 'bg-red-950/60 border-t-red-400'
             }`}
           >
-            {/* 頂部狀態條 */}
-            <div className={`w-full px-4 py-1 flex items-center justify-between ${status.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
-              <div className="flex items-center gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${status.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {status.type === 'success' ? 'System_Verified' : 'Access_Denied'}
+            {/* 終端掃描背景層 */}
+            <div 
+              className="absolute inset-0 opacity-[0.05] pointer-events-none bg-scan-grid"
+            />
+            
+            {/* 狀態頂部區域：高對比 Saul Bass 風格 */}
+            <div className={`w-full px-5 py-2 flex items-center justify-between z-10 ${status.type === 'success' ? 'bg-emerald-400/10' : 'bg-red-400/10'}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-1.5 h-1.5 rotate-45 animate-pulse ${status.type === 'success' ? 'bg-emerald-300' : 'bg-red-300'}`} />
+                <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${status.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {status.type === 'success' ? 'SYSTEM_SYNC_OK' : 'SYSTEM_REJECTED'}
                 </span>
               </div>
-              <span className="text-[8px] font-mono opacity-30 text-white uppercase">ID: {Math.random().toString(36).substring(7).toUpperCase()}</span>
+              <span className="text-[9px] font-mono font-bold text-white/20">LOG_V4.{randomLogId}</span>
             </div>
 
-            <div className="p-4 flex items-start gap-4">
-              <div className="mt-1 flex-shrink-0">
-                {status.type === 'success' ? (
-                  <CheckCircle2 size={18} className="text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
-                ) : (
-                  <AlertCircle size={18} className="text-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className={`text-[13px] font-bold leading-relaxed tracking-tight whitespace-pre-line ${status.type === 'success' ? 'text-emerald-50' : 'text-red-50'}`}>
+            <div className="p-6 pr-8 flex items-start gap-4 z-10 w-full relative">
+              <div className="flex-1 flex flex-col">
+                <p className={`text-[14px] font-bold leading-relaxed tracking-normal whitespace-pre-line ${status.type === 'success' ? 'text-emerald-50' : 'text-red-50'}`}>
                   {status.msg}
                 </p>
+                
+                {/* 裝飾性數據流 */}
+                <div className="mt-4 flex gap-1 opacity-20">
+                  <div className={`h-1 w-8 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                  <div className={`h-1 w-2 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                  <div className={`h-1 w-1 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                </div>
+              </div>
+              
+              <div className="mt-1 flex-shrink-0 opacity-40">
+                {status.type === 'success' ? (
+                  <CheckCircle2 size={16} className="text-emerald-400" strokeWidth={3} />
+                ) : (
+                  <AlertCircle size={16} className="text-red-400" strokeWidth={3} />
+                )}
               </div>
             </div>
             
-            {/* 底部裝飾掃描線 */}
-            <div className={`w-full h-[1px] ${status.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`} />
+            {/* 底部螢光溢出 */}
+            <div className={`w-full h-[1px] opacity-20 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
           </div>
         )}
       </div>

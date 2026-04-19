@@ -22,6 +22,7 @@ import {
 import { useGameStore, MASTERPIECES } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
 import { getTotalBlackMaterials } from '@/engine/PlayerEngine';
+import type { Player, Tag } from '@/types/game';
 import gsap from 'gsap';
 import DebugPanel from './DebugPanel';
 
@@ -30,7 +31,17 @@ interface DashboardScreenProps {
   onReset: () => void;
 }
 
-function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLabelWhite }: any) {
+interface StatDiscProps {
+  label: string;
+  value: string | number;
+  subValue?: string;
+  colorClass: string;
+  onClick?: () => void;
+  hasArrow?: boolean;
+  isLabelWhite?: boolean;
+}
+
+function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLabelWhite }: StatDiscProps) {
   // 使用映射表確保所有顏色都能被 Tailwind 靜態掃描編譯
   const colorMap: Record<string, string> = {
     emerald: 'bg-emerald-500',
@@ -97,7 +108,15 @@ function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLab
 /**
  * 玩家卡片組件
  */
-export function PlayerCard({ player, isActive, onShowTags }: any) {
+export function PlayerCard({ 
+  player, 
+  isActive, 
+  onShowTags 
+}: { 
+  player: Player; 
+  isActive: boolean; 
+  onShowTags: () => void; 
+}) {
   const bmCount = getTotalBlackMaterials(player);
 
   return (
@@ -159,7 +178,7 @@ export function PlayerCard({ player, isActive, onShowTags }: any) {
         <StatDisc
           label="資金"
           value={`${player.g}萬`}
-          subValue={player.trustFund > 0 ? `${player.trustFund}萬` : null}
+          subValue={player.trustFund > 0 ? `${player.trustFund}萬` : undefined}
           colorClass="text-emerald-400"
         />
         <StatDisc label="人脈" value={player.ip} colorClass="text-blue-400" />
@@ -223,7 +242,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   const getAggregatedTags = (playerIdx: number | null) => {
     if (playerIdx === null || !players[playerIdx]) return [];
     const player = players[playerIdx];
-    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: any) => {
+    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: Tag) => {
       acc[t.text] = (acc[t.text] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -282,48 +301,41 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       </div>
 
       {/* 開局加成彈窗 (逐一顯示模式) */}
+      {/* 🎰 開局加成彈窗 - 輕量化「實體便條」重構版 */}
       {showBonusModal && startNotifications.length > 0 && (
-        <div className="absolute inset-0 z-[1000] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-          <div className="relative w-full max-w-sm bg-[#0a0a0a] border-2 border-amber-600/40 rounded-[40px] p-8 shadow-[0_0_50px_rgba(180,83,9,0.3)] flex flex-col items-center">
-            {/* 裝飾發光背景 */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(180,83,9,0.2),transparent_70%)] rounded-[38px] pointer-events-none" />
-
-            {/* 右上角進度顯示 */}
-            <div className="absolute top-8 right-10 text-amber-500/40 text-[10px] font-black tracking-widest">
-              {currentBonusIdx + 1} / {startNotifications.length}
+        <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
+          <div 
+            className="relative w-full max-w-sm bg-[#e8e4db] rounded-sm p-10 shadow-[20px_20px_60px_rgba(0,0,0,0.6),-1px_-1px_5px_rgba(255,255,255,0.05)] flex flex-col items-start overflow-hidden border-l-[10px] border-amber-900/10 bg-paper-texture"
+          >
+            {/* 數位標註：星際終端掃描細節 */}
+            <div className="absolute top-6 right-8 font-mono text-amber-950/20 text-[9px] font-bold tracking-widest uppercase">
+              SCAN_ID: ${currentBonusIdx + 1}/${startNotifications.length}
+            </div>
+            
+            <div className="flex flex-col mb-10 z-10 w-full">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-[2px] bg-amber-900/30" />
+                <span className="text-[10px] font-black text-amber-900/40 uppercase tracking-[0.4em]">
+                  CONFIDENTIAL_ADVAN
+                </span>
+              </div>
+              <h2 className="text-3xl font-serif font-black text-[#2a1b11] leading-none tracking-tighter">
+                獲得開局加成
+              </h2>
             </div>
 
-            {/* 頂部禮物圖示 */}
-            <div className="w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_25px_rgba(245,158,11,0.4)] rotate-3">
-              <Gift className="w-10 h-10 text-black fill-black/10" strokeWidth={2.5} />
-            </div>
-
-            <h2 className="text-xl font-black text-white mb-6 tracking-[0.2em] uppercase text-left w-full border-b border-white/5 pb-4">
-              獲得開局加成
-            </h2>
-
-            {/* 加成項目：企業備忘錄風格 */}
-            <div className="w-full mb-10 min-h-[120px] z-10">
-              <div key={currentBonusIdx} className="w-full group transition-all animate-in slide-in-from-left-4 duration-500">
-                <div className="flex items-start gap-5">
-                  {/* 左側金色指示條 */}
-                  <div className="w-1.5 h-16 bg-gradient-to-b from-amber-500 to-transparent rounded-full shadow-[0_0_15px_rgba(245,158,11,0.4)] flex-shrink-0" />
-                  
-                  <div className="flex flex-col pt-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] bg-amber-500/10 px-2 py-0.5 rounded">
-                        Advantage_Unlocked
-                      </span>
-                    </div>
-                    <p className="text-xl font-bold text-white/95 leading-snug tracking-tight whitespace-pre-line">
-                      {startNotifications[currentBonusIdx]}
-                    </p>
-                  </div>
+            {/* 加成內容區：墨水質感 */}
+            <div className="w-full mb-12 min-h-[160px] z-10">
+              <div key={currentBonusIdx} className="w-full transition-all animate-in slide-in-from-left-4 duration-500">
+                <div className="flex flex-col border-y border-amber-900/5 py-8">
+                  <p className="text-xl font-serif font-bold text-[#3c2a1c]/90 leading-relaxed tracking-tight whitespace-pre-line italic">
+                    「{startNotifications[currentBonusIdx]}」
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* 按鈕 */}
+            {/* 控制器：權威按壓感 */}
             <button
               onClick={() => {
                 if (currentBonusIdx < startNotifications.length - 1) {
@@ -333,86 +345,79 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                   clearStartNotifications();
                 }
               }}
-              className="w-full bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-black py-5 rounded-2xl transition-all shadow-[0_4px_15px_rgba(245,158,11,0.3)] flex items-center justify-center space-x-2 text-lg group"
+              className="w-full bg-[#1a110b] hover:bg-black active:scale-[0.98] text-[#e8e4db] font-black py-5 rounded-sm transition-all shadow-xl flex items-center justify-center space-x-3 text-sm tracking-[0.5em] uppercase border-t border-white/5"
             >
-              <span>{currentBonusIdx < startNotifications.length - 1 ? '下一位' : '收下好意'}</span>
-              <span className="transition-transform group-hover:translate-x-1 font-normal opacity-70">
-                {' '}
-                &gt;{' '}
-              </span>
+              <span>{currentBonusIdx < startNotifications.length - 1 ? 'NEXT_PAGE' : 'ACKNOWLEDGE'}</span>
             </button>
+            
+            {/* 底部物理細節 */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-900/10" />
           </div>
         </div>
       )}
 
-      {/* ⚠️ 前科記錄彈窗 (Sequential View) */}
+      {/* ⚠️ 前科記錄彈窗 - 輕量化「警察筆錄」重構版 */}
       {tagViewPlayerIdx !== null && (
-        <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
-          <div className="relative w-full max-w-sm bg-[#050505] border border-orange-600/20 rounded-[24px] p-8 shadow-[0_0_80px_rgba(0,0,0,1)] flex flex-col items-start overflow-hidden">
-            {/* 裝飾背景：掃描線與數位網格 */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-0 pointer-events-none" style={{ backgroundSize: '100% 4px, 4px 100%' }} />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(154,52,18,0.12),transparent_70%)] rounded-[24px] pointer-events-none" />
+        <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/95 animate-in fade-in duration-300">
+          <div className="relative w-full max-w-sm bg-[#0a0a0b] border-l border-t border-white/5 p-10 shadow-[0_0_100px_rgba(0,0,0,1)] flex flex-col items-start overflow-hidden">
+            {/* 數位掃描格線層 */}
+            <div 
+              className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none bg-noir-pinstripe"
+            />
             
-            {/* 數位角落支架 */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-orange-600/40 rounded-tl-xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-orange-600/10 rounded-br-xl" />
+            {/* 星際終端螢光溢邊 */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-orange-600/60 via-transparent to-transparent" />
+            <div className="absolute top-0 left-0 w-[1px] h-32 bg-gradient-to-b from-orange-600/40 to-transparent" />
 
-            {/* 右上角進度顯示 */}
-            <div className="absolute top-6 right-8 font-mono text-orange-500/30 text-[10px] font-black tracking-widest bg-orange-500/5 px-2 py-1 rounded border border-orange-500/10">
-              FILE_NO: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0}/{currentViewTags.length}
+            {/* 右上角受控變數：機密流水號 */}
+            <div className="absolute top-8 right-8 font-mono text-orange-600/30 text-[10px] font-black tracking-widest bg-orange-600/5 px-2 py-1 border border-orange-600/10">
+              RAP_SHEET: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0}/{currentViewTags.length}
             </div>
 
-            {/* 頂部資訊區：左對齊 */}
-            <div className="flex items-center gap-4 mb-8 z-10 w-full relative">
-              <div className="w-14 h-14 bg-orange-600/10 border border-orange-600/30 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(234,88,12,0.1)]">
-                <AlertTriangle className="w-7 h-7 text-orange-600" strokeWidth={2.5} />
+            {/* 頂部資訊區：硬派左對齊 */}
+            <div className="flex flex-col mb-10 z-10 w-full">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1.5 h-1.5 bg-orange-600 animate-pulse" />
+                <span className="text-[10px] font-black text-orange-600/60 uppercase tracking-[0.4em]">
+                  SUBJECT_CRIMINAL_V4
+                </span>
               </div>
-              <div className="flex flex-col">
-                <h2 className="text-lg font-black text-white tracking-[0.2em] uppercase leading-none mb-1.5 pt-1">
-                  犯罪前科紀錄
-                </h2>
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
-                  <p className="text-[10px] font-bold text-orange-500/60 tracking-[0.1em] uppercase">
-                    SUBJECT: {players[tagViewPlayerIdx]?.name}
-                  </p>
-                </div>
-              </div>
+              <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
+                犯罪前科紀錄
+              </h2>
+              <p className="text-[11px] font-bold text-slate-500 tracking-wider">
+                SUBJECT: {players[tagViewPlayerIdx]?.name.toUpperCase()}
+              </p>
             </div>
 
-            {/* 標籤顯示：硬派左對齊排版 */}
-            <div className="w-full mb-10 min-h-[140px] z-10">
+            {/* 標籤顯示：類比式排版 */}
+            <div className="w-full mb-12 min-h-[160px] z-10">
               {currentViewTags.length > 0 ? (
-                <div key={tagViewItemIdx} className="w-full group transition-all animate-in slide-in-from-left-4 duration-500">
-                  <div className="flex items-start gap-4">
-                    {/* 左側警示條 */}
-                    <div className="w-1 h-14 bg-gradient-to-b from-orange-600/80 to-transparent rounded-full shadow-[0_0_15px_rgba(234,88,12,0.4)] flex-shrink-0" />
+                <div key={tagViewItemIdx} className="w-full group animate-in slide-in-from-left-4 duration-500">
+                  <div className="flex flex-col border-l-2 border-orange-600/20 pl-6 py-2">
+                    <span className="text-[10px] font-black text-orange-600/50 uppercase tracking-[0.3em] mb-4">
+                      Charge_Protocol_ID.64
+                    </span>
+                    <span className="text-3xl font-black text-white/90 tracking-tight mb-8 leading-none">
+                      {currentViewTags[tagViewItemIdx].text}
+                    </span>
                     
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-orange-600/70 uppercase tracking-[0.3em] mb-3">
-                        Criminal_Charge
-                      </span>
-                      <span className="text-2xl font-black text-white tracking-tight mb-5 whitespace-pre-line leading-tight">
-                        {currentViewTags[tagViewItemIdx].text}
-                      </span>
-                      
-                      {currentViewTags[tagViewItemIdx].count > 1 && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-600/10 border border-orange-600/20 rounded-lg w-max">
-                          <span className="text-[9px] font-black text-orange-500/80 uppercase tracking-widest pt-0.5">
-                            RECIDIVISM_COUNT
-                          </span>
-                          <span className="text-white text-xs font-black">
-                            x{currentViewTags[tagViewItemIdx].count}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    {currentViewTags[tagViewItemIdx].count > 1 && (
+                      <div className="inline-flex items-center gap-3 px-3 py-2 bg-orange-950/20 border border-orange-600/20 w-max">
+                        <span className="text-[9px] font-black text-orange-600/80 uppercase tracking-widest">
+                          RECIDIVISM_MARK
+                        </span>
+                        <span className="text-orange-500 text-sm font-black">
+                          X{currentViewTags[tagViewItemIdx].count}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 text-slate-600 font-bold italic text-sm py-8 border-y border-white/5 w-full">
-                  <Check className="w-5 h-5 text-emerald-500" />
-                  <span>檔案庫清空：無任何犯罪紀錄</span>
+                <div className="flex items-center gap-4 text-slate-600 font-bold italic text-sm py-10 border-y border-white/5 w-full">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500/40" />
+                  <span>CLEARED: 檔案庫無任何犯罪紀錄</span>
                 </div>
               )}
             </div>
@@ -427,10 +432,9 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                   setTagViewItemIdx(0);
                 }
               }}
-              className="w-full bg-orange-600 hover:bg-orange-500 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-[0_4px_15px_rgba(154,52,18,0.3)] flex items-center justify-center space-x-2 text-lg"
+              className="w-full bg-transparent hover:bg-orange-600/10 border border-orange-600/30 text-orange-500 font-black py-5 transition-all flex items-center justify-center space-x-3 text-sm tracking-[0.4em] uppercase"
             >
-              <span>{tagViewItemIdx < currentViewTags.length - 1 ? '下一條前科' : '關閉卷宗'}</span>
-              <ChevronRight size={20} className="opacity-50" />
+              <span>{tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}</span>
             </button>
           </div>
         </div>

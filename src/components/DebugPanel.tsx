@@ -45,7 +45,8 @@ export default function DebugPanel() {
   ];
 
   const handleAdjust = (key: string, delta: number) => {
-    const current = (player as any)[key] ?? 0;
+    const playerKey = key as keyof typeof player;
+    const current = typeof player[playerKey] === 'number' ? (player[playerKey] as number) : 0;
     debugUpdatePlayer(player.id, { [key]: Math.max(0, current + delta) });
   };
 
@@ -115,7 +116,7 @@ export default function DebugPanel() {
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
                   {label}
                 </p>
-                <p className={`text-sm font-black ${color}`}>{(player as any)[key] ?? 0}</p>
+                <p className={`text-sm font-black ${color}`}>{String(player[key as keyof typeof player] ?? 0)}</p>
               </div>
               <div className="flex items-center space-x-1">
                 <button
@@ -143,7 +144,15 @@ export default function DebugPanel() {
           {/* 快速操作 */}
           <div className="pt-2 border-t border-white/5 space-y-2">
             <button
-              onClick={() => triggerTrial(player.id)}
+              onClick={() => {
+                triggerTrial(player.id);
+                const currentTrial = useGameStore.getState().trial;
+                if (currentTrial) {
+                  useGameStore.setState({ phase: 'courtroom' });
+                } else {
+                  alert("⚠️ 無法開庭：該玩家目前沒有任何黑材料或犯罪標籤！\n請先讓玩家觸發犯罪行為後再測試法庭。");
+                }
+              }}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               className="w-full py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-xs font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"

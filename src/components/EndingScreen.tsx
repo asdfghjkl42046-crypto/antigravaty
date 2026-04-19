@@ -155,8 +155,8 @@ export default function EndingScreen() {
               {players.map((p, i) => (
                 <div 
                   key={p.id}
-                  className="w-16 h-16 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
-                  style={{ zIndex: players.length - i }}
+                  className="w-16 h-16 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative dynamic-page"
+                  style={{ '--page-z': players.length - i } as React.CSSProperties}
                 >
                   <img
                     src={MASTERPIECES[p.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${p.name}`}
@@ -222,7 +222,7 @@ export default function EndingScreen() {
               baseColor: string, 
               innerColor: string, 
               label: string, 
-              icon: any 
+              icon: React.ElementType 
             }> = {
               saint: { 
                 baseColor: isFake ? '#5c4d37' : '#d4af37', 
@@ -261,27 +261,27 @@ export default function EndingScreen() {
                 label: '時效終止' 
               }
             };
-
-            const config = stampConfig[endingResult.type] || stampConfig.limit;
+ 
+            const config = (stampConfig as Record<string, typeof stampConfig.limit>)[endingResult.type] || stampConfig.limit;
             const Icon = config.icon;
 
             return (
               <div 
-                className="ending-stamp relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
-                style={{ transform: 'rotate(-15deg)' }}
+                className="ending-stamp relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] dynamic-rotate-z"
+                style={{ '--rotate-z': '-15deg' } as React.CSSProperties}
               >
                 {/* 火漆外圈隆起邊緣 (不規則圓形) */}
                 <div 
-                  className="absolute inset-0 rounded-[45%_55%_50%_50%] opacity-90 shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),inset_5px_5px_15px_rgba(255,255,255,0.1)]"
-                  style={{ backgroundColor: config.baseColor }}
+                  className="absolute inset-0 rounded-[45%_55%_50%_50%] opacity-90 shadow-[inset_-5px_-5px_15px_rgba(0,0,0,0.3),inset_5px_5px_15px_rgba(255,255,255,0.1)] dynamic-color"
+                  style={{ '--dynamic-bg': config.baseColor } as React.CSSProperties}
                 />
                 
                 {/* 火漆中心壓印區域 */}
                 <div 
-                  className="absolute w-[80%] h-[80%] rounded-[50%] shadow-[inset_5px_5px_10px_rgba(0,0,0,0.6),inset_-2px_-2px_8px_rgba(255,255,255,0.1)] flex flex-col items-center justify-center p-2"
-                  style={{ backgroundColor: config.baseColor }}
+                  className="absolute w-[80%] h-[80%] rounded-[50%] shadow-[inset_5px_5px_10px_rgba(0,0,0,0.6),inset_-2px_-2px_8px_rgba(255,255,255,0.1)] flex flex-col items-center justify-center p-2 dynamic-color"
+                  style={{ '--dynamic-bg': config.baseColor } as React.CSSProperties}
                 >
-                  <div className="flex flex-col items-center" style={{ color: config.innerColor }}>
+                  <div className="flex flex-col items-center dynamic-color" style={{ '--dynamic-color': config.innerColor } as React.CSSProperties}>
                     <Icon size={34} strokeWidth={2.5} className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-0.5" />
                     <span className="text-[10px] font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {config.label}

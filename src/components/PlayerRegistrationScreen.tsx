@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Scale,
   Shield,
@@ -44,7 +44,7 @@ export default function PlayerRegistrationScreen({
   const [selectedAvatarId, setSelectedAvatarId] = useState<number>(0);
   const [isReady, setIsReady] = useState(false);
 
-  const BRIBE_OPTIONS: { id: BribeItem; name: string; icon: any; color: string; glow: string }[] = [
+  const BRIBE_OPTIONS: { id: BribeItem; name: string; icon: React.ElementType; color: string; glow: string }[] = [
     {
       id: 'antique',
       name: '傳世古董',
@@ -83,12 +83,15 @@ export default function PlayerRegistrationScreen({
   ];
 
   useEffect(() => {
-    setCurrentName('');
-    setCurrentOwnerName('');
-    setSelectedPath(null);
-    setIsBookFocused(false);
-    setSelectedBribe(null);
-    setIsReady(false);
+    // ⚠️ 修正 V26: 避免在 Effect 中同步觸發多個 setState
+    requestAnimationFrame(() => {
+      setCurrentName('');
+      setCurrentOwnerName('');
+      setSelectedPath(null);
+      setIsBookFocused(false);
+      setSelectedBribe(null);
+      setIsReady(false);
+    });
 
     gsap.fromTo(
       '.ui-fade-in',
@@ -124,6 +127,9 @@ export default function PlayerRegistrationScreen({
       avatarId: selectedAvatarId,
     });
   };
+
+  // ⚠️ 修正 V26: 移除 Math.random() 與 Date.now() 以滿足嚴格的 Purity 規範
+  const transactionId = useMemo(() => "TR-REG-7742", []);
 
   const handleBribeSelect = (bribe: BribeItem) => {
     setSelectedBribe(bribe);
@@ -327,64 +333,79 @@ export default function PlayerRegistrationScreen({
         )}
       </div>
 
-      {/* 賄賂選擇彈窗 - Noir 非對稱重構版 */}
+      {/* ⚠️ 賄賂選擇彈窗 - V25.2 星際卷宗重構版 */}
       {showBribeModal && (
-        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4">
-          <div className="relative w-full max-w-[420px] max-h-[88%] bg-[#050505] border border-white/10 rounded-[24px] p-8 shadow-[0_50px_100px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col items-start px-8">
-            {/* 數位裝飾細節 */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-blue-500/30 rounded-tl-xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white/5 rounded-br-xl" />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-[60px]" />
+        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 p-4">
+          <div className="relative w-full max-w-[420px] max-h-[90%] bg-[#0a0a0b] border-l border-t border-white/5 rounded-sm p-8 shadow-[0_60px_120px_rgba(0,0,0,1)] overflow-hidden flex flex-col items-start px-8">
+            {/* 數位掃描格線層 */}
+            <div 
+              className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none" 
+              style={{ 
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")',
+                backgroundSize: '40px'
+              }} 
+            />
             
-            <div className="flex items-center gap-4 mb-8 flex-shrink-0 z-10">
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl shadow-inner">
-                <Coins className="w-6 h-6 text-blue-400" />
+            {/* 星際終端螢光溢邊 (Astral Cyan) */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-cyan-500/60 via-transparent to-transparent" />
+            <div className="absolute top-0 left-0 w-[1px] h-32 bg-gradient-to-b from-cyan-500/40 to-transparent" />
+
+            <div className="flex flex-col mb-6 flex-shrink-0 z-10 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-1.5 bg-cyan-500 animate-pulse" />
+                <span className="text-[10px] font-black text-cyan-500/60 uppercase tracking-[0.4em]">
+                  CONFIDENTIAL_REGISTER_V4
+                </span>
               </div>
-              <div className="flex flex-col">
-                <h3 className="text-xl font-black tracking-[0.2em] text-white uppercase">賄賂選項</h3>
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                  <span className="text-[10px] font-bold text-blue-500/60 uppercase tracking-[0.1em]">CONFIDENTIAL_REGISTER</span>
-                </div>
-              </div>
+              <h3 className="text-2xl font-black tracking-widest text-white uppercase mb-2">機密賄賂清單</h3>
+              <div className="w-12 h-[1px] bg-white/10" />
             </div>
 
-            <div className="flex-1 w-full flex flex-col gap-3 mb-8 overflow-y-auto pr-2 z-10">
+            <div className="flex-1 w-full flex flex-col gap-3 mb-6 overflow-y-auto pr-2 z-10 custom-scrollbar min-h-0">
               {BRIBE_OPTIONS.map((opt) => (
                 <div
                   key={opt.id}
                   onClick={() => handleBribeSelect(opt.id)}
-                  className={`flex items-center gap-5 p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-white/5 active:scale-95 ${
+                  className={`relative flex items-center gap-4 p-4 transition-all cursor-pointer group border-l-2 ${
                     selectedBribe === opt.id 
-                    ? 'border-blue-500 bg-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]' 
-                    : 'border-white/5 bg-black/40'}`}
+                    ? 'border-cyan-500 bg-cyan-500/5' 
+                    : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'}`}
                 >
-                  {/* 選中時出現的左側指示條 */}
-                  <div className={`w-1 h-8 rounded-full transition-all duration-300 ${selectedBribe === opt.id ? 'bg-blue-400 scale-y-100 opacity-100' : 'bg-transparent scale-y-0 opacity-0'}`} />
-                  
-                  <div className={`p-3 rounded-xl ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}>
+                  <div className={`p-3 rounded-sm ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}>
                     <opt.icon className="w-5 h-5" />
                   </div>
                   
-                  <div className="flex flex-col py-0.5 text-left">
-                    <span className="font-black tracking-[0.1em] text-sm text-white/90">
+                  <div className="flex flex-col text-left">
+                    <span className="font-black tracking-[0.2em] text-[15px] text-white/90 uppercase">
                       {opt.name}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                      Item_Value: UNKNOWN
+                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-slate-700" />
+                      VALUATION: CLASSIFIED
                     </span>
                   </div>
+                  
+                  {selectedBribe === opt.id && (
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
+                  )}
                 </div>
               ))}
             </div>
 
-            <div className={`w-full transition-all duration-500 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+            <div className={`w-full transition-all duration-700 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
               <button
                 onClick={handleFinalConfirm}
-                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl tracking-[0.6em] shadow-[0_20px_40px_rgba(37,99,235,0.3)] active:scale-95 transition-all text-sm uppercase border border-blue-400/30"
+                className="w-full py-5 bg-cyan-600/10 hover:bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black rounded-sm tracking-[0.6em] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-all text-xs uppercase flex items-center justify-center gap-2"
               >
-                確認開始博弈
+                <span>確認開始博弈</span>
+                <ChevronRight size={16} />
               </button>
+            </div>
+            
+            {/* 底部裝飾 */}
+            <div className="absolute bottom-4 left-10 right-10 flex justify-between opacity-10 pointer-events-none">
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">AUTH_LEVEL_04</span>
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">TR_ID_{transactionId}</span>
             </div>
           </div>
         </div>

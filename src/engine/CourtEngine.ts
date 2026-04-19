@@ -409,7 +409,7 @@ export class CourtEngine {
       const playerBet = trial.bets.find((b) => b.playerId === p.id);
       if (!playerBet || playerBet.choice === 'none') return p;
       const betRes = settleBet(p, playerBet.choice, actualResult);
-      let rpChange = betRes.rpGain < 0 ? applyPRDiscount(p, betRes.rpGain) : betRes.rpGain;
+      const rpChange = betRes.rpGain < 0 ? applyPRDiscount(p, betRes.rpGain) : betRes.rpGain;
       return { ...p, g: Math.max(0, p.g + betRes.gGain), ip: Math.max(0, p.ip + betRes.ipGain), rp: Math.max(0, Math.min(100, p.rp + rpChange)) };
     });
   }

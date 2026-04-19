@@ -24,22 +24,36 @@ body {
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* OKLCH 專業色彩體系 - 依據 .impeccable.md 精準調製 */
+  --bg-charcoal: oklch(0.12 0.01 260);    /* 深邃且帶有微弱冷色的煤黑 */
+  --fg-paper: oklch(0.92 0.02 85);       /* 帶有溫潤感的手工紙色 */
+  --legal-amber: oklch(0.82 0.16 85);    /* 權威感的判決琥珀 */
+  --astral-cyan: oklch(0.75 0.15 200);   /* 冷酷的監控青色 */
+  --crimson-penalty: oklch(0.45 0.18 25);/* 嚴厲的懲罰深紅 */
+
+  /* Noir 動態變數接口 - 開放給 Game Engine 控制 */
+  --noir-contrast: 1;                    /* 全局對比度 */
+  --noir-shadow-depth: 40px;             /* 物理陰影深度 */
+  --noir-grain-opacity: 0.1;             /* 紙張顆粒感強度 */
+  --noir-tint-amber: 0%;                 /* 琥珀色渲染強度 */
+
+  --background: var(--bg-charcoal);
+  --foreground: var(--fg-paper);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* 強制使用具備權威感的無襯線字體，移除 AI 罐頭預設 */
+  font-family: 'Geist Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   margin: 0;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @keyframes shrink {
@@ -349,7 +363,44 @@ body {
   transform: rotateX(-20deg);
 }
 
-.text-noir-glow {
-  -webkit-text-stroke: 1px rgba(34, 211, 238, 0.5);
-  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 1)) drop-shadow(0 0 20px rgba(34, 211, 238, 0.6));
+/* 紋理系統：將內聯樣式抽離至全域 CSS */
+.bg-paper-texture {
+  background-image: url("https://www.transparenttextures.com/patterns/handmade-paper.png");
+  background-blend-mode: multiply;
+}
+
+.bg-noir-pinstripe {
+  background-image: url("https://www.transparenttextures.com/patterns/pinstriped-suit.png");
+  background-size: 40px;
+}
+
+.bg-scan-grid {
+  background-image: linear-gradient(0deg, transparent 50%, rgba(255,255,255,0.1) 50%);
+  background-size: 100% 4px;
+}
+
+/* 物理元件變數接口：避免 JSX 內聯警告 */
+.dynamic-page {
+  transform: rotateY(var(--page-rotate-y, 0deg));
+  z-index: var(--page-z, 1);
+  opacity: var(--page-opacity, 1);
+}
+
+.dynamic-scale {
+  transform: scale(var(--scale, 1));
+}
+
+.dynamic-color {
+  color: var(--dynamic-color);
+  background-color: var(--dynamic-bg);
+}
+
+.dynamic-rotate-z {
+  transform: rotate(var(--rotate-z, 0deg));
+}
+
+
+.bg-leather-texture {
+  background-image: url("https://www.transparenttextures.com/patterns/leather.png");
+  background-blend-mode: multiply;
 }
