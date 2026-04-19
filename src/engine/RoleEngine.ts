@@ -39,7 +39,7 @@ export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult 
 
   // 設定統一公定價 (100 人脈 + 100 萬元)
   const cost = { ip: 100, g: 100 };
-  // 檢查玩家手頭的雙籌碼資源是否充足
+  // 檢查資源是否充足
   if (player.ip < cost.ip || player.g < cost.g) {
     return {
       success: false,
@@ -77,13 +77,6 @@ export function getLawyerDefenseBonus(player: Player): number {
   return getRoleLevel(player, 'lawyer') >= 1 ? 0.3 : 0;
 }
 
-/**
- * 王牌律師 LV2：幫忙排除錯誤選項
- * 在法庭選辯護詞時，會幫忙刪掉一個必定會失敗的選項。
- */
-export function shouldRemoveWrongOption(player: Player): boolean {
-  return getRoleLevel(player, 'lawyer') >= 2;
-}
 
 import { throwNumericalCheckError } from './errors/EngineErrors';
 

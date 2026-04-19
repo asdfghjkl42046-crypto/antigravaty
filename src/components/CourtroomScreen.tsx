@@ -789,16 +789,16 @@ export default function CourtroomScreen() {
     if (!actingBystander) return null;
 
     // 計算當前勝率
-    const baseRate = trial.lawCase.survival_rate || 0;
-    const influence = calculateSpectatorInfluence(trial.interventions);
     const defendantPlayer = players.find((p) => p.id === trial.defendantId);
-    const bonus = (defendantPlayer as Player)
-      ? getLawyerDefenseBonus(defendantPlayer as Player)
-      : 0;
+    const hasLawyerLv2 = defendantPlayer ? getRoleLevel(defendantPlayer, 'lawyer') >= 2 : false;
+    
+    const baseRate = trial.lawCase.survival_rate || 0;
+    const influence = calculateSpectatorInfluence(trial.interventions, hasLawyerLv2);
+    const bonus = defendantPlayer ? getLawyerDefenseBonus(defendantPlayer) : 0;
     const totalRate = Math.max(0, Math.min(1, baseRate + influence + bonus));
 
-    // 檢查查看權限：當前旁觀者是否有王牌律師 LV2
-    const canSeeRate = getRoleLevel(actingBystander, 'lawyer') >= 2;
+    // 檢查查看權限：當前旁觀者是否有王牌律師 LV2，或者被告本人具備 LV2 實力開放情報分享
+    const canSeeRate = (actingBystander && getRoleLevel(actingBystander, 'lawyer') >= 2) || hasLawyerLv2;
 
     return (
       <div className="h-full flex flex-col">
@@ -875,6 +875,14 @@ export default function CourtroomScreen() {
   // Stage 4: 被告辯護
   const renderDefense = () => {
     if (!defendant) return null;
+    const hasLawyerLv2 = getRoleLevel(defendant, 'lawyer') >= 2;
+
+    // 計算當前勝率（基礎 + 旁觀者 + 律師 LV1 加成）
+    const baseRate = trial.lawCase.survival_rate || 0;
+    const influence = calculateSpectatorInfluence(trial.interventions, hasLawyerLv2);
+    const bonus = getLawyerDefenseBonus(defendant);
+    const totalRate = Math.max(0, Math.min(1, baseRate + influence + bonus));
+
     return (
       <div className="h-full flex flex-col relative pt-4">
         <div className="absolute top-[-30] left-5 border-l-4 border-cyan-500 pl-4 z-[20]">
@@ -882,6 +890,18 @@ export default function CourtroomScreen() {
             被告答辯: {defendant.name}
           </h2>
         </div>
+
+        {/* 王牌律師 LV2 特權：答辯時可即時查看當前機率 */}
+        {hasLawyerLv2 && (
+          <div className="absolute top-0 right-5 flex flex-col items-end z-[20] animate-in fade-in slide-in-from-right duration-1000">
+            <div className="text-[10px] text-cyan-500 font-bold tracking-widest uppercase mb-1 opacity-70">
+              勝訴情報
+            </div>
+            <div className="text-3xl font-black text-white font-mono drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]">
+              {(totalRate * 100).toFixed(0)}%
+            </div>
+          </div>
+        )}
 
         <div className="flex-grow flex items-center justify-center pt-2">
           <DefenseCarousel

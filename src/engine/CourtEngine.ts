@@ -20,7 +20,12 @@ import {
   JUDGE_LABELS,
 } from '../data/judges/JudgeTemplatesDB';
 import { AIEngine } from './AIEngine';
-import { getWithdrawCaseCost, getLawyerDefenseBonus, applyPRDiscount } from './RoleEngine';
+import {
+  getWithdrawCaseCost,
+  getLawyerDefenseBonus,
+  applyPRDiscount,
+  getRoleLevel,
+} from './RoleEngine';
 import { AI_LAW_CASES_DB } from '../data/ailaws/AILawCasesDB';
 import {
   throwTrialInitializationError,
@@ -393,7 +398,8 @@ export class CourtEngine {
     const optionLabel = optionMap[optionIdx] || 'J';
 
     // 2. [旁觀者干預系統整合]：計算場上所有干預行為對機率產生的總影響
-    const spectatorInfluence = calculateSpectatorInfluence(trial.interventions);
+    const hasLawyerLv2 = getRoleLevel(player, 'lawyer') >= 2;
+    const spectatorInfluence = calculateSpectatorInfluence(trial.interventions, hasLawyerLv2);
 
     // 3. 結算防禦結果 (傳入模式與選項索引)
     const res = this.calculateDefenseResult(

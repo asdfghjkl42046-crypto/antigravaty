@@ -233,7 +233,10 @@ export function calculateConvictionPenalty(
  * 旁觀者干預機率補正：
  * 被告的同夥可以護航 (支持 +10% 勝率)，但競爭對手也可以落井下石 (質疑 -10% 勝率)。
  */
-export function calculateSpectatorInfluence(interventions: { text: string }[]): number {
+export function calculateSpectatorInfluence(
+  interventions: { text: string }[],
+  hasLawyerLv2: boolean = false
+): number {
   if (!interventions || interventions.length === 0) return 0;
 
   let totalInfluence = 0;
@@ -250,7 +253,8 @@ export function calculateSpectatorInfluence(interventions: { text: string }[]): 
     if (iv.text.includes('SUPPORT')) {
       totalInfluence += 0.1; // 支持被告 (+10% 勝率)
     } else if (iv.text.includes('OPPOSE')) {
-      totalInfluence -= 0.1; // 反對被告 (-10% 勝率)
+      // 王牌律師 LV2：讀穿把戲，將對手的惡意抹黑轉化為辯護契機
+      totalInfluence += hasLawyerLv2 ? 0.1 : -0.1;
     }
     // ABSTAIN 或其他文字維持 0 影響力
   });
