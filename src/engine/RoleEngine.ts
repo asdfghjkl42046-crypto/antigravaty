@@ -13,10 +13,11 @@ import { SYSTEM_MESSAGES } from '../data/system/SystemMessages';
 
 /**
  * 取得玩家目前持有的單項角色技能等級
- * 防呆處理：若找不到物件，預設回傳 0 (無職業加成)
+ * 防呆處理：若找不到物件或玩家為空，預設回傳 0 (無職業加成)
  */
-export function getRoleLevel(player: Player, role: RoleType): number {
-  return player.roles?.[role] ?? 0;
+export function getRoleLevel(player: Player | undefined | null, role: RoleType): number {
+  if (!player || !player.roles) return 0;
+  return player.roles[role] || 0;
 }
 
 /** 角色升級驗證結構宣告 */

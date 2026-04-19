@@ -20,6 +20,7 @@ import {
 } from '../types/game';
 import { CourtEngine } from '../engine/CourtEngine';
 import { resolveScanCode, resolveTalentCode } from '../engine/MechanicsEngine';
+import * as EndingEngine from '../engine/EndingEngine';
 
 export const MASTERPIECES = [
   { id: 0, title: '蒙娜麗莎', author: '達文西', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg&w=400' },
@@ -41,7 +42,7 @@ interface GameStore extends GameStateData {
   setJudgeMode: (mode: JudgeMode) => void;
   clearStartNotifications: () => void;
   clearEngineError: () => void;
-  processScan: (code: string) => { success: boolean; message: string; type?: 'location' | 'talent' | 'wash' };
+  processScan: (code: string) => Promise<{ success: boolean; message: string; type?: 'location' | 'talent' | 'wash' }>;
 
   // --- 遊戲卡牌核心流程 ---
   performAction: (
@@ -96,12 +97,11 @@ export const useGameStore = create<GameStore>()(
       usedCodes: [],
       endingResult: null,
       engineError: null,
-      pendingTrialId: undefined,
 
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
 
-      processScan: (code: string) => {
+      processScan: async (code: string) => {
         const codeUpper = code.toUpperCase().replace(/-/g, '').trim();
 
         // 處理特殊洗牌指令 (WASH)
@@ -109,21 +109,28 @@ export const useGameStore = create<GameStore>()(
           return { ...get().redrawCards(), type: 'wash' };
         }
 
-        // 處理人才卡實體掃描購買 (可重複掃描升級，不記入 usedCodes)
+        // 處理人才卡實體掃描購買
         const talentRole = resolveTalentCode(codeUpper);
         if (talentRole) {
           const result = get().upgradeRole(talentRole);
           return { ...result, type: 'talent' };
         }
 
-        // removed usedCodes check locally so location cards can be rescanned.
-
         const res = resolveScanCode(codeUpper);
         if (!res) return { success: false, message: '無效代碼。' };
 
-        get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');
-        set((s) => ({ usedCodes: [...s.usedCodes, codeUpper] }));
-        return { success: true, message: `成功同步卡片 ${res.cardId}。`, type: 'location' };
+        // [核心修正] 等待行動結算，捕捉真實的成功/失敗狀態 (例如 AP不足)
+        const actionResult = await get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');
+        
+        if (actionResult.success) {
+          set((s) => ({ usedCodes: [...s.usedCodes, codeUpper] }));
+        }
+
+        return { 
+          success: actionResult.success, 
+          message: actionResult.message, 
+          type: 'location' 
+        };
       },
 
       initGame: async (configs) => {
@@ -247,46 +254,23 @@ export const useGameStore = create<GameStore>()(
       debugUpdatePlayer: (pid, upd) =>
         set((s) => ({ players: s.players.map((p) => (p.id === pid ? { ...p, ...upd } : p)) })),
       
-      debugTriggerEnding: (type, isFake = false) => {
+      debugTriggerEnding: (type: EndingType) => {
         const player = get().players[get().currentPlayerIndex];
         if (!player) return;
 
-        const mockStats = {
-          totalProfit: player.g + (player.trustFund || 0),
-          totalFines: player.totalFinesPaid || 0,
-          finalRp: player.rp,
-        };
-
-        const titles: Record<EndingType, string> = {
-          saint: isFake ? '聖皇(偽)' : '聖皇',
-          tycoon: '企業巨頭',
-          dragonhead: '優良龍頭企業',
-          arrested: '身敗名裂',
-          bankrupt: '經濟破產',
-          limit: '創業夢碎'
-        };
-
-        const descs: Record<EndingType, string> = {
-          saint: isFake 
-            ? '您表面上名譽極高且財富驚人，但背後累積的暗盤交易讓這份皇冠沾滿了灰塵。'
-            : '您的企業已超越了凡俗的法律，在商業戰中成為了誠信與財富的化身。',
-          tycoon: '您建立了一個無可撼動的商業帝國，雖然名聲並非完美，但力量足以支配整個市場。',
-          dragonhead: '您成功地在利潤與社會責任之間取得了平衡，是業界公認的典範。',
-          arrested: '您的企業名聲已徹底臭名昭著，判定信用破產，您被強制退出商業舞台。',
-          bankrupt: '企業資金鏈完全斷裂，積欠龐大債務，您只能黯然宣告破產，退下商業舞台。',
-          limit: '在漫長的 50 回合後，您仍未能建立起卓越的成就，創業之路就此止步。'
-        };
+        // 直接調用權威引擎產生結果，確保文案與邏輯絕對同步
+        const result = EndingEngine.calculateEnding(player, get().turn);
+        // 若 Debug 選擇的類型與實際計算不符（例如測試特定結局），則手動覆蓋類型以維持測試靈活性
+        if (result.type !== type) {
+          result.type = type;
+          const config = EndingEngine.ENDING_CONFIGS[type];
+          result.title = config.title;
+          result.description = config.description;
+        }
 
         set({
           phase: (type === 'saint' || type === 'tycoon' || type === 'dragonhead') ? 'victory' : 'gameover',
-          endingResult: {
-            playerId: player.id,
-            type,
-            title: titles[type],
-            evaluation: '測試用評價 / 偵錯模式',
-            description: descs[type],
-            stats: mockStats
-          }
+          endingResult: result
         });
       },
 

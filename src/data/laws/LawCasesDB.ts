@@ -22,6 +22,27 @@ export const LAW_CASES_DB: Record<string, LawCase> = {
 };
 
 /**
+ * 將各種格式的 LawCase ID 正規化為標準格式 (例如 A011 -> A-01-1)
+ * @param id 原始 ID
+ * @returns 正規化後的標準 ID
+ */
+export function normalizeLawCaseId(id: string): string {
+  if (!id) return '';
+  const trimmed = id.trim().toUpperCase();
+
+  // 處理緊湊格式：[A-E][數字兩位][數字一位] (例如 A011, B113)
+  const compactRegex = /^([A-E])(\d{2})(\d)$/;
+  const match = trimmed.match(compactRegex);
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+
+  // 處理已經帶有橫槓但不規範的情況 (例如 a-1-1 -> A-01-1)
+  // 若需要更嚴謹的補零邏輯可在此擴充，目前優先處理用戶指定的緊湊轉標準格式
+  return trimmed;
+}
+
+/**
  * 根據法條實體 ID 列表動態解析並合併所有對應的犯罪標籤
  * @param lawCaseIds 法條編號陣列
  * @returns 去重後的標籤字串陣列
@@ -30,7 +51,7 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
   if (!lawCaseIds || lawCaseIds.length === 0) return [];
   const tagSet = new Set<string>();
   for (const id of lawCaseIds) {
-    const normalizedId = id.toUpperCase();
+    const normalizedId = normalizeLawCaseId(id);
     const law = LAW_CASES_DB[normalizedId];
     if (law && law.tag) {
       if (Array.isArray(law.tag)) {
@@ -42,7 +63,7 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
     } else {
       throwDataDefinitionError(
         'LawCasesDB.getResolvedTags',
-        `找不到法條 ID: ${id}，請檢查卡牌資料是否正確或是否已在 LAWS_*.ts 註冊。`
+        `找不到法條 ID: ${normalizedId} (原始 ID: ${id})，請檢查卡牌資料是否正確。`
       );
     }
   }

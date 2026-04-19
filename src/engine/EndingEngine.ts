@@ -5,13 +5,55 @@
 
 import type { Player, VictoryRoute, EndingResult, Tag, GamePhase } from '../types/game';
 
-// 定義回傳被封裝後的遊戲階段狀態解析介面
+// 定義被封裝後的遊戲階段狀態解析介面
 export interface GameStatusResolution {
   isGameOver: boolean;
   phase: GamePhase;
   endingResult: EndingResult | null;
   updatedPlayer?: Player;
 }
+
+// ============================================================
+// 結局文本定義 (文案權威源)
+// ============================================================
+export const ENDING_CONFIGS: Record<string, { title: string; description: string }> = {
+  saint: {
+    title: '聖皇',
+    description: '您的企業已超越了凡俗的法律，在商業戰中成為了誠信與財富的化身。',
+  },
+  saintFake: {
+    title: '聖皇(偽)',
+    description: '您表面上名譽極高且財富驚人，但背後累積的暗盤交易讓這份皇冠沾滿了灰塵。',
+  },
+  tycoon: {
+    title: '企業巨頭',
+    description: '您建立了一個無可撼動的商業帝國，雖然名聲並非完美，但力量足以支配整個市場。',
+  },
+  dragonhead: {
+    title: '優良龍頭企業',
+    description: '您成功地在利潤與社會責任之間取得了平衡，是業界公認的典範。',
+  },
+  arrested: {
+    title: '身敗名裂',
+    description: '您的企業名聲已徹底臭名昭著，判定信用破產，您被強制退出商業舞台。',
+  },
+  bankrupt: {
+    title: '經濟破產',
+    description: '企業資金鏈完全斷裂，積欠龐大債務，您只能黯然宣告破產，退下商業舞台。',
+  },
+  limit: {
+    title: '創業夢夢碎',
+    description: '在漫長的 50 回合後，您仍未能建立起卓越的成就，創業之路就此止步。',
+  },
+};
+
+// ============================================================
+// 結局判定門檻定義 (全域統一管理點)
+// ============================================================
+export const BANKRUPTCY_LIMITS = {
+  RP_MIN: 20, // 名聲低於此數值則崩盤 (RP < 20)
+  CASH_MIN: 0, // 資金與信託均歸零則破產
+};
 
 // 破產判定（遊戲失敗條件）
 
@@ -20,10 +62,13 @@ export interface GameStatusResolution {
  * 如果名聲太低，或是錢跟信託基金都沒了，遊戲就結束。
  */
 export function checkBankruptcy(player: Player): boolean {
-  // 名聲低於 20 為絕對死線 (社會性死亡，強制被體制踢出)，不可逆
-  if (player.rp <= 20) return true;
+  // 名聲低於死線為絕對死線 (社會性死亡)，不可逆
+  if (player.rp < BANKRUPTCY_LIMITS.RP_MIN) return true;
+  
   // 若無海外信託且手邊無任何現金流 (資金斷裂)，宣告經濟破產
-  if (player.g <= 0 && player.trustFund <= 0) return true;
+  if (player.g <= BANKRUPTCY_LIMITS.CASH_MIN && (player.trustFund || 0) <= BANKRUPTCY_LIMITS.CASH_MIN) {
+    return true;
+  }
   return false;
 }
 
@@ -35,27 +80,24 @@ export function checkBankruptcy(player: Player): boolean {
 export function checkVictory(
   player: Player,
   currentTurn: number = 0,
-  saintBonusActive: boolean = false // 是否達成完美守法條件的條件
+  saintBonusActive: boolean = false
 ): VictoryRoute {
-  // 只要玩家資本提早達標，隨時宣告企業稱霸！
-  // 但為了避免利用初始資金機制立刻破關，防呆限制：至少要熬過前期 15 回合的洗禮。
   if (currentTurn < 15) return null;
-  const totalAssets = player.g + player.trustFund;
+  const totalAssets = player.g + (player.trustFund || 0);
 
-  // 1. 最高難度「聖皇」：需要 2200 萬且名聲極高 (95+)，外加從未犯罪的條件
+  // 1. 最高難度「聖皇」
   if (totalAssets >= 2200 && player.rp > 95 && saintBonusActive) {
     return 'saint';
   }
-  // 2. 「企業巨頭」：名聲不重要(只要不破產 20+即可)，但吸金量要極度龐大
-  if (totalAssets >= 2500 && player.rp > 20) {
+  // 2. 「企業巨頭」：只要不低於破產死線即可達成
+  if (totalAssets >= 2500 && player.rp >= BANKRUPTCY_LIMITS.RP_MIN) {
     return 'tycoon';
   }
-  // 3. 「優良龍頭企業」：一般好結局的保底，名聲需高於 50 且有一定資本
+  // 3. 「優良龍頭企業」
   if (totalAssets >= 2200 && player.rp > 50) {
     return 'dragonhead';
   }
 
-  // 均未達標 (平庸結局)
   return null;
 }
 
@@ -107,79 +149,83 @@ export function calculateEnding(player: Player, turn: number): EndingResult {
   const lookbackWindow = 5;
   const last5NoCrime = !player.tags.some((t) => t.isCrime && t.turn > turn - lookbackWindow);
 
-  // 驗證聖皇結局 (最難達成的境界)
+  // 1. 驗證聖皇結局 (最難達成的境界)
   if (totalAssets >= 2200 && rp > 95 && last5NoCrime) {
     // 若最終違法選項選擇少於等於 5，才是真正的聖皇；否則降級為聖皇(偽)
     const totalCrimes = tags.filter((t) => t.isCrime).length;
     const isTrueSaint = totalCrimes <= 5;
+    const config = isTrueSaint ? ENDING_CONFIGS['saint'] : ENDING_CONFIGS['saintFake'];
 
     return {
       playerId: player.id,
       type: 'saint',
-      title: isTrueSaint ? '聖皇' : '聖皇(偽)',
-      evaluation: generateEvaluation(tags), // 動態塞入玩家專屬前科稱號
-      description: isTrueSaint
-        ? '您的企業已超越了凡俗的法律，在商業戰中成為了誠信與財富的化身。'
-        : '您表面上名譽極高且財富驚人，但背後累積的暗盤交易讓這份皇冠沾滿了灰塵。',
+      title: config.title,
+      evaluation: generateEvaluation(tags),
+      description: config.description,
       stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
     };
   }
 
-  // 驗證企業巨頭結局 (黑心財閥的寫照)
-  if (totalAssets >= 2500 && rp > 20) {
+  // 2. 驗證企業巨頭結局 (黑心財閥的寫照)
+  if (totalAssets >= 2500 && rp >= 20) {
+    const config = ENDING_CONFIGS['tycoon'];
     return {
       playerId: player.id,
       type: 'tycoon',
-      title: '企業巨頭',
+      title: config.title,
       evaluation: generateEvaluation(tags),
-      description: '您建立了一個無可撼動的商業帝國，雖然名聲並非完美，但力量足以支配整個市場。',
+      description: config.description,
       stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
     };
   }
 
-  // 驗證優良龍頭結局 (標準通關)
+  // 3. 驗證優良龍頭結局 (標準通關)
   if (totalAssets >= 2200 && rp > 50) {
+    const config = ENDING_CONFIGS['dragonhead'];
     return {
       playerId: player.id,
       type: 'dragonhead',
-      title: '優良龍頭企業',
+      title: config.title,
       evaluation: generateEvaluation(tags),
-      description: '您成功地在利潤與社會責任之間取得了平衡，是業界公認的典範。',
+      description: config.description,
       stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
     };
   }
 
-  // 若結算當下名聲歸底，宣告因社會性死亡而被逮捕清算結局
-  if (rp <= 20) {
+  // 4. 若結算當下名聲歸底，宣告因社會性死亡而被逮捕清算結局
+  if (rp < 20) {
+    const config = ENDING_CONFIGS['arrested'];
     return {
       playerId: player.id,
       type: 'arrested',
-      title: '身敗名裂',
+      title: config.title,
       evaluation: generateEvaluation(tags),
-      description: '您的企業名聲已徹底臭名昭著，判定信用破產，您被強制退出商業舞台。',
+      description: config.description,
       stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
     };
   }
 
-  // 資金清空，無力回天破產結局
+  // 5. 資金清空，無力回天破產結局
   if (g <= 0 && (trustFund || 0) <= 0) {
+    const config = ENDING_CONFIGS['bankrupt'];
     return {
       playerId: player.id,
       type: 'bankrupt',
-      title: '經濟破產',
+      title: config.title,
       evaluation: generateEvaluation(tags),
-      description: '企業資金鏈完全斷裂，積欠龐大債務，您只能黯然宣告破產，退下商業舞台。',
+      description: config.description,
       stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
     };
   }
 
-  // 打完 50 場卻任何高低優劣標線都沒摸到的平庸者下場
+  // 6. 打完 50 場卻任何高低優劣標線都沒摸到的平庸者下場
+  const config = ENDING_CONFIGS['limit'];
   return {
     playerId: player.id,
     type: 'limit',
-    title: '創業夢夢碎',
+    title: config.title,
     evaluation: generateEvaluation(tags),
-    description: '在漫長的 50 回合後，您仍未能建立起卓越的成就，創業之路就此止步。',
+    description: config.description,
     stats: { totalProfit: totalAssets, totalFines: totalFinesPaid, finalRp: rp },
   };
 }

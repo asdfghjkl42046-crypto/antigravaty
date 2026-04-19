@@ -39,25 +39,25 @@ export class GameFlowEngine {
     const updates = settleEndOfTurn(player, turn);
     updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
 
+    // 局部預先宣告流程變數
+    let nextTurn = turn;
+    let nextIndex = currentPlayerIndex + 1;
+
     // 2. 局部結局偵測 (是否有人贏了或破產)
     const currentPlayerRes = resolveGameStatus(updatedPlayers[currentPlayerIndex], turn);
     if (currentPlayerRes.isGameOver) {
-      if (currentPlayerRes.phase === 'victory') {
-        return {
-          players: updatedPlayers,
-          phase: 'victory',
-          endingResult: currentPlayerRes.endingResult,
-          turn: Math.min(turn, 50),
-        };
+      if (currentPlayerRes.updatedPlayer) {
+        updatedPlayers[currentPlayerIndex] = currentPlayerRes.updatedPlayer;
       }
-      if (currentPlayerRes.phase === 'gameover') {
-        updatedPlayers[currentPlayerIndex].isBankrupt = true;
-      }
+      return {
+        players: updatedPlayers,
+        phase: currentPlayerRes.phase,
+        endingResult: currentPlayerRes.endingResult,
+        turn: Math.min(nextTurn, 50),
+      };
     }
 
     // 3. 尋找下一位活躍玩家
-    let nextTurn = turn;
-    let nextIndex = currentPlayerIndex + 1;
     let finalPlayers = updatedPlayers;
 
     const findNextActive = (start: number, list: Player[]) => {
@@ -119,10 +119,15 @@ export class GameFlowEngine {
     const { players, currentPlayerIndex, turn, actionLogs } = state;
     const player = players[currentPlayerIndex];
 
-    // 1. 基本效驗 (純數據層)
-    if (!player || player.ap <= 0) {
+    // 1. [統一攔截點] 基本效驗：破產者或 AP 不足者禁止發起行動
+    if (player.isBankrupt) {
       return {
-        result: { success: false, message: '行動力不足！', updates: {} } as ActionResult,
+        result: { success: false, message: '🚫 行動終止：您的企業已宣告破產，無法再進行商業活動。', updates: {} } as ActionResult,
+      };
+    }
+    if (player.ap <= 0) {
+      return {
+        result: { success: false, message: '🚫 體力不足：您的 AP 已歸零，請結束回合以恢復精力。', updates: {} } as ActionResult,
       };
     }
 
@@ -223,9 +228,7 @@ export class GameFlowEngine {
     const final = { ...updatedPlayers[idx], ...updates };
     const res = resolveGameStatus(final, turn);
 
-    updatedPlayers[idx] = res.isGameOver
-      ? res.updatedPlayer || { ...final, isBankrupt: true }
-      : final;
+    updatedPlayers[idx] = res.updatedPlayer || final;
 
     return {
       players: updatedPlayers,
@@ -297,6 +300,7 @@ export class GameFlowEngine {
 
   /**
    * 處理法庭觸發邏輯
+   * [重構] 轉交 CourtEngine 產生 Trial 物件，由外界 (Store) 決定 Phase 切換
    */
   static handleTriggerTrial(
     state: GameStateData,
@@ -317,7 +321,8 @@ export class GameFlowEngine {
       reason
     );
     if (!trialUpdates) return {};
-    return { phase: 'courtroom', trial: trialUpdates as NonNullable<GameStateData['trial']> };
+    // 這裡只負責回傳更新，不主動修改 phase，由 Store 決策
+    return { trial: trialUpdates as NonNullable<GameStateData['trial']> };
   }
 
   /**

@@ -175,25 +175,19 @@ export async function performAction(
     const isBTypeRisky = cardId.startsWith('B-') && (opt?.special === 'poachtalent');
     const tagMultiplier = isBTypeRisky ? 1 + counterCTOCount : 1;
 
-    // [新增] 破產狀態鎖定：已宣告破產之玩家不允許再執行任何行動
-    if (player.isBankrupt) {
+    const isAPRefundedBySkill = shouldRefundAP(player, cardId);
+
+    if (player.isBankrupt || (player.ap <= 0 && !isAPRefundedBySkill)) {
       return {
         success: false,
-        message: `🚫 行動終止：您的企業已宣告破產，無法再進行任何商業活動。`,
+        message: `🚫 系統攔截：狀態不符 (${player.isBankrupt ? '破產' : 'AP不足'})。`,
         updates: {},
         appliedTags: [],
         hashedTags: [],
         finalHash: lastHash,
+        apRefunded: true,
         actionId,
-        apRefunded: false,
-        log: {
-          playerId: player.id,
-          turn,
-          cardId,
-          optionIndex: optionIdx,
-          tags: 'BANKRUPT',
-          timestamp,
-        },
+        log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'INTERCEPTED', timestamp },
       };
     }
 
@@ -278,11 +272,15 @@ export async function performAction(
     const isCTypeZOption = isCTypeOptionWithUI; // 保留變數名以減少後續改動
     const skipRandomCheck = isDeclaration && !isCTypeOptionWithUI;
 
+    // [核心機制重構] 標籤生成與記錄過濾器
+    // 規定：僅針對 SSR、SSSR、UR 且具備明確法律 ID 的行動進行犯罪記錄。SR 級別絕對不紀錄。
+    const isRiskyRank = ['SSR', 'SSSR', 'UR'].includes(opt.type || '');
+    
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
       message = `【安全申報】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
-    } else if (resolvedBaseTags.length > 0) {
-      // 優先記錄從法條解析出的標籤
+    } else if (isRiskyRank && resolvedBaseTags.length > 0) {
+      // 僅在非法申報且等級為高風險（SSR 以上）時，才記錄標籤
       for (let i = 0; i < tagMultiplier; i++) {
         snapshots.push({
           tag: resolvedBaseTags,
@@ -293,18 +291,10 @@ export async function performAction(
           multiplierSource: tagMultiplier > 1 ? 'CTO' : undefined,
         });
       }
-      if (choice === 'skip') {
-        message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
-      }
+      message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
     } else {
-      // [補回核心邏輯] 隱匿金流：為沒有明確法條關聯的商業行為（例如 SR 卡）補上操作紀錄，確保在「企業總部」清單中可見
-      snapshots.push({
-        tag: [opt.label && opt.label.length < 15 ? opt.label : '特殊商業行為'],
-        netIncome: bonusRewardG,
-        lawCaseIds: [],
-        rpChange: baseRewardRP,
-      });
-      if (choice === 'skip') {
+      // SR 行動或是無 ID 標籤：即便略過申報也僅更新訊息，不產生任何 snapshot 黑材料紀錄
+      if (!isDeclaration) {
         message += ` (已略過申報，扣除成本 ${costToDeduct} 萬)`;
       }
     }
@@ -470,7 +460,6 @@ export async function performAction(
 
     // 7. 保障AP安全機制
     // 若觸發 CTO 自動化代操技能，則 AP 點數不扣除
-    const isAPRefundedBySkill = shouldRefundAP(player, cardId);
     const apRefunded = isAPRefundedBySkill;
 
     // 進行購買避免資金負債機制(罰金例外)
@@ -602,7 +591,7 @@ export function applyRedrawCards(player: Player): {
   updates: Partial<Player>;
 } {
   // 沒有任何精力無法洗牌
-  if (player.ap <= 0) return { success: false, message: '無法洗牌。', updates: {} };
+  if (player.ap <= 0) return { success: false, message: '', updates: {} };
   return {
     success: true,
     message: `【洗牌成功】已刷新桌上5張牌。`,

@@ -101,17 +101,8 @@ export function getIndictmentChance(player: Player, currentTurn: number = 1): nu
 }
 
 // ============================================================
-// 法庭處罰與賄賂好感度處理
+// 法庭賄賂好感度處理
 // ============================================================
-
-/**
- * 計算累犯加重倍率
- */
-export function getTrialMultiplierByTrials(trials: number): number {
-  if (trials >= 7) return 6.0;
-  if (trials >= 4) return 3.0;
-  return 1.0;
-}
 
 /**
  * 賄賂契合度死定矩陣 (Scale 1-10)
@@ -166,10 +157,10 @@ export function calculateConvictionPenalty(
   // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加倍奉還！)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
-  // 2. 累犯加重計分 (Recidivism Multiplier)
+  // 累犯加重計分：此處邏輯已封裝，基礎保持 1.0，依外部傳入之 isAppeal 或法庭狀態決定
   if (!isPreexisting) {
-    // 開局既有罪犯不重複加重 (除非上訴失敗)，正常遊戲案件則依累犯門檻提升
-    trialMultiplier = getTrialMultiplierByTrials(trials);
+    // 若有特殊累犯邏輯需在此擴充，目前基礎設為 1.0 (由 CourtEngine 判斷倍率)
+    trialMultiplier = 1.0; 
   }
 
   // [嚴重漏洞修復] 非常上訴失利應採「疊加翻倍」而非覆寫，避免重案犯利用上訴減刑
