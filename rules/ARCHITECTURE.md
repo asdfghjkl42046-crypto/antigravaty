@@ -13,6 +13,8 @@
 
 - 僅允許存放 Next.js 頁面入口 (`page.tsx`, `layout.tsx`) 與全域樣式 (`globals.css`)。
 - 嚴禁在此撰寫複雜的 React 狀態或任何遊戲核心邏輯。
+- `globals.css` 中已建立統一的「質感系統 (Texture System)」Utility Classes（如 `.bg-paper-texture`, `.bg-leather-texture`, `.bg-noir-pinstripe`, `.bg-scan-grid`）。新組件**必須優先使用這些類別**，嚴禁在 JSX 中重複定義內聯背景圖。
+- 動態 CSS 變數接口（`.dynamic-page`, `.dynamic-color`, `.dynamic-rotate-z`）已就緒，用於處理 3D 物理效果與動態主題色，避免內聯 `style` 屬性。
 
 ### `src/components/` (視圖層 - Dumb Components)
 
@@ -45,7 +47,15 @@
 
 ---
 
-## 2. 物理防線與驗證
+## 2. PWA 與靜態資源 (`public/`)
+
+- **`manifest.json`**：PWA 應用身分證，定義 App 名稱、圖標與啟動模式（`standalone`）。修改 App 名稱、圖片須同步更新此檔案與 `layout.tsx` 中的 `metadata`。
+- **`assets/`**：存放 Logo、影片等靜態媒體。App 圖標固定為 `assets/logo.png`（建議 512x512 PNG）。
+- 嚴禁將動態生成的檔案或程式碼放入 `public/`。
+
+---
+
+## 3. 物理防線與驗證
 
 - **ESLint 攔截**：若 AI 在 `src/engine/` 中誤用 React，ESLint `no-restricted-imports` 會強制編譯失敗並丟出錯誤。此時 AI 應立刻停手並將狀態轉交給 `Store`。
 - **測試為王**：若更動任何 `Engine.ts` 計算邏輯，必須先通過 `src/tests/` 內的驗證腳本才能宣告完成。

@@ -154,13 +154,17 @@ export function calculateConvictionPenalty(
   // 基礎罰金計算: 本次查獲不法所得的指定倍率
   let fineBeforeDiscount = roundUp(safeIncome * baseMultiplier);
 
-  // 2. 檢查玩家生涯進出法庭的黑歷史 (非常上訴失敗強制加倍奉還！)
+  // 2. 檢查玩家生涯進出法庭的黑歷史 — 累犯階梯倍率 (GEMINI.md §2-2)
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
-  // 累犯加重計分：此處邏輯已封裝，基礎保持 1.0，依外部傳入之 isAppeal 或法庭狀態決定
   if (!isPreexisting) {
-    // 若有特殊累犯邏輯需在此擴充，目前基礎設為 1.0 (由 CourtEngine 判斷倍率)
-    trialMultiplier = 1.0; 
+    if (trials >= 7) {
+      trialMultiplier = 6.0; // 重案累犯：7 次以上被告，罰金 6 倍
+    } else if (trials >= 4) {
+      trialMultiplier = 3.0; // 中度累犯：4-6 次被告，罰金 3 倍
+    } else {
+      trialMultiplier = 1.0; // 初犯或輕犯：1-3 次被告，基礎倍率
+    }
   }
 
   // [嚴重漏洞修復] 非常上訴失利應採「疊加翻倍」而非覆寫，避免重案犯利用上訴減刑
@@ -399,10 +403,10 @@ export function resolveScanCode(code: string): { cardId: string; optionIdx: numb
  * 代碼格式可隨時替換，只需修改此映射表
  */
 const TALENT_CODE_MAP: Record<string, import('../types/game').RoleType> = {
-  'TALENT_LAWYER': 'lawyer',
-  'TALENT_PR': 'pr',
-  'TALENT_ACCOUNTANT': 'accountant',
-  'TALENT_CTO': 'cto',
+  TALENT_LAWYER: 'lawyer',
+  TALENT_PR: 'pr',
+  TALENT_ACCOUNTANT: 'accountant',
+  TALENT_CTO: 'cto',
 };
 
 export function resolveTalentCode(code: string): import('../types/game').RoleType | null {

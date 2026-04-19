@@ -35,8 +35,8 @@ export default function PlayerRegistrationScreen({
   onBack,
 }: PlayerRegistrationScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentName, setCurrentName] = useState('');
-  const [currentOwnerName, setCurrentOwnerName] = useState('');
+  const [currentName, setCurrentName] = useState('安提格拉維提 財團');
+  const [currentOwnerName, setCurrentOwnerName] = useState('Arch Architect');
   const [selectedPath, setSelectedPath] = useState<StartPath | null>(null);
   const [isBookFocused, setIsBookFocused] = useState(false); // 決定書是否放大可翻動
   const [showBribeModal, setShowBribeModal] = useState(false);

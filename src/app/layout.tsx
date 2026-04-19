@@ -17,8 +17,14 @@ const geistMono = Geist_Mono({
 
 // 系統全域 Metadata 設定，定義並控制在瀏覽器標籤頁 (Tab) 上的顯示名稱與 SEO 描述
 export const metadata: Metadata = {
-  title: 'Antigravity 法律終端',
-  description: '現代法律審判模擬系統',
+  title: '創業冒險-現代法律篇',
+  description: '現代創業模擬系統',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: '創業冒險-現代法律篇',
+  },
   icons: {
     icon: '/assets/logo.png',
     shortcut: '/assets/logo.png',
@@ -32,6 +38,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
+  themeColor: '#000000',
 };
 
 /**
