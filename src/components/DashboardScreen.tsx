@@ -256,8 +256,8 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
     <div className="w-full h-full flex flex-col bg-[#020617] text-white overflow-hidden relative font-sans">
       <DebugPanel />
       
-      {/* 1. Header: 狀態列 */}
-      <div className="flex items-center justify-between px-6 pt-4 pb-2 dashboard-animate">
+      {/* 1. Header: 狀態列 - 增加 mt-safe 避開行動裝置瀏海 */}
+      <div className="flex items-center justify-between px-6 pt-4 pb-2 dashboard-animate mt-safe">
         <div className="flex items-center space-x-3">
           <button
             onClick={onReset}

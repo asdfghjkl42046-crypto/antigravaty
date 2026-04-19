@@ -44,7 +44,13 @@ export default function PlayerRegistrationScreen({
   const [selectedAvatarId, setSelectedAvatarId] = useState<number>(0);
   const [isReady, setIsReady] = useState(false);
 
-  const BRIBE_OPTIONS: { id: BribeItem; name: string; icon: React.ElementType; color: string; glow: string }[] = [
+  const BRIBE_OPTIONS: {
+    id: BribeItem;
+    name: string;
+    icon: React.ElementType;
+    color: string;
+    glow: string;
+  }[] = [
     {
       id: 'antique',
       name: '傳世古董',
@@ -129,7 +135,7 @@ export default function PlayerRegistrationScreen({
   };
 
   // ⚠️ 修正 V26: 移除 Math.random() 與 Date.now() 以滿足嚴格的 Purity 規範
-  const transactionId = useMemo(() => "TR-REG-7742", []);
+  const transactionId = useMemo(() => 'TR-REG-7742', []);
 
   const handleBribeSelect = (bribe: BribeItem) => {
     setSelectedBribe(bribe);
@@ -137,7 +143,7 @@ export default function PlayerRegistrationScreen({
 
   const handleFinalConfirm = () => {
     if (!selectedBribe) return;
-    
+
     onConfirm({
       name: currentName.trim() || `企業 ${playerIndex}`,
       ownerName: currentOwnerName.trim() || `業主 ${playerIndex}`,
@@ -149,7 +155,7 @@ export default function PlayerRegistrationScreen({
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-[#020617] overflow-hidden text-white font-sans selection:bg-blue-500/30">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-[#020617] overflow-visible text-white font-sans selection:bg-blue-500/30">
       {/* 桌面背景 */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#020617]" />
@@ -157,15 +163,15 @@ export default function PlayerRegistrationScreen({
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-black/80" />
       </div>
 
-      {/* 玩家標記 - 移至遠端右上角，避免衝突 */}
-      <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold tracking-[0.2em] z-50 text-[10px] ui-fade-in shadow-xl backdrop-blur-md">
+      {/* 玩家標記 - 增加 mt-safe 避開 iOS 瀏海 */}
+      <div className="absolute top-6 right-6 mt-safe px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold tracking-[0.2em] z-50 text-[10px] ui-fade-in shadow-xl backdrop-blur-md">
         玩家 {playerIndex} / {totalPlayers}
       </div>
 
       <div
         className={`relative z-10 w-full max-w-7xl h-full flex flex-col items-center ${
-          isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16'
-        } overflow-hidden pb-10 transition-all duration-700`}
+          isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16 mt-safe'
+        } pb-10 transition-all duration-700`}
       >
         {/* 1. 企業命名 */}
         {!isBookFocused && (
@@ -205,10 +211,12 @@ export default function PlayerRegistrationScreen({
                         onClick={() => setSelectedAvatarId(m.id)}
                         className={`relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110 active:scale-95' : 'grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105'}`}
                       >
-                        <div className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
-                          <img 
-                            src={m.url} 
-                            alt={m.title} 
+                        <div
+                          className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}
+                        >
+                          <img
+                            src={m.url}
+                            alt={m.title}
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                           />
@@ -237,7 +245,7 @@ export default function PlayerRegistrationScreen({
 
         {/* 2. 交互區 */}
         {!isBookFocused ? (
-          <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4 mt-12">
+          <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4 mt-12 [perspective:1200px]">
             <div className="relative w-full max-w-[500px] h-[300px] flex items-center justify-center transform-style-3d">
               {(['normal', 'backdoor', 'blackbox'] as StartPath[]).map((path, idx) => {
                 const isSelected = selectedPath === path;
@@ -249,10 +257,10 @@ export default function PlayerRegistrationScreen({
                     key={path}
                     onClick={() => handlePathSelect(path)}
                     className={`absolute cursor-pointer transition-all duration-500 ease-out transform-style-3d
-                       ${isSelected ? 'translate-z-[120px] z-30' : 'z-10 brightness-60 hover:brightness-100 scale-95'}
+                       ${isSelected ? 'z-30' : 'z-10 brightness-60 hover:brightness-100 scale-95'}
                      `}
                     style={{
-                      transform: `translateX(${offsets[idx]}px) rotateZ(${rotations[idx]}deg) ${isSelected ? 'translateY(-60px) scale(1.1)' : 'translateY(0)'}`,
+                      transform: `translate3d(${offsets[idx]}px, ${isSelected ? -60 : 0}px, ${isSelected ? 120 : 0}px) rotateZ(${rotations[idx]}deg) scale(${isSelected ? 1.1 : 1})`,
                     }}
                   >
                     <div
@@ -291,7 +299,9 @@ export default function PlayerRegistrationScreen({
               })}
             </div>
 
-            <div className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}>
+            <div
+              className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}
+            >
               <button
                 onClick={() => setIsBookFocused(true)}
                 className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
@@ -314,10 +324,10 @@ export default function PlayerRegistrationScreen({
               </button>
             </div>
             <div className="w-full flex justify-center scale-90 transition-transform duration-700">
-              <ParchmentBook 
-                key={selectedPath} 
-                activePath={selectedPath!} 
-                onPathChange={() => {}} 
+              <ParchmentBook
+                key={selectedPath}
+                activePath={selectedPath!}
+                onPathChange={() => {}}
               />
             </div>
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
@@ -338,14 +348,15 @@ export default function PlayerRegistrationScreen({
         <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 p-4">
           <div className="relative w-full max-w-[420px] max-h-[90%] bg-[#0a0a0b] border-l border-t border-white/5 rounded-sm p-8 shadow-[0_60px_120px_rgba(0,0,0,1)] overflow-hidden flex flex-col items-start px-8">
             {/* 數位掃描格線層 */}
-            <div 
-              className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none" 
-              style={{ 
-                backgroundImage: 'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")',
-                backgroundSize: '40px'
-              }} 
+            <div
+              className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none"
+              style={{
+                backgroundImage:
+                  'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")',
+                backgroundSize: '40px',
+              }}
             />
-            
+
             {/* 星際終端螢光溢邊 (Astral Cyan) */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-cyan-500/60 via-transparent to-transparent" />
             <div className="absolute top-0 left-0 w-[1px] h-32 bg-gradient-to-b from-cyan-500/40 to-transparent" />
@@ -357,7 +368,9 @@ export default function PlayerRegistrationScreen({
                   CONFIDENTIAL_REGISTER_V4
                 </span>
               </div>
-              <h3 className="text-2xl font-black tracking-widest text-white uppercase mb-2">機密賄賂清單</h3>
+              <h3 className="text-2xl font-black tracking-widest text-white uppercase mb-2">
+                機密賄賂清單
+              </h3>
               <div className="w-12 h-[1px] bg-white/10" />
             </div>
 
@@ -367,14 +380,17 @@ export default function PlayerRegistrationScreen({
                   key={opt.id}
                   onClick={() => handleBribeSelect(opt.id)}
                   className={`relative flex items-center gap-4 p-4 transition-all cursor-pointer group border-l-2 ${
-                    selectedBribe === opt.id 
-                    ? 'border-cyan-500 bg-cyan-500/5' 
-                    : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'}`}
+                    selectedBribe === opt.id
+                      ? 'border-cyan-500 bg-cyan-500/5'
+                      : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'
+                  }`}
                 >
-                  <div className={`p-3 rounded-sm ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`p-3 rounded-sm ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}
+                  >
                     <opt.icon className="w-5 h-5" />
                   </div>
-                  
+
                   <div className="flex flex-col text-left">
                     <span className="font-black tracking-[0.2em] text-[15px] text-white/90 uppercase">
                       {opt.name}
@@ -384,7 +400,7 @@ export default function PlayerRegistrationScreen({
                       VALUATION: CLASSIFIED
                     </span>
                   </div>
-                  
+
                   {selectedBribe === opt.id && (
                     <div className="absolute right-6 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />
                   )}
@@ -392,7 +408,9 @@ export default function PlayerRegistrationScreen({
               ))}
             </div>
 
-            <div className={`w-full transition-all duration-700 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+            <div
+              className={`w-full transition-all duration-700 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+            >
               <button
                 onClick={handleFinalConfirm}
                 className="w-full py-5 bg-cyan-600/10 hover:bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black rounded-sm tracking-[0.6em] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-all text-xs uppercase flex items-center justify-center gap-2"
@@ -401,11 +419,15 @@ export default function PlayerRegistrationScreen({
                 <ChevronRight size={16} />
               </button>
             </div>
-            
+
             {/* 底部裝飾 */}
             <div className="absolute bottom-4 left-10 right-10 flex justify-between opacity-10 pointer-events-none">
-              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">AUTH_LEVEL_04</span>
-              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">TR_ID_{transactionId}</span>
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">
+                AUTH_LEVEL_04
+              </span>
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">
+                TR_ID_{transactionId}
+              </span>
             </div>
           </div>
         </div>
