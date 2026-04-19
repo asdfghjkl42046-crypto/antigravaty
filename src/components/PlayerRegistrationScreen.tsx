@@ -14,6 +14,7 @@ import {
   Wine,
   BookOpen,
   ArrowLeft,
+  PenTool,
 } from 'lucide-react';
 import gsap from 'gsap';
 import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
@@ -264,7 +265,7 @@ export default function PlayerRegistrationScreen({
                     }}
                   >
                     <div
-                      className="w-[145px] h-[200px] rounded-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-r-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-4"
+                      className="w-[145px] h-[200px] rounded-r-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-l-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-4 transition-all"
                       style={{
                         backgroundColor:
                           path === 'normal'
@@ -276,17 +277,28 @@ export default function PlayerRegistrationScreen({
                           'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("https://www.transparenttextures.com/patterns/leather.png")',
                       }}
                     >
+                      {/* 背景光暈染色 */}
+                      <div className={`absolute inset-0 opacity-20 ${
+                        path === 'backdoor' ? 'bg-cyan-500' : path === 'blackbox' ? 'bg-red-500' : 'bg-amber-500'
+                      }`} />
+
                       <div className="relative z-10 flex flex-col items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-md shadow-inner">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border backdrop-blur-md shadow-inner transition-all ${
+                          path === 'backdoor' ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' : 
+                          path === 'blackbox' ? 'bg-red-500/10 border-red-500/30 text-red-400' : 
+                          'bg-amber-500/10 border-amber-600/30 text-amber-500'
+                        }`}>
                           {path === 'normal' ? (
-                            <Scale className="w-7 h-7 text-white/50" />
+                            <Scale className="w-7 h-7" />
                           ) : path === 'backdoor' ? (
-                            <Shield className="w-7 h-7 text-white/50" />
+                            <Shield className="w-7 h-7" />
                           ) : (
-                            <Feather className="w-7 h-7 text-white/50" />
+                            <PenTool className="w-7 h-7" />
                           )}
                         </div>
-                        <h4 className="text-xl font-black tracking-[0.2em] text-white/90 uppercase">
+                        <h4 className={`text-xl font-black tracking-[0.2em] uppercase transition-colors ${
+                          path === 'backdoor' ? 'text-cyan-100/90' : path === 'blackbox' ? 'text-red-100/90' : 'text-amber-100/90'
+                        }`}>
                           {START_PATH_NAMES[path]}
                         </h4>
                       </div>
@@ -312,9 +324,9 @@ export default function PlayerRegistrationScreen({
             </div>
           </div>
         ) : (
-          /* 讀書模式 */
-          <div className="w-full h-full flex items-center justify-center relative animate-in zoom-in-95 duration-700 ease-out">
-            <div className="absolute top-10 left-10 z-[100] ui-fade-in">
+          /* 讀書模式 - 移除縮放過渡以防止閃爍 */
+          <div className="w-full h-full flex items-center justify-center relative ui-fade-in duration-300">
+            <div className="absolute top-10 left-10 z-[100]">
               <button
                 onClick={() => setIsBookFocused(false)}
                 className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900/60 border border-white/10 text-white/70 hover:text-white hover:bg-slate-800 transition-all active:scale-95 group backdrop-blur-xl shadow-2xl"
@@ -323,7 +335,7 @@ export default function PlayerRegistrationScreen({
                 <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
               </button>
             </div>
-            <div className="w-full flex justify-center scale-90 transition-transform duration-700">
+            <div className="w-full flex justify-center">
               <ParchmentBook
                 key={selectedPath}
                 activePath={selectedPath!}

@@ -17,7 +17,7 @@ export const PLAYER_UI_TEXT = {
     CRIMINAL_RECORDS: '犯罪前科',
     CURRENCY_UNIT: '萬',
     STAT_LABELS: {
-      IP: '人才點券',
+      IP: '人才點數',
       RP: '名聲',
       AP: '行動力',
       BM: '黑料', // 潛在毀滅彈 (惹怒同行或被檢警盯上累積的暗潮)
