@@ -12,26 +12,27 @@ import type {
   Tag,
   Card,
   SpecialTag,
+  MoneyValue,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
-import { sha256 } from './MathEngine';
+import { sha256, resolveMoneyValue } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
-import { applyAccountantBonus, shouldRefundAP } from './RoleEngine';
+import { applyAccountantBonus, shouldRefundAP, applyPRDiscount } from './RoleEngine';
 import {
   throwNumericalCheckError,
 } from './errors/EngineErrors';
 
 /**
- * 定義每張卡牌選項會對玩家造成的收益、懲罰與觸犯的法條
- * 此型別為從資料庫讀取後的聯集，支援所有 X, Y, Z 的特徵
+ * 定義卡片選項的結果（賺點錢、扣名聲、或犯了哪條法）
+ * 這個型別整合了所有類型的選項欄位。
  */
 export type AnyCardOption = BaseOption & {
   type?: OptionType;
   succRate?: number; // 0~1 的成功機率 (如 0.8 代表 80% 成功率)
   succ?: {
     // 鑑定成功的獎勵
-    g?: number;
+    g?: MoneyValue;
     rp?: number;
     ip?: number;
     bm?: number | 'all'; // 若為 all 則可以消除掉身上所有的黑材料
@@ -39,7 +40,7 @@ export type AnyCardOption = BaseOption & {
   };
   fail?: {
     // 鑑定失敗的懲罰
-    g?: number;
+    g?: MoneyValue;
     rp?: number;
     ip?: number;
     loss?: number;
@@ -49,8 +50,8 @@ export type AnyCardOption = BaseOption & {
 };
 
 /**
- * 決定每回合玩家的行動順序
- * 第一回合看開局選哪條路，之後看誰的體力(AP)跟錢比較多。
+ * 決定這回合誰先動
+ * 第一輪看出生背景，之後看誰的行動力 (AP) 跟資產多。
  */
 export function sortTurnOrder(players: Player[], currentRound: number): Player[] {
   // 設定開局路線權重
@@ -96,13 +97,37 @@ export function sortTurnOrder(players: Player[], currentRound: number): Player[]
 }
 
 /**
- * 玩家執行卡牌行動的結算中心。
- * 負責處理：扣除花費、判斷行動成功率、會計天賦分紅、計算黑材料，以及建立防竄改的犯罪紀錄。
+ * 格式化收益通知文字
+ * 依照使用者規範：>0 顯示獲得，<0 顯示花費，0 不提。
+ * 格式：[項目][獲得/花費] [數值] [單位]
+ */
+function formatStatsBundle(g: number, ip: number, rp: number, bm: number): string {
+  const parts: string[] = [];
+  const items = [
+    { label: '資金', val: g, unit: '萬' },
+    { label: '技術', val: ip, unit: '點' },
+    { label: '名聲', val: rp, unit: '點' },
+    { label: '黑材料', val: bm, unit: '點' },
+  ];
+
+  for (const item of items) {
+    if (item.val === 0) continue;
+    const action = item.val > 0 ? '獲得' : '花費';
+    parts.push(`${item.label}${action} ${Math.abs(item.val)} ${item.unit}`);
+  }
+
+  // 返回以「、」分隔的字串，若無變動則回傳空字串
+  return parts.length > 0 ? parts.join('、') : '無顯著影響';
+}
+
+/**
+ * 當玩家選好卡片選項後，來這邊算帳。
+ * 負責處理：扣除成本、判斷成功率、人才技能加成、計算黑材料，並建立防偽犯罪紀錄。
  *
- * @param player 執行此行動的玩家
- * @param cardId 卡片編號
- * @param optionIdx 玩家選擇的選項
- * @param lastHash 上一筆防竄改紀錄碼
+ * @param player 誰在動
+ * @param cardId 哪張牌
+ * @param optionIdx 選了第幾個選項
+ * @param lastHash 上一筆紀錄的雜湊碼
  * @param choice 選項後的二階段抉擇 (合法申報 | 黑箱略過)
  * @param turn 目前回合數
  */
@@ -116,7 +141,7 @@ export async function performAction(
   counterCTOCount: number = 0
 ): Promise<ActionResult & { hashedTags: Tag[]; finalHash: string }> {
   try {
-    // 0. 輸入合法性預先檢查 (入参守門員)
+    // 0. 檢查一下資料對不對 (防呆機制)
     if (lastHash === undefined || lastHash === null) {
       throwNumericalCheckError(
         'ActionEngine.performAction',
@@ -125,7 +150,8 @@ export async function performAction(
     }
 
     const card = CARDS_DB[cardId];
-    const actionId = Date.now();
+    // [新增] 唯一識別碼：加入隨機偏移，確保多人同時掃描時，行動數據不會撞號或共用
+    const actionId = Date.now() + Math.floor(Math.random() * 1000);
     const timestamp = new Date().toISOString();
 
     // 若找不到該實體卡片，則拒絕結算
@@ -222,7 +248,7 @@ export async function performAction(
     let message = '';
 
     // [新增] 套利與破產風險警示：若選項具備負向失敗金，先行在訊息中加載警示文字
-    const hasBankruptcyRisk = (opt.fail?.g || 0) < 0;
+    const hasBankruptcyRisk = resolveMoneyValue(opt.fail?.g) < 0;
     if (hasBankruptcyRisk) {
       message += ' (⚠️ 注意：此行動若失敗，隨之而來的賠償金可能導致公司破產)';
     }
@@ -231,7 +257,7 @@ export async function performAction(
     // 判斷玩家的選擇是否需要付費來合法申報
     const isDeclaration = choice === 'declare';
 
-    // 1. 成本計算 (GEMINI.md §2-2)，判斷玩家有沒有足夠的錢選擇選項
+    // 1. 算價錢：看看這一動要付多少錢。如果要合法申報，要加收 50 萬手續費喔。
     let costToDeduct = opt.costG || 0;
     // 如果玩家選擇了申報，課徵 50 萬手續費
     if (isDeclaration) costToDeduct += 50;
@@ -245,7 +271,7 @@ export async function performAction(
         appliedTags: [],
         hashedTags: [],
         finalHash: lastHash,
-        apRefunded: true, // 資金不足時取消行動，並退還行動力
+        apRefunded: true, // 資金不足時取消行動，並退還行動力 (操作攔截)
         actionId,
         log: {
           playerId: player.id,
@@ -258,12 +284,10 @@ export async function performAction(
       };
     }
 
-    // 2. 基礎收益暫存區 (待套用 RP 名聲懲罰...等公式)
-    // [核心修復] 必須優先讀取 succ 中定義的深層收益，否則對於 C 類 Z 選項等 deep structure 卡片，
-    // 會導致基礎收益被判定為 0，進而使黑材料快照 (Snapshot) 的不法所得為 0，形成法庭零元罰單之 Bug。
-    const baseRewardG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
-    const baseRewardRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
-    const baseRewardIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
+    // 2. 抓出這張卡的基礎獎勵：先確定成功的話能拿到多少資金、名聲跟技術資產。
+    const baseRewardG = resolveMoneyValue(opt.succ?.g !== undefined ? opt.succ.g : opt.g);
+    const baseRewardRP = resolveMoneyValue(opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0);
+    const baseRewardIP = resolveMoneyValue(opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0);
 
     // 基礎收益給會計天賦判定，看有沒有額外的灰色收入加成
     const bonusRewardG = applyAccountantBonus(player, cardId, baseRewardG);
@@ -299,7 +323,7 @@ export async function performAction(
       }
     }
 
-    // 4. 行動機率(骰子檢定)判定
+    // 4. 丟骰子時間：如果有成功率限制且你沒選申報，就看運氣好不好了。
     if (opt.succRate !== undefined && !skipRandomCheck) {
       // 只有在成功率小於 1.0 時才執行隨機判定
       if (opt.succRate < 1.0 && Math.random() > opt.succRate) finalSuccess = false;
@@ -313,7 +337,7 @@ export async function performAction(
     if (finalSuccess) {
       if (isDeclaration) {
         // 安全申報：再多扣繳 50 萬手續費
-        const baseG = opt.g || 0;
+        const baseG = resolveMoneyValue(opt.g);
         finalGChange = baseG - costToDeduct;
         // [新增] C 類卡申報成功額外獎勵 30 RP；其餘卡片維持原本基礎名聲獎勵
         const baseRPWithBonus = isCTypeZOption ? baseRewardRP + 30 : baseRewardRP;
@@ -327,9 +351,9 @@ export async function performAction(
       } else {
         // 檢定過關且未主動申報的黑箱路線
         // [修正] 獎勵回測機制：若 succ 中未定義，則回退使用頂層基礎數值，支援扁平結構卡牌
-        const succG = opt.succ?.g !== undefined ? opt.succ.g : opt.g || 0;
-        const succRP = opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0;
-        const succIP = opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0;
+        const succG = resolveMoneyValue(opt.succ?.g !== undefined ? opt.succ.g : opt.g);
+        const succRP = resolveMoneyValue(opt.succ?.rp !== undefined ? opt.succ.rp : opt.rp || 0);
+        const succIP = resolveMoneyValue(opt.succ?.ip !== undefined ? opt.succ.ip : opt.ip || 0);
 
         // 成功獲得的資金再次納入會計師進行額外分紅加成
         const bonusSuccG = applyAccountantBonus(player, cardId, succG);
@@ -339,6 +363,10 @@ export async function performAction(
         // 最終結算
         finalGChange = totalG - costToDeduct;
         finalRPChange = calculateActualRPGain(player, totalRP);
+        // [新增] 危機公關：如果名聲變動是負的，趕快請公關部出來「說明」一下（處理損害減半）
+        if (finalRPChange < 0) {
+          finalRPChange = applyPRDiscount(player, finalRPChange);
+        }
         finalIPChange = succIP;
 
         // E 卡洗黑材料清除機制
@@ -399,13 +427,17 @@ export async function performAction(
       }
     } else {
       // 失敗的情況 (不享有預期成功的 base rewards 收益)
-      const failG = opt.fail?.g || 0;
-      const failRP = opt.fail?.rp || 0;
-      const failIP = opt.fail?.ip || 0;
+      const failG = resolveMoneyValue(opt.fail?.g);
+      const failRP = resolveMoneyValue(opt.fail?.rp || 0);
+      const failIP = resolveMoneyValue(opt.fail?.ip || 0);
 
       const totalG = failG;
       finalGChange = totalG - costToDeduct;
       finalRPChange = calculateActualRPGain(player, failRP);
+      // [新增] 損害控管：計畫失敗扣名聲也要靠公關掩飾，能救多少算多少
+      if (finalRPChange < 0) {
+        finalRPChange = applyPRDiscount(player, finalRPChange);
+      }
       finalIPChange = failIP;
 
       // 失敗所帶出來的標籤：僅在有明確定義失敗標籤，且與頂層標籤不重複時才增加
@@ -504,11 +536,28 @@ export async function performAction(
       updates.blackMaterialSources = newBMSources;
     }
 
-    // 9. 檢查是否有「強制起訴」狀態 (如E卡)
+    // 9. 檢查有沒有被警察「抓個正著」：例如某些 E 類陷阱卡失敗會直接法庭見。
     let forcedTrial = undefined;
     if (!finalSuccess && opt.fail?.special === 'sue') {
       forcedTrial = { tagId: actionId, reason: message };
     }
+
+    // [新增] 統計資訊摘要 (GEMINI.md §2-2 規範)
+    // 計算黑材料淨變動
+    let netBMChange = 0;
+    if (hashedTags.length > 0) {
+      const extraBMTotals = (choice === 'skip' && isCTypeZOption) ? 2 : 0;
+      netBMChange = hashedTags.length + extraBMTotals;
+    } else if (updates.blackMaterialSources !== undefined) {
+      // 若有 BM 減少邏輯 (如 E 卡成功)
+      const oldTotal = player.blackMaterialSources.reduce((s, b) => s + b.count, 0);
+      const newTotal = updates.blackMaterialSources.reduce((s, b) => s + b.count, 0);
+      netBMChange = newTotal - oldTotal;
+    }
+
+    const statsSummary = formatStatsBundle(finalGChange, finalIPChange, finalRPChange, netBMChange);
+    // [格式更新] 因 [業主名] 的選擇，[企業名] [摘要]
+    const finalAnnouncement = `因 ${player.ownerName} 的選擇，${player.name}${statsSummary}`;
 
     // [修正] 最終數值安全性檢查：確保 updates 中不包含 NaN，防止數據污染傳播到 Store
     if (Number.isNaN(updates.g) || Number.isNaN(updates.rp) || Number.isNaN(updates.ip)) {
@@ -522,8 +571,8 @@ export async function performAction(
     const multiplierLabel =
       tagMultiplier > 1 ? ` (受其他玩家 CTO 影響，犯罪紀錄 x${tagMultiplier})` : '';
     return {
-      success: finalSuccess,
-      message: `${message}${multiplierLabel}`,
+      success: cardId.startsWith('A-') ? true : finalSuccess,
+      message: `${finalAnnouncement}${multiplierLabel}`,
       updates,
       appliedTags: snapshots,
       hashedTags,

@@ -13,21 +13,21 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '請他先把那邊的事情處理完，合約和競業條款都解除之後再來談。這段時間這群人可能流向別家，技術缺口也補不上，但至少你清楚自己在等什麼。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     2: {
       type: 'SSR',
       label:
         '開出有吸引力的股權條件，但希望他來之前能讓你們看看手上的東西，包括目前在跑的架構和客戶資源。確認彼此合作的基礎，磨合期也會短很多。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-01-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-01-2'] },
       special: 'poachtalent',
     },
     3: {
       type: 'SSSR',
       label:
         '在他正式離職前，先安排幾次私下的技術交流，讓他把對手系統的底層邏輯講清楚，過程留存紀錄備查。入職前先做好評估，省掉之後的磨合時間。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-01-3'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-01-3'] },
       special: 'poachtalent',
     },
   },
@@ -40,7 +40,7 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '按實習規矩走，合約、勞健保、加班費一樣不少，還要撥出資深工程師的時間帶人。開發進度會被拖住，人事成本也會跳，但帳面上每一筆都說得清楚。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     2: {
@@ -48,7 +48,7 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '從這批人裡挑最頂尖的幾個，直接開正職，薪資條件讓他們驚喜一下，搶在對手前把人帶進門。本季人事支出會立刻墊高，兵役和學業的變數也還在。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     3: {
@@ -56,7 +56,7 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '人進來之前，先讓法務把合約、智財歸屬、競業條款逐條看過，所有東西明確落紙。流程最慢，有些學生可能覺得綁手綁腳，但日後沒有爛攤子。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },
@@ -68,21 +68,21 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSR',
       label:
         '他對原公司的客戶 and 報價邏輯熟得很，這正是你需要的。你提出，入職後希望他能整理一份客戶資料和市場報價參考，幫公司快速建立競爭策略。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-03-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-03-1'] },
       special: 'poachtalent',
     },
     2: {
       type: 'SSR',
       label:
         '他離職前系統權限還在，那套系統裡有你想看的東西。你暗示他，如果能在走之前把關鍵技術文件備份下來，待遇的部分可以再談。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-03-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-03-2'] },
       special: 'poachtalent',
     },
     3: {
       type: 'SSR',
       label:
         '薪資超預算，但你打算答應。合約裡加上高額違約金和不對稱的解職條款，先把人和他帶來的資源都鎖進來，其他的事之後再說。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-03-3'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-03-3'] },
       special: 'poachtalent',
     },
   },
@@ -94,7 +94,7 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSR',
       label:
         '公關經理去私下接觸那幾位工程師，條件開得漂亮。但你說了：來可以，把手上案子的進度和架構一起帶過來，讓大家確認你真的有料。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-04-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-04-1'] },
       special: 'poachtalent',
     },
     2: {
@@ -102,14 +102,14 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '辦幾場技術沙龍，主題剛好是對手在攻的方向。自家工程師去聊聊天、聽聽抱怨。不問機密，只看誰在觀望、誰快撐不住，時機到了再出手。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     3: {
       type: 'SR',
       label: '把職缺整理好，薪資和福利寫清楚，加大曝光。想走的人自己會來搜尋，不用追，等就好。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },
@@ -121,20 +121,20 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSR',
       label:
         '要求新人改簽承攬合約，加班費和勞健保就不用算了。條款裡加一條提早離職要賠三個月薪水。名義上是商業合作，實際上該做的事一件都沒少。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-05-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-05-1'] },
     },
     2: {
       type: 'SSR',
       label:
         '每日強制十二小時，加班費先不談，改用還沒上市的股票期權補償。你跟他們說現在拚是為了以後，期權到時候值多少誰也說不準，但聽起來很好聽。現金的事，之後再說執行。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-05-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-05-2'] },
     },
     3: {
       type: 'SR',
       label:
         '訂清楚 KPI，維持彈性工時。表現不到位的走績效改進流程，真的不行就依法資遣、付資遣費。手續繁瑣，錢也要出，但之後不用擔心別的事。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },
@@ -146,40 +146,40 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSR',
       label:
         '他身份敏感，直接簽合約太顯眼。你找了一間和你沒有直接關係的公司出面，以專案費用的名義讓他繼續做研究。他有資源，你有成果，彼此保持距離。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-06-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-06-1'] },
       special: 'poachtalent',
     },
     2: {
       type: 'SSSR',
       label:
         '國內的合約留痕跡太多。透過海外公司和他結算報酬，走正常國際匯款，報酬按市場行情來。安靜、乾淨，誰也看不出你們有關係。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-06-2'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-06-2'] },
       special: 'poachtalent',
     },
     3: {
       type: 'SSR',
       label:
         '他和前東家顯然有積怨，只是自己不敢先動。你幫他介紹律師，生活費這段時間也幫他撐著。等他那邊的事情理清楚，再談合作。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-06-3'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-06-3'] },
       special: 'poachtalent',
     },
   },
   'B-07': {
     title: '共用辦公室的耳語',
     description:
-      '你在共用辦公室工作時，偶然聽到隔壁新創團隊正準備大規模裁員，其中有幾個很厲害的資深後端工程師。',
+      '你在共用辦公室工作時，偶然聽到隔筆新創團隊正準備大規模裁員，其中有幾個很厲害的資深後端工程師。',
     1: {
       type: 'SSR',
       label:
         '對方還沒正式宣布，內部已經人心惶惶。你私下接觸幾位工程師，說好只要他們來的時候把開發環境的設定檔、自動化腳本和架構圖帶過來，簽約金直接到位。省得自己從頭搭。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-07-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-07-1'] },
       special: 'poachtalent',
     },
     2: {
       type: 'SSR',
       label:
         '你請技術主管出面，以同業關心的名義約對方團隊吃個飯。氣氛輕鬆，話題自然會聊到技術，聊到現在卡在哪、用什麼架構、還有哪些東西還沒對外說。回來整理一下，拿來當自家研發的參考。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-07-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-07-2'] },
       special: 'poachtalent',
     },
     3: {
@@ -187,7 +187,7 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '你透過正式管道聯繫對方的 HR，說公司有職缺，願意協助安置受影響的人才。等對方正式離職、職務交接完成之後，再走正常面試流程。慢是慢了點，這段時間競爭者也不少。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },
@@ -199,20 +199,20 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSR',
       label:
         '把員工月薪拆開來，只留一個低底薪當投保基礎，其餘全部改成伙食、交通、績效等津貼發放。你跟員工說這樣他們每個月少扣一點，實領會多一些。帳面上說得過去，公司這邊省下來的也不少。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-08-1'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-08-1'] },
     },
     2: {
       type: 'SSR',
       label:
         '要求所有新人入職前簽一份自願放棄勞健保的切結書，換取比較高的現金加給，保險改用便宜的商業團體意外險代替。不簽就沒工作，條件就這樣。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-08-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-08-2'] },
     },
     3: {
       type: 'SR',
       label:
         '拒絕會計師的提議，按照員工實際薪資誠實申報勞健保和勞退提撥。人事成本還是在高點，但你決定把這件事當作招募的籌碼，吸引重視制度穩定的人才。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },
@@ -223,22 +223,22 @@ export const CARDS_B: Record<string, Card> = {
     1: {
       type: 'SSR',
       label:
-        '把全公司的合約改成承攬制，勞健保、特休、加班費一律取消。合約裡再加上KPI扣款條款，沒達標直接扣費用。合約上寫著雙方同意，其他的事就讓他們自己承擔。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-09-1'] },
+        '把全公司的合營改成承攬制，勞健保、特休、加班費一律取消。合約裡再加上KPI扣款條款，沒達標直接扣費用。合約上寫著雙方同意，其他的事就讓他們自己承擔。',
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-09-1'] },
     },
     2: {
       type: 'SR',
       label:
-        '拒絕合夥人的提議，維持正規勞動契約。導入彈性排班，福利也做得比法規要求好一點。帳面利潤短期內不好看，但不用擔心哪天被翻出來算帳。',
+        '拒絕合夥人的提議，維持正規勞工契約。導入彈性排班，福利也做得比法規要求好一點。帳面利潤短期內不好看，但不用擔心哪天被翻出來算帳。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     3: {
       type: 'SSR',
       label:
-        '核心研發人員維持正職，非核心的專案人力改成短期承攬。你覺得只動一部分，規模不大，不太容易被注意到員。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-09-3'] },
+        '核心研發人員維持正職，非核心的專案人力改成短期承攬。你覺得只動一部分，規模不大，不太容易被注意到。',
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-09-3'] },
     },
   },
   'B-10': {
@@ -249,19 +249,19 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSSR',
       label:
         '透過共同朋友傳話，告訴他只要繼續推動那個專案，你就會把他在職期間的負面考績、技術失誤和私德問題全部公開。你打算用這個換他退出。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-10-1'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-10-1'] },
     },
     2: {
       type: 'SSR',
       label:
         '委請律師寄一封措辭嚴厲的律師函給對方公司。你很清楚競業協議可能無效，但目的不是打官司，是要讓對方的風控部門緊張，讓他們先把這個工程師的權限凍結再說。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-10-2'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-10-2'] },
     },
     3: {
       type: 'SSR',
       label:
         '指示HR發一份公開聲明，點名某離職員工及其新東家涉及竊取核心機密，強調公司將追究到底。手上沒有具體證據，但聲明出去，輿論壓力先到位。',
-      succ: { ip: 40, rp: -8, lawCaseIds: ['B-10-3'] },
+      succ: { ip: [35, 45], rp: [0, 5], lawCaseIds: ['B-10-3'] },
     },
   },
   'B-11': {
@@ -272,21 +272,21 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSSR',
       label:
         '派人登入他的帳號，把那個 repo 強制刪掉。然後在幾個技術群組放話，說他離職前就有偷竊代碼的前科。快刀斬亂麻，把這件事壓下去。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-11-1'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-11-1'] },
     },
     2: {
       type: 'SR',
       label:
         '向 GitHub 提交 DMCA 版權申訴，委託律師存證，透過官方程序要求下架，同時發函約對方談判。過程繁瑣，沒辦法立刻解氣，但法律上的主動權在你這裡。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
     3: {
       type: 'SSSR',
       label:
-        '私下約他喝咖啡，開一筆技術顧問費，條件是刪掉代碼並簽保密協議。他遲疑，你把金額提高十倍。用錢把這件事快速處理掉負面。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-11-3'] },
+        '私下約他喝咖啡，開一筆技術顧問費，條件是刪掉代碼並簽保密協議。他遲疑，你把金額提高十倍。用錢把這件事快速處理掉。',
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-11-3'] },
     },
   },
   'B-12': {
@@ -297,14 +297,14 @@ export const CARDS_B: Record<string, Card> = {
       type: 'SSSR',
       label:
         '讓他掛名在一間和你沒有直接關係的子公司，同時請他用還沒被停掉的前公司帳號繼續抓市場數據。身份和技術兩頭都藏好，對手的核心資產就這樣順手拿過來。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-12-1'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-12-1'] },
       special: 'poachtalent',
     },
     2: {
       type: 'SSSR',
       label:
         '完全照他的要求來：海外人頭公司付幣、不簽合約、不留通訊紀錄、開會只用代號。你告訴自己這只是因應特殊人才的彈性做法，雖然這筆沒辦法進帳目的支出越來越大，讓你開始有點不安。',
-      succ: { ip: 60, rp: -20, lawCaseIds: ['B-12-2'] },
+      succ: { ip: [25, 35], rp: [-10, -5], lawCaseIds: ['B-12-2'] },
       special: 'poachtalent',
     },
     3: {
@@ -312,7 +312,7 @@ export const CARDS_B: Record<string, Card> = {
       label:
         '放棄這個人。轉去找背景相似但身份乾淨的專家，從頭培養，就算要多花半年。進度慢，但帳目清楚，董事會和稽核那關不用提心吊膽。',
       succRate: 0.9,
-      succ: { ip: 20, rp: 2 },
+      succ: { ip: [15, 25], rp: [0, 5] },
       fail: { ip: 0 },
     },
   },

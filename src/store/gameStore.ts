@@ -102,6 +102,10 @@ export const useGameStore = create<GameStore>()(
       setJudgeMode: (mode) => set({ judgeMode: mode }),
 
       processScan: async (code: string) => {
+        /**
+         * 處理掃描結果
+         * 玩家掃了實體 QR Code 後，看是觸發地點卡、雇用人才還是手牌洗牌。
+         */
         const codeUpper = code.toUpperCase().replace(/-/g, '').trim();
 
         // 處理特殊洗牌指令 (WASH)
@@ -159,6 +163,10 @@ export const useGameStore = create<GameStore>()(
       clearEngineError: () => set({ engineError: null }),
 
       performAction: async (cardId, optionIdx, declareChoice) => {
+        /**
+         * 執行卡片行動
+         * 玩家點選選項後，來這邊結算金錢、名聲，並看看有沒有觸發法規或留下黑材料。
+         */
         const state = get();
         const updates = await GameFlowEngine.executeAction(state, cardId, optionIdx, declareChoice);
         const { result, ...stateUpdates } = updates;

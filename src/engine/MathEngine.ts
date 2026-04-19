@@ -8,12 +8,11 @@
  * 只要計算結果有小數點，一律往上加 1（例如 220.1 變成 221）。
  */
 import { throwNumericalCheckError } from './errors/EngineErrors';
+import type { MoneyValue } from '../types/game';
 
 /**
- * §1-1 無條件進位 (Round Up)
- * 凡涉及百分比計算導致小數點，一律無條件進位。
- * 修正浮點數精度誤差（例如 220.00000000000003 應判定為 220，若為 220.1 則進位成 221）
- * 這是為了確保玩家在受到懲罰或罰金計算時，系統採取對抗風險最嚴格的標準
+ * 進位高手：只要有零頭，一律往上加 1
+ * 這是為了確保玩家在算罰金或名聲損失時，系統採取最嚴格的標準。
  */
 export function roundUp(num: number): number {
   // 核心邊界防禦：攔截任何可能導致 NaN 傳播的非法傳入值
@@ -27,8 +26,8 @@ export function roundUp(num: number): number {
 }
 
 /**
- * 資料加密功能
- * 幫每一筆犯罪紀錄產生唯一的「指紋」，確保紀錄不會被隨意改動。
+ * 產生防偽指紋
+ * 幫每一筆紀錄產生獨一無二的加密碼，防止資料被偷偷修改。
  */
 export async function sha256(message: string): Promise<string> {
   // 檢查 Web Crypto API 是否可用。在非 HTTPS 或舊版環境中，crypto.subtle 為 undefined。
@@ -118,4 +117,21 @@ function fallbackSha256(message: string): string {
   return Array.from(h)
     .map((v) => (v >>> 0).toString(16).padStart(8, '0'))
     .join('');
+}
+
+/**
+ * 獎勵解析器
+ * 有些卡片獎勵是隨機範圍（像 [10, 20]），這邊會幫你抽出一個真正的數字。
+ */
+export function resolveMoneyValue(value: MoneyValue | undefined): number {
+  if (value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  if (Array.isArray(value) && value.length === 2) {
+    const [min, max] = value;
+    const range = max - min;
+    const step = 10; // 公差從 1 改為 10
+    const steps = Math.floor(range / step);
+    return Math.floor(Math.random() * (steps + 1)) * step + min;
+  }
+  return 0;
 }

@@ -58,15 +58,18 @@ export const BANKRUPTCY_LIMITS = {
 // 破產判定（遊戲失敗條件）
 
 /**
- * 檢查是否破產
- * 如果名聲太低，或是錢跟信託基金都沒了，遊戲就結束。
+ * 檢查有沒有倒閉
+ * 如果名聲太慘，或是沒信託基金下錢歸零了，公司就直接收掉。
  */
 export function checkBankruptcy(player: Player): boolean {
   // 名聲低於死線為絕對死線 (社會性死亡)，不可逆
   if (player.rp < BANKRUPTCY_LIMITS.RP_MIN) return true;
-  
+
   // 若無海外信託且手邊無任何現金流 (資金斷裂)，宣告經濟破產
-  if (player.g <= BANKRUPTCY_LIMITS.CASH_MIN && (player.trustFund || 0) <= BANKRUPTCY_LIMITS.CASH_MIN) {
+  if (
+    player.g <= BANKRUPTCY_LIMITS.CASH_MIN &&
+    (player.trustFund || 0) <= BANKRUPTCY_LIMITS.CASH_MIN
+  ) {
     return true;
   }
   return false;
@@ -82,7 +85,7 @@ export function checkVictory(
   currentTurn: number = 0,
   saintBonusActive: boolean = false
 ): VictoryRoute {
-  if (currentTurn < 15) return null;
+  if (currentTurn < 10) return null;
   const totalAssets = player.g + (player.trustFund || 0);
 
   // 1. 最高難度「聖皇」
@@ -103,7 +106,7 @@ export function checkVictory(
 
 /**
  * 給予玩家稱號評價
- * 根據玩家最常犯的罪，給一個專屬的稱號（例如：洗錢大亨）。
+ * 根據你最常犯的罪名，給一個專屬的稱號（比如：稅務達人、技術駭客）。
  */
 export function generateEvaluation(tags: Tag[]): string {
   // 過濾出所有具備 'isCrime' 設定的污點紀錄
@@ -138,8 +141,8 @@ export function generateEvaluation(tags: Tag[]): string {
 }
 
 /**
- * 結算最終結局與頒發成就
- * 遊戲最後的里程碑，決定你是成為商業聖皇，還是淪為階下囚。
+ * 遊戲最後的大結算
+ * 看看你最後是光榮退休成為聖皇，還是淪落到身敗名裂。
  */
 export function calculateEnding(player: Player, turn: number): EndingResult {
   const { g, rp, tags, totalFinesPaid, trustFund } = player;

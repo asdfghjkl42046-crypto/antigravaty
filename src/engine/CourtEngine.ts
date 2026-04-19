@@ -39,7 +39,8 @@ import {
 export class CourtEngine {
 
   /**
-   * 隨機抽出這回合要上法庭的人
+   * 起訴輪盤：隨機抽出這回合哪位玩家要上法庭
+   * 黑材料越多的人，中獎機率就越高。
    */
   static spinRussianRoulette(players: Player[]): Player | null {
     const activePlayers = players.filter((p) => !p.isBankrupt);
@@ -71,6 +72,9 @@ export class CourtEngine {
     return activePlayers[activePlayers.length - 1];
   }
 
+  /**
+   * 挑選罪名：從玩家身上的犯罪紀錄中，隨機選一個還沒結案的來起訴
+   */
   static pickLawCase(player: Player): { lawCase: LawCase; tagId: number } | null {
     const validCrimeTags = player.tags.filter((t) => {
       if (t.isResolved) return false;
@@ -223,6 +227,9 @@ export class CourtEngine {
     return { fine: finalFine, rpLoss: baseResult.rpLoss, detail: detail };
   }
 
+  /**
+   * 計算辯護結果：根據玩家的勝率、旁觀者的影響力，以及是否有律師加成，決定官司贏不贏。
+   */
   static calculateDefenseResult(
     mode: JudgeMode,
     player: Player,
@@ -245,6 +252,10 @@ export class CourtEngine {
     return { isSuccess, rate: finalSurvivalRate };
   }
 
+  /**
+   * 律師大絕招：『撤銷控訴』
+   * 如果律師等級夠高且錢夠多，可以直接把這條官司「搓掉」。
+   */
   static applyWithdrawCase(player: Player, lawCaseTag: string | string[], lawCaseTagId: number): { success: boolean; updates: Partial<Player> } {
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     const cost = getWithdrawCaseCost(player);
@@ -260,6 +271,10 @@ export class CourtEngine {
     };
   }
 
+  /**
+   * 最後希望：『非常上訴』
+   * 輸了官司後，還有一次機會可以花大錢重審，但一輩子只能用一次。
+   */
   static applyExtraAppeal(player: Player): { success: boolean; updates: Partial<Player> } {
     if (player.hasUsedExtraAppeal) return { success: false, updates: {} };
     return {
@@ -271,6 +286,9 @@ export class CourtEngine {
     };
   }
 
+  /**
+   * 決定辯護下場：結算玩家是在法庭上大獲全勝，還是被罰到脫褲子。
+   */
   static determineDefenseOutcome(player: Player, trial: TrialState, optionIdx: number, text: string, judgeMode: JudgeMode, currentTurn: number): Partial<TrialState> {
     const optionMap: Record<number, string> = { 0: 'J', 1: 'K', 2: 'L' };
     const optionLabel = optionMap[optionIdx] || 'J';
@@ -287,6 +305,9 @@ export class CourtEngine {
     return { isDefenseSuccess: res.isSuccess, finalSurvivalRate: res.rate, defenseText: text, punishment, punishmentDetail: punishment?.detail, judgment: judge.judgment, userPrompt: judge.userPrompt, stage: 6 };
   }
 
+  /**
+   * 檢查要不要抓人：系統會每回合巡視一次，看看哪位玩家黑材料太多該上法院了。
+   */
   static checkAndTriggerIndictment(players: Player[], turn: number): string | null {
     const activePlayers = players.filter((p) => !p.isBankrupt);
     if (activePlayers.length === 0) return null;
@@ -305,6 +326,9 @@ export class CourtEngine {
     return null;
   }
 
+  /**
+   * 法庭佈置：設定誰被告、哪條罪、誰是陪審團，準備進入審判流程。
+   */
   static prepareTrial(players: Player[], defendantId: string, judgeMode: JudgeMode, personality: JudgePersonality, forcedTagId?: number, isInevitable = false, reason = ''): Partial<TrialState> | null {
     const defendant = players.find((p) => p.id === defendantId);
     if (!defendant || getTotalBlackMaterials(defendant) === 0) return null;
@@ -337,6 +361,9 @@ export class CourtEngine {
     };
   }
 
+  /**
+   * 法庭流程進度：管理目前是檢察官說話、還是陪審團投票、還是被告辯護。
+   */
   static determineNextTrialStage(trial: TrialState, targetStage: TrialStage | number): Partial<TrialState> {
     const s = targetStage as TrialStage;
     const skip = trial.bystanderIds.length === 0;
@@ -344,12 +371,22 @@ export class CourtEngine {
     return { stage: resolvedStage, actingBystanderIndex: (resolvedStage === 2 || resolvedStage === 3 ? 0 : trial.actingBystanderIndex), isReady: (resolvedStage === 2 || resolvedStage === 3), timer: 0 };
   }
 
+  /**
+   * 結算法庭結果：不管勝訴或敗訴，事後都要清掉證據、扣除罰款等等。
+   */
   static applyTrialResolution(player: Player, isSuccess: boolean, lawCaseTag: string | string[], lawCaseTagId: number, personality?: JudgePersonality, currentTurn: number = 999, isAppeal: boolean = false): Partial<Player> {
     const updates: Partial<Player> = { ...player };
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     if (isSuccess) {
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
       updates.tags = player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t));
+      
+      // [新增] 平反時間：既然都勝訴了，當初為了這件事丟掉的面子 (RP) 當然要全部撿回來
+      const targetTag = player.tags.find((t) => t.id === lawCaseTagId);
+      if (targetTag && targetTag.rpChange && targetTag.rpChange < 0) {
+        const restoreRp = Math.abs(targetTag.rpChange);
+        updates.rp = Math.min(100, (updates.rp || player.rp) + restoreRp);
+      }
     } else {
       const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId, isAppeal, personality);
       updates.totalTrials = (player.totalTrials || 0) + 1;
@@ -363,6 +400,9 @@ export class CourtEngine {
     return updates;
   }
 
+  /**
+   * 結算場外下注：讓剛才賭官司勝負的玩家拿錢或被扣名聲。
+   */
   static settleTrialBets(players: Player[], trial: TrialState, actualResult: boolean): Player[] {
     return players.map((p) => {
       if (p.id === trial.defendantId) return p;

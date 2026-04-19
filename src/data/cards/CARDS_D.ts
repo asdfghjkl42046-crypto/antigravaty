@@ -13,8 +13,8 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '與另外兩家符合資格的廠商進行投標策略協調，針對報價區間與後續分包利潤達成共識。三方各自投標、維持競爭形式，實際上透過事前協議確保整體利潤最大化，並降低低價競爭造成的市場損耗。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-01-1'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-01-1'] },
+      fail: { g: -100 },
     },
     2: {
       type: 'SR',
@@ -50,8 +50,8 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '赴約。對方說只要將一筆款項以活動贊助的名義撥給指定的地方發展協會，評選委員會的綜合評分自然會反映出我們的技術優勢。這是一種將公關資源導入關鍵節點的戰略性佈局。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-02-2'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-02-2'] },
+      fail: { g: -100 },
     },
     3: {
       type: 'SR',
@@ -79,8 +79,8 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '委託一名在政策審查體系有深度人脈的資深顧問，就標案的評選機制與關鍵節點提供專業協助。這類顧問的價值在於他們對制度運作的理解，以及在關鍵時刻發揮的溝通影響力。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-03-2'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-03-2'] },
+      fail: { g: -100 },
     },
     3: {
       type: 'SR',
@@ -116,8 +116,8 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '委託一名熟悉政策環境的資深產業顧問，針對標案的技術規格進行專業評估，並以書面形式向相關部門反映業界的技術現況與建議方向。顧問費不低，但這個人說話有份量。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-04-3'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-04-3'] },
+      fail: { g: -100 },
     },
   },
   'D-05': {
@@ -129,8 +129,8 @@ export const CARDS_D: Record<string, Card> = {
       label:
         '找兩家小資安公司組「隱形聯盟」，對外看起來三方競標，實際上標格和技術架構都你說了算。評審以為有競爭，其實整場是你的獨角戲。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-05-1'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-05-1'] },
+      fail: { g: -100 },
     },
     2: {
       type: 'SR',
@@ -156,8 +156,8 @@ export const CARDS_D: Record<string, Card> = {
       type: 'SSR',
       label: '席間氣氛不錯，你請助理查了幾條海外工程考察的行程。下週你打算邀承辦人一起去看看，順便讓他家人也開開眼界。',
       succRate: 0.75,
-      succ: { g: 600, rp: -20, lawCaseIds: ['D-06-1'] },
-      fail: { g: -200 },
+      succ: { g: 700, rp: -20, lawCaseIds: ['D-06-1'] },
+      fail: { g: -100 },
     },
     2: {
       type: 'SR',

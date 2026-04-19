@@ -30,9 +30,9 @@ export const SETUP_TEXT = {
 
   // 開局新聞快報：依照玩家有沒有在起跑點作弊 (塞紅包)，播報出來的系統廣播
   NORMAL_BONUS_MSG: (name: string) =>
-    `恭喜！${name} 選擇了白手起家，獲得減少懲罰（-5% 罰金）的獎勵！`,
+    `恭喜！${name} 總裁選擇了「白手起家」，獲得減少懲罰（-5% 罰金）的開局獎勵！`,
   BRIBE_BONUS_MSG: (name: string, judge: string, itemName: string) =>
-    `恭喜！${name} 準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的獎勵！`,
+    `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的開局獎勵！`,
 
   REGISTRATION_TITLE: '經營權登記',
   AVOIDANCE_NOTICE: '請其餘閒雜人等迴避', // 確保背後沒有他人在偷瞄底牌的警告標語

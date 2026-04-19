@@ -36,6 +36,7 @@ export default function PlayerRegistrationScreen({
 }: PlayerRegistrationScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentName, setCurrentName] = useState('');
+  const [currentOwnerName, setCurrentOwnerName] = useState('');
   const [selectedPath, setSelectedPath] = useState<StartPath | null>(null);
   const [isBookFocused, setIsBookFocused] = useState(false); // 決定書是否放大可翻動
   const [showBribeModal, setShowBribeModal] = useState(false);
@@ -83,6 +84,7 @@ export default function PlayerRegistrationScreen({
 
   useEffect(() => {
     setCurrentName('');
+    setCurrentOwnerName('');
     setSelectedPath(null);
     setIsBookFocused(false);
     setSelectedBribe(null);
@@ -116,6 +118,7 @@ export default function PlayerRegistrationScreen({
 
     onConfirm({
       name: currentName.trim() || `企業 ${playerIndex}`,
+      ownerName: currentOwnerName.trim() || `業主 ${playerIndex}`,
       path: selectedPath,
       bribeItem: selectedBribe || undefined,
       avatarId: selectedAvatarId,
@@ -131,6 +134,7 @@ export default function PlayerRegistrationScreen({
     
     onConfirm({
       name: currentName.trim() || `企業 ${playerIndex}`,
+      ownerName: currentOwnerName.trim() || `業主 ${playerIndex}`,
       path: selectedPath!,
       bribeItem: selectedBribe,
       avatarId: selectedAvatarId,
@@ -160,8 +164,18 @@ export default function PlayerRegistrationScreen({
         {/* 1. 企業命名 - 響應式寬度與間距 */}
         {!isBookFocused && (
           <div className="w-full flex flex-col items-center">
-            {/* 企業命名 */}
-            <div className="w-full max-w-[360px] px-6 mb-4 ui-fade-in transition-all duration-700 ease-out">
+            {/* 企業與業主命名 */}
+            <div className="w-full max-w-[360px] px-6 mb-4 ui-fade-in transition-all duration-700 ease-out flex flex-col gap-4">
+              <div className="relative group">
+                <input
+                  type="text"
+                  value={currentOwnerName}
+                  onChange={(e) => setCurrentOwnerName(e.target.value)}
+                  placeholder="請輸入業主姓名"
+                  className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl"
+                />
+                <Feather className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-blue-500/50 transition-colors" />
+              </div>
               <div className="relative group">
                 <input
                   type="text"

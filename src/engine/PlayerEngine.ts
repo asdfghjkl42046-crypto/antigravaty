@@ -12,7 +12,7 @@ import type {
   JudgePersonality,
   PlayerConfig,
 } from '../types/game';
-import { sha256, roundUp } from './MathEngine';
+import { sha256, roundUp, resolveMoneyValue } from './MathEngine';
 import { SETUP_TEXT } from '@/data/setup/SetupData';
 import { BRIBE_LABELS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { getBribeScore } from './MechanicsEngine';
@@ -24,15 +24,15 @@ import { getResolvedTags, LAW_CASES_DB } from '@/data/laws/LawCasesDB';
 // ============================================================
 
 /**
- * 算出玩家身上總共有多少件壞事（黑材料）
+ * 算一下玩家手上目前到底有多少「黑材料」
  */
 export function getTotalBlackMaterials(player: Player): number {
   return (player.blackMaterialSources || []).reduce((sum, s) => sum + (Number(s.count) || 0), 0);
 }
 
 /**
- * 增加犯罪紀錄
- * 當玩家做了壞事，系統會把這筆帳記下來。
+ * 把黑材料記到玩家帳上
+ * 當玩家做了壞事，系統會把這筆帳加進去。
  */
 export function addBlackMaterials(
   sources: BlackMaterialSource[], // 目前玩家身上的壞事清單
@@ -103,6 +103,7 @@ const INITIAL_FINE_MULTIPLIER = 1.0;
  */
 export async function createInitialPlayer(
   name: string,
+  ownerName: string,
   path: StartPath,
   avatarId: number,
   bribeItem?: BribeItem
@@ -110,8 +111,8 @@ export async function createInitialPlayer(
   // 自動產生具備時間戳與隨機亂碼的唯一玩家編號
   const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
   // 建立玩家專屬的防偽出生證明碼
-  const genesis = await sha256(`GENESIS_${id}_${name}_${path}`);
-  return createPlayerFromConfig(id, name, path, avatarId, genesis, bribeItem);
+  const genesis = await sha256(`GENESIS_${id}_${name}_${ownerName}_${path}`);
+  return createPlayerFromConfig(id, name, ownerName, path, avatarId, genesis, bribeItem);
 }
 
 /**
@@ -132,6 +133,7 @@ function getPathOptionIndex(path: StartPath): 1 | 2 | 3 {
 async function createPlayerFromConfig(
   id: string,
   name: string,
+  ownerName: string,
   path: StartPath,
   avatarId: number,
   genesis: string,
@@ -143,8 +145,8 @@ async function createPlayerFromConfig(
   const opt = card[optIdx];
   const config = opt.succ!;
 
-  const initialG = config.g || 100;
-  const initialRP = config.rp || 100;
+  const initialG = resolveMoneyValue(config.g) || 100;
+  const initialRP = resolveMoneyValue(config.rp) || 100;
   const initialLawCaseIds = config.lawCaseIds || [];
 
   // 動態解析標籤，確保與法律資料庫同步
@@ -193,6 +195,7 @@ async function createPlayerFromConfig(
   return {
     id,
     name,
+    ownerName,
     g: initialG,
     rp: initialRP,
     ip: 0, // 每位玩家初始人脈點數必定從 0 起跳
@@ -226,8 +229,8 @@ async function createPlayerFromConfig(
 }
 
 /**
- * 遊戲開局總設定
- * 負責把所有玩家拉進遊戲、隨機選出一位法官，並結算玩家開局送禮有沒有拍對馬屁
+ * 遊戲開局大點名
+ * 負責把所有玩家帶進場、隨機挑個法官，並看看大家送的禮物有沒有拍對馬屁。
  */
 export async function initializeGameSession(
   configs: PlayerConfig[],
@@ -243,7 +246,7 @@ export async function initializeGameSession(
 
   // 透過配置檔非同步並行調用工廠，實例化出每位玩家
   const players = await Promise.all(
-    configs.map((c) => createInitialPlayer(c.name, c.path, c.avatarId, c.bribeItem))
+    configs.map((c) => createInitialPlayer(c.name, c.ownerName, c.path, c.avatarId, c.bribeItem))
   );
 
   // 利用外部傳入的引擎排序邏輯決定第一回合的第一動名單輪次
@@ -258,7 +261,7 @@ export async function initializeGameSession(
     // 這裡維持邏輯特判：僅白手起家路徑享有 5% 永久減免
     if (p.startPath === 'normal') {
       p.startBonusFineReduction = 0.05;
-      startNotifications.push(SETUP_TEXT.NORMAL_BONUS_MSG(p.name));
+      startNotifications.push(SETUP_TEXT.NORMAL_BONUS_MSG(p.ownerName));
     }
 
     // 2. 特權關說玩家：檢查開場攜帶的貢品與這場法官人設的契合度 (滿分為5)
@@ -270,8 +273,8 @@ export async function initializeGameSession(
         p.startBonusFineReduction = 0.2;
         const judgeName = JUDGE_LABELS[judge].judgeName;
         const itemName = BRIBE_LABELS[p.bribeItem] || SETUP_TEXT.DEFAULT_BRIBE_NAME;
-        // 發布開局獎賞的驚喜廣播
-        startNotifications.push(SETUP_TEXT.BRIBE_BONUS_MSG(p.name, judgeName, itemName));
+        // 發布開局奖賞的驚喜廣播
+        startNotifications.push(SETUP_TEXT.BRIBE_BONUS_MSG(p.ownerName, judgeName, itemName));
       }
     }
   });

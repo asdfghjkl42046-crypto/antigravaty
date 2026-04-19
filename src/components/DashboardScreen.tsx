@@ -420,7 +420,6 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
             onBack={() => setActiveTab('home')}
             onEndTurn={() => {
               onEndTurn();
-              setActiveTab('home');
             }}
             onNavigate={setActiveTab}
           />

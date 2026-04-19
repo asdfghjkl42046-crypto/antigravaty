@@ -12,27 +12,29 @@
 // ============================================================
 
 /**
- * 專業人才職能 (GEMINI.md §4)
- * lawyer: 律師 (處理起訴/撤告) | pr: 公關 (操縱名聲/博弈)
- * accountant: 會計 (信託/稅收) | cto: 技術長 (AP/系統優化)
+ * 這邊定義了玩家可以雇用的人才功能
+ * lawyer: 律師 (負責處理官司、撤告等法律事務)
+ * pr: 公關 (操縱名聲、應對輿論與法庭押注)
+ * accountant: 會計 (處理海外信託、節稅紅利)
+ * cto: 技術長 (AP 自動化補回、反制挖角)
  */
 export type RoleType = 'lawyer' | 'pr' | 'accountant' | 'cto';
 
-/** 職能等級 (0-3)：LV1 提供基礎加成，LV3 開啟專屬路徑 (如會計師信託自動轉移) */
+/** 人才等級 (0-3)：等級越高，特殊技能的強度或自動化功能就越強 */
 export type RoleLevel = 0 | 1 | 2 | 3;
 
 /** 專業人才團隊分佈快照 */
 export type RoleMap = Record<RoleType, RoleLevel>;
 
 /**
- * 錄得行為標籤 (AppliedTag)
- * 於卡牌決策完成時產生，作為法庭階段的敘事與起訴依據。
+ * 行動產生的「犯罪紀錄」( AppliedTag )
+ * 每次做完決定產生的標籤，會變成日後法庭起訴你的證據。
  */
 export interface AppliedTag {
-  tag: string[]; // 犯罪標籤名稱 (如 [「偽造文書罪」])
-  netIncome: number; // 非法獲利快照 (單位: 萬元)。罰金基數 = netIncome * 3.0 (§2-2)
-  lawCaseIds?: string[]; // 關聯法典 ID，若無則由司法系統動態判定
-  rpChange: number; // 該決策導致的名聲隨動快照 (用於勝訴回撥)
+  tag: string[]; // 犯罪標籤 (例如：[偽造文書罪])
+  netIncome: number; // 這筆決定賺到的錢 (萬元)。罰金會根據這個數值來算。
+  lawCaseIds?: string[]; // 對應的法條 ID
+  rpChange: number; // 這次決定對名聲造成的影響
   multiplier?: number;
   multiplierSource?: string;
   surface_term?: string;
@@ -45,18 +47,18 @@ export interface AppliedTag {
  * 具備 SHA-256 指紋，確保紀錄不可回溯修改 (§5)。
  */
 export interface Tag {
-  id: number; // 事件存根 ID (Timestamp-based)，同一決策產生的多個標籤共享此 ID
+  id: number; // 事件編號 (Timestamp)，同一組決定產生的標籤會共用 ID
   text: string; // 標籤名稱
-  turn: number; // 錄得回合 (1-50)。用於聖皇路徑判定 (末 5 回合清白)
-  timestamp: string; // 生成之 ISO 8601 時間戳
-  isCrime: boolean; // 犯罪特徵旗標：決定是否觸發起訴機率判定
-  hash: string; // 雜湊鏈簽名：SHA256(PreHash + Text + TS)
-  netIncome: number; // 入帳收益存根 (單位: 萬元)
+  turn: number; // 發生回合
+  timestamp: string; // 生成時間
+  isCrime: boolean; // 是否為犯罪標籤：決定要不要進入起訴機率判定
+  hash: string; // 防偽指紋：SHA256(上一個紀錄 + 這次項目 + 時間)
+  netIncome: number; // 當時這筆決定賺到的淨利 (萬 G)
   lawCaseIds?: string[];
   rpChange?: number;
-  isResolved?: boolean; // 結案標記：勝訴後設為 True，其關聯黑材料將被「一案一清」
-  multiplier?: number; // 獲取倍率 (如 x2)
-  multiplierSource?: string; // 倍率來源 (如 'CTO')
+  isResolved?: boolean; // 結案標記：勝訴後變為 True，黑材料就會被清掉
+  multiplier?: number;
+  multiplierSource?: string;
 }
 
 /**
@@ -75,30 +77,31 @@ export interface BlackMaterialSource {
  * 遊戲內所有交互之核心狀態存儲。
  */
 export interface Player {
-  id: string; // 系統唯一 UUID，嚴禁隨意覆寫
-  name: string; // 企業/法人名稱
-  g: number; // 核心流動資產 (萬元)。G <= 0 且無信託時判定破產 (§3-2)
-  rp: number; // 社會信用名聲 (0-100)。< 50 收益減半 (§1-2)；<= 20 全局判定失效
-  ip: number; // 政治人脈資源。用於人才升級成本 (消耗 100 IP/級)
-  ap: number; // 行動力。每回合重置 5 點，可用於重抽手牌 (消耗 1 AP)
-  blackMaterialSources: BlackMaterialSource[]; // 黑材料精算庫
-  tags: Tag[]; // 完整犯罪史紀錄 (雜湊鏈)
-  trustFund: number; // 會計師信託金 (上限 1000 萬)。破產時唯一續命資產 (§4-2)
-  totalTrials: number; // 累計被告次數：影響敗訴後的累犯加重倍率
-  roles?: Partial<RoleMap>; // 專業團隊構成
-  isBankrupt: boolean; // 破產終止旗標
-  skipNextCard: boolean; // 負面狀態：代表受監管。下回合首張卡片效果無效
-  consecutiveCleanTurns: number; // 連續清白回合計數：驅動信託金自動轉移 (§4-2)
-  genesisHash: string; // 雜湊起點签章
-  lastHash: string; // 當前雜湊尾端指標
-  startPath?: StartPath; // 開局路徑影響初始資源佈點
-  bribeItem?: BribeItem; // 法庭干預道具 (古董、名酒等)
-  totalIncome: number; // 生涯總營運獲益累計 (不含初始資本)，用於評價系統
-  totalFinesPaid: number; // 累計繳納代價 (單位: 萬元)，包含罰金與撤告費用
-  totalTagsCount: number; // 違法階梯：每 40 標籤提升 10% 起訴下限 (§2-1)
-  hasUsedExtraAppeal: boolean; // 每局限用 1 次的非常上訴權限 (§4-4)
-  startBonusFineReduction?: number; // 開局永久罰金減免比例 (例如 0.05 代表 5%)
-  avatarId: number; // 選取的名畫頭像索引 (0-9)
+  id: string; // 系統唯一 UUID
+  name: string; // 企業名稱 (例如：XX 科技)
+  ownerName: string; // 總裁姓名 (你本人)
+  g: number; // 企業現金 (萬 G)。如果歸零且沒海外信託，就直接破產！
+  rp: number; // 社會名聲 (0-100)。低於 50 賺錢效率減半，低於 20 就會被社會唾棄。
+  ip: number; // 人脈與技術資源。升級人才或是做某些特殊決定需要它。
+  ap: number; // 行動力。每回合重置為 5 點。
+  blackMaterialSources: BlackMaterialSource[]; // 目前握在你手中的「黑材料」清單
+  tags: Tag[]; // 完整的違法歷史紀錄 (雜湊鏈)
+  trustFund: number; // 會計師信託金 (上限 1000 萬)。破產時可以用來東山再起的錢。
+  totalTrials: number; // 上法院的次數
+  roles?: Partial<RoleMap>; // 你的專業團隊 (雇用的人才)
+  isBankrupt: boolean; // 是否已宣告破產
+  skipNextCard: boolean; // 是否被政府管制 (下回合第一張牌失效)
+  consecutiveCleanTurns: number; // 連續守法了幾個回合
+  genesisHash: string; // 創世紀錄雜湊碼
+  lastHash: string; // 最後一筆紀錄的雜湊碼
+  startPath?: StartPath; // 開局背景
+  bribeItem?: BribeItem; // 帶來的貢品/禮物
+  totalIncome: number; // 生涯賺過的總利潤
+  totalFinesPaid: number; // 生涯交過的罰金與規費總額
+  totalTagsCount: number; // 違法階梯：做壞事越多，被警察盯上的基本機率就越高。
+  hasUsedExtraAppeal: boolean; // 是否用過那次唯一的「非常上訴」權限
+  startBonusFineReduction?: number; // 開局拿到的永久罰金減免比例
+  avatarId: number; // 頭像索引
 }
 
 /** 法官性格風格：影響案件減免、裁決機率與特定對話風格 */
@@ -130,6 +133,7 @@ export type StartPath = 'normal' | 'backdoor' | 'blackbox';
  * skip_next: 跳過下回合首張卡片 (政府管制或特定負面事件)
  */
 export type SpecialTag = 'sue' | 'declareLogic' | 'skip_next' | 'poachtalent';
+export type MoneyValue = number | [number, number];
 
 /** 選項基礎規格 */
 export interface BaseOption {
@@ -139,9 +143,9 @@ export interface BaseOption {
   costG?: number; // 固定資金成本消耗
   skipNextCard?: boolean; // 副作用：引發政府管制鎖定
   special?: SpecialTag; // 邏輯擴充標籤 (§6-5)
-  rp?: number; // 預設名聲
-  ip?: number; // 預設技術資產 (IP) (§5-4)
-  g?: number; // 預設資金收益 (用於扁平結構)
+  rp?: MoneyValue; // 預設名聲
+  ip?: MoneyValue; // 預設技術資產 (IP) (§5-4)
+  g?: MoneyValue; // 預設資金收益 (用於扁平結構)
   lawCaseIds?: string[]; // 關聯法典 ID (以此為基礎計算 BM，1 標籤 = 1 BM)
   type?: OptionType; // 選項類型分類 (GEMINI.md §5-2 / §6-1)
   surface_term?: string;
@@ -158,16 +162,16 @@ export interface OptionSR extends BaseOption {
   type?: 'SR';
   succRate?: number; // 基礎成功率 (通常 > 0.8)
   succ?: {
-    g?: number;
-    rp?: number;
-    ip?: number;
+    g?: MoneyValue;
+    rp?: MoneyValue;
+    ip?: MoneyValue;
     bm?: number | 'all' | string; // 用於消除/減少現有黑材料 (支援 '70%' 等格式)
     lawCaseIds?: string[];
   };
   fail?: {
-    g?: number;
-    rp?: number;
-    ip?: number;
+    g?: MoneyValue;
+    rp?: MoneyValue;
+    ip?: MoneyValue;
     loss?: number;
     special?: 'sue';
   };
@@ -178,16 +182,16 @@ export interface OptionRisk extends BaseOption {
   type?: 'SSR' | 'SSSR' | 'UR';
   succRate?: number; // 支援機率檢定
   succ?: {
-    g?: number;
-    rp?: number;
-    ip?: number;
+    g?: MoneyValue;
+    rp?: MoneyValue;
+    ip?: MoneyValue;
     bm?: number | string;
     lawCaseIds?: string[];
   };
   fail?: {
-    g?: number;
-    rp?: number;
-    ip?: number;
+    g?: MoneyValue;
+    rp?: MoneyValue;
+    ip?: MoneyValue;
     loss?: number;
     special?: 'sue';
     lawCaseIds?: string[];
@@ -199,9 +203,9 @@ export interface OptionZ extends BaseOption {
   type?: 'Z';
   succRate?: number;
   succ?: {
-    g?: number;
-    rp?: number;
-    ip?: number;
+    g?: MoneyValue;
+    rp?: MoneyValue;
+    ip?: MoneyValue;
     bm?: number | 'all' | string;
     lawCaseIds?: string[];
   };
@@ -210,9 +214,9 @@ export interface OptionZ extends BaseOption {
 
 /** 特殊失敗情境：黑箱或滅證操作失敗觸發之「強制起訴」路徑 */
 export interface SpecialFail {
-  g?: number;
-  rp?: number;
-  ip?: number;
+  g?: MoneyValue;
+  rp?: MoneyValue;
+  ip?: MoneyValue;
   loss?: number;
   special?: 'sue';
   lawCaseIds?: string[];
@@ -287,6 +291,7 @@ export type GamePhase = 'play' | 'summary' | 'courtroom' | 'gameover' | 'victory
  */
 export interface PlayerConfig {
   name: string;
+  ownerName: string;
   path: StartPath;
   bribeItem?: BribeItem;
   avatarId: number; // 名畫頭像索引
