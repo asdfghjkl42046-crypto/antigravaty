@@ -55,16 +55,16 @@ export default function DebugPanel() {
       <Draggable bounds="parent" nodeRef={nodeRefButton} cancel="button">
         <div
           ref={nodeRefButton}
-          className="absolute top-20 right-4 z-[9999] opacity-80 md:opacity-50 hover:opacity-100 transition-opacity"
+          className="absolute top-20 right-4 z-[9999] opacity-80 hover:opacity-100 transition-opacity"
         >
           <button
             onClick={() => setIsOpen(true)}
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             title="開啟外掛面板"
-            className="w-14 h-14 md:w-12 md:h-12 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.6)] hover:scale-110 active:scale-90 transition-all animate-pulse cursor-pointer touch-manipulation"
+            className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_25px_rgba(239,68,68,0.6)] hover:scale-110 active:scale-90 transition-all animate-pulse cursor-pointer touch-manipulation"
           >
-            <Bug className="w-7 h-7 md:w-6 md:h-6 text-white pointer-events-none" />
+            <Bug className="w-7 h-7 text-white pointer-events-none" />
           </button>
         </div>
       </Draggable>
@@ -123,18 +123,18 @@ export default function DebugPanel() {
                   onMouseDown={(e) => e.stopPropagation()}
                   onTouchStart={(e) => e.stopPropagation()}
                   title={`減少 ${step}`}
-                  className="w-10 h-10 md:w-8 md:h-8 bg-red-500/20 hover:bg-red-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90 touch-manipulation"
+                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90 touch-manipulation"
                 >
-                  <ChevronDown className="w-5 h-5 md:w-4 md:h-4 text-red-400" />
+                  <ChevronDown className="w-5 h-5 text-red-400" />
                 </button>
                 <button
                   onClick={() => handleAdjust(key as string, step)}
                   onMouseDown={(e) => e.stopPropagation()}
                   onTouchStart={(e) => e.stopPropagation()}
                   title={`增加 ${step}`}
-                  className="w-10 h-10 md:w-8 md:h-8 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90 touch-manipulation"
+                  className="w-10 h-10 bg-emerald-500/20 hover:bg-emerald-500/40 rounded-lg flex items-center justify-center transition-colors active:scale-90 touch-manipulation"
                 >
-                  <ChevronUp className="w-5 h-5 md:w-4 md:h-4 text-emerald-400" />
+                  <ChevronUp className="w-5 h-5 text-emerald-400" />
                 </button>
               </div>
             </div>
@@ -146,9 +146,9 @@ export default function DebugPanel() {
               onClick={() => triggerTrial(player.id)}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="w-full py-4 md:py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-xs md:text-[10px] font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
+              className="w-full py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl text-xs font-black text-red-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
             >
-              <Gavel className="w-4 h-4 md:w-3.5 md:h-3.5" />
+              <Gavel className="w-4 h-4" />
               <span>強制開啟庭審</span>
             </button>
 
@@ -156,9 +156,9 @@ export default function DebugPanel() {
               onClick={() => debugUpdatePlayer(player.id, { g: 9999, ip: 999, rp: 100, ap: 5 })}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
-              className="w-full py-4 md:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl text-xs md:text-[10px] font-black text-amber-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
+              className="w-full py-4 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl text-xs font-black text-amber-400 uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center space-x-2 touch-manipulation"
             >
-              <Zap className="w-4 h-4 md:w-3.5 md:h-3.5" />
+              <Zap className="w-4 h-4" />
               <span>狀態恢復 (資源全滿)</span>
             </button>
           </div>

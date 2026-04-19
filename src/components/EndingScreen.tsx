@@ -104,6 +104,7 @@ export default function EndingScreen() {
   if (!endingResult) return null;
 
   const isLimit = endingResult.type === 'limit';
+  const isVictory = ['dragonhead', 'tycoon', 'saint'].includes(endingResult.type);
 
   return (
     <div 
@@ -124,7 +125,7 @@ export default function EndingScreen() {
       {/* 主體案卷 (Dossier) */}
       <div 
         ref={dossierRef}
-        className="relative w-[90%] max-w-[500px] aspect-[3/4] bg-[#e8dcc4] shadow-[20px_40px_100px_rgba(0,0,0,1),inset_0_0_100px_rgba(0,0,0,0.1)] p-8 sm:p-12 flex flex-col items-center border-l-[15px] border-[#c4a484] rounded-r-sm"
+        className="relative w-[90%] max-w-[500px] aspect-[3/4] bg-[#e8dcc4] shadow-[20px_40px_100px_rgba(0,0,0,1),inset_0_0_100px_rgba(0,0,0,0.1)] p-8 flex flex-col items-center border-l-[15px] border-[#c4a484] rounded-r-sm shadow-inner"
       >
         {/* 羊皮紙紋理與更明顯的污漬 */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] opacity-40 pointer-events-none" />
@@ -136,10 +137,10 @@ export default function EndingScreen() {
         {/* 頂部標識 */}
         <div className="w-full flex justify-between items-start mb-8 border-b-2 border-black/10 pb-4">
           <div className="flex flex-col">
-            <span className="text-[10px] sm:text-[11px] font-black text-black/40 uppercase tracking-[0.4em]">
-              絕密調查案卷
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.4em]">
+              CERTIFIED DOSSIER
             </span>
-            <span className="text-[10px] sm:text-xs font-bold text-black/60 italic mt-1 font-serif">
+            <span className="text-[10px] font-bold text-black/60 italic mt-1 font-serif">
               案件編號: {endingResult.playerId.slice(0, 8).toUpperCase()}
             </span>
           </div>
@@ -154,7 +155,7 @@ export default function EndingScreen() {
               {players.map((p, i) => (
                 <div 
                   key={p.id}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
+                  className="w-16 h-16 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
                   style={{ zIndex: players.length - i }}
                 >
                   <img
@@ -169,7 +170,7 @@ export default function EndingScreen() {
             </div>
           ) : (
             /* 單一頭像 (個人成就/失敗) */
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl focus-within:scale-105 transition-all duration-700">
+            <div className="w-20 h-20 rounded-full border-[6px] border-black/10 overflow-hidden mb-6 shadow-2xl focus-within:scale-105 transition-all duration-700">
               <img
                 src={MASTERPIECES[player?.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player?.name || 'Player'}`}
                 alt="Avatar"
@@ -179,19 +180,17 @@ export default function EndingScreen() {
             </div>
           )}
           
-          <h2 className="ending-text text-3xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight mb-2 text-center drop-shadow-sm">
-            {endingResult.title}
+          <h2 className="ending-text text-3xl font-black text-[#1a1a1a] tracking-tight mb-2 text-center drop-shadow-sm">
+            {isVictory ? 'INDIVIDUAL VICTORY' : 'GUILTY VERDICT'}
           </h2>
-          <div className="ending-text flex items-center bg-black/5 px-4 py-1 rounded-full border border-black/10">
-            <span className="text-[10px] sm:text-xs font-black text-black/60 tracking-widest uppercase">
-              {endingResult.evaluation}
+          <div className="flex items-center gap-1.5 mb-6">
+            <span className="text-[10px] font-black text-black/60 tracking-widest uppercase">
+              STATUS: {isVictory ? 'CLEARED' : 'TERMINATED'}
             </span>
           </div>
-        </div>
 
-        {/* 敘事描述 */}
-        <div className="ending-text flex-1 w-full mb-8 relative">
-          <p className="text-sm sm:text-base font-serif italic text-black/80 leading-relaxed text-center px-4">
+          {/* 結局描述 */}
+          <p className="text-sm font-serif italic text-black/80 leading-relaxed text-center px-4">
             「 {endingResult.description} 」
           </p>
         </div>
@@ -215,7 +214,7 @@ export default function EndingScreen() {
         </div>
 
         {/* 頂級火漆印章 (Premium Wax Seal) */}
-        <div className="absolute right-0 bottom-24 sm:right-2 sm:bottom-28 pointer-events-none select-none z-10">
+        <div className="absolute right-0 bottom-24 pointer-events-none select-none z-10">
           {(() => {
             const isFake = endingResult.title.includes('偽');
             
@@ -268,7 +267,7 @@ export default function EndingScreen() {
 
             return (
               <div 
-                className="ending-stamp relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
+                className="ending-stamp relative w-28 h-28 flex items-center justify-center filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
                 style={{ transform: 'rotate(-15deg)' }}
               >
                 {/* 火漆外圈隆起邊緣 (不規則圓形) */}
@@ -284,7 +283,7 @@ export default function EndingScreen() {
                 >
                   <div className="flex flex-col items-center" style={{ color: config.innerColor }}>
                     <Icon size={34} strokeWidth={2.5} className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mb-0.5" />
-                    <span className="text-[10px] sm:text-xs font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase text-center leading-tight drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                       {config.label}
                     </span>
                   </div>
@@ -304,7 +303,7 @@ export default function EndingScreen() {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
           <RotateCcw className="w-5 h-5 mr-3 group-hover:rotate-[-180deg] transition-transform duration-500" />
-          <span className="font-black tracking-[0.4em] uppercase text-xs sm:text-sm">歸檔並重啟人生</span>
+          <span className="font-black tracking-[0.4em] uppercase text-xs">歸檔並重啟人生</span>
         </button>
       </div>
 
@@ -313,12 +312,12 @@ export default function EndingScreen() {
 
         {/* 復古放大鏡 */}
         <div 
-          className="ending-prop absolute top-[15%] right-[2%] sm:right-[10%] drop-shadow-[25px_15px_35px_rgba(0,0,0,0.9)]"
+          className="ending-prop absolute top-[15%] right-[2%] drop-shadow-[25px_15px_35px_rgba(0,0,0,0.9)]"
           style={{ transform: 'rotate(-45deg)' }}
         >
           <div className="relative flex flex-col items-center">
             {/* 鏡框與鏡片 */}
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 border-[8px] border-gradient-to-br from-[#d4af37] via-[#c4a484] to-[#8b4513] border-[#c4a484] rounded-full bg-white/10 backdrop-blur-[3px] shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_5px_15px_rgba(0,0,0,0.5)] overflow-hidden">
+            <div className="relative w-28 h-28 border-[8px] border-[#c4a484] rounded-full bg-white/10 backdrop-blur-[3px] shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_5px_15px_rgba(0,0,0,0.5)] overflow-hidden">
               <div className="absolute top-1/4 left-1/4 w-full h-full bg-gradient-to-br from-white/20 to-transparent rounded-full opacity-40" />
               <Search className="absolute inset-0 m-auto w-12 h-12 text-white/5" />
             </div>
@@ -334,14 +333,6 @@ export default function EndingScreen() {
           </div>
         </div>
 
-        {/* 散落的證言紙張 */}
-        <div className="ending-prop absolute bottom-10 right-[10%] rotate-3 opacity-20 hidden md:block">
-          <div className="w-32 h-44 bg-white/50 border border-black/10 shadow-lg p-4 flex flex-col space-y-2">
-            <div className="w-full h-1 bg-black/20" />
-            <div className="w-2/3 h-1 bg-black/20" />
-            <div className="w-full h-1 bg-black/20" />
-          </div>
-        </div>
       </div>
 
       {/* 底部裝飾 */}

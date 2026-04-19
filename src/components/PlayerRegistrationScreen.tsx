@@ -161,10 +161,9 @@ export default function PlayerRegistrationScreen({
           isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16'
         } overflow-hidden pb-10 transition-all duration-700`}
       >
-        {/* 1. 企業命名 - 響應式寬度與間距 */}
+        {/* 1. 企業命名 */}
         {!isBookFocused && (
           <div className="w-full flex flex-col items-center">
-            {/* 企業與業主命名 */}
             <div className="w-full max-w-[360px] px-6 mb-4 ui-fade-in transition-all duration-700 ease-out flex flex-col gap-4">
               <div className="relative group">
                 <input
@@ -191,7 +190,6 @@ export default function PlayerRegistrationScreen({
             {/* 名畫頭像選取 */}
             <div className="w-full max-w-4xl px-6 mb-2 ui-fade-in">
               <div className="flex flex-col items-center gap-6">
-                
                 <div className="grid grid-cols-5 gap-2">
                   {MASTERPIECES.map((m) => {
                     const isSelected = selectedAvatarId === m.id;
@@ -201,14 +199,14 @@ export default function PlayerRegistrationScreen({
                         onClick={() => setSelectedAvatarId(m.id)}
                         className={`relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110 active:scale-95' : 'grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105'}`}
                       >
-                      <div className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
-                        <img 
-                          src={m.url} 
-                          alt={m.title} 
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
+                        <div className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}>
+                          <img 
+                            src={m.url} 
+                            alt={m.title} 
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
                         {isSelected && (
                           <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-lg animate-in zoom-in-0 duration-300">
                             <Gem size={10} className="text-black" />
@@ -218,7 +216,6 @@ export default function PlayerRegistrationScreen({
                     );
                   })}
                 </div>
-                
                 <div className="h-6 flex flex-col items-center">
                   <span className="text-sm font-bold text-amber-400 tracking-[0.3em] animate-in fade-in slide-in-from-top-1">
                     {MASTERPIECES[selectedAvatarId].title}
@@ -235,7 +232,6 @@ export default function PlayerRegistrationScreen({
         {/* 2. 交互區 */}
         {!isBookFocused ? (
           <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4 mt-12">
-            {/* 扇形展開場景 - 響應式容器 */}
             <div className="relative w-full max-w-[500px] h-[300px] flex items-center justify-center transform-style-3d">
               {(['normal', 'backdoor', 'blackbox'] as StartPath[]).map((path, idx) => {
                 const isSelected = selectedPath === path;
@@ -266,14 +262,6 @@ export default function PlayerRegistrationScreen({
                           'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("https://www.transparenttextures.com/patterns/leather.png")',
                       }}
                     >
-                      <div
-                        className="absolute inset-0 opacity-70 pointer-events-none"
-                        style={{
-                          backgroundImage:
-                            'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.2) 0%, transparent 80%)',
-                        }}
-                      />
-
                       <div className="relative z-10 flex flex-col items-center gap-6">
                         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-md shadow-inner">
                           {path === 'normal' ? (
@@ -288,10 +276,6 @@ export default function PlayerRegistrationScreen({
                           {START_PATH_NAMES[path]}
                         </h4>
                       </div>
-
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-                      />
                       {isSelected && (
                         <div className="absolute inset-0 border-2 border-blue-500/40 rounded-xl animate-pulse" />
                       )}
@@ -301,11 +285,7 @@ export default function PlayerRegistrationScreen({
               })}
             </div>
 
-            {/* 操作提示 */}
-            <div
-              className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}
-            >
-
+            <div className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}>
               <button
                 onClick={() => setIsBookFocused(true)}
                 className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
@@ -318,7 +298,6 @@ export default function PlayerRegistrationScreen({
         ) : (
           /* 讀書模式 */
           <div className="w-full h-full flex items-center justify-center relative animate-in zoom-in-95 duration-700 ease-out">
-            {/* 左上角返回鍵 */}
             <div className="absolute top-10 left-10 z-[100] ui-fade-in">
               <button
                 onClick={() => setIsBookFocused(false)}
@@ -328,7 +307,6 @@ export default function PlayerRegistrationScreen({
                 <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
               </button>
             </div>
-
             <div className="w-full flex justify-center scale-90 transition-transform duration-700">
               <ParchmentBook 
                 key={selectedPath} 
@@ -336,8 +314,6 @@ export default function PlayerRegistrationScreen({
                 onPathChange={() => {}} 
               />
             </div>
-
-            {/* 確認按鈕 */}
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
               <button
                 onClick={handleConfirmRegistration}
@@ -351,53 +327,68 @@ export default function PlayerRegistrationScreen({
         )}
       </div>
 
-      {/* 賄賂選擇彈窗 */}
+      {/* 賄賂選擇彈窗 - Noir 非對稱重構版 */}
       {showBribeModal && (
-        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4 sm:p-6">
-          <div className="relative w-full max-w-[460px] max-h-[90vh] bg-slate-900 border border-white/10 rounded-[32px] sm:rounded-[48px] p-6 sm:p-10 shadow-[0_50px_100px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-[80px]" />
+        <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 backdrop-blur-3xl p-4">
+          <div className="relative w-full max-w-[420px] max-h-[88%] bg-[#050505] border border-white/10 rounded-[24px] p-8 shadow-[0_50px_100px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col items-start px-8">
+            {/* 數位裝飾細節 */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-blue-500/30 rounded-tl-xl" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white/5 rounded-br-xl" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-[60px]" />
             
-            <div className="flex items-center gap-4 sm:gap-6 mb-6 sm:mb-8 flex-shrink-0">
-              <div className="p-3 sm:p-4 bg-blue-500/20 rounded-2xl shadow-inner">
-                <Coins className="w-6 h-6 sm:w-7 h-7 text-blue-400" />
+            <div className="flex items-center gap-4 mb-8 flex-shrink-0 z-10">
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl shadow-inner">
+                <Coins className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-black tracking-widest text-white">賄賂選項</h3>
+              <div className="flex flex-col">
+                <h3 className="text-xl font-black tracking-[0.2em] text-white uppercase">賄賂選項</h3>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-blue-500/60 uppercase tracking-[0.1em]">CONFIDENTIAL_REGISTER</span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar mb-6 sm:mb-8">
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
-                {BRIBE_OPTIONS.map((opt) => (
-                  <div
-                    key={opt.id}
-                    onClick={() => handleBribeSelect(opt.id)}
-                    className={`flex items-center gap-4 sm:gap-6 p-4 sm:p-6 rounded-[24px] sm:rounded-[28px] border transition-all cursor-pointer hover:bg-white/5 active:scale-95 ${selectedBribe === opt.id ? 'border-blue-500 bg-blue-500/30' : 'border-white/5 bg-black/30'}`}
-                  >
-                    <div className={`p-3 sm:p-4 rounded-xl ${opt.color} bg-white/5 shadow-inner`}>
-                      <opt.icon className="w-6 h-6 sm:w-7 h-7" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-black tracking-widest text-lg sm:text-xl text-white/90">
-                        {opt.name}
-                      </span>
-                    </div>
+            <div className="flex-1 w-full flex flex-col gap-3 mb-8 overflow-y-auto pr-2 z-10">
+              {BRIBE_OPTIONS.map((opt) => (
+                <div
+                  key={opt.id}
+                  onClick={() => handleBribeSelect(opt.id)}
+                  className={`flex items-center gap-5 p-4 rounded-2xl border transition-all cursor-pointer group hover:bg-white/5 active:scale-95 ${
+                    selectedBribe === opt.id 
+                    ? 'border-blue-500 bg-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]' 
+                    : 'border-white/5 bg-black/40'}`}
+                >
+                  {/* 選中時出現的左側指示條 */}
+                  <div className={`w-1 h-8 rounded-full transition-all duration-300 ${selectedBribe === opt.id ? 'bg-blue-400 scale-y-100 opacity-100' : 'bg-transparent scale-y-0 opacity-0'}`} />
+                  
+                  <div className={`p-3 rounded-xl ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}>
+                    <opt.icon className="w-5 h-5" />
                   </div>
-                ))}
-              </div>
+                  
+                  <div className="flex flex-col py-0.5 text-left">
+                    <span className="font-black tracking-[0.1em] text-sm text-white/90">
+                      {opt.name}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                      Item_Value: UNKNOWN
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* 新增的確認按鈕 */}
-            <div className={`transition-all duration-500 ease-out ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+            <div className={`w-full transition-all duration-500 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
               <button
                 onClick={handleFinalConfirm}
-                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl tracking-[0.6em] shadow-[0_20px_40px_rgba(37,99,235,0.3)] active:scale-95 transition-all text-sm uppercase"
+                className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl tracking-[0.6em] shadow-[0_20px_40px_rgba(37,99,235,0.3)] active:scale-95 transition-all text-sm uppercase border border-blue-400/30"
               >
-                確認開始
+                確認開始博弈
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -11,11 +11,11 @@ export const SystemStrings = {
   ERRORS: {
     INVALID_CODE: '無效代碼。',
     INVALID_PLAYER: '無效玩家',
-    INSUFFICIENT_AP: '🚫 體力不足：您的 AP 已歸零，請結束回合以恢復精力。',
-    BANKRUPT_BLOCK: '🚫 行動終止：您的企業已宣告破產，無法再進行商業活動。',
-    CAMERA_START_FAIL: '啟動失敗：請檢查權限設定，或嘗試重新整理頁面。',
+    INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合以恢復精力。',
+    BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產，無法再進行商業活動。',
+    CAMERA_START_FAIL: '啟動失敗：\n請檢查權限設定，或嘗試重新整理頁面。',
     SECURE_CONTEXT_REQUIRED:
-      '🚨 安全性限制：瀏覽器禁止在非加密連線 (HTTP) 下開啟相機。請將網址改為 https:// 或使用手動輸入編碼。',
+      '🚨 安全性限制：\n瀏覽器禁止在非加密連線 (HTTP) 下開啟相機。\n請將網址改為 https:// 或使用手動輸入編碼。',
   },
 
   // ✅ 行動與引擎回饋相關
@@ -32,9 +32,9 @@ export const SystemStrings = {
 
   // 🏛️ 法庭相關
   COURT: {
-    WIN_RP_RECOVERY: '勝訴！由於您洗清了冤屈，相關名聲已成功補回。',
-    LOSE_PENALTY: '敗訴。法庭已正式執行裁罰，資金與名聲遭到扣除。',
-    APPEAL_USED: '【非常上訴】已啟動。這是一場決定命運的辯論。',
+    WIN_RP_RECOVERY: '【勝訴】\n由於您洗清了冤屈，相關名聲已成功補回。',
+    LOSE_PENALTY: '【敗訴】\n法庭已正式執行裁罰，資金與名聲遭到扣除。',
+    APPEAL_USED: '【非常上訴】已啟動。\n這是一場決定命運的辯論。',
     WITHDRAW_SUCCESS: '相關案件已成功撤銷。',
   },
 

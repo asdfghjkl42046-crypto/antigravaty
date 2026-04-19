@@ -121,7 +121,7 @@ function TalentCard({ role, player, upgradeRole }: { role: any; player: any; upg
                     )}
                   </div>
                   <p
-                    className={`text-[11px] flex-1 leading-[1.2] font-bold tracking-tight ${
+                    className={`text-[11px] flex-1 leading-relaxed font-bold tracking-tight whitespace-pre-line ${
                       isUnlocked ? 'text-white' : 'text-slate-500'
                     }`}
                   >

@@ -31,7 +31,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
       width: 80,
       height: 4,
       fontSize: 14,
-      label: '請根據您的冒險需求...',
+      label: '這是一場關於法律、權力與金錢的較量\n請選擇參與這場博弈的人數。',
     },
 
     // P1
@@ -164,16 +164,21 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
           </div>
         </div>
 
-        {/* 引導文字：原子化 */}
+        {/* 引導文字：左對齊 Noir 風格 */}
         {layout.header_title && (
-          <h2 className="header_title-pos font-black tracking-tight text-white reg-animate">
+          <h2 className="header_title-pos font-black tracking-[0.2em] text-white reg-animate text-left pl-10 border-l-4 border-blue-600/50 h-auto flex items-center">
             {layout.header_title.label}
           </h2>
         )}
         {layout.header_subtitle && (
-          <p className="header_subtitle-pos text-slate-400 font-medium reg-animate">
-            {layout.header_subtitle.label}
-          </p>
+          <div className="header_subtitle-pos reg-animate pl-10 mt-1 w-full max-w-[80%] flex flex-col items-start">
+            <div className="flex items-start gap-3">
+              <div className="w-1 h-8 bg-gradient-to-b from-blue-500/50 to-transparent rounded-full mt-1" />
+              <p className="text-slate-400 font-medium whitespace-pre-line leading-relaxed text-left text-[13px] tracking-tight">
+                {layout.header_subtitle.label}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* 1-4 玩家選擇區原子化：疊加模式 */}

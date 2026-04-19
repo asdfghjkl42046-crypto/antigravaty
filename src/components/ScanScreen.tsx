@@ -296,22 +296,40 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
 
         {status.msg && (
           <div
-            className={`absolute top-24 left-1/2 -translate-x-1/2 w-[80%] max-w-[300px] p-4 rounded-2xl border-2 backdrop-blur-xl flex items-start space-x-3 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 z-[100] ${
+            className={`absolute top-24 left-4 right-4 max-w-[320px] p-0 rounded-2xl border backdrop-blur-3xl flex flex-col items-start shadow-[0_50px_100px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-left-4 duration-500 z-[100] overflow-hidden ${
               status.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-500 text-emerald-100'
-                : 'bg-red-950/90 border-red-500 text-red-100'
+                ? 'bg-emerald-950/40 border-emerald-500/30'
+                : 'bg-red-950/40 border-red-500/30'
             }`}
           >
-            <div className="mt-0.5">
-              {status.type === 'success' ? (
-                <CheckCircle2 size={20} className="text-emerald-400" />
-              ) : (
-                <AlertCircle size={20} className="text-red-400" />
-              )}
+            {/* 頂部狀態條 */}
+            <div className={`w-full px-4 py-1 flex items-center justify-between ${status.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${status.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {status.type === 'success' ? 'System_Verified' : 'Access_Denied'}
+                </span>
+              </div>
+              <span className="text-[8px] font-mono opacity-30 text-white uppercase">ID: {Math.random().toString(36).substring(7).toUpperCase()}</span>
             </div>
-            <div>
-              <p className="text-xs font-black tracking-tight leading-relaxed">{status.msg}</p>
+
+            <div className="p-4 flex items-start gap-4">
+              <div className="mt-1 flex-shrink-0">
+                {status.type === 'success' ? (
+                  <CheckCircle2 size={18} className="text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                ) : (
+                  <AlertCircle size={18} className="text-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]" />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className={`text-[13px] font-bold leading-relaxed tracking-tight whitespace-pre-line ${status.type === 'success' ? 'text-emerald-50' : 'text-red-50'}`}>
+                  {status.msg}
+                </p>
+              </div>
             </div>
+            
+            {/* 底部裝飾掃描線 */}
+            <div className={`w-full h-[1px] ${status.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'}`} />
           </div>
         )}
       </div>

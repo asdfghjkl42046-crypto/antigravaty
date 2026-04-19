@@ -37,15 +37,20 @@ export default function GameCanvas({
 
   useEffect(() => {
     const calcScale = () => {
-      // 防止視窗尺寸異常（如 8px）導致的縮放坍塌
-      const vw = Math.max(window.innerWidth, 320);
-      const vh = Math.max(window.innerHeight, 400); 
+      // 防止視窗尺寸異常
+      const vw = window.innerWidth;
+      const vh = window.innerHeight; 
       
-      // 取較小的縮放因子，確保畫布完整顯示
-      const s = Math.min(vw / designWidth, vh / designHeight);
+      // 為電腦端預留外框 (outline) 與 陰影 (shadow) 的空間
+      // 模擬手機在 500px 以上會加上 8px 框 + 10px 陰影 + 緩衝，約需 100px 高度剩餘
+      const SAFE_W = vw > 500 ? 50 : 0;
+      const SAFE_H = vw > 500 ? 100 : 0;
+
+      // 取較小的縮放因子，確保畫布連同框架完整顯示
+      const s = Math.min((vw - SAFE_W) / designWidth, (vh - SAFE_H) / designHeight);
       
-      // 計算目前的縮放比率，並確保不低於 0.3 以維持基本可見度
-      setScale(Math.max(s, 0.3));
+      // 計算目前的縮放比率，並確保不低於 0.2
+      setScale(Math.max(s, 0.2));
     };
 
     calcScale();
