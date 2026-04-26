@@ -25,6 +25,7 @@ import { getTotalBlackMaterials } from '@/engine/PlayerEngine';
 import type { Player, Tag } from '@/types/game';
 import gsap from 'gsap';
 import DebugPanel from './DebugPanel';
+import ResolutionOverlay from './ResolutionOverlay';
 
 interface DashboardScreenProps {
   onEndTurn: () => void;
@@ -207,6 +208,8 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
     judgePersonality,
     startNotifications,
     clearStartNotifications,
+    pendingResolution,
+    clearResolution,
   } = useGameStore();
 
   const [showBonusModal, setShowBonusModal] = React.useState(startNotifications.length > 0);
@@ -497,6 +500,17 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
           <span className="text-[9px] font-black uppercase tracking-tighter">黑市</span>
         </button>
       </div>
+
+      {/* [核心] 全域結算彈窗 */}
+      {pendingResolution && (
+        <ResolutionOverlay
+          title={pendingResolution.title}
+          message={pendingResolution.message}
+          diffs={pendingResolution.diffs}
+          type={pendingResolution.type}
+          onClose={clearResolution}
+        />
+      )}
     </div>
   );
 }

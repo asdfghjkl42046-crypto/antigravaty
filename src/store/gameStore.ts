@@ -72,6 +72,7 @@ interface GameStore extends GameStateData {
   resolveTrial: () => void;
   setTrialReady: (ready: boolean) => void;
   tickTrialTimer: () => void;
+  clearResolution: () => void;
 
   // --- 輔助擷取器 ---
   getCurrentPlayer: () => Player | null;
@@ -98,6 +99,7 @@ export const useGameStore = create<GameStore>()(
       usedCodes: [],
       endingResult: null,
       engineError: null,
+      pendingResolution: null,
 
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
@@ -124,7 +126,7 @@ export const useGameStore = create<GameStore>()(
         const res = resolveScanCode(codeUpper);
         if (!res) return { success: false, message: SystemStrings.ERRORS.INVALID_CODE };
 
-        // [核心修正] 等待行動結算，捕捉真實的成功/失敗狀態 (例如 AP不足)
+        // [核心修正] 等待行動結算，捕捉真實的成功/失敗狀態
         const actionResult = await get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');
         
         if (actionResult.success) {
@@ -171,8 +173,20 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         const updates = await GameFlowEngine.executeAction(state, cardId, optionIdx, declareChoice);
         const { result, ...stateUpdates } = updates;
-        set(stateUpdates);
+        
+        // [新增] 根據行動結果設定結算彈窗
+        if (result.diffs) {
+          set({
+            pendingResolution: {
+              title: result.success ? '計畫執行成功' : '計畫受阻',
+              message: result.message,
+              diffs: result.diffs,
+              type: result.success ? 'success' : 'failure'
+            }
+          });
+        }
 
+        set(stateUpdates);
         if (stateUpdates.pendingTrialId) {
           get().triggerTrial(stateUpdates.pendingTrialId as string);
         }
@@ -193,7 +207,20 @@ export const useGameStore = create<GameStore>()(
       },
 
       endTurn: () => {
-        const updates = GameFlowEngine.proceedNextTurn(get());
+        const updates = GameFlowEngine.proceedNextTurn(get()) as import('../types/game').GameStateData;
+        
+        // [新增] 回合結束報表
+        if (updates.resultDiffs && (updates.resultDiffs.g !== 0 || updates.resultDiffs.rp !== 0 || updates.resultDiffs.trust !== 0)) {
+           set({
+             pendingResolution: {
+               title: '回合結算報表',
+               message: '您的人才已完成本回合的自動化作業。',
+               diffs: updates.resultDiffs,
+               type: 'passive'
+             }
+           });
+        }
+
         set(updates);
         if (updates.pendingTrialId) {
           get().triggerTrial(updates.pendingTrialId as string);
@@ -252,7 +279,21 @@ export const useGameStore = create<GameStore>()(
       },
 
       resolveTrial: () => {
-        const updates = GameFlowEngine.calculateTrialResolution(get());
+        const updates = GameFlowEngine.calculateTrialResolution(get()) as import('../types/game').GameStateData;
+        
+        // [新增] 法庭判決彈窗
+        if (updates.resultDiffs) {
+          const isWin = updates.resultDiffs.g >= 0;
+          set({
+            pendingResolution: {
+              title: isWin ? '法庭判決勝訴' : '法庭判決敗訴',
+              message: isWin ? '您已成功洗清罪嫌。' : '法庭已正式執行裁罰。',
+              diffs: updates.resultDiffs,
+              type: isWin ? 'success' : 'failure'
+            }
+          });
+        }
+
         set(updates);
       },
 
@@ -289,6 +330,8 @@ export const useGameStore = create<GameStore>()(
           window.location.reload();
         }
       },
+
+      clearResolution: () => set({ pendingResolution: null }),
     }),
     { name: 'antigravity-game-storage', storage: createJSONStorage(() => localStorage) }
   )

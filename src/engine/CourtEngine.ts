@@ -5,6 +5,7 @@ import {
   JudgeMode,
   TrialState,
   TrialStage,
+  NumericalDiffs,
 } from '../types/game';
 import {
   getIndictmentChance,
@@ -378,7 +379,7 @@ export class CourtEngine {
   /**
    * 結算法庭結果：不管勝訴或敗訴，事後都要清掉證據、扣除罰款等等。
    */
-  static applyTrialResolution(player: Player, isSuccess: boolean, lawCaseTag: string | string[], lawCaseTagId: number, personality?: JudgePersonality, currentTurn: number = 999, isAppeal: boolean = false): Partial<Player> {
+  static applyTrialResolution(player: Player, isSuccess: boolean, lawCaseTag: string | string[], lawCaseTagId: number, personality?: JudgePersonality, currentTurn: number = 999, isAppeal: boolean = false): { updates: Partial<Player>; diffs: NumericalDiffs } {
     const updates: Partial<Player> = { ...player };
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     if (isSuccess) {
@@ -405,7 +406,16 @@ export class CourtEngine {
       updates.tags = player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t));
     }
     updates.bribeItem = undefined;
-    return updates;
+    
+    // 計算差值
+    const diffs: NumericalDiffs = {
+      g: (updates.g ?? player.g) - player.g,
+      rp: (updates.rp ?? player.rp) - player.rp,
+      ip: (updates.ip ?? player.ip) - player.ip,
+      bm: -1, // 法庭結案固定減少 1 標籤對應的 BM (雖然 BM 移除邏輯較複雜，這裡簡化顯示)
+    };
+
+    return { updates, diffs };
   }
 
   /**

@@ -581,6 +581,12 @@ export async function performAction(
       apRefunded,
       actionId,
       forcedTrial,
+      diffs: {
+        g: finalGChange,
+        rp: finalRPChange,
+        ip: finalIPChange,
+        bm: netBMChange,
+      },
       log: {
         playerId: player.id,
         turn,

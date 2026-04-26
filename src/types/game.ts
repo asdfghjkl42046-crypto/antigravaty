@@ -233,6 +233,17 @@ export interface ActionResult {
   actionId: number; // 關聯唯一決策 ID：實現一案一清之物理依據
   forcedTrial?: { tagId: number; reason: string }; // 強制起訴訊號
   bm?: number; // 當次決策產生的新增黑材料點數
+  diffs?: NumericalDiffs; // [新增] 數值變動精確差值，用於 UI 彈窗
+}
+
+/** 數值變動精確差值結構 */
+export interface NumericalDiffs {
+  g: number;
+  rp: number;
+  ip: number;
+  bm: number;
+  trust?: number; // 海外信託變動
+  bets?: { playerId: string; amount: number }[]; // 旁觀者押注結果
 }
 
 export type CardOption = OptionSR | OptionRisk | OptionZ;
@@ -311,6 +322,13 @@ export interface GameStateData {
   endingResult: EndingResult | null;
   engineError: { context: string; message: string } | null; // 核心引擎致命錯誤攔截快照
   pendingTrialId?: string; // 引擎傳發：待處理的法庭起訴 ID
+  pendingResolution: {
+    title: string;
+    message: string;
+    diffs: NumericalDiffs;
+    type: 'success' | 'failure' | 'neutral' | 'passive';
+  } | null; // [新增] 待顯示的結算彈窗數據
+  resultDiffs?: NumericalDiffs; // [新增] 用於傳遞計算後的數值差值
 }
 
 export type BetChoice = 'win' | 'lose' | 'none';
@@ -360,6 +378,7 @@ export interface TrialState {
     k: string;
     l: string;
   };
+  resultDiffs?: NumericalDiffs; // [新增] 法庭結算後的數值變動總結
 }
 
 // ============================================================

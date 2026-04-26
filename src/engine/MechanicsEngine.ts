@@ -3,7 +3,7 @@
  * 負責計算玩家名聲變化、被起訴的機率，以及法院罰金。
  */
 
-import type { Player, JudgePersonality, BribeItem } from '../types/game';
+import type { Player, JudgePersonality, BribeItem, NumericalDiffs } from '../types/game';
 import { roundUp } from './MathEngine';
 import {
   applyAccountantCourtDiscount,
@@ -295,7 +295,10 @@ export function settleBet(
  * 當玩家按下結束回合時執行。
  * 負責發放高級人才的被動薪水、結算守法天數，並把多餘的錢偷偷塞進海外信託。
  */
-export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Player> {
+export function settleEndOfTurn(player: Player, currentTurn: number): { 
+  updates: Partial<Player>; 
+  diffs: NumericalDiffs; 
+} {
   const updates: Partial<Player> = {};
 
   // § 嚴格檢查：核心資產必須存在且為合法數字 (防止數據損壞導致的 NaN 連鎖反應)
@@ -368,7 +371,16 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   updates.rp = finalRP;
   updates.trustFund = finalTrust;
 
-  return updates;
+  return {
+    updates,
+    diffs: {
+      g: gPerTurn - trustAmount, // 實際現金增量（扣除轉入信託部分）
+      rp: rpPerTurn,
+      ip: 0,
+      bm: 0,
+      trust: trustAmount,
+    },
+  };
 }
 
 /**

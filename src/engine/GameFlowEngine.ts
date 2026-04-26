@@ -37,7 +37,9 @@ export class GameFlowEngine {
     const player = updatedPlayers[currentPlayerIndex];
 
     // 1. 執行回合末被動結算
-    const updates = settleEndOfTurn(player, turn);
+    const endTurnResult = settleEndOfTurn(player, turn);
+    const updates = endTurnResult.updates;
+    const diffs = endTurnResult.diffs;
     updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
 
     // 局部預先宣告流程變數
@@ -105,6 +107,7 @@ export class GameFlowEngine {
       // 或直接在此回傳 phase: 'courtroom' 與 trial 物件。
       // 為了保持 Store 乾淨，我們可以在這裡執行 prepareTrial。
       ...(trialToTrigger ? { pendingTrialId: trialToTrigger } : {}),
+      resultDiffs: diffs, // [新增] 回合末被動收益差值
     };
   }
 
@@ -216,7 +219,7 @@ export class GameFlowEngine {
     const updatedPlayers = CourtEngine.settleTrialBets(players, trial, isSuccess);
 
     // 2. 結算被告裁決
-    const updates = CourtEngine.applyTrialResolution(
+    const trialRes = CourtEngine.applyTrialResolution(
       updatedPlayers[idx],
       isSuccess,
       trial.lawCase.tag,
@@ -225,8 +228,21 @@ export class GameFlowEngine {
       turn,
       trial.isAppeal || false
     );
+    const defendantUpdates = trialRes.updates;
+    const defendantDiffs = trialRes.diffs;
 
-    const final = { ...updatedPlayers[idx], ...updates };
+    // 彙整所有旁觀者的押注結果
+    const betDiffs: { playerId: string; amount: number }[] = [];
+    updatedPlayers.forEach((p, pIdx) => {
+      if (p.id === trial.defendantId) return;
+      const oldG = players.find(oldP => oldP.id === p.id)?.g || 0;
+      const diff = p.g - oldG;
+      if (diff !== 0) {
+        betDiffs.push({ playerId: p.id, amount: diff });
+      }
+    });
+
+    const final = { ...updatedPlayers[idx], ...defendantUpdates };
     const res = resolveGameStatus(final, turn);
 
     updatedPlayers[idx] = res.updatedPlayer || final;
@@ -236,6 +252,11 @@ export class GameFlowEngine {
       phase: res.isGameOver ? res.phase : 'play',
       trial: null,
       endingResult: res.endingResult,
+      // [新增] 傳遞給 Store 以便觸發彈窗
+      resultDiffs: {
+        ...defendantDiffs,
+        bets: betDiffs
+      }
     };
   }
 

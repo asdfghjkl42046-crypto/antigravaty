@@ -21,7 +21,7 @@ interface ScanScreenProps {
   onNavigate?: (tab: 'home' | 'shop') => void;
 }
 
-export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreenProps) {
+export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreenProps): React.ReactElement {
   const { processScan, players, currentPlayerIndex } = useGameStore();
 
   const randomLogId = React.useMemo(() => 
@@ -144,18 +144,12 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
 
     const result = await processScan(normalizedCode);
     if (result.success) {
-      setStatus({ type: 'success', msg: result.message });
       setManualCode('');
-
-      // 延遲跳轉以確保玩家能看見成功訊息
-      setTimeout(() => {
-        if (result.type === 'talent') onNavigate?.('shop');
-      }, 1000);
+      if (result.type === 'talent') onNavigate?.('shop');
     } else {
       setStatus({ type: 'error', msg: result.message });
+      setTimeout(() => setStatus({ type: 'idle', msg: '' }), 2500);
     }
-    // 所有提示統一 2.5 秒後自動消失（確保使用者能看清回饋）
-    setTimeout(() => setStatus({ type: 'idle', msg: '' }), 2500);
   };
 
   return (
@@ -298,61 +292,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
             </button>
           )}
         </div>
-
-        {status.msg && (
-          <div
-            className={`absolute top-24 left-4 right-4 max-w-[320px] rounded-sm border-t-2 border-l border-white/5 backdrop-blur-3xl flex flex-col items-start shadow-[0_40px_80px_rgba(0,0,0,0.9)] animate-in fade-in slide-in-from-left-4 duration-500 z-[100] overflow-hidden ${
-              status.type === 'success'
-                ? 'bg-emerald-950/60 border-t-emerald-400'
-                : 'bg-red-950/60 border-t-red-400'
-            }`}
-          >
-            {/* 終端掃描背景層 */}
-            <div 
-              className="absolute inset-0 opacity-[0.05] pointer-events-none bg-scan-grid"
-            />
-            
-            {/* 狀態頂部區域：高對比 Saul Bass 風格 */}
-            <div className={`w-full px-5 py-2 flex items-center justify-between z-10 ${status.type === 'success' ? 'bg-emerald-400/10' : 'bg-red-400/10'}`}>
-              <div className="flex items-center gap-3">
-                <div className={`w-1.5 h-1.5 rotate-45 animate-pulse ${status.type === 'success' ? 'bg-emerald-300' : 'bg-red-300'}`} />
-                <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${status.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {status.type === 'success' ? 'SYSTEM_SYNC_OK' : 'SYSTEM_REJECTED'}
-                </span>
-              </div>
-              <span className="text-[9px] font-mono font-bold text-white/20">LOG_V4.{randomLogId}</span>
-            </div>
-
-            <div className="p-6 pr-8 flex items-start gap-4 z-10 w-full relative">
-              <div className="flex-1 flex flex-col">
-                <p className={`text-[14px] font-bold leading-relaxed tracking-normal whitespace-pre-line ${status.type === 'success' ? 'text-emerald-50' : 'text-red-50'}`}>
-                  {status.msg}
-                </p>
-                
-                {/* 裝飾性數據流 */}
-                <div className="mt-4 flex gap-1 opacity-20">
-                  <div className={`h-1 w-8 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                  <div className={`h-1 w-2 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                  <div className={`h-1 w-1 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                </div>
-              </div>
-              
-              <div className="mt-1 flex-shrink-0 opacity-40">
-                {status.type === 'success' ? (
-                  <CheckCircle2 size={16} className="text-emerald-400" strokeWidth={3} />
-                ) : (
-                  <AlertCircle size={16} className="text-red-400" strokeWidth={3} />
-                )}
-              </div>
-            </div>
-            
-            {/* 底部螢光溢出 */}
-            <div className={`w-full h-[1px] opacity-20 ${status.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-          </div>
-        )}
       </div>
-
-
 
       <style jsx>{`
         @keyframes scan-line {
