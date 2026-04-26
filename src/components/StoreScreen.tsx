@@ -61,28 +61,35 @@ function PaymentModal({
               </span>
               <p className="text-lg font-black text-white leading-none">{formatValue(totalCostG - splitOG, SystemStrings.UNITS.MONEY)}</p>
             </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="space-y-1 text-right">
-              <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">
-                {SystemStrings.UI_LABELS.TRUST_PAY}
-              </span>
-              <p className="text-lg font-black text-white leading-none">{formatValue(splitOG, SystemStrings.UNITS.MONEY)}</p>
-            </div>
+            {player.trustFund > 0 && (
+              <>
+                <div className="w-px h-8 bg-white/10" />
+                <div className="space-y-1 text-right">
+                  <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">
+                    {SystemStrings.UI_LABELS.TRUST_PAY}
+                  </span>
+                  <p className="text-lg font-black text-white leading-none">{formatValue(splitOG, SystemStrings.UNITS.MONEY)}</p>
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="relative h-10 flex items-center px-2">
-            <div className="absolute inset-x-2 h-1 bg-white/10 rounded-full" />
-            <input
-              type="range"
-              min={minPossibleOG}
-              max={maxPossibleOG}
-              value={splitOG}
-              onChange={(e) => setSplitOG(parseInt(e.target.value))}
-              className="w-full h-2 appearance-none bg-transparent cursor-pointer accent-white relative z-10"
-              aria-label="調整支付來源比例"
-              title="滑動以調整現金與海外資金的分配"
-            />
-          </div>
+          {/* 只有當擁有海外資產 (og > 0) 時才出現滑感組件 */}
+          {player.trustFund > 0 && (
+            <div className="relative h-10 flex items-center px-2">
+              <div className="absolute inset-x-2 h-1 bg-white/10 rounded-full" />
+              <input
+                type="range"
+                min={minPossibleOG}
+                max={maxPossibleOG}
+                value={splitOG}
+                onChange={(e) => setSplitOG(parseInt(e.target.value))}
+                className="w-full h-2 appearance-none bg-transparent cursor-pointer accent-white relative z-10"
+                aria-label="調整支付來源比例"
+                title="滑動以調整現金與海外資金的分配"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-3">

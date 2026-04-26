@@ -605,32 +605,6 @@ export default function CourtroomScreen() {
             <div className="flex flex-col items-center gap-12 animate-in zoom-in duration-500 w-full">
               <div className="flex flex-col items-center w-full">
                 <div className="relative flex justify-center items-center">
-                  {/* 按鈕旁邊的代價提示 (僅在發動技能時出現) - 懸浮在右側 */}
-                  {showAttorneySkill && (
-                    <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-48 lg:w-56 p-5 bg-black/80 border border-red-500/50 backdrop-blur-2xl rounded-2xl animate-in slide-in-from-left-10 shadow-[0_0_40px_rgba(239,68,68,0.4)] z-[2000] translate-x-[100%]">
-                      <div className="text-[10px] text-red-400 font-black tracking-widest uppercase mb-3 border-b border-red-500/20 pb-2">
-                        逆轉代價 (Withdrawal Cost)
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-stone-400 text-xs font-bold">資金支付</span>
-                          <span className="text-red-400 font-mono font-bold text-lg">
-                            -{formatValue(skillCost.g, SystemStrings.UNITS.MONEY)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-stone-400 text-xs font-bold">人脈打點</span>
-                          <span className="text-red-400 font-mono font-bold text-lg">
-                            -{skillCost.ip} 點
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-4 pt-2 text-[10px] text-stone-500 italic leading-tight">
-                        *由王牌律師動用特殊關係銷案
-                      </div>
-                    </div>
-                  )}
-
                   {/* 紅色 3D 按鈕 */}
                   <button
                     onClick={() => {
