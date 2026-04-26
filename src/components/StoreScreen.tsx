@@ -105,123 +105,164 @@ function TalentCard({
         </div>
       </div>
 
-      {/* 覆蓋式詳情面板 (Overlay) */}
+      {/* 覆蓋式詳情面板 (全螢幕模式) */}
       {showDetail && (
         <div
-          className={`absolute inset-0 z-50 bg-[#020617] rounded-[30px] px-3.5 py-5 flex flex-col justify-between border-2 animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_60px_rgba(0,0,0,1)] overflow-hidden ${colors.border.replace(
-            'border-2',
-            'border-opacity-100'
-          )}`}
+          className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300"
           onClick={(e) => {
             e.stopPropagation();
             setShowDetail(false);
           }}
         >
-          <div className="space-y-1.5 pointer-events-none">
-            <div className="flex items-center space-x-2 mb-1.5 border-b border-white/5 pb-1.5 px-1">
-              <role.icon className={`${colors.text} w-3.5 h-3.5`} title={role.name} />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">
-                {role.name} 詳情
-              </span>
-            </div>
+          <div
+            className={`relative w-full max-w-sm bg-[#020617] rounded-[40px] px-8 py-10 flex flex-col justify-between border-2 animate-in zoom-in-95 duration-500 shadow-[0_40px_100px_rgba(0,0,0,1)] overflow-hidden ${colors.border.replace(
+              'border-2',
+              'border-opacity-100'
+            )}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 背景裝飾 */}
+            <div className={`absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-${role.color}-500/10 to-transparent pointer-events-none`} />
 
-            {role.levels.map((level: { type: string; desc: string }, idx: number) => {
-              const targetLv = idx + 1;
-              const isUnlocked = currentLevel >= targetLv;
-              const isCurrentTarget = !isMax && currentLevel === idx;
-
-              return (
-                <div
-                  key={idx}
-                  className={`relative px-1.5 py-1 flex items-start space-x-2 rounded-lg transition-all duration-500 border-2 border-transparent ${
-                    isUnlocked
-                      ? 'opacity-100 bg-white/5'
-                      : isCurrentTarget
-                        ? 'opacity-40 border-dashed border-slate-500/40 animate-pulse'
-                        : 'opacity-20'
-                  }`}
-                >
-                  <div
-                    className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      isUnlocked
-                        ? colors.badge + ' shadow-[0_0_10px_currentColor]'
-                        : 'bg-white/5 border border-white/20'
-                    }`}
-                  >
-                    {isUnlocked ? (
-                      <Check size={10} className="text-black" />
-                    ) : (
-                      <span className="text-[9px] font-black">{targetLv}</span>
-                    )}
-                  </div>
-                  <p
-                    className={`text-[11px] flex-1 leading-relaxed font-bold tracking-tight whitespace-pre-line ${
-                      isUnlocked ? 'text-white' : 'text-slate-500'
-                    }`}
-                  >
-                    {level.desc.split('：')[1] || level.desc}
-                  </p>
+            <div className="space-y-6 relative z-10">
+              <div className="flex flex-col items-center text-center space-y-4 mb-4">
+                <div className={`w-20 h-20 rounded-[28px] ${colors.bg} flex items-center justify-center border-2 ${colors.border} shadow-2xl`}>
+                  <role.icon className={`${colors.text} w-10 h-10`} />
                 </div>
-              );
-            })}
-          </div>
+                <div>
+                  <h2 className="text-2xl font-black text-white tracking-[0.2em] uppercase">
+                    {role.name}
+                  </h2>
+                  <p className="text-[10px] font-bold text-slate-500 tracking-[0.3em] uppercase mt-1">Personnel Dossier</p>
+                </div>
+              </div>
 
-          <div className="pt-2 px-1" onClick={(e) => e.stopPropagation()}>
-            {!isMax ? (
-              canAfford ? (
-                <div className="space-y-4">
-                  {/* 支付比例分配滑桿 (僅在有海外資金時顯示) */}
-                  {player.trustFund > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[8px] font-black uppercase tracking-tighter">
-                        <span className="text-emerald-400">現金: {totalCostG - splitOG}萬</span>
-                        <span className="text-blue-300">信託: {splitOG}萬</span>
+              <div className="space-y-3">
+                {role.levels.map((level: { type: string; desc: string }, idx: number) => {
+                  const targetLv = idx + 1;
+                  const isUnlocked = currentLevel >= targetLv;
+                  const isCurrentTarget = !isMax && currentLevel === idx;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`relative px-4 py-4 flex items-start space-x-4 rounded-2xl transition-all duration-500 border-2 ${
+                        isUnlocked
+                          ? 'opacity-100 bg-white/5 border-white/5'
+                          : isCurrentTarget
+                            ? 'opacity-100 border-dashed border-orange-500/40 bg-orange-500/5 animate-pulse'
+                            : 'opacity-20 border-transparent'
+                      }`}
+                    >
+                      <div
+                        className={`mt-1 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isUnlocked
+                            ? colors.badge + ' shadow-[0_0_15px_currentColor]'
+                            : 'bg-white/5 border border-white/20'
+                        }`}
+                      >
+                        {isUnlocked ? (
+                          <Check size={12} className="text-black" />
+                        ) : (
+                          <span className="text-[10px] font-black">{targetLv}</span>
+                        )}
                       </div>
-                      <div className="relative h-6 flex items-center">
-                         <input 
-                           type="range" 
-                           min={minPossibleOG} 
-                           max={maxPossibleOG} 
-                           value={splitOG}
-                           onChange={(e) => setSplitOG(parseInt(e.target.value))}
-                           className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                           aria-label="支付比例分配"
-                           title="調整現金與海外資金的支付比例"
-                         />
-                      </div>
-                      <div className="flex justify-between text-[7px] text-slate-500 font-bold">
-                        <span>100% G</span>
-                        <span>100% OG</span>
+                      <div className="flex-1">
+                        <p className={`text-xs font-bold leading-relaxed tracking-tight ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
+                          {level.desc.split('：')[0]}
+                        </p>
+                        <p className={`text-[11px] mt-1 leading-relaxed ${isUnlocked ? 'text-slate-300' : 'text-slate-600'}`}>
+                          {level.desc.split('：')[1] || level.desc}
+                        </p>
                       </div>
                     </div>
-                  )}
+                  );
+                })}
+              </div>
+            </div>
 
-                  <button
-                    onClick={() => {
-                      upgradeRole(role.key, splitOG);
-                      setShowDetail(false);
-                    }}
-                    className={`w-full py-2.5 rounded-xl text-black text-[10px] font-black tracking-widest uppercase transition-all hover:brightness-110 active:scale-95 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${colors.badge}`}
+            <div className="pt-8 relative z-10" onClick={(e) => e.stopPropagation()}>
+              {!isMax ? (
+                canAfford ? (
+                  <div className="space-y-6">
+                    {/* 支付比例分配滑桿 (僅在有海外資金時顯示) */}
+                    {player.trustFund > 0 && (
+                      <div className="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                          <span className="text-emerald-400">現金: {totalCostG - splitOG}萬</span>
+                          <span className="text-blue-300">信託: {splitOG}萬</span>
+                        </div>
+                        <div className="relative h-6 flex items-center">
+                           <input 
+                             type="range" 
+                             min={minPossibleOG} 
+                             max={maxPossibleOG} 
+                             value={splitOG}
+                             onChange={(e) => setSplitOG(parseInt(e.target.value))}
+                             className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                             aria-label="支付比例分配"
+                             title="調整現金與海外資金的支付比例"
+                           />
+                        </div>
+                        <div className="flex justify-between text-[8px] text-slate-500 font-bold uppercase tracking-tighter">
+                          <span>100% Cash</span>
+                          <span>100% Trust</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        upgradeRole(role.key, splitOG);
+                        setShowDetail(false);
+                      }}
+                      className={`w-full py-4 rounded-[20px] text-black text-xs font-black tracking-[0.3em] uppercase transition-all hover:scale-[1.02] active:scale-95 shadow-[0_20px_40px_rgba(0,0,0,0.4)] ${colors.badge}`}
+                    >
+                      簽署 LV.${currentLevel + 1} 合約
+                    </button>
+                    
+                    <button 
+                      onClick={() => setShowDetail(false)}
+                      className="w-full text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hover:text-white transition-colors"
+                    >
+                      返回市場
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="w-full py-4 rounded-[20px] border-dashed border-2 border-white/20 flex flex-col items-center justify-center bg-white/5">
+                      <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">
+                        Insufficient Assets
+                      </span>
+                      <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">
+                        需要 100萬 G 與 100 IP
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => setShowDetail(false)}
+                      className="w-full text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hover:text-white transition-colors"
+                    >
+                      返回市場
+                    </button>
+                  </div>
+                )
+              ) : (
+                <div className="space-y-4">
+                  <div
+                    className={`w-full py-4 rounded-[20px] bg-opacity-10 border border-opacity-30 text-xs font-black flex items-center justify-center uppercase tracking-[0.3em] ${colors.badge} ${colors.text.replace('text-', 'border-')}`}
                   >
-                    簽署 LV.${currentLevel + 1} 合約
+                    <ShieldCheck size={16} className="mr-3 opacity-70" />
+                    ACTIVE CONTRACT
+                  </div>
+                  <button 
+                    onClick={() => setShowDetail(false)}
+                    className="w-full text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hover:text-white transition-colors"
+                  >
+                    返回市場
                   </button>
                 </div>
-              ) : (
-                /* 無法購買：白色虛線框 (Ghost Style) */
-                <div className="w-full py-2 rounded-xl border-dashed border-2 border-white/60 flex items-center justify-center bg-transparent">
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">
-                    預算 / 人脈不足
-                  </span>
-                </div>
-              )
-            ) : (
-              <div
-                className={`w-full py-1.5 rounded-xl bg-opacity-10 border border-opacity-30 text-[9px] font-black flex items-center justify-center uppercase tracking-[0.3em] ${colors.badge} ${colors.text.replace('text-', 'border-')}`}
-              >
-                <ShieldCheck size={12} className="mr-2 opacity-50" />
-                ACTIVE CONTRACT
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
