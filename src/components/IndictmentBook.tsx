@@ -145,10 +145,30 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
           currentPageRef.current = cur + 1;
           setCurrentPage(cur + 1);
           if (target)
-            gsap.to(target, { rotationY: -160, z: 2, duration: 0.4, ease: 'power2.out', onComplete: () => setFlippingIndexBoth(-1) });
+            gsap.to(target, {
+              rotationY: -160,
+              z: 2,
+              duration: 0.4,
+              ease: 'power2.out',
+              onComplete: () => {
+                setFlippingIndexBoth(-1);
+                // 最後一頁翻完後延遲 0.5s 自動下一步
+                if (cur === totalPages - 1 && onClose) {
+                  setTimeout(() => {
+                    onClose();
+                  }, 500);
+                }
+              },
+            });
         } else if (!isForward) {
           if (cur === 0) {
-            gsap.to(coverRef.current, { rotationY: -5, z: 120, duration: 0.4, ease: 'power2.out', onComplete: () => setIsCoverOpenedBoth(false) });
+            gsap.to(coverRef.current, {
+              rotationY: -5,
+              z: 120,
+              duration: 0.4,
+              ease: 'power2.out',
+              onComplete: () => setIsCoverOpenedBoth(false),
+            });
             setFlippingIndexBoth(-1);
           } else {
             const idx = cur - 1;
@@ -156,7 +176,13 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
             currentPageRef.current = idx;
             setCurrentPage(idx);
             if (target)
-              gsap.to(target, { rotationY: -5, z: (totalPages - idx) * 2, duration: 0.4, ease: 'power2.out', onComplete: () => setFlippingIndexBoth(-1) });
+              gsap.to(target, {
+                rotationY: -5,
+                z: (totalPages - idx) * 2,
+                duration: 0.4,
+                ease: 'power2.out',
+                onComplete: () => setFlippingIndexBoth(-1),
+              });
           }
         } else {
           resetPages();
@@ -172,7 +198,12 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
     setFlippingIndexBoth(-1);
     const curEl = pageRefs.current[cur];
     if (curEl)
-      gsap.to(curEl, { rotationY: -5, z: (totalPages - cur) * 2, duration: 0.5, ease: 'back.out(1.2)' });
+      gsap.to(curEl, {
+        rotationY: -5,
+        z: (totalPages - cur) * 2,
+        duration: 0.5,
+        ease: 'back.out(1.2)',
+      });
     if (cur > 0) {
       const prev = pageRefs.current[cur - 1];
       if (prev)
@@ -191,10 +222,7 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
       >
         {/* 1. 皮革底盤 */}
         <div className="absolute inset-0 transform-style-3d" style={{ transform: 'translateZ(-62px)' }}>
-          <div 
-            className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-r-[12px] border-black/40 shadow-2xl"
-            style={{ backgroundColor: '#0f172a', backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")' }}
-          />
+          <div className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-l-[12px] border-black/40 shadow-2xl" style={{ backgroundColor: '#0f172a', backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")' }} />
         </div>
 
         {/* 2. 內頁系統 - 具備雙面渲染 */}
@@ -202,44 +230,60 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
           {pages.map((content, idx) => (
             <div
               key={`indictment-${idx}`}
-              ref={el => { pageRefs.current[idx] = el; }}
+              ref={(el) => {
+                pageRefs.current[idx] = el;
+              }}
               className="absolute inset-0 origin-left transform-style-3d"
               style={{
                 transform: `translate3d(0, 0, ${idx < currentPage ? idx * 2 : (totalPages - idx) * 2}px) rotateY(${idx < currentPage ? -160 : -5}deg)`,
-                zIndex: idx === flippingIndex ? 500 : (idx < currentPage ? 100 + idx : 100 - idx)
+                zIndex: idx === flippingIndex ? 500 : idx < currentPage ? 100 + idx : 100 - idx,
               }}
             >
               {/* 頁面正面 */}
-              <div 
-                className="absolute inset-0 bg-[#fdfaf2] shadow-xl backface-hidden"
-                style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}
+              <div
+                className="absolute inset-0 bg-[#fdfaf2] rounded-l-xl shadow-xl backface-hidden"
+                style={{
+                  backgroundImage:
+                    'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                }}
               >
                 <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
                   <div className="flex items-center justify-between border-b border-slate-900/10 pb-4 mb-8">
-                    <span className="text-[10px] font-black text-slate-900/30 uppercase tracking-[0.3em]">起訴紀錄 - 卷次 {idx+1}</span>
+                    <span className="text-[10px] font-black text-slate-900/30 uppercase tracking-[0.3em]">
+                      起訴紀錄 - 卷次 {idx + 1}
+                    </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-slate-900/20" />
                   </div>
                   <div className="flex-grow overflow-y-auto">
                     <p className="text-[17px] font-serif italic text-slate-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
                       {idx === 0 ? (
                         <>
-                          <span className="text-5xl font-black mr-3 float-left text-slate-900 leading-[0.8] mt-1">{content.charAt(0)}</span>
+                          <span className="text-5xl font-black mr-3 float-left text-slate-900 leading-[0.8] mt-1">
+                            {content.charAt(0)}
+                          </span>
                           {content.slice(1)}
                         </>
-                      ) : content}
+                      ) : (
+                        content
+                      )}
                     </p>
                   </div>
                   <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-slate-900/20 italic tracking-widest">
                     <span>LEGAL AUTHORITY ARCHIVE</span>
-                    <span>分頁 {idx+1} / {totalPages}</span>
+                    <span>
+                      分頁 {idx + 1} / {totalPages}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* 頁面背面 (翻轉 180 度) */}
-              <div 
-                className="absolute inset-0 bg-[#f4f1ea] shadow-xl backface-hidden [transform:rotateY(180deg)]"
-                style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }}
+              <div
+                className="absolute inset-0 bg-[#f4f1ea] rounded-r-xl shadow-xl backface-hidden [transform:rotateY(180deg)]"
+                style={{
+                  backgroundImage:
+                    'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                }}
               >
                 <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                   <span className="text-8xl font-black text-slate-900 rotate-12">{idx + 1}</span>
@@ -255,36 +299,48 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
           className="absolute inset-0 origin-left transform-style-3d cursor-pointer"
           style={{
             transform: `translate3d(0, 0, ${isCoverOpened ? -10 : 120}px) rotateY(${isCoverOpened ? -165 : -5}deg)`,
-            zIndex: 200
+            zIndex: 200,
           }}
         >
           {/* 封面正面 */}
-          <div 
-            className="absolute inset-0 bg-[#0f172a] rounded-r-sm shadow-2xl backface-hidden"
-            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")' }}
+          <div
+            className="absolute inset-0 bg-[#0f172a] rounded-l-xl shadow-2xl backface-hidden"
+            style={{
+              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+            }}
           >
             <div className="absolute inset-4 border border-white/5 rounded-sm flex flex-col items-center justify-center p-8 gap-12">
               <div className="w-24 h-24 rounded-[32px] bg-black/20 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-md">
                 <Gavel className="w-12 h-12 text-white/40" />
               </div>
               <div className="text-center">
-                <h2 className="text-4xl font-black tracking-[0.15em] text-white/95 uppercase leading-tight drop-shadow-2xl">{caseTitle}</h2>
+                <h2 className="text-4xl font-black tracking-[0.15em] text-white/95 uppercase leading-tight drop-shadow-2xl">
+                  {caseTitle}
+                </h2>
                 <div className="mt-4 h-px w-12 bg-white/10 mx-auto" />
-                <p className="text-[10px] font-bold text-white/30 tracking-[0.5em] uppercase mt-4">起訴卷宗內容</p>
+                <p className="text-[10px] font-bold text-white/30 tracking-[0.5em] uppercase mt-4">
+                  起訴卷宗內容
+                </p>
               </div>
             </div>
           </div>
 
           {/* 封面背面 (翻轉 180 度) */}
-          <div 
-            className="absolute inset-0 bg-[#0f172a] rounded-l-sm shadow-2xl backface-hidden [transform:rotateY(180deg)] filter brightness-[0.6]"
-            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")' }}
+          <div
+            className="absolute inset-0 bg-[#0f172a] rounded-r-xl shadow-2xl backface-hidden [transform:rotateY(180deg)] filter brightness-[0.6]"
+            style={{
+              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+            }}
           />
         </div>
       </div>
       <style jsx>{`
-        .transform-origin-left { transform-origin: left center; }
-        .transform-style-3d { transform-style: preserve-3d; }
+        .transform-origin-left {
+          transform-origin: left center;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
       `}</style>
     </div>
   );

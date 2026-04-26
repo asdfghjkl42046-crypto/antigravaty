@@ -118,8 +118,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
       // 封面未開：左滑預覽開封面
       if (deltaX < 0) {
         const rot = Math.max(-180, (deltaX / 300) * 180);
-        if (coverRef.current)
-          gsap.set(coverRef.current, { rotationY: rot });
+        if (coverRef.current) gsap.set(coverRef.current, { rotationY: rot });
       }
     } else {
       if (Math.abs(deltaX) > 5) {
@@ -149,8 +148,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         } else {
           if (cur === 0) {
             const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
-            if (coverRef.current)
-              gsap.set(coverRef.current, { rotationY: rot, z: 120 });
+            if (coverRef.current) gsap.set(coverRef.current, { rotationY: rot, z: 120 });
           } else {
             const target = pageRefs.current[cur - 1];
             if (target) {
@@ -203,10 +201,18 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           if (target)
             gsap.to(target, {
               rotationY: -160,
-              z: cur * 20 + 2,
+              z: 2,
               duration: 0.4,
               ease: 'power2.out',
-              onComplete: () => setFlippingIndexBoth(-1),
+              onComplete: () => {
+                setFlippingIndexBoth(-1);
+                // 如果是最後一頁翻完，延遲 0.5s 自動確認
+                if (cur === totalPages - 1) {
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('confirm-path'));
+                  }, 500);
+                }
+              },
             });
         } else if (!isForward) {
           if (cur === 0) {
@@ -279,8 +285,8 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           className="absolute inset-0 transform-style-3d"
           style={{ transform: 'translateZ(-60px)' }}
         >
-          <div
-            className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-r-[12px] border-black/40 shadow-2xl"
+          <div 
+            className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-l-[12px] border-black/40 shadow-2xl"
             style={{
               backgroundColor: theme.coverColor,
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
@@ -302,8 +308,8 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               }}
             >
               {/* 正面：內容 */}
-              <div
-                className="absolute inset-0 bg-[#fdfaf2]"
+              <div 
+                className="absolute inset-0 bg-[#fdfaf2] rounded-l-xl shadow-xl backface-hidden"
                 style={{
                   backgroundImage:
                     'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
@@ -340,8 +346,8 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                 </div>
               </div>
               {/* 背面：翻過去後看到的紙張背面 */}
-              <div
-                className="absolute inset-0 bg-[#f0ead8]"
+              <div 
+                className="absolute inset-0 bg-[#f4f1ea] rounded-r-xl shadow-xl backface-hidden [transform:rotateY(180deg)]"
                 style={{
                   backgroundImage:
                     'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
@@ -349,8 +355,11 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                   transform: 'rotateY(180deg)',
                 }}
               >
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-                  <span className="text-6xl font-black text-amber-900 rotate-180">{idx + 1}</span>
+                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                  <span className="text-8xl font-black text-amber-900 rotate-12">{idx + 1}</span>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                  <span className="text-8xl font-black text-amber-900 rotate-12">{idx + 1}</span>
                 </div>
               </div>
             </div>
