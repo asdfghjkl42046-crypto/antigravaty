@@ -397,7 +397,7 @@ export interface TrialState {
 export type VictoryRoute = 'tycoon' | 'saint' | 'dragonhead' | null;
 
 /** 結局類型編碼 */
-export type EndingType = 'dragonhead' | 'tycoon' | 'saint' | 'bankrupt' | 'arrested' | 'limit';
+export type EndingType = 'dragonhead' | 'tycoon' | 'saint' | 'saintFake' | 'bankrupt' | 'arrested' | 'limit';
 
 /** 結局結算最終報告：包含財富、聲譽與歷史罪行之綜合評價 */
 export interface EndingResult {

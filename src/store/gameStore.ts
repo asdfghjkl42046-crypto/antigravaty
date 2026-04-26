@@ -337,7 +337,7 @@ export const useGameStore = create<GameStore>()(
         }
 
         set({
-          phase: (type === 'saint' || type === 'tycoon' || type === 'dragonhead') ? 'victory' : 'gameover',
+          phase: (type === 'saint' || type === 'saintFake' || type === 'tycoon' || type === 'dragonhead') ? 'victory' : 'gameover',
           endingResult: result
         });
       },

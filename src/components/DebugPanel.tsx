@@ -186,7 +186,7 @@ export default function DebugPanel() {
                 <Crown size={12} /> <span>真．聖皇</span>
               </button>
               <button
-                onClick={() => debugTriggerEnding('saint')}
+                onClick={() => debugTriggerEnding('saintFake')}
                 onMouseDown={(e) => e.stopPropagation()}
                 className="flex items-center space-x-2 p-2 bg-amber-700/10 hover:bg-amber-700/20 border border-amber-700/20 rounded-lg text-[9px] font-black text-amber-600 transition-all active:scale-95"
               >
