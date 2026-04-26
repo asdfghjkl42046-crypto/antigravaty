@@ -183,6 +183,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d touch-none"
+        style={{ perspectiveOrigin: '30% 50%' }}
       >
         {/* 1. 皮革底盤 - Z: -60px */}
         <div
@@ -223,7 +224,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
                 </div>
                 <div className="flex-grow overflow-y-auto">
-                  <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap first-letter:text-5xl first-letter:font-black first-letter:mr-3 first-letter:float-left first-letter:text-amber-900">
+                  <p className={`text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap ${idx === 0 ? 'first-letter:text-5xl first-letter:font-black first-letter:mr-3 first-letter:float-left first-letter:text-amber-900' : ''}`}>
                     {content}
                   </p>
                 </div>
