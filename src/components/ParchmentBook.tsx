@@ -176,14 +176,17 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-[0.8]">
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[2000]">
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d touch-none"
-        style={{ perspectiveOrigin: '30% 50%' }}
+        className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d touch-none pointer-events-auto transition-transform duration-1000"
+        style={{ 
+          perspectiveOrigin: '50% 50%',
+          transform: `translateX(${isCoverOpened ? '210px' : '0px'}) scale(0.8)`
+        }}
       >
         {/* 1. 皮革底盤 - Z: -60px */}
         <div
