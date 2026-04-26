@@ -12,24 +12,31 @@ interface IndictmentBookProps {
   onAppeal?: () => void;
   onCountdownEnd?: () => void;
   canAppeal?: boolean;
+  countdownSeconds?: number;
 }
 
 /**
- * CountdownClock 組件 - 處理 2s 倒數、圓形進度條與顏色閃爍
+ * CountdownClock 組件 - 處理動態倒數、圓形進度條與顏色閃爍
  */
-const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; isActive: boolean }> = ({
+const CountdownClock: React.FC<{ 
+  onComplete: () => void; 
+  onAppeal: () => void; 
+  isActive: boolean;
+  seconds?: number;
+}> = ({
   onComplete,
   onAppeal,
   isActive,
+  seconds = 5.0,
 }) => {
-  const [timeLeft, setTimeLeft] = useState(5.0);
+  const [timeLeft, setTimeLeft] = useState(seconds);
   const [isBright, setIsBright] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimestamp = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isActive) {
-      setTimeLeft(5.0);
+      setTimeLeft(seconds);
       startTimestamp.current = null;
       if (timerRef.current) clearInterval(timerRef.current);
       return;
@@ -39,7 +46,7 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; i
 
     timerRef.current = setInterval(() => {
       const elapsed = (Date.now() - (startTimestamp.current || Date.now())) / 1000;
-      const remaining = Math.max(0, 5.0 - elapsed);
+      const remaining = Math.max(0, seconds - elapsed);
       setTimeLeft(remaining);
       setIsBright((prev) => !prev);
       if (remaining <= 0) {
@@ -51,9 +58,10 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; i
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isActive, onComplete]);
+  }, [isActive, onComplete, seconds]);
 
-  const strokeDashoffset = 251 - (timeLeft / 5.0) * 251;
+  // 計算圓形進度條偏移量 (251 是圓周長)
+  const strokeDashoffset = 251 - (timeLeft / seconds) * 251;
 
   return (
     <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
@@ -110,6 +118,7 @@ export default function IndictmentBook({
   onAppeal,
   onCountdownEnd,
   canAppeal,
+  countdownSeconds = 5.0,
 }: IndictmentBookProps) {
   // --- 狀態控制 (Sync-Ref Architecture) ---
   const [isCoverOpened, setIsCoverOpened] = useState(false);
@@ -195,7 +204,6 @@ export default function IndictmentBook({
             gsap.set(target, { rotationY: Math.max(-160, Math.min(-5, rot)), z: 50 });
           }
         } else {
-          // 往回翻邏輯 (完全對齊 ParchmentBook)
           if (cur === 0) {
             const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
             if (coverRef.current) gsap.set(coverRef.current, { rotationY: rot, z: 120 });
@@ -249,14 +257,12 @@ export default function IndictmentBook({
               ease: 'power2.out',
               onComplete: () => {
                 setFlippingIndexBoth(-1);
-                // 最後一頁翻完且不能上訴時，延遲 0.5s 自動下一步
                 if (cur === totalPages - 1 && !canAppeal) {
                   setTimeout(() => onClose?.(), 500);
                 }
               },
             });
         } else if (!isForward) {
-          // 往回翻手動釋放 (完全對齊 ParchmentBook)
           if (cur === 0) {
             gsap.to(coverRef.current, {
               rotationY: -5,
@@ -316,7 +322,6 @@ export default function IndictmentBook({
         onPointerUp={handlePointerUp}
         className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d touch-none"
       >
-        {/* 1. 皮革底盤 */}
         <div
           className="absolute inset-0 transform-style-3d"
           style={{ transform: 'translateZ(-62px)' }}
@@ -328,19 +333,19 @@ export default function IndictmentBook({
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
             }}
           >
-                {totalPages > 0 && canAppeal && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
-                    <CountdownClock 
-                      onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
-                      onAppeal={() => onAppeal?.()} 
-                      isActive={currentPage === totalPages}
-                    />
-                  </div>
-                )}
+            {totalPages > 0 && canAppeal && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
+                <CountdownClock 
+                  onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
+                  onAppeal={() => onAppeal?.()} 
+                  isActive={currentPage === totalPages}
+                  seconds={countdownSeconds}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 2. 內頁系統 - 具備雙面渲染 */}
         <div className="absolute inset-0 transform-style-3d" style={{ zIndex: 10 }}>
           {pages.map((content, idx) => (
             <div
@@ -354,7 +359,6 @@ export default function IndictmentBook({
                 zIndex: idx === flippingIndex ? 500 : idx < currentPage ? 100 + idx : 100 - idx,
               }}
             >
-              {/* 頁面正面 */}
               <div
                 className="absolute inset-0 bg-[#fdfaf2] rounded-l-xl shadow-xl backface-hidden"
                 style={{
@@ -392,7 +396,6 @@ export default function IndictmentBook({
                 </div>
               </div>
 
-              {/* 頁面背面 (翻轉 180 度) */}
               <div
                 className="absolute inset-0 bg-[#f4f1ea] rounded-r-xl shadow-xl backface-hidden [transform:rotateY(180deg)]"
                 style={{
@@ -408,7 +411,6 @@ export default function IndictmentBook({
           ))}
         </div>
 
-        {/* 3. 封面系統 - 具備雙面渲染 */}
         <div
           ref={coverRef}
           className="absolute inset-0 origin-left transform-style-3d cursor-pointer"
@@ -417,7 +419,6 @@ export default function IndictmentBook({
             zIndex: 200,
           }}
         >
-          {/* 封面正面 */}
           <div
             className="absolute inset-0 bg-[#0f172a] rounded-l-xl shadow-2xl backface-hidden"
             style={{
@@ -440,7 +441,6 @@ export default function IndictmentBook({
             </div>
           </div>
 
-          {/* 封面背面 (翻轉 180 度) */}
           <div
             className="absolute inset-0 bg-[#0f172a] rounded-r-xl shadow-2xl backface-hidden [transform:rotateY(180deg)] filter brightness-[0.6]"
             style={{
