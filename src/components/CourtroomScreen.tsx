@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useGameStore } from '../store/gameStore';
 import { gsap } from 'gsap';
 import { ChevronRight, ChevronLeft, RotateCcw, Scale, ShieldCheck } from 'lucide-react';
+import IndictmentBook from './IndictmentBook';
 import { LawCase, Player } from '../types/game';
 import { calculateSpectatorInfluence } from '../engine/MechanicsEngine';
 import {
@@ -741,15 +742,22 @@ export default function CourtroomScreen() {
   // --- 各階段渲染邏輯 ---
 
   // Stage 1: 起訴敘事
-  const renderIndictment = () => (
-    <div className="h-full">
-      <PaperFlip
-        title="刑事起訴書"
-        text={`${trial.narrative}\n\n${trial.question}`}
-        onComplete={() => setTrialStage(2)}
-      />
-    </div>
-  );
+  const renderIndictment = () => {
+    // 將起訴文案拆分為分頁陣列
+    const rawText = `${trial.narrative}\n\n${trial.question}`;
+    const indictmentPages = rawText.split('\n').filter(l => l.trim().length > 0);
+    
+    return (
+      <div className="h-full">
+        {/* 舊 UI 參考：<PaperFlip title="刑事起訴書" text={rawText} onComplete={() => setTrialStage(2)} /> */}
+        <IndictmentBook 
+          caseTitle="刑事起訴書" 
+          pages={indictmentPages} 
+          onClose={() => setTrialStage(2)} 
+        />
+      </div>
+    );
+  };
 
   // Stage 2: 旁聽干預
   const renderIntervention = () => {
@@ -1038,7 +1046,14 @@ export default function CourtroomScreen() {
             </div>
           ) : (
             /* 有罪階段：顯示判決書 */
-            <PaperFlip title="判決書" text={fullText} onComplete={() => resolveTrial()} />
+            <div className="w-full h-full">
+              {/* 舊 UI 參考：<PaperFlip title="判決書" text={fullText} onComplete={() => resolveTrial()} /> */}
+              <IndictmentBook 
+                caseTitle="裁決判決書" 
+                pages={fullText.split('\n').filter(l => l.trim().length > 0)} 
+                onClose={() => resolveTrial()} 
+              />
+            </div>
           )}
         </div>
 
