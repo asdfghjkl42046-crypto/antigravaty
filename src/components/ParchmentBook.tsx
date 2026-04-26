@@ -19,7 +19,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   const [isCoverOpened, setIsCoverOpened] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [flippingIndex, setFlippingIndex] = useState(-1);
-  const [isDragging, setIsDragging] = useState(false);
+  const isDragging = useRef(false);
   const dragStartX = useRef(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,13 +78,13 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
 
   // --- 核心交互邏輯 ---
   const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
+    isDragging.current = true;
     dragStartX.current = e.clientX;
     if (containerRef.current) containerRef.current.setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
+    if (!isDragging.current) return;
     const deltaX = e.clientX - dragStartX.current;
 
     if (!isCoverOpened) {
@@ -139,9 +139,9 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
+    if (!isDragging.current) return;
     const deltaX = e.clientX - dragStartX.current;
-    setIsDragging(false);
+    isDragging.current = false;
     if (containerRef.current) containerRef.current.releasePointerCapture(e.pointerId);
 
     if (!isCoverOpened) {
