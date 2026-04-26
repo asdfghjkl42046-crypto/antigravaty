@@ -21,14 +21,14 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; i
   onAppeal,
   isActive,
 }) => {
-  const [timeLeft, setTimeLeft] = useState(2.0);
+  const [timeLeft, setTimeLeft] = useState(5.0);
   const [isBright, setIsBright] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimestamp = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isActive) {
-      setTimeLeft(2.0);
+      setTimeLeft(5.0);
       startTimestamp.current = null;
       if (timerRef.current) clearInterval(timerRef.current);
       return;
@@ -38,7 +38,7 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; i
 
     timerRef.current = setInterval(() => {
       const elapsed = (Date.now() - (startTimestamp.current || Date.now())) / 1000;
-      const remaining = Math.max(0, 2.0 - elapsed);
+      const remaining = Math.max(0, 5.0 - elapsed);
       setTimeLeft(remaining);
       setIsBright((prev) => !prev);
       if (remaining <= 0) {
@@ -52,7 +52,7 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; i
     };
   }, [isActive, onComplete]);
 
-  const strokeDashoffset = 251 - (timeLeft / 2.0) * 251;
+  const strokeDashoffset = 251 - (timeLeft / 5.0) * 251;
 
   return (
     <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-500">
@@ -320,12 +320,23 @@ export default function IndictmentBook({
           style={{ transform: 'translateZ(-62px)' }}
         >
           <div
-            className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-l-[12px] border-black/40 shadow-2xl"
+            className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-l-[12px] border-black/40 shadow-2xl overflow-hidden"
             style={{
               backgroundColor: '#0f172a',
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
             }}
-          />
+          >
+            {/* 右側封底內側的倒數系統 */}
+            {canAppeal && (
+              <div className="absolute inset-y-0 right-0 w-1/2 flex flex-col items-center justify-center p-10">
+                <CountdownClock 
+                  onComplete={() => onClose?.()} 
+                  onAppeal={() => onAppeal?.()} 
+                  isActive={currentPage === totalPages}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 2. 內頁系統 - 具備雙面渲染 */}
@@ -391,16 +402,6 @@ export default function IndictmentBook({
                 <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                   <span className="text-8xl font-black text-slate-900 rotate-12">{idx + 1}</span>
                 </div>
-                {/* 倒數時鐘直接固化在最後一頁背面 */}
-                {idx === totalPages - 1 && canAppeal && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
-                    <CountdownClock 
-                      onComplete={() => onClose?.()} 
-                      onAppeal={() => onAppeal?.()} 
-                      isActive={currentPage === totalPages}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           ))}
