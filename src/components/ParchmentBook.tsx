@@ -17,8 +17,10 @@ interface ParchmentBookProps {
 export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   // --- 狀態控制 ---
   const [isCoverOpened, setIsCoverOpened] = useState(false);
+  const isCoverOpenedRef = useRef(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [flippingIndex, setFlippingIndex] = useState(-1);
+  const flippingIndexRef = useRef(-1);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
 
@@ -60,7 +62,14 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     }
   }, [activePath]);
 
-  // 初始化所有頁面的 GSAP transform（只跑一次，之後完全由 GSAP 控制）
+  const setFlippingIndexBoth = (idx: number) => {
+    flippingIndexRef.current = idx;
+    setFlippingIndex(idx);
+  };
+  const setIsCoverOpenedBoth = (val: boolean) => {
+    isCoverOpenedRef.current = val;
+    setIsCoverOpened(val);
+  };
   useEffect(() => {
     // 初始化頁面
     pageRefs.current.forEach((el, idx) => {
@@ -81,13 +90,31 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     isDragging.current = true;
     dragStartX.current = e.clientX;
     if (containerRef.current) containerRef.current.setPointerCapture(e.pointerId);
+
+    // 若有頁面正在動畫中，直接把 currentPageRef 推進到動畫完成後的狀態
+    // 讓那頁繼續跑完，下一次拖動直接操作新的當前頁
+    const animatingIdx = flippingIndexRef.current;
+    if (animatingIdx === -1) return;
+
+    // 判斷是往前翻（animatingIdx === currentPageRef）還是往回翻（animatingIdx === currentPageRef - 1）
+    const cur = currentPageRef.current;
+    if (animatingIdx === cur) {
+      // 往前翻進行中 → 視為已翻完，cur +1
+      currentPageRef.current = cur + 1;
+      setCurrentPage(cur + 1);
+    } else if (animatingIdx === cur - 1) {
+      // 往回翻進行中 → 視為已翻完，cur -1
+      currentPageRef.current = cur - 1;
+      setCurrentPage(cur - 1);
+    }
+    // flippingIndex 不清，讓那頁動畫的 onComplete 自己清
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current) return;
     const deltaX = e.clientX - dragStartX.current;
 
-    if (!isCoverOpened) {
+    if (!isCoverOpenedRef.current) {
       // 封面未開：左滑預覽開封面
       if (deltaX < 0) {
         const rot = Math.max(-180, (deltaX / 300) * 180);
@@ -95,17 +122,25 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           gsap.to(coverRef.current, { rotationY: rot, duration: 0.1, overwrite: true });
       }
     } else {
-      if (Math.abs(deltaX) > 20) {
+      if (Math.abs(deltaX) > 5) {
         const isForward = deltaX < 0;
         const cur = currentPageRef.current;
 
-        // 往前翻（左滑）：拖動當前頁
         if (isForward) {
           if (cur >= totalPages) return;
           const target = pageRefs.current[cur];
           if (target) {
-            setFlippingIndex(cur);
-            const rot = -5 + (deltaX / 300) * 155;
+            setFlippingIndexBoth(cur);
+            let rot = -5 + (deltaX / 300) * 155;
+
+            // 防穿透：不能比前一頁（正在動畫）還要翻得更深
+            const prevAnimating = flippingIndexRef.current !== cur && pageRefs.current[cur - 1];
+            if (prevAnimating) {
+              const prevRot = gsap.getProperty(prevAnimating, 'rotationY') as number;
+              // 前一頁還沒翻過 -90，新頁不能超過前一頁
+              rot = Math.max(rot, prevRot - 5);
+            }
+
             gsap.to(target, {
               rotationY: Math.max(-160, Math.min(-5, rot)),
               z: 50,
@@ -114,17 +149,23 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
             });
           }
         } else {
-          // 往回翻（右滑）：cur === 0 時拖封面，否則拖上一頁
           if (cur === 0) {
-            // 從第一頁往右滑 → 預覽關閉封面（封面從 -180 往後）
             const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
             if (coverRef.current)
               gsap.to(coverRef.current, { rotationY: rot, z: 120, duration: 0.1, overwrite: true });
           } else {
             const target = pageRefs.current[cur - 1];
             if (target) {
-              setFlippingIndex(cur - 1);
-              const rot = -160 + (-deltaX / 300) * 155;
+              setFlippingIndexBoth(cur - 1);
+              let rot = -160 + (-deltaX / 300) * 155;
+
+              // 防穿透：往回翻時，不能比後一頁（正在動畫）還要翻得更淺
+              const nextAnimating = flippingIndexRef.current !== cur - 1 && pageRefs.current[cur];
+              if (nextAnimating) {
+                const nextRot = gsap.getProperty(nextAnimating, 'rotationY') as number;
+                rot = Math.min(rot, nextRot + 5);
+              }
+
               gsap.to(target, {
                 rotationY: Math.min(-5, Math.max(-160, rot)),
                 z: 50,
@@ -144,9 +185,9 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     isDragging.current = false;
     if (containerRef.current) containerRef.current.releasePointerCapture(e.pointerId);
 
-    if (!isCoverOpened) {
+    if (!isCoverOpenedRef.current) {
       if (deltaX < -60) {
-        setIsCoverOpened(true);
+        setIsCoverOpenedBoth(true);
         if (coverRef.current)
           gsap.to(coverRef.current, { rotationY: -180, z: -10, duration: 0.8, ease: 'power2.out' });
       } else {
@@ -159,7 +200,6 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         const cur = currentPageRef.current;
 
         if (isForward && cur < totalPages) {
-          // 往前翻：當前頁翻到已讀側
           const target = pageRefs.current[cur];
           if (target)
             gsap.to(target, {
@@ -170,22 +210,20 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               onComplete: () => {
                 currentPageRef.current = cur + 1;
                 setCurrentPage(cur + 1);
-                setFlippingIndex(-1);
+                setFlippingIndexBoth(-1);
               },
             });
         } else if (!isForward) {
           if (cur === 0) {
-            // 在第一頁往右滑超過閾值 → 封面翻回關閉
             gsap.to(coverRef.current, {
               rotationY: -5,
               z: 120,
               duration: 0.7,
               ease: 'power2.out',
-              onComplete: () => setIsCoverOpened(false),
+              onComplete: () => setIsCoverOpenedBoth(false),
             });
-            setFlippingIndex(-1);
+            setFlippingIndexBoth(-1);
           } else {
-            // 往回翻：把上一頁翻回未讀側
             const idx = cur - 1;
             const target = pageRefs.current[idx];
             if (target)
@@ -197,7 +235,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                 onComplete: () => {
                   currentPageRef.current = idx;
                   setCurrentPage(idx);
-                  setFlippingIndex(-1);
+                  setFlippingIndexBoth(-1);
                 },
               });
           }
@@ -211,21 +249,22 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   const resetPages = () => {
-    setFlippingIndex(-1);
-    const cur = pageRefs.current[currentPage];
-    if (cur)
-      gsap.to(cur, {
+    const cur = currentPageRef.current;
+    setFlippingIndexBoth(-1);
+    const curEl = pageRefs.current[cur];
+    if (curEl)
+      gsap.to(curEl, {
         rotationY: -5,
-        z: (totalPages - currentPage) * 20,
+        z: (totalPages - cur) * 20,
         duration: 0.5,
         ease: 'back.out(1.2)',
       });
-    if (currentPage > 0) {
-      const prev = pageRefs.current[currentPage - 1];
+    if (cur > 0) {
+      const prev = pageRefs.current[cur - 1];
       if (prev)
         gsap.to(prev, {
           rotationY: -160,
-          z: (currentPage - 1) * 20,
+          z: (cur - 1) * 20,
           duration: 0.5,
           ease: 'back.out(1.2)',
         });
