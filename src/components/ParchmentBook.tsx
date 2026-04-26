@@ -176,7 +176,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-[0.8]">
+    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto">
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
@@ -206,11 +206,10 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               ref={(el) => {
                 pageRefs.current[idx] = el;
               }}
-              className="absolute inset-0 origin-left transform-style-3d bg-paper-texture shadow-xl"
+              className="absolute inset-0 origin-left transform-style-3d bg-[#fdfaf2] shadow-xl"
               style={{
-                backgroundColor: SystemStrings.SETUP.DOSSIER.COLORS.PAGE_BG,
                 transform: `translate3d(0, 0, ${idx < currentPage ? idx * 20 : (totalPages - idx) * 20}px) rotateY(${idx < currentPage ? -160 : -5}deg)`,
-                backgroundImage: `url("${SystemStrings.SETUP.DOSSIER.TEXTURES.PAPER}")`,
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
                 backfaceVisibility: 'hidden',
                 zIndex: idx === flippingIndex ? 500 : idx < currentPage ? 100 + idx : 100 - idx,
               }}
