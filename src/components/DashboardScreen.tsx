@@ -192,7 +192,7 @@ export function PlayerCard({
           </span>
           <span className="text-lg font-black text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.3)]">
             {player.ap}
-            <span className="text-xs text-white/30 ml-0.5">/5</span>
+            <span className="text-xs text-white/30 ml-0.5">/ 5</span>
           </span>
         </div>
       </div>
@@ -319,7 +319,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               第 {String(turn).padStart(2, '0')}/50 輪
             </p>
             <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-transparent filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
-              創業冒險
+              {SystemStrings.ACTION.DECLARATION_LABEL.split('申報')[0]}冒險
             </h1>
           </div>
         </div>
@@ -343,14 +343,14 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
           <div className="relative w-full max-w-sm bg-[#e8e4db] rounded-sm p-10 shadow-[20px_20px_60px_rgba(0,0,0,0.6),-1px_-1px_5px_rgba(255,255,255,0.05)] flex flex-col items-start overflow-hidden border-l-[10px] border-amber-900/10 bg-paper-texture">
             {/* 數位標註：星際終端掃描細節 */}
             <div className="absolute top-6 right-8 font-mono text-amber-950/20 text-[9px] font-bold tracking-widest uppercase">
-              SCAN_ID: ${currentBonusIdx + 1}/${startNotifications.length}
+              {SystemStrings.DECORATION.SCAN_ID}: {currentBonusIdx + 1} / {startNotifications.length}
             </div>
 
             <div className="flex flex-col mb-10 z-10 w-full">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-[2px] bg-amber-900/30" />
                 <span className="text-[10px] font-black text-amber-900/40 uppercase tracking-[0.4em]">
-                  CONFIDENTIAL_ADVAN
+                  {SystemStrings.DECORATION.CONFIDENTIAL_ADVANTAGE}
                 </span>
               </div>
               <h2 className="text-3xl font-serif font-black text-[#2a1b11] leading-none tracking-tighter">
@@ -385,7 +385,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               className="w-full bg-[#1a110b] hover:bg-black active:scale-[0.98] text-[#e8e4db] font-black py-5 rounded-sm transition-all shadow-xl flex items-center justify-center space-x-3 text-sm tracking-[0.5em] uppercase border-t border-white/5"
             >
               <span>
-                {currentBonusIdx < startNotifications.length - 1 ? 'NEXT_PAGE' : 'ACKNOWLEDGE'}
+                {currentBonusIdx < startNotifications.length - 1 ? SystemStrings.DECORATION.NEXT_PAGE : SystemStrings.DECORATION.ACKNOWLEDGE}
               </span>
             </button>
 
@@ -408,8 +408,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
             {/* 右上角受控變數：機密流水號 */}
             <div className="absolute top-8 right-8 font-mono text-orange-600/30 text-[10px] font-black tracking-widest bg-orange-600/5 px-2 py-1 border border-orange-600/10">
-              RAP_SHEET: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0}/
-              {currentViewTags.length}
+              {SystemStrings.DECORATION.RAP_SHEET}: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0} / {currentViewTags.length}
             </div>
 
             {/* 頂部資訊區：硬派左對齊 */}
@@ -417,14 +416,14 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1.5 h-1.5 bg-orange-600 animate-pulse" />
                 <span className="text-[10px] font-black text-orange-600/60 uppercase tracking-[0.4em]">
-                  SUBJECT_CRIMINAL_V4
+                  {SystemStrings.DECORATION.CONFIDENTIAL_DOC}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
                 犯罪前科紀錄
               </h2>
               <p className="text-[11px] font-bold text-slate-500 tracking-wider">
-                SUBJECT: {players[tagViewPlayerIdx]?.name.toUpperCase()}
+                {SystemStrings.DECORATION.SUBJECT}: {players[tagViewPlayerIdx]?.name.toUpperCase()}
               </p>
             </div>
 
@@ -437,7 +436,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 >
                   <div className="flex flex-col border-l-2 border-orange-600/20 pl-6 py-2">
                     <span className="text-[10px] font-black text-orange-600/50 uppercase tracking-[0.3em] mb-4">
-                      Charge_Protocol_ID.64
+                      {SystemStrings.DECORATION.CHARGE_PROTOCOL}
                     </span>
                     <span className="text-3xl font-black text-white/90 tracking-tight mb-8 leading-none">
                       {currentViewTags[tagViewItemIdx].text}
@@ -446,10 +445,10 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                     {currentViewTags[tagViewItemIdx].count > 1 && (
                       <div className="inline-flex items-center gap-3 px-3 py-2 bg-orange-950/20 border border-orange-600/20 w-max">
                         <span className="text-[9px] font-black text-orange-600/80 uppercase tracking-widest">
-                          RECIDIVISM_MARK
+                          {SystemStrings.DECORATION.RECIDIVISM_MARK}
                         </span>
                         <span className="text-orange-500 text-sm font-black">
-                          X{currentViewTags[tagViewItemIdx].count}
+                          X {currentViewTags[tagViewItemIdx].count}
                         </span>
                       </div>
                     )}
@@ -458,7 +457,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               ) : (
                 <div className="flex items-center gap-4 text-slate-600 font-bold italic text-sm py-10 border-y border-white/5 w-full">
                   <div className="w-2 h-2 rounded-full bg-emerald-500/40" />
-                  <span>CLEARED: 檔案庫無任何犯罪紀錄</span>
+                  <span>{SystemStrings.SCAN.NO_RECORDS}</span>
                 </div>
               )}
             </div>
@@ -470,10 +469,10 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 <div className="w-full space-y-3">
                   <div className="flex justify-between items-center px-1">
                     <span className="text-[9px] font-black text-orange-600/40 uppercase tracking-widest">
-                      Quick_Browse
+                      {SystemStrings.DECORATION.QUICK_BROWSE}
                     </span>
                     <span className="text-[9px] font-mono text-orange-600/60 font-bold italic">
-                      POS: {tagViewItemIdx + 1} / {currentViewTags.length}
+                      {SystemStrings.DECORATION.CURRENT_POS}: {tagViewItemIdx + 1} / {currentViewTags.length}
                     </span>
                   </div>
                   <div className="relative h-6 flex items-center">
@@ -503,7 +502,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 className="w-full bg-transparent hover:bg-orange-600/10 border border-orange-600/30 text-orange-500 font-black py-5 transition-all flex items-center justify-center space-x-3 text-sm tracking-[0.4em] uppercase"
               >
                 <span>
-                  {tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}
+                  {tagViewItemIdx < currentViewTags.length - 1 ? SystemStrings.DECORATION.NEXT_RECORD : SystemStrings.DECORATION.CLOSE_DOSSIER}
                 </span>
               </button>
             </div>

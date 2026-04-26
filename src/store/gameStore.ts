@@ -183,7 +183,7 @@ export const useGameStore = create<GameStore>()(
         if (result.diffs) {
           set({
             pendingResolution: {
-              title: result.success ? '計畫執行成功' : '計畫受阻',
+              title: result.success ? SystemStrings.RESOLUTION.SUCCESS_TITLE : SystemStrings.RESOLUTION.FAILURE_TITLE,
               message: result.message,
               diffs: result.diffs,
               type: result.success ? 'success' : 'failure'
@@ -218,8 +218,8 @@ export const useGameStore = create<GameStore>()(
         if (updates.resultDiffs && (updates.resultDiffs.g !== 0 || updates.resultDiffs.rp !== 0 || updates.resultDiffs.trust !== 0)) {
            set({
              pendingResolution: {
-               title: '回合結算報表',
-               message: '您的人才已完成本回合的自動化作業。',
+               title: SystemStrings.RESOLUTION.PASSIVE_TITLE,
+               message: SystemStrings.RESOLUTION.PASSIVE_MSG,
                diffs: updates.resultDiffs,
                type: 'passive'
              }
@@ -319,8 +319,8 @@ export const useGameStore = create<GameStore>()(
           
           set({
             pendingResolution: {
-              title: isWin ? '法庭判決勝訴' : '法庭判決敗訴',
-              message: isWin ? '您已成功洗清罪嫌。' : '法庭已正式執行裁罰。',
+              title: isWin ? SystemStrings.RESOLUTION.DEFENDANT_WIN : SystemStrings.RESOLUTION.DEFENDANT_LOSE,
+              message: isWin ? SystemStrings.RESOLUTION.WIN_MSG : SystemStrings.RESOLUTION.LOSE_MSG,
               diffs: { ...updates.resultDiffs, bets: [] }, // 這裡把 bets 清空，不讓它出現在第一層
               type: isWin ? 'success' : 'failure',
               defendantId: get().trial?.defendantId

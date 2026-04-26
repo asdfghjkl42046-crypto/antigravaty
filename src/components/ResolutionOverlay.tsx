@@ -191,7 +191,7 @@ export default function ResolutionOverlay({
         {diffs.bets && diffs.bets.length > 0 && (
           <div className="mb-8 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
             <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-3 text-center">
-              旁觀者盈虧
+              {SystemStrings.RESOLUTION.BYSTANDER_PL}
             </h4>
             <div className="flex flex-wrap justify-center gap-2">
               {diffs.bets.map((bet, i) => (
@@ -213,7 +213,7 @@ export default function ResolutionOverlay({
         {diffs.breakdown && diffs.breakdown.length > 0 && (
           <div className="mb-8 space-y-2">
             <h4 className="text-[10px] font-black text-blue-400/70 uppercase tracking-[0.2em] mb-3 text-center">
-              人才產出細目
+              {SystemStrings.RESOLUTION.BREAKDOWN_TITLE}
             </h4>
             {diffs.breakdown.map((item, i) => (
               <div
@@ -223,7 +223,7 @@ export default function ResolutionOverlay({
                 <div className="flex flex-col">
                   <span className="text-sm font-black text-white">{item.name}</span>
                   <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-widest">
-                    等級 {item.level} 運作中
+                    {SystemStrings.UI_LABELS.LEVEL} {item.level} {SystemStrings.DECORATION.IN_PROGRESS}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">

@@ -281,22 +281,45 @@ const PaperFlip: React.FC<{
         <div
           className={`flex-grow ${styles.text} text-lg leading-relaxed font-serif tracking-tight text-left z-10`}
         >
-          {page.segments.map((segment, sIdx) => (
-            <div
-              key={sIdx}
-              className={`mb-3 last:mb-0 ${
-                page.type === 'cover'
-                  ? styles.label
-                  : segment.includes('【')
+          {page.segments.map((segment, sIdx) => {
+            const isFirstContentPage = idx === 1;
+            const isFirstSegment = sIdx === 0;
+            const shouldShowDropCap = isFirstContentPage && isFirstSegment && page.type !== 'cover' && page.type !== 'back';
+            
+            // 如果是第一頁的第一段，處理大字效果
+            if (shouldShowDropCap) {
+              const firstChar = segment.charAt(0);
+              const restText = segment.slice(1);
+              return (
+                <div key={sIdx} className="mb-6 relative">
+                  <span className="float-left text-7xl font-black text-amber-900/40 mr-3 mt-1 leading-[0.8] font-serif">
+                    {firstChar}
+                  </span>
+                  <div className="text-lg leading-relaxed font-serif tracking-tight">
+                    {restText}
+                  </div>
+                  <div className="clear-both" />
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={sIdx}
+                className={`mb-3 last:mb-0 ${
+                  page.type === 'cover'
                     ? styles.label
-                    : segment.startsWith('「')
-                      ? ''
-                      : 'indent-[2em]'
-              }`}
-            >
-              {segment}
-            </div>
-          ))}
+                    : segment.includes('【')
+                      ? styles.label
+                      : segment.startsWith('「')
+                        ? ''
+                        : 'indent-[2em]'
+                }`}
+              >
+                {segment}
+              </div>
+            );
+          })}
           {page.type === 'back' && (
             <div className="flex flex-col items-center justify-center mt-20 opacity-30">
               <div className="w-16 h-16 border-4 border-stone-500 rounded-full flex items-center justify-center font-black text-2xl">

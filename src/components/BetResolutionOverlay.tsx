@@ -52,8 +52,8 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           <div className="p-3 bg-amber-500/20 rounded-2xl mb-4">
             <Coins className="w-10 h-10 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-wider uppercase">場外押注結算</h2>
-          <p className="text-[10px] font-bold text-amber-500/60 tracking-[0.3em] uppercase mt-1">Betting Results</p>
+          <h2 className="text-2xl font-black text-white tracking-wider uppercase">{SystemStrings.RESOLUTION.BETTING_TITLE}</h2>
+          <p className="text-[10px] font-bold text-amber-500/60 tracking-[0.3em] uppercase mt-1">押注收益清單</p>
         </div>
 
         <div className="space-y-3 mb-8">
@@ -82,7 +82,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           ))}
           {bets.length === 0 && (
             <div className="py-10 text-center text-slate-500 italic text-sm">
-              本場無人進行押注
+              {SystemStrings.RESOLUTION.NO_BETS}
             </div>
           )}
         </div>
@@ -91,7 +91,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           onClick={handleClose}
           className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs tracking-[0.3em] rounded-2xl transition-all active:scale-95 shadow-lg shadow-amber-500/20"
         >
-          {SystemStrings.UI_LABELS.ACKNOWLEDGE}
+          {SystemStrings.DECORATION.ACKNOWLEDGE}
         </button>
       </div>
     </div>

@@ -152,14 +152,14 @@ function RoleUpgradeModal({
               <div className="flex items-center space-x-2 mb-1">
                 <div className={`w-1.5 h-1.5 rounded-full ${colors.badge} animate-pulse`} />
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
-                  機密任命檔案
+                  {SystemStrings.STORE.HR_DOSSIER}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-tighter uppercase truncate leading-tight">
                 {role.name}
               </h2>
               <p className="text-[9px] font-bold text-slate-500 tracking-widest opacity-60">
-                ID: {role.key.toUpperCase()}_V4
+                {SystemStrings.STORE.ID_LABEL}: {role.key.toUpperCase()}_V4
               </p>
             </div>
           </div>
@@ -191,7 +191,7 @@ function RoleUpgradeModal({
                         <span
                           className={`text-[9px] font-black uppercase tracking-widest ${isUnlocked ? colors.text : 'text-slate-600'}`}
                         >
-                          階段 0{targetLv}
+                          {SystemStrings.STORE.STAGES} 0{targetLv}
                         </span>
                         {isUnlocked && (
                           <span className="text-[8px] font-bold text-emerald-500/50 uppercase">
@@ -218,7 +218,7 @@ function RoleUpgradeModal({
             onClick={onClose}
             className="px-4 py-3 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
           >
-            取消
+            {SystemStrings.STORE.CANCEL}
           </button>
           {!isMax ? (
             <button
@@ -234,13 +234,13 @@ function RoleUpgradeModal({
                   : 'bg-slate-800 opacity-20 cursor-not-allowed'
               }`}
             >
-              {canAfford ? '確認能力並準備簽約' : '資金或人脈不足'}
+              {canAfford ? SystemStrings.STORE.CONFIRM_HIRE_PROMPT : SystemStrings.STORE.INSUFFICIENT_FUNDS}
             </button>
           ) : (
             <div
               className={`flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-slate-500 text-center text-[10px] font-black uppercase tracking-[0.2em]`}
             >
-              合約已生效
+              {SystemStrings.STORE.CONTRACT_ACTIVE}
             </div>
           )}
         </div>

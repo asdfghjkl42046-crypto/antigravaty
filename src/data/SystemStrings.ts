@@ -90,4 +90,61 @@ export const SystemStrings = {
     TITLE_PREFIX: '最終結局：',
     EVAL_PREFIX: '歷史評價：',
   },
+
+  // ✨ 裝飾性與介面細節 (DASHBOARD/POPUPS)
+  DECORATION: {
+    SCAN_ID: '掃描編號',
+    CONFIDENTIAL_DOC: '機密文件',
+    CONFIDENTIAL_ADVANTAGE: '內部優勢文件',
+    NEXT_PAGE: '下一頁',
+    ACKNOWLEDGE: '朕知道了',
+    RAP_SHEET: '犯罪紀錄編號',
+    SUBJECT: '對象',
+    CHARGE_PROTOCOL: '起訴協議代碼',
+    RECIDIVISM_MARK: '累犯標記',
+    NEXT_RECORD: '下一條紀錄',
+    CLOSE_DOSSIER: '關閉卷宗',
+    QUICK_BROWSE: '快速瀏覽',
+    CURRENT_POS: '當前位置',
+    ACTIVE: '生效中',
+    IN_PROGRESS: '運作中',
+  },
+
+  // 📸 掃描頁面專用
+  SCAN: {
+    CAMERA_PROMPT: '點擊按鈕啟動光學掃描器',
+    START_CAMERA: '啟動相機',
+    INPUT_PLACEHOLDER: '例如: A011',
+    MANUAL_INPUT_LABEL: '備援編碼輸入',
+    END_TURN_PROMPT: (current: string, next: string) => `${current} 結束回合，換 ${next}`,
+    DECODE_SYNC: '解析並同步卡片',
+    NO_RECORDS: '檔案庫無任何犯罪紀錄',
+  },
+
+  // 🛒 商店與人才專用
+  STORE: {
+    HR_DOSSIER: '機密任命檔案',
+    ID_LABEL: '識別編號',
+    STAGES: '階段',
+    CANCEL: '取消',
+    CONFIRM_HIRE_PROMPT: '確認能力並準備簽約',
+    INSUFFICIENT_FUNDS: '資金或人脈不足',
+    CONTRACT_ACTIVE: '合約已生效',
+  },
+
+  // 📊 報表與結算
+  RESOLUTION: {
+    SUCCESS_TITLE: '計畫執行成功',
+    FAILURE_TITLE: '計畫受阻',
+    PASSIVE_TITLE: '回合結算報表',
+    PASSIVE_MSG: '您的人才已完成本回合的自動化作業。',
+    DEFENDANT_WIN: '法庭判決勝訴',
+    DEFENDANT_LOSE: '法庭判決敗訴',
+    WIN_MSG: '您已成功洗清罪嫌。',
+    LOSE_MSG: '法庭已正式執行裁罰。',
+    BREAKDOWN_TITLE: '人才產出細目',
+    BETTING_TITLE: '場外押注結算',
+    BYSTANDER_PL: '旁觀者盈虧',
+    NO_BETS: '本場無人進行押注',
+  },
 };
