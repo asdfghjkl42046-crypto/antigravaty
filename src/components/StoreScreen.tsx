@@ -119,45 +119,37 @@ function RoleUpgradeModal({
   const canAfford = player.ip >= costIP && (player.g + (player.trustFund || 0)) >= totalCostG;
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 animate-in fade-in duration-300">
       {/* 背景遮罩 */}
-      <div className="absolute inset-0 bg-black/90 backdrop-blur-2xl" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={onClose} />
       
-      {/* 彈窗主體 - 絕密任命書風格 */}
+      {/* 彈窗主體 - 緊湊任命書風格 */}
       <div 
-        className={`relative w-full max-w-lg bg-[#050508] border-t-2 border-l-2 rounded-[40px] shadow-[0_50px_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 ${colors.border.replace('border-2', 'border-opacity-30')}`}
+        className={`relative w-full max-w-md bg-[#050508] border-t-2 border-l-2 rounded-[32px] shadow-[0_50px_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 ${colors.border.replace('border-2', 'border-opacity-20')}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* 頂部裝飾條 */}
-        <div className={`h-1.5 w-full ${colors.badge} opacity-50`} />
+        <div className={`h-1.5 w-full ${colors.badge} opacity-40`} />
         
-        {/* 內容區 */}
-        <div className="flex-1 overflow-y-auto px-10 py-12 custom-scrollbar">
-          {/* 職位標題區 */}
-          <div className="flex items-start justify-between mb-12">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className={`w-2 h-2 rounded-full ${colors.badge} animate-pulse`} />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">機密任命檔案</span>
+        {/* 內容區 - 加入最大高度限制與滾動 */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar max-h-[70vh]">
+          {/* 職位標題區 - 改為更緊湊的橫向排版 */}
+          <div className="flex items-center space-x-5 mb-8">
+            <div className={`w-16 h-16 rounded-2xl ${colors.bg} flex items-center justify-center border-2 ${colors.border} flex-shrink-0 shadow-lg`}>
+              <role.icon className={`${colors.text} w-8 h-8`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <div className={`w-1.5 h-1.5 rounded-full ${colors.badge} animate-pulse`} />
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">機密任命檔案</span>
               </div>
-              <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
+              <h2 className="text-2xl font-black text-white tracking-tighter uppercase truncate leading-tight">
                 {role.name}
               </h2>
-              <p className="text-xs font-bold text-slate-400 tracking-widest opacity-60">人才識別碼: {role.key.toUpperCase()}_V4</p>
-            </div>
-            <div className={`w-24 h-24 rounded-3xl ${colors.bg} flex items-center justify-center border-2 ${colors.border} shadow-[0_0_40px_rgba(0,0,0,0.5)]`}>
-              <role.icon className={`${colors.text} w-12 h-12`} />
+              <p className="text-[9px] font-bold text-slate-500 tracking-widest opacity-60">ID: {role.key.toUpperCase()}_V4</p>
             </div>
           </div>
-
-          {/* 核心條款 (等級詳情) */}
-          <div className="space-y-8">
-            <div className="flex items-center space-x-4 border-b border-white/5 pb-4">
-              <span className="text-[11px] font-black text-white uppercase tracking-widest">升級條款細則</span>
-              <div className="flex-1 h-[1px] bg-white/5" />
-            </div>
-            
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {role.levels.map((level, idx) => {
                 const targetLv = idx + 1;
                 const isUnlocked = currentLevel >= targetLv;
@@ -166,26 +158,26 @@ function RoleUpgradeModal({
                 return (
                   <div 
                     key={idx}
-                    className={`group relative p-5 rounded-[24px] border-2 transition-all duration-500 ${
+                    className={`group relative p-4 rounded-2xl border-2 transition-all duration-500 ${
                       isUnlocked 
-                        ? 'bg-white/[0.03] border-white/5' 
+                        ? 'bg-white/[0.02] border-white/5' 
                         : isCurrentTarget 
-                          ? `border-${role.color}-500/30 bg-${role.color}-500/5` 
+                          ? `border-${role.color}-500/20 bg-${role.color}-500/5` 
                           : 'border-transparent opacity-20'
                     }`}
                   >
-                    <div className="flex items-center space-x-5">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-black border ${isUnlocked ? colors.badge + ' border-transparent text-black' : 'border-white/20 text-white'}`}>
-                        {isUnlocked ? <Check size={14} /> : targetLv}
+                    <div className="flex items-start space-x-4">
+                      <div className={`flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black border ${isUnlocked ? colors.badge + ' border-transparent text-black' : 'border-white/10 text-white/40'}`}>
+                        {isUnlocked ? <Check size={12} /> : targetLv}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className={`text-[10px] font-black uppercase tracking-widest ${isUnlocked ? colors.text : 'text-slate-500'}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center mb-0.5">
+                          <span className={`text-[9px] font-black uppercase tracking-widest ${isUnlocked ? colors.text : 'text-slate-600'}`}>
                             階段 0{targetLv}
                           </span>
-                          {isUnlocked && <span className="text-[9px] font-bold text-emerald-500/60 uppercase">生效中</span>}
+                          {isUnlocked && <span className="text-[8px] font-bold text-emerald-500/50 uppercase">Active</span>}
                         </div>
-                        <p className={`text-sm font-bold leading-relaxed ${isUnlocked ? 'text-white' : 'text-slate-400'}`}>
+                        <p className={`text-xs font-bold leading-relaxed ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
                           {level.desc.split('：')[1] || level.desc}
                         </p>
                       </div>
@@ -193,15 +185,14 @@ function RoleUpgradeModal({
                   </div>
                 );
               })}
-            </div>
           </div>
         </div>
 
-        {/* 底部按鈕區 */}
-        <div className="px-10 py-8 bg-white/[0.02] border-t border-white/5 flex items-center space-x-4">
+        {/* 底部按鈕區 - 更加緊湊 */}
+        <div className="px-6 py-6 bg-white/[0.01] border-t border-white/5 flex items-center space-x-3">
           <button 
             onClick={onClose}
-            className="px-6 py-4 rounded-2xl text-[11px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
+            className="px-4 py-3 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
           >
             取消
           </button>
@@ -213,14 +204,14 @@ function RoleUpgradeModal({
                 }
               }}
               disabled={!canAfford}
-              className={`flex-1 py-5 rounded-2xl text-black text-[13px] font-black tracking-[0.2em] uppercase transition-all shadow-2xl ${
+              className={`flex-1 py-4 rounded-xl text-black text-[12px] font-black tracking-[0.15em] uppercase transition-all shadow-xl ${
                 canAfford ? colors.badge + ' active:scale-95' : 'bg-slate-800 opacity-20 cursor-not-allowed'
               }`}
             >
               {canAfford ? '確認能力並準備簽約' : '資金或人脈不足'}
             </button>
           ) : (
-            <div className={`flex-1 py-5 rounded-2xl bg-white/5 border border-white/10 text-slate-500 text-center text-[11px] font-black uppercase tracking-[0.3em]`}>
+            <div className={`flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-slate-500 text-center text-[10px] font-black uppercase tracking-[0.2em]`}>
               合約已生效
             </div>
           )}
