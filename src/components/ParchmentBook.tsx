@@ -119,7 +119,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
       if (deltaX < 0) {
         const rot = Math.max(-180, (deltaX / 300) * 180);
         if (coverRef.current)
-          gsap.to(coverRef.current, { rotationY: rot, duration: 0.1, overwrite: true });
+          gsap.set(coverRef.current, { rotationY: rot });
       }
     } else {
       if (Math.abs(deltaX) > 5) {
@@ -141,18 +141,16 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               rot = Math.max(rot, prevRot - 5);
             }
 
-            gsap.to(target, {
+            gsap.set(target, {
               rotationY: Math.max(-160, Math.min(-5, rot)),
               z: 50,
-              duration: 0.1,
-              overwrite: true,
             });
           }
         } else {
           if (cur === 0) {
             const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
             if (coverRef.current)
-              gsap.to(coverRef.current, { rotationY: rot, z: 120, duration: 0.1, overwrite: true });
+              gsap.set(coverRef.current, { rotationY: rot, z: 120 });
           } else {
             const target = pageRefs.current[cur - 1];
             if (target) {
@@ -166,11 +164,9 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                 rot = Math.min(rot, nextRot + 5);
               }
 
-              gsap.to(target, {
+              gsap.set(target, {
                 rotationY: Math.min(-5, Math.max(-160, rot)),
                 z: 50,
-                duration: 0.1,
-                overwrite: true,
               });
             }
           }
