@@ -259,10 +259,12 @@ export class CourtEngine {
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     const cost = getWithdrawCaseCost(player);
     if (player.g < cost.g || player.ip < cost.ip) return { success: false, updates: {} };
+    const updatedG = player.g - cost.g;
+    const finalG = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
     return {
       success: true,
       updates: {
-        g: Math.max(0, player.g - cost.g),
+        g: finalG,
         ip: Math.max(0, player.ip - cost.ip),
         blackMaterialSources: removeBlackMaterialsByTag(player, tagText, lawCaseTagId),
         tags: player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t)),
@@ -276,10 +278,12 @@ export class CourtEngine {
    */
   static applyExtraAppeal(player: Player): { success: boolean; updates: Partial<Player> } {
     if (player.hasUsedExtraAppeal) return { success: false, updates: {} };
+    const updatedG = player.g - Math.ceil(player.g * 0.2);
+    const finalG = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
     return {
       success: true,
       updates: {
-        g: Math.max(0, player.g - Math.ceil(player.g * 0.2)),
+        g: finalG,
         hasUsedExtraAppeal: true,
       },
     };
@@ -389,7 +393,11 @@ export class CourtEngine {
     } else {
       const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId, isAppeal, personality);
       updates.totalTrials = (player.totalTrials || 0) + 1;
-      updates.g = Math.max(0, player.g - penalty.fine);
+      
+      const updatedG = player.g - penalty.fine;
+      // 核心規則：若有信託基金，現金最低為 0；若無信託，允許為負數（負債）
+      updates.g = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
+      
       updates.rp = Math.max(0, (updates.rp || player.rp) - penalty.rpLoss);
       updates.totalFinesPaid = (player.totalFinesPaid || 0) + penalty.fine;
       updates.blackMaterialSources = removeBlackMaterialsByTag(player, tagText, lawCaseTagId);
@@ -409,7 +417,11 @@ export class CourtEngine {
       if (!playerBet || playerBet.choice === 'none') return p;
       const betRes = settleBet(p, playerBet.choice, actualResult);
       const rpChange = betRes.rpGain < 0 ? applyPRDiscount(p, betRes.rpGain) : betRes.rpGain;
-      return { ...p, g: Math.max(0, p.g + betRes.gGain), ip: Math.max(0, p.ip + betRes.ipGain), rp: Math.max(0, Math.min(100, p.rp + rpChange)) };
+      
+      const updatedG = p.g + betRes.gGain;
+      const finalG = p.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
+      
+      return { ...p, g: finalG, ip: Math.max(0, p.ip + betRes.ipGain), rp: Math.max(0, Math.min(100, p.rp + rpChange)) };
     });
   }
 }

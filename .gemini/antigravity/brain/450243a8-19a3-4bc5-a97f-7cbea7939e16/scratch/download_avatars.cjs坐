@@ -1,0 +1,57 @@
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
+
+const MASTERPIECES = [
+  { id: 0, title: '蒙娜麗莎', author: '達文西', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg&w=400' },
+  { id: 1, title: '戴珍珠耳環的少女', author: '維梅爾', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/0/0f/1665_Girl_with_a_Pearl_Earring.jpg&w=400' },
+  { id: 2, title: '吶喊', author: '孟克', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/8/86/Edvard_Munch_-_The_Scream_-_Google_Art_Project.jpg&w=400' },
+  { id: 3, title: '自畫像', author: '梵谷', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/b/b2/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg&w=400' },
+  { id: 4, title: '神奈川沖浪裏', author: '葛飾北齋', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/0/0d/Great_Wave_off_Kanagawa2.jpg&w=400' },
+  { id: 5, title: '拿破崙越過阿爾卑斯山', author: '大衛', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/f/fd/David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg&w=400' },
+  { id: 6, title: '維納斯的誕生', author: '波提切利', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg&w=400' },
+  { id: 7, title: '惠斯勒的母親', author: '惠斯勒', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/1/1b/Whistlers_Mother_high_res.jpg&w=400' },
+  { id: 8, title: '抱銀貂的女子', author: '達文西', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/f/f9/Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg&w=400' },
+  { id: 9, title: '夜巡', author: '林布蘭', url: 'https://images.weserv.nl/?url=https://upload.wikimedia.org/wikipedia/commons/9/94/The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg&w=400' },
+];
+
+const targetDir = path.join(process.cwd(), 'public', 'assets', 'avatars');
+
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
+}
+
+function download(url, filename) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      if (res.statusCode === 200) {
+        const fileStream = fs.createWriteStream(path.join(targetDir, filename));
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          console.log(`Downloaded: ${filename}`);
+          resolve();
+        });
+      } else {
+        reject(new Error(`Failed to download ${url}: ${res.statusCode}`));
+      }
+    }).on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+async function main() {
+  console.log('Starting avatar download...');
+  for (const item of MASTERPIECES) {
+    const filename = `avatar_${item.id}.jpg`;
+    try {
+      await download(item.url, filename);
+    } catch (err) {
+      console.error(`Error downloading ${filename}:`, err.message);
+    }
+  }
+  console.log('Finished.');
+}
+
+main();

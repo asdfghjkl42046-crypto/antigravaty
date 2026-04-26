@@ -341,7 +341,9 @@ export function settleEndOfTurn(player: Player, currentTurn: number): Partial<Pl
   const trustAmount = calculateTrustTransfer(tempPlayer);
   if (trustAmount > 0) {
     // 扣除手邊暴露危險的流動金，轉入信託保險箱
-    finalG -= trustAmount;
+    const updatedG = finalG - trustAmount;
+    // 轉移時若有信託基金（既然 trustAmount > 0 則必有），維持現金底線為 0
+    finalG = Math.max(0, updatedG);
     finalTrust += trustAmount;
   }
 
