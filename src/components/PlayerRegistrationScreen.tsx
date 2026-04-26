@@ -202,7 +202,7 @@ export default function PlayerRegistrationScreen({
             {/* 名畫頭像選取 */}
             <div className="w-full max-w-4xl px-6 mb-2 ui-fade-in">
               <div className="flex flex-col items-center gap-6">
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3 sm:gap-4">
+                <div className="grid grid-cols-5 gap-3 sm:gap-4">
                   {MASTERPIECES.map((m) => {
                     const isSelected = selectedAvatarId === m.id;
                     return (
@@ -212,7 +212,7 @@ export default function PlayerRegistrationScreen({
                         className={`relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110 active:scale-95' : 'grayscale opacity-40 hover:grayscale-0 hover:opacity-100 hover:scale-105'}`}
                       >
                         <div
-                          className={`w-10 h-10 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}
+                          className={`w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${isSelected ? 'border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.5)]' : 'border-white/10 group-hover:border-white/30'}`}
                         >
                           <img
                             src={m.url}
@@ -230,7 +230,7 @@ export default function PlayerRegistrationScreen({
                     );
                   })}
                 </div>
-                
+
                 <div className="h-6 flex flex-col items-center">
                   <span className="text-sm font-bold text-amber-400 tracking-[0.3em] animate-in fade-in slide-in-from-top-1">
                     {MASTERPIECES[selectedAvatarId].title}
