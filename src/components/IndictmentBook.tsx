@@ -99,6 +99,7 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
             gsap.set(target, { rotationY: Math.max(-160, Math.min(-5, rot)), z: 50 });
           }
         } else {
+          // 往回翻邏輯 (完全對齊 ParchmentBook)
           if (cur === 0) {
             const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
             if (coverRef.current) gsap.set(coverRef.current, { rotationY: rot, z: 120 });
@@ -161,13 +162,14 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
               },
             });
         } else if (!isForward) {
+          // 往回翻手動釋放 (完全對齊 ParchmentBook)
           if (cur === 0) {
-            gsap.to(coverRef.current, {
-              rotationY: -5,
-              z: 120,
-              duration: 0.4,
-              ease: 'power2.out',
-              onComplete: () => setIsCoverOpenedBoth(false),
+            gsap.to(coverRef.current, { 
+              rotationY: -5, 
+              z: 120, 
+              duration: 0.4, 
+              ease: 'power2.out', 
+              onComplete: () => setIsCoverOpenedBoth(false) 
             });
             setFlippingIndexBoth(-1);
           } else {
@@ -176,12 +178,12 @@ export default function IndictmentBook({ caseTitle, pages, onClose }: Indictment
             currentPageRef.current = idx;
             setCurrentPage(idx);
             if (target)
-              gsap.to(target, {
-                rotationY: -5,
-                z: (totalPages - idx) * 2,
-                duration: 0.4,
-                ease: 'power2.out',
-                onComplete: () => setFlippingIndexBoth(-1),
+              gsap.to(target, { 
+                rotationY: -5, 
+                z: (totalPages - idx) * 2, 
+                duration: 0.4, 
+                ease: 'power2.out', 
+                onComplete: () => setFlippingIndexBoth(-1) 
               });
           }
         } else {
