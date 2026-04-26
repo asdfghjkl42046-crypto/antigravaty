@@ -601,65 +601,65 @@ export default function CourtroomScreen() {
 
         <div className="w-full max-w-4xl h-[500px] relative">
           {showActionBtn ? (
-            /* 核心行動區域：3D 按鈕與代價提示 */
-            <div className="flex flex-col items-center gap-12 animate-in zoom-in duration-500">
-              <div className="relative group">
-                {/* 按鈕旁邊的代價提示 (僅在發動技能時出現) */}
-                {showAttorneySkill && (
-                  <div className="absolute left-[120%] top-1/2 -translate-y-1/2 w-56 p-5 bg-black/80 border border-red-500/50 backdrop-blur-2xl rounded-2xl animate-in slide-in-from-left-10 shadow-[0_0_40px_rgba(239,68,68,0.4)]">
-                    <div className="text-[10px] text-red-400 font-black tracking-widest uppercase mb-3 border-b border-red-500/20 pb-2">
-                      逆轉代價 (Withdrawal Cost)
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-stone-400 text-xs font-bold">資金支付</span>
-                        <span className="text-red-400 font-mono font-bold text-lg">
-                          -{formatValue(skillCost.g, SystemStrings.UNITS.MONEY)}
-                        </span>
+            /* 核心行動區域：3D 按鈕、放棄按鈕與提示文字垂直對齊 */
+            <div className="flex flex-col items-center gap-12 animate-in zoom-in duration-500 w-full">
+              <div className="flex flex-col items-center w-full">
+                <div className="relative flex justify-center items-center">
+                  {/* 按鈕旁邊的代價提示 (僅在發動技能時出現) - 懸浮在右側 */}
+                  {showAttorneySkill && (
+                    <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-48 lg:w-56 p-5 bg-black/80 border border-red-500/50 backdrop-blur-2xl rounded-2xl animate-in slide-in-from-left-10 shadow-[0_0_40px_rgba(239,68,68,0.4)] z-[2000] translate-x-[100%]">
+                      <div className="text-[10px] text-red-400 font-black tracking-widest uppercase mb-3 border-b border-red-500/20 pb-2">
+                        逆轉代價 (Withdrawal Cost)
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-stone-400 text-xs font-bold">人脈打點</span>
-                        <span className="text-red-400 font-mono font-bold text-lg">
-                          -{skillCost.ip} 點
-                        </span>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-stone-400 text-xs font-bold">資金支付</span>
+                          <span className="text-red-400 font-mono font-bold text-lg">
+                            -{formatValue(skillCost.g, SystemStrings.UNITS.MONEY)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-stone-400 text-xs font-bold">人脈打點</span>
+                          <span className="text-red-400 font-mono font-bold text-lg">
+                            -{skillCost.ip} 點
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-2 text-[10px] text-stone-500 italic leading-tight">
+                        *由王牌律師動用特殊關係銷案
                       </div>
                     </div>
-                    <div className="mt-4 pt-2 text-[10px] text-stone-500 italic leading-tight">
-                      *由王牌律師動用特殊關係銷案
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                <button
-                  onClick={() => {
-                    if (showAttorneySkill) {
-                      if (
-                        window.confirm(
-                          `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SystemStrings.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
-                        )
-                      ) {
-                        withdrawCase();
-                        setShowAttorneySkill(false);
+                  {/* 紅色 3D 按鈕 */}
+                  <button
+                    onClick={() => {
+                      if (showAttorneySkill) {
+                        if (
+                          window.confirm(
+                            `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SystemStrings.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
+                          )
+                        ) {
+                          withdrawCase();
+                          setShowAttorneySkill(false);
+                        }
+                      } else {
+                        resolveTrial();
                       }
-                    } else {
-                      resolveTrial();
-                    }
-                  }}
-                  className="group relative w-48 h-48 rounded-full transition-all duration-200 active:translate-y-2 select-none"
-                >
-                  {/* 按鈕深度 */}
-                  <div className="absolute inset-x-0 bottom-[-16px] h-48 rounded-full bg-red-900 shadow-[0_15px_40px_rgba(0,0,0,0.6)]" />
+                    }}
+                    className="group relative w-48 h-48 rounded-full transition-all duration-200 active:translate-y-2 select-none"
+                  >
+                    <div className="absolute inset-x-0 bottom-[-16px] h-48 rounded-full bg-red-900 shadow-[0_15px_40px_rgba(0,0,0,0.6)]" />
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-b from-red-500 to-red-700 border-b-[10px] border-red-800 flex items-center justify-center group-hover:from-red-400 group-hover:to-red-600 shadow-inner overflow-hidden transition-all duration-300">
+                      <span className="text-white font-black text-2xl tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] italic text-center leading-tight whitespace-pre-line group-hover:scale-110 transition-transform">
+                        {showAttorneySkill ? '逆轉裁判' : 'EXIT'}
+                      </span>
+                      <div className="absolute top-2 left-1/4 w-1/2 h-1/4 bg-white/20 rounded-full blur-md" />
+                    </div>
+                  </button>
+                </div>
 
-                  {/* 按鈕表面 */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-b from-red-500 to-red-700 border-b-[10px] border-red-800 flex items-center justify-center group-hover:from-red-400 group-hover:to-red-600 shadow-inner overflow-hidden transition-all duration-300">
-                    <span className="text-white font-black text-2xl tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] italic text-center leading-tight whitespace-pre-line group-hover:scale-110 transition-transform">
-                      {showAttorneySkill ? '逆轉裁判' : 'EXIT'}
-                    </span>
-                    <div className="absolute top-2 left-1/4 w-1/2 h-1/4 bg-white/20 rounded-full blur-md" />
-                  </div>
-                </button>
-
-                {/* 放棄逆轉按鈕 (僅在發動技能時出現) */}
+                {/* 放棄逆轉按鈕 (置中對齊) */}
                 {showAttorneySkill && (
                   <button
                     onClick={() => {
@@ -668,7 +668,7 @@ export default function CourtroomScreen() {
                         setShowAttorneySkill(false);
                       }
                     }}
-                    className="mt-8 px-6 py-2 border border-slate-700 hover:bg-slate-800 text-slate-500 font-bold uppercase tracking-widest text-xs rounded transition-all active:scale-95"
+                    className="mt-12 px-6 py-2 border border-slate-700 hover:bg-slate-800 text-slate-500 font-bold uppercase tracking-widest text-xs rounded transition-all active:scale-95"
                   >
                     放棄逆轉 / 接受判決
                   </button>
@@ -725,6 +725,7 @@ export default function CourtroomScreen() {
                     }
                   }}
                   canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
+                  countdownSeconds={3}
                 />
               )}
             </div>
