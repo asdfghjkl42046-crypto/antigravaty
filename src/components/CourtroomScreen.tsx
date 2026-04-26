@@ -1050,7 +1050,32 @@ export default function CourtroomScreen() {
               {/* 舊 UI 參考：<PaperFlip title="判決書" text={fullText} onComplete={() => resolveTrial()} /> */}
               <IndictmentBook 
                 caseTitle="裁決判決書" 
-                pages={fullText.split('\n').filter(l => l.trim().length > 0)} 
+                pages={(() => {
+                  const pages: string[] = [];
+                  const lines = fullText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                  
+                  let currentPage = '';
+                  lines.forEach((line) => {
+                    // 如果是重要標題，且目前頁面已經有內容，則考慮分頁或合併
+                    if (line.includes('【法制教育】') || line.includes('【裁罰結果】')) {
+                      if (currentPage.length > 0) {
+                        pages.push(currentPage);
+                        currentPage = '';
+                      }
+                      currentPage += line + '\n';
+                    } else {
+                      // 普通內容直接加入
+                      currentPage += line + '\n';
+                      // 如果單頁內容過長 (超過 200 字)，強制分頁
+                      if (currentPage.length > 200) {
+                        pages.push(currentPage);
+                        currentPage = '';
+                      }
+                    }
+                  });
+                  if (currentPage.length > 0) pages.push(currentPage);
+                  return pages;
+                })()} 
                 onClose={() => resolveTrial()} 
               />
             </div>
