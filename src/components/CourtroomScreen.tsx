@@ -1045,8 +1045,8 @@ export default function CourtroomScreen() {
               </div>
             </div>
           ) : (
-            /* 有罪階段：顯示判決書 */
-            <div className="w-full h-full">
+            /* 有罪階段：顯示判決書 (向上微調位置) */
+            <div className="w-full h-full mt-[-80px]">
               {/* 舊 UI 參考：<PaperFlip title="判決書" text={fullText} onComplete={() => resolveTrial()} /> */}
               <IndictmentBook 
                 caseTitle="裁決判決書" 
