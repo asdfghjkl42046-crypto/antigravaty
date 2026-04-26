@@ -179,14 +179,14 @@ export default function DebugPanel() {
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => debugTriggerEnding('saint', false)}
+                onClick={() => debugTriggerEnding('saint')}
                 onMouseDown={(e) => e.stopPropagation()}
                 className="flex items-center space-x-2 p-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/20 rounded-lg text-[9px] font-black text-yellow-500 transition-all active:scale-95"
               >
                 <Crown size={12} /> <span>真．聖皇</span>
               </button>
               <button
-                onClick={() => debugTriggerEnding('saint', true)}
+                onClick={() => debugTriggerEnding('saint')}
                 onMouseDown={(e) => e.stopPropagation()}
                 className="flex items-center space-x-2 p-2 bg-amber-700/10 hover:bg-amber-700/20 border border-amber-700/20 rounded-lg text-[9px] font-black text-amber-600 transition-all active:scale-95"
               >
