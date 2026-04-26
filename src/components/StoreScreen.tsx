@@ -17,33 +17,106 @@ interface RoleData {
  * 個別人才卡片組件：高度色彩同步，按鈕與邊框根據職位螢光色呈現
  */
 /**
+ * 支付結算彈窗：專門處理資金分配
+ */
+function PaymentModal({ 
+  role, 
+  player, 
+  onClose, 
+  onConfirm 
+}: { 
+  role: RoleData; 
+  player: Player; 
+  onClose: () => void;
+  onConfirm: (splitOG: number) => void;
+}) {
+  const [splitOG, setSplitOG] = React.useState(0);
+  const colors = COLOR_MAP[role.color];
+  const totalCostG = 100;
+  const maxPossibleOG = Math.min(totalCostG, player.trustFund || 0);
+  const minPossibleOG = Math.max(0, totalCostG - (player.g || 0));
+
+  React.useEffect(() => {
+    setSplitOG(minPossibleOG);
+  }, [minPossibleOG]);
+
+  return (
+    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6 animate-in fade-in duration-200">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+      <div className="relative w-full max-w-xs bg-[#0a0a0f] border border-white/10 rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+        <div className="text-center space-y-2 mb-8">
+          <h3 className="text-lg font-black text-white uppercase tracking-widest">支付結算</h3>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">選擇支付來源</p>
+        </div>
+
+        <div className="space-y-8 mb-10">
+          <div className="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
+            <div className="space-y-1">
+              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-tighter">現金支付</span>
+              <p className="text-lg font-black text-white leading-none">{totalCostG - splitOG}萬</p>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="space-y-1 text-right">
+              <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">海外信託</span>
+              <p className="text-lg font-black text-white leading-none">{splitOG}萬</p>
+            </div>
+          </div>
+
+          <div className="relative h-10 flex items-center px-2">
+            <div className="absolute inset-x-2 h-1 bg-white/10 rounded-full" />
+            <input 
+              type="range" 
+              min={minPossibleOG} 
+              max={maxPossibleOG} 
+              value={splitOG}
+              onChange={(e) => setSplitOG(parseInt(e.target.value))}
+              className="w-full h-2 appearance-none bg-transparent cursor-pointer accent-white relative z-10"
+              aria-label="調整支付來源比例"
+              title="滑動以調整現金與海外資金的分配"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => onConfirm(splitOG)}
+            className={`w-full py-4 rounded-2xl text-black text-[11px] font-black tracking-[0.2em] uppercase shadow-xl ${colors.badge}`}
+          >
+            確認扣款並簽約
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full py-2 text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors"
+          >
+            取消返回
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * 人才任命合約彈窗：獨立於卡片之外的頂層 UI
  */
 function RoleUpgradeModal({ 
   role, 
   player, 
   onClose, 
-  onUpgrade 
+  onOpenPayment
 }: { 
   role: RoleData; 
   player: Player; 
   onClose: () => void;
-  onUpgrade: (roleKey: RoleType, splitOG: number) => void;
+  onOpenPayment: () => void;
 }) {
-  const [splitOG, setSplitOG] = React.useState(0);
   const currentLevel = player.roles?.[role.key] || 0;
   const isMax = currentLevel >= 3;
   const colors = COLOR_MAP[role.color];
 
   const totalCostG = 100;
   const costIP = 100;
-  const maxPossibleOG = Math.min(totalCostG, player.trustFund || 0);
-  const minPossibleOG = Math.max(0, totalCostG - (player.g || 0));
   const canAfford = player.ip >= costIP && (player.g + (player.trustFund || 0)) >= totalCostG;
-
-  React.useEffect(() => {
-    setSplitOG(minPossibleOG);
-  }, [minPossibleOG]);
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 animate-in fade-in duration-300">
@@ -65,12 +138,12 @@ function RoleUpgradeModal({
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <div className={`w-2 h-2 rounded-full ${colors.badge} animate-pulse`} />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Classified_Contract</span>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">機密任命檔案</span>
               </div>
               <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">
                 {role.name}
               </h2>
-              <p className="text-xs font-bold text-slate-400 tracking-widest opacity-60">PERSONNEL_ID: {role.key.toUpperCase()}_V4</p>
+              <p className="text-xs font-bold text-slate-400 tracking-widest opacity-60">人才識別碼: {role.key.toUpperCase()}_V4</p>
             </div>
             <div className={`w-24 h-24 rounded-3xl ${colors.bg} flex items-center justify-center border-2 ${colors.border} shadow-[0_0_40px_rgba(0,0,0,0.5)]`}>
               <role.icon className={`${colors.text} w-12 h-12`} />
@@ -78,7 +151,7 @@ function RoleUpgradeModal({
           </div>
 
           {/* 核心條款 (等級詳情) */}
-          <div className="space-y-8 mb-12">
+          <div className="space-y-8">
             <div className="flex items-center space-x-4 border-b border-white/5 pb-4">
               <span className="text-[11px] font-black text-white uppercase tracking-widest">升級條款細則</span>
               <div className="flex-1 h-[1px] bg-white/5" />
@@ -108,9 +181,9 @@ function RoleUpgradeModal({
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-1">
                           <span className={`text-[10px] font-black uppercase tracking-widest ${isUnlocked ? colors.text : 'text-slate-500'}`}>
-                            Phase_0{targetLv}
+                            階段 0{targetLv}
                           </span>
-                          {isUnlocked && <span className="text-[9px] font-bold text-emerald-500/60 uppercase">Active</span>}
+                          {isUnlocked && <span className="text-[9px] font-bold text-emerald-500/60 uppercase">生效中</span>}
                         </div>
                         <p className={`text-sm font-bold leading-relaxed ${isUnlocked ? 'text-white' : 'text-slate-400'}`}>
                           {level.desc.split('：')[1] || level.desc}
@@ -122,48 +195,6 @@ function RoleUpgradeModal({
               })}
             </div>
           </div>
-
-          {/* 支付與授權區 */}
-          {!isMax && (
-            <div className="space-y-8 bg-white/[0.02] rounded-[32px] p-8 border border-white/5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black text-white uppercase tracking-widest">支付結算方式</span>
-                <span className="text-[10px] font-bold text-slate-500 italic">COST: 100M G / 100 IP</span>
-              </div>
-
-              {player.trustFund > 0 ? (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-end">
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-black text-emerald-400/60 uppercase tracking-widest">Cash_Deduction</p>
-                      <p className="text-xl font-black text-white leading-none">{totalCostG - splitOG}<span className="text-[10px] ml-1 opacity-40 text-emerald-400 uppercase">萬 G</span></p>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <p className="text-[9px] font-black text-blue-400/60 uppercase tracking-widest">Trust_Fund_Usage</p>
-                      <p className="text-xl font-black text-white leading-none">{splitOG}<span className="text-[10px] ml-1 opacity-40 text-blue-400 uppercase">萬 OG</span></p>
-                    </div>
-                  </div>
-                  
-                  <div className="relative h-8 flex items-center">
-                    <div className="absolute inset-0 bg-white/5 rounded-full h-1.5 top-1/2 -translate-y-1/2" />
-                    <input 
-                      type="range" 
-                      min={minPossibleOG} 
-                      max={maxPossibleOG} 
-                      value={splitOG}
-                      onChange={(e) => setSplitOG(parseInt(e.target.value))}
-                      className="w-full h-2 appearance-none bg-transparent cursor-pointer accent-white relative z-10"
-                      aria-label="調整支付比例"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="py-2">
-                   <p className="text-sm font-bold text-slate-400 italic">全額使用現有現金 (G) 支付</p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* 底部按鈕區 */}
@@ -172,14 +203,13 @@ function RoleUpgradeModal({
             onClick={onClose}
             className="px-6 py-4 rounded-2xl text-[11px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
           >
-            Cancel
+            取消
           </button>
           {!isMax ? (
             <button
               onClick={() => {
                 if (canAfford) {
-                  onUpgrade(role.key, splitOG);
-                  onClose();
+                  onOpenPayment();
                 }
               }}
               disabled={!canAfford}
@@ -187,11 +217,11 @@ function RoleUpgradeModal({
                 canAfford ? colors.badge + ' active:scale-95' : 'bg-slate-800 opacity-20 cursor-not-allowed'
               }`}
             >
-              {canAfford ? `正式簽署 LV.${currentLevel + 1} 合約` : '資金或人脈不足'}
+              {canAfford ? '確認能力並準備簽約' : '資金或人脈不足'}
             </button>
           ) : (
             <div className={`flex-1 py-5 rounded-2xl bg-white/5 border border-white/10 text-slate-500 text-center text-[11px] font-black uppercase tracking-[0.3em]`}>
-              Contract Active
+              合約已生效
             </div>
           )}
         </div>
@@ -254,6 +284,7 @@ function TalentCard({
 export default function StoreScreen() {
   const { players, currentPlayerIndex, upgradeRole } = useGameStore();
   const [selectedRole, setSelectedRole] = React.useState<RoleData | null>(null);
+  const [showPayment, setShowPayment] = React.useState(false);
   const player = players[currentPlayerIndex];
 
   if (!player) return null;
@@ -271,15 +302,30 @@ export default function StoreScreen() {
         ))}
       </div>
 
-      {/* 頂層彈窗渲染 */}
-      {selectedRole && (
+      {/* 第一層：任命合約彈窗 */}
+      {selectedRole && !showPayment && (
         <RoleUpgradeModal 
           role={selectedRole} 
           player={player} 
           onClose={() => setSelectedRole(null)}
-          onUpgrade={upgradeRole}
+          onOpenPayment={() => setShowPayment(true)}
+        />
+      )}
+
+      {/* 第二層：支付結算彈窗 */}
+      {selectedRole && showPayment && (
+        <PaymentModal
+          role={selectedRole}
+          player={player}
+          onClose={() => setShowPayment(false)}
+          onConfirm={(splitOG) => {
+            upgradeRole(selectedRole.key, splitOG);
+            setShowPayment(false);
+            setSelectedRole(null);
+          }}
         />
       )}
     </div>
   );
 }
+
