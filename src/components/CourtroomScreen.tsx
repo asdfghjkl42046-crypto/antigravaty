@@ -738,6 +738,7 @@ export default function CourtroomScreen() {
   if (!mounted || !trial) return null;
 
   const defendant = players.find((p) => p.id === trial.defendantId);
+  const [showAttorneySkill, setShowAttorneySkill] = useState(false); // 確保狀態宣告在組件作用域內
   const actingBystander = trial.bystanderIds[trial.actingBystanderIndex]
     ? players.find((p) => p.id === trial.bystanderIds[trial.actingBystanderIndex])
     : null;
@@ -1079,9 +1080,9 @@ export default function CourtroomScreen() {
                 onClose={() => resolveTrial()} 
                 onAppeal={() => extraordinaryAppeal()}
                 onCountdownEnd={() => {
-                  // 如果有律師 LV3 技能，倒數結束不關閉，而是顯示技能
-                  const hasLv3Skill = defendant?.lawyerId === 'lawyer_01'; // 假設 lawyer_01 是王牌律師
-                  if (hasLv3Skill && !isWin) {
+                  // 根據 RoleLevel 判斷是否為王牌律師 (LV3)
+                  const isAceAttorney = defendant?.roles?.lawyer === 3;
+                  if (isAceAttorney && !isWin) {
                     setShowAttorneySkill(true);
                   } else {
                     resolveTrial();
@@ -1095,9 +1096,8 @@ export default function CourtroomScreen() {
                 <div className="fixed inset-x-0 bottom-10 z-[1000] flex justify-center animate-in slide-in-from-bottom-20 duration-500">
                   <button 
                     onClick={() => {
-                      // 觸發律師逆轉技能邏輯
                       console.log("Ace Attorney Skill Activated!");
-                      // 此處應調用對應的技能效果
+                      // 這裡應連動真正的技能執行邏輯
                     }}
                     className="group relative px-12 py-6 bg-cyan-600 rounded-full shadow-[0_0_50px_rgba(6,182,212,0.5)] border-t-2 border-cyan-400 overflow-hidden active:scale-95 transition-all"
                   >
