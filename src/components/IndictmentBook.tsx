@@ -16,18 +16,28 @@ interface IndictmentBookProps {
 /**
  * CountdownClock 組件 - 處理 2s 倒數、圓形進度條與顏色閃爍
  */
-const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void }> = ({
+const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void; isActive: boolean }> = ({
   onComplete,
   onAppeal,
+  isActive,
 }) => {
   const [timeLeft, setTimeLeft] = useState(2.0);
   const [isBright, setIsBright] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimestamp = useRef<number>(Date.now());
+  const startTimestamp = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!isActive) {
+      setTimeLeft(2.0);
+      startTimestamp.current = null;
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    if (!startTimestamp.current) startTimestamp.current = Date.now();
+
     timerRef.current = setInterval(() => {
-      const elapsed = (Date.now() - startTimestamp.current) / 1000;
+      const elapsed = (Date.now() - (startTimestamp.current || Date.now())) / 1000;
       const remaining = Math.max(0, 2.0 - elapsed);
       setTimeLeft(remaining);
       setIsBright((prev) => !prev);
@@ -36,10 +46,11 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void }>
         onComplete();
       }
     }, 100);
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [onComplete]);
+  }, [isActive, onComplete]);
 
   const strokeDashoffset = 251 - (timeLeft / 2.0) * 251;
 
@@ -383,7 +394,11 @@ export default function IndictmentBook({
                 {/* 倒數時鐘直接固化在最後一頁背面 */}
                 {idx === totalPages - 1 && canAppeal && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
-                    <CountdownClock onComplete={() => onClose?.()} onAppeal={() => onAppeal?.()} />
+                    <CountdownClock 
+                      onComplete={() => onClose?.()} 
+                      onAppeal={() => onAppeal?.()} 
+                      isActive={currentPage === totalPages}
+                    />
                   </div>
                 )}
               </div>
