@@ -278,7 +278,8 @@ export class CourtEngine {
    */
   static applyExtraAppeal(player: Player): { success: boolean; updates: Partial<Player> } {
     if (player.hasUsedExtraAppeal) return { success: false, updates: {} };
-    const updatedG = player.g - Math.ceil(player.g * 0.2);
+    const cost = Math.max(100, Math.ceil(player.g * 0.2));
+    const updatedG = player.g - cost;
     const finalG = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
     return {
       success: true,

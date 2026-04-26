@@ -416,7 +416,7 @@ export class GameFlowEngine {
       currentPlayerIndex: newIdx,
       trial: {
         ...trial,
-        stage: 7,
+        stage: 4, // 跳轉回被告答辯 (6張卡片)
         extraAppealUsed: true,
         isAppeal: true,
         isDefenseSuccess: undefined,

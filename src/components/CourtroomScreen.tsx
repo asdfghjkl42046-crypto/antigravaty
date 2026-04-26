@@ -994,7 +994,9 @@ export default function CourtroomScreen() {
               className="w-full py-4 border-2 border-dashed border-red-500/50 text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-3 font-bold uppercase tracking-widest text-sm"
             >
               <RotateCcw size={18} />
-              <span>非常上訴 (-20% 資金)</span>
+              <span>
+                非常上訴 (扣除 {Math.max(100, Math.ceil(defendant.g * 0.2))} 萬 G)
+              </span>
             </button>
           </div>
         )}
