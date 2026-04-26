@@ -588,7 +588,18 @@ export default function CourtroomScreen() {
 
     return (
       <div className="h-full flex flex-col justify-center items-center">
-        <div className="w-full max-w-4xl h-[600px] relative">
+        {/* 權威標題區塊 */}
+        <div
+          className={`mb-12 flex items-center justify-center gap-4 py-8 border-y w-full max-w-4xl ${isWin ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}
+        >
+          <h2
+            className={`text-5xl font-black italic tracking-[0.3em] ${isWin ? 'text-green-400' : 'text-red-400'}`}
+          >
+            {isWin ? '無罪' : '有罪'}
+          </h2>
+        </div>
+
+        <div className="w-full max-w-4xl h-[500px] relative">
           {showActionBtn ? (
             /* 核心行動區域：3D 按鈕與代價提示 */
             <div className="flex flex-col items-center gap-12 animate-in zoom-in duration-500">
