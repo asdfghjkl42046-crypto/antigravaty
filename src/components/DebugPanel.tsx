@@ -116,7 +116,9 @@ export default function DebugPanel() {
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
                   {label}
                 </p>
-                <p className={`text-sm font-black ${color}`}>{String(player[key as keyof typeof player] ?? 0)}</p>
+                <p className={`text-sm font-black ${color}`}>
+                  {String(player[key as keyof typeof player] ?? 0)}
+                </p>
               </div>
               <div className="flex items-center space-x-1">
                 <button
@@ -150,7 +152,9 @@ export default function DebugPanel() {
                 if (currentTrial) {
                   useGameStore.setState({ phase: 'courtroom' });
                 } else {
-                  alert("⚠️ 無法開庭：該玩家目前沒有任何黑材料或犯罪標籤！\n請先讓玩家觸發犯罪行為後再測試法庭。");
+                  alert(
+                    '⚠️ 無法開庭：該玩家目前沒有任何黑材料或犯罪標籤！\n請先讓玩家觸發犯罪行為後再測試法庭。'
+                  );
                 }
               }}
               onMouseDown={(e) => e.stopPropagation()}

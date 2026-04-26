@@ -155,16 +155,16 @@ export function calculateConvictionPenalty(
   // 基礎罰金計算: 本次查獲不法所得的指定倍率
   let fineBeforeDiscount = roundUp(safeIncome * baseMultiplier);
 
-  // 2. 檢查玩家生涯進出法庭的黑歷史 — 累犯階梯倍率 (GEMINI.md §2-2)
+  // 2. 檢查玩家生涯進出法庭的黑歷史 — 累犯階梯倍率
   const trials = player.totalTrials || 0;
   let trialMultiplier = 1.0;
   if (!isPreexisting) {
     if (trials >= 7) {
-      trialMultiplier = 6.0; // 重案累犯：7 次以上被告，罰金 6 倍
+      trialMultiplier = 6.0; // 重案累犯：罰金 6 倍
     } else if (trials >= 4) {
-      trialMultiplier = 3.0; // 中度累犯：4-6 次被告，罰金 3 倍
+      trialMultiplier = 3.0; // 中度累犯：罰金 3 倍
     } else {
-      trialMultiplier = 1.0; // 初犯或輕犯：1-3 次被告，基礎倍率
+      trialMultiplier = 1.0; // 初犯或輕犯：基礎倍率
     }
   }
 

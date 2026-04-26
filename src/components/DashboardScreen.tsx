@@ -22,6 +22,8 @@ import {
 import { useGameStore, MASTERPIECES } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
 import { getTotalBlackMaterials } from '@/engine/PlayerEngine';
+import { formatValue } from '@/engine/MathEngine';
+import { SystemStrings } from '@/data/SystemStrings';
 import type { Player, Tag } from '@/types/game';
 import gsap from 'gsap';
 import DebugPanel from './DebugPanel';
@@ -43,7 +45,15 @@ interface StatDiscProps {
   isLabelWhite?: boolean;
 }
 
-function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLabelWhite }: StatDiscProps) {
+function StatDisc({
+  label,
+  value,
+  subValue,
+  colorClass,
+  onClick,
+  hasArrow,
+  isLabelWhite,
+}: StatDiscProps) {
   // 使用映射表確保所有顏色都能被 Tailwind 靜態掃描編譯
   const colorMap: Record<string, string> = {
     emerald: 'bg-emerald-500',
@@ -110,14 +120,14 @@ function StatDisc({ label, value, subValue, colorClass, onClick, hasArrow, isLab
 /**
  * 玩家卡片組件
  */
-export function PlayerCard({ 
-  player, 
-  isActive, 
-  onShowTags 
-}: { 
-  player: Player; 
-  isActive: boolean; 
-  onShowTags: () => void; 
+export function PlayerCard({
+  player,
+  isActive,
+  onShowTags,
+}: {
+  player: Player;
+  isActive: boolean;
+  onShowTags: () => void;
 }) {
   const bmCount = getTotalBlackMaterials(player);
 
@@ -125,7 +135,8 @@ export function PlayerCard({
     <div
       className={`relative p-4 py-3 rounded-[28px] border-2 backdrop-blur-xl transition-all duration-500 overflow-visible
       ${player.isBankrupt ? 'grayscale opacity-60 pointer-events-none' : ''}
-      ${isActive
+      ${
+        isActive
           ? 'border-amber-400 bg-[#1a1205]/95 shadow-[0_12px_40px_rgba(0,0,0,0.7)]'
           : 'border-white/25 bg-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
       }
@@ -134,7 +145,7 @@ export function PlayerCard({
       {/* 破產提示 */}
       {player.isBankrupt && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-red-600/90 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-lg ring-1 ring-red-400">
-          已清算 LIQUIDATED
+          {SystemStrings.UI_LABELS.STATUS_BANKRUPT}
         </div>
       )}
 
@@ -157,7 +168,10 @@ export function PlayerCard({
             `}
             >
               <img
-                src={MASTERPIECES[player.avatarId]?.url || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player.name}`}
+                src={
+                  MASTERPIECES[player.avatarId]?.url ||
+                  `https://api.dicebear.com/7.x/pixel-art/svg?seed=${player.name}`
+                }
                 alt="Avatar"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -174,7 +188,7 @@ export function PlayerCard({
         </div>
         <div className="text-right">
           <span className="text-[9px] font-bold text-white/70 uppercase mr-1 tracking-widest">
-            行動力
+            {SystemStrings.UI_LABELS.AP}
           </span>
           <span className="text-lg font-black text-purple-400 drop-shadow-[0_0_8px_rgba(192,132,252,0.3)]">
             {player.ap}
@@ -186,16 +200,16 @@ export function PlayerCard({
       {/* 數值圓盤 */}
       <div className="flex items-center justify-between space-x-1.5 mb-2 relative z-10">
         <StatDisc
-          label="資金"
-          value={`${player.g}萬`}
-          subValue={player.trustFund > 0 ? `${player.trustFund}萬` : undefined}
+          label={SystemStrings.UI_LABELS.MONEY}
+          value={formatValue(player.g, SystemStrings.UNITS.MONEY)}
+          subValue={player.trustFund > 0 ? formatValue(player.trustFund, SystemStrings.UNITS.MONEY) : undefined}
           colorClass="text-emerald-400"
         />
-        <StatDisc label="人脈" value={player.ip} colorClass="text-blue-400" />
-        <StatDisc label="名聲" value={player.rp} colorClass="text-yellow-400" />
-        <StatDisc label="黑料" value={bmCount} colorClass="text-red-400" />
+        <StatDisc label={SystemStrings.UI_LABELS.IP} value={player.ip} colorClass="text-blue-400" />
+        <StatDisc label={SystemStrings.UI_LABELS.RP} value={player.rp} colorClass="text-yellow-400" />
+        <StatDisc label={SystemStrings.UI_LABELS.BM} value={bmCount} colorClass="text-red-400" />
         <StatDisc
-          label="前科"
+          label={SystemStrings.UI_LABELS.CONVICTION}
           value={player.tags.length}
           isLabelWhite={true}
           colorClass="text-orange-500"
@@ -236,7 +250,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
   const [showBonusModal, setShowBonusModal] = React.useState(startNotifications.length > 0);
   const [currentBonusIdx, setCurrentBonusIdx] = React.useState(0);
-  
+
   // 前科彈窗狀態
   const [tagViewPlayerIdx, setTagViewPlayerIdx] = React.useState<number | null>(null);
   const [tagViewItemIdx, setTagViewItemIdx] = React.useState(0);
@@ -261,10 +275,13 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   const getAggregatedTags = (playerIdx: number | null) => {
     if (playerIdx === null || !players[playerIdx]) return [];
     const player = players[playerIdx];
-    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: Tag) => {
-      acc[t.text] = (acc[t.text] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const tagCounts = player.tags.reduce(
+      (acc: Record<string, number>, t: Tag) => {
+        acc[t.text] = (acc[t.text] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
     return Object.entries(tagCounts).map(([text, count]) => ({ text, count }));
   };
 
@@ -274,7 +291,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   return (
     <div className="w-full h-full flex flex-col bg-[#020617] text-white overflow-hidden relative font-sans">
       <DebugPanel />
-      
+
       {/* 1. Header: 狀態列 - 增加 mt-safe 避開行動裝置瀏海 */}
       <div className="flex items-center justify-between px-6 pt-4 pb-2 mt-safe duration-500">
         <div className="flex items-center space-x-3">
@@ -323,14 +340,12 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       {/* 🎰 開局加成彈窗 - 輕量化「實體便條」重構版 */}
       {showBonusModal && startNotifications.length > 0 && (
         <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-500">
-          <div 
-            className="relative w-full max-w-sm bg-[#e8e4db] rounded-sm p-10 shadow-[20px_20px_60px_rgba(0,0,0,0.6),-1px_-1px_5px_rgba(255,255,255,0.05)] flex flex-col items-start overflow-hidden border-l-[10px] border-amber-900/10 bg-paper-texture"
-          >
+          <div className="relative w-full max-w-sm bg-[#e8e4db] rounded-sm p-10 shadow-[20px_20px_60px_rgba(0,0,0,0.6),-1px_-1px_5px_rgba(255,255,255,0.05)] flex flex-col items-start overflow-hidden border-l-[10px] border-amber-900/10 bg-paper-texture">
             {/* 數位標註：星際終端掃描細節 */}
             <div className="absolute top-6 right-8 font-mono text-amber-950/20 text-[9px] font-bold tracking-widest uppercase">
               SCAN_ID: ${currentBonusIdx + 1}/${startNotifications.length}
             </div>
-            
+
             <div className="flex flex-col mb-10 z-10 w-full">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-[2px] bg-amber-900/30" />
@@ -345,7 +360,10 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
             {/* 加成內容區：墨水質感 */}
             <div className="w-full mb-12 min-h-[160px] z-10">
-              <div key={currentBonusIdx} className="w-full transition-all animate-in slide-in-from-left-4 duration-500">
+              <div
+                key={currentBonusIdx}
+                className="w-full transition-all animate-in slide-in-from-left-4 duration-500"
+              >
                 <div className="flex flex-col border-y border-amber-900/5 py-8">
                   <p className="text-xl font-serif font-bold text-[#3c2a1c]/90 leading-relaxed tracking-tight whitespace-pre-line italic">
                     「{startNotifications[currentBonusIdx]}」
@@ -366,9 +384,11 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               }}
               className="w-full bg-[#1a110b] hover:bg-black active:scale-[0.98] text-[#e8e4db] font-black py-5 rounded-sm transition-all shadow-xl flex items-center justify-center space-x-3 text-sm tracking-[0.5em] uppercase border-t border-white/5"
             >
-              <span>{currentBonusIdx < startNotifications.length - 1 ? 'NEXT_PAGE' : 'ACKNOWLEDGE'}</span>
+              <span>
+                {currentBonusIdx < startNotifications.length - 1 ? 'NEXT_PAGE' : 'ACKNOWLEDGE'}
+              </span>
             </button>
-            
+
             {/* 底部物理細節 */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-900/10" />
           </div>
@@ -380,17 +400,16 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/95 animate-in fade-in duration-300">
           <div className="relative w-full max-w-sm bg-[#0a0a0b] border-l border-t border-white/5 p-10 shadow-[0_0_100px_rgba(0,0,0,1)] flex flex-col items-start overflow-hidden">
             {/* 數位掃描格線層 */}
-            <div 
-              className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none bg-noir-pinstripe"
-            />
-            
+            <div className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none bg-noir-pinstripe" />
+
             {/* 星際終端螢光溢邊 */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-orange-600/60 via-transparent to-transparent" />
             <div className="absolute top-0 left-0 w-[1px] h-32 bg-gradient-to-b from-orange-600/40 to-transparent" />
 
             {/* 右上角受控變數：機密流水號 */}
             <div className="absolute top-8 right-8 font-mono text-orange-600/30 text-[10px] font-black tracking-widest bg-orange-600/5 px-2 py-1 border border-orange-600/10">
-              RAP_SHEET: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0}/{currentViewTags.length}
+              RAP_SHEET: {currentViewTags.length > 0 ? tagViewItemIdx + 1 : 0}/
+              {currentViewTags.length}
             </div>
 
             {/* 頂部資訊區：硬派左對齊 */}
@@ -412,7 +431,10 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
             {/* 標籤顯示：類比式排版 */}
             <div className="w-full mb-12 min-h-[160px] z-10">
               {currentViewTags.length > 0 ? (
-                <div key={tagViewItemIdx} className="w-full group animate-in slide-in-from-left-4 duration-500">
+                <div
+                  key={tagViewItemIdx}
+                  className="w-full group animate-in slide-in-from-left-4 duration-500"
+                >
                   <div className="flex flex-col border-l-2 border-orange-600/20 pl-6 py-2">
                     <span className="text-[10px] font-black text-orange-600/50 uppercase tracking-[0.3em] mb-4">
                       Charge_Protocol_ID.64
@@ -420,7 +442,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                     <span className="text-3xl font-black text-white/90 tracking-tight mb-8 leading-none">
                       {currentViewTags[tagViewItemIdx].text}
                     </span>
-                    
+
                     {currentViewTags[tagViewItemIdx].count > 1 && (
                       <div className="inline-flex items-center gap-3 px-3 py-2 bg-orange-950/20 border border-orange-600/20 w-max">
                         <span className="text-[9px] font-black text-orange-600/80 uppercase tracking-widest">
@@ -447,14 +469,18 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               {currentViewTags.length > 1 && (
                 <div className="w-full space-y-3">
                   <div className="flex justify-between items-center px-1">
-                    <span className="text-[9px] font-black text-orange-600/40 uppercase tracking-widest">Quick_Browse</span>
-                    <span className="text-[9px] font-mono text-orange-600/60 font-bold italic">POS: {tagViewItemIdx + 1} / {currentViewTags.length}</span>
+                    <span className="text-[9px] font-black text-orange-600/40 uppercase tracking-widest">
+                      Quick_Browse
+                    </span>
+                    <span className="text-[9px] font-mono text-orange-600/60 font-bold italic">
+                      POS: {tagViewItemIdx + 1} / {currentViewTags.length}
+                    </span>
                   </div>
                   <div className="relative h-6 flex items-center">
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max={currentViewTags.length - 1} 
+                    <input
+                      type="range"
+                      min="0"
+                      max={currentViewTags.length - 1}
                       value={tagViewItemIdx}
                       onChange={(e) => setTagViewItemIdx(parseInt(e.target.value))}
                       className="w-full h-1 bg-white/5 rounded-lg appearance-none cursor-pointer accent-orange-600 hover:accent-orange-500 transition-all"
@@ -476,7 +502,9 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 }}
                 className="w-full bg-transparent hover:bg-orange-600/10 border border-orange-600/30 text-orange-500 font-black py-5 transition-all flex items-center justify-center space-x-3 text-sm tracking-[0.4em] uppercase"
               >
-                <span>{tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}</span>
+                <span>
+                  {tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}
+                </span>
               </button>
             </div>
           </div>
@@ -488,10 +516,10 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         {activeTab === 'home' ? (
           <div className="space-y-2 duration-500">
             {players.map((player, idx) => (
-              <PlayerCard 
-                key={player.id} 
-                player={player} 
-                isActive={idx === currentPlayerIndex} 
+              <PlayerCard
+                key={player.id}
+                player={player}
+                isActive={idx === currentPlayerIndex}
                 onShowTags={() => {
                   setTagViewPlayerIdx(idx);
                   setTagViewItemIdx(0);
@@ -554,10 +582,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
       {/* [新增] 場外押注結算彈窗 - 這是結算流程的最後一環 */}
       {pendingBetResolution && !pendingResolution && phase === 'play' && (
-        <BetResolutionOverlay
-          bets={pendingBetResolution}
-          onClose={clearBetResolution}
-        />
+        <BetResolutionOverlay bets={pendingBetResolution} onClose={clearBetResolution} />
       )}
     </div>
   );

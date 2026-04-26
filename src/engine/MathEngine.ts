@@ -3,19 +3,14 @@
  * 負責處理遊戲中最基本的數學計算（如進位）與資料加密。
  */
 
-/**
- * 無條件進位
- * 只要計算結果有小數點，一律往上加 1（例如 220.1 變成 221）。
- */
 import { throwNumericalCheckError } from './errors/EngineErrors';
 import type { MoneyValue } from '../types/game';
 
 /**
- * 進位高手：只要有零頭，一律往上加 1
- * 這是為了確保玩家在算罰金或名聲損失時，系統採取最嚴格的標準。
+ * 進位高手：只要有小數點零頭，一律往上加到整數
+ * 主要用於計算名聲 (RP) 與技術 (IP) 損失，確保數值呈現為整數。
  */
 export function roundUp(num: number): number {
-  // 核心邊界防禦：攔截任何可能導致 NaN 傳播的非法傳入值
   if (num === undefined || num === null || Number.isNaN(Number(num))) {
     throwNumericalCheckError(
       'MathEngine.roundUp',
@@ -26,13 +21,26 @@ export function roundUp(num: number): number {
 }
 
 /**
+ * 資金對齊：進位 (10萬)
+ * 用於收益、罰金、規費，確保不產生 1~9 萬的殘值。
+ */
+export function alignToTenCeil(num: number): number {
+  return Math.ceil(Math.round(num * 1e6) / 1e7) * 10;
+}
+
+/**
+ * 資金對齊：捨去 (10萬)
+ * 用於海外信託轉移，不足 10 萬則為 0 萬。
+ */
+export function alignToTenFloor(num: number): number {
+  return Math.floor(Math.round(num * 1e6) / 1e7) * 10;
+}
+
+/**
  * 產生防偽指紋
- * 幫每一筆紀錄產生獨一無二的加密碼，防止資料被偷偷修改。
  */
 export async function sha256(message: string): Promise<string> {
-  // 檢查 Web Crypto API 是否可用。在非 HTTPS 或舊版環境中，crypto.subtle 為 undefined。
   if (typeof crypto === 'undefined' || !crypto.subtle) {
-    console.warn('[MathEngine] Web Crypto API 不可用，已自動切換至純 JS 後備雜湊方案。');
     return fallbackSha256(message);
   }
 
@@ -42,15 +50,10 @@ export async function sha256(message: string): Promise<string> {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   } catch (err: unknown) {
-    console.error('[MathEngine] 原生 sha256 計算失敗，嘗試使用後備方案。', err);
     return fallbackSha256(message);
   }
 }
 
-/**
- * 純 JS 實作的 SHA-256 後備方案 (用於開發環境或非 HTTPS 模式)
- * 此實作為確保系統在任何環境下皆能維護雜湊鏈完整性。
- */
 function fallbackSha256(message: string): string {
   const utf8 = new TextEncoder().encode(message);
   const h = new Uint32Array([
@@ -119,19 +122,26 @@ function fallbackSha256(message: string): string {
     .join('');
 }
 
-/**
- * 獎勵解析器
- * 有些卡片獎勵是隨機範圍（像 [10, 20]），這邊會幫你抽出一個真正的數字。
- */
 export function resolveMoneyValue(value: MoneyValue | undefined): number {
   if (value === undefined) return 0;
   if (typeof value === 'number') return value;
   if (Array.isArray(value) && value.length === 2) {
     const [min, max] = value;
     const range = max - min;
-    const step = 10; // 公差從 1 改為 10
+    const step = 10;
     const steps = Math.floor(range / step);
     return Math.floor(Math.random() * (steps + 1)) * step + min;
   }
   return 0;
+}
+
+/**
+ * UI 格式化工具：統一處理數值正負號與繁體中文單位
+ * @param forceShowPlus 是否強制顯示正號 (用於顯示變動量)
+ */
+export function formatValue(val: number, unit: string = '', forceShowPlus: boolean = false): string {
+  const isNegative = val < 0;
+  const absVal = Math.abs(val);
+  const sign = isNegative ? '-' : (forceShowPlus && val > 0 ? '+' : '');
+  return `${sign}${absVal}${unit}`;
 }

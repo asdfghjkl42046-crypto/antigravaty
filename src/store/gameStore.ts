@@ -275,12 +275,36 @@ export const useGameStore = create<GameStore>()(
 
       withdrawCase: () => {
         const updates = GameFlowEngine.handleWithdrawCase(get());
-        set(updates);
+        const { result, resultDiffs, ...stateUpdates } = updates;
+        
+        if (result.success && resultDiffs) {
+          set({
+            pendingResolution: {
+              title: '強制撤告結算',
+              message: result.message,
+              diffs: resultDiffs,
+              type: 'success'
+            }
+          });
+        }
+        set(stateUpdates);
       },
 
       extraordinaryAppeal: () => {
         const updates = GameFlowEngine.handleExtraordinaryAppeal(get());
-        set(updates);
+        const { result, resultDiffs, ...stateUpdates } = updates;
+
+        if (result.success && resultDiffs) {
+          set({
+            pendingResolution: {
+              title: '啟動非常上訴',
+              message: result.message,
+              diffs: resultDiffs,
+              type: 'success'
+            }
+          });
+        }
+        set(stateUpdates);
       },
 
       resolveTrial: () => {

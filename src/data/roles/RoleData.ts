@@ -6,6 +6,11 @@ import type { RoleType } from '../../types/game';
  * 角色能力資料庫
  * 定義了律師、公關、會計、技術長各等級的能力與顏色。
  */
+export const ROLE_UPGRADE_COST = {
+  g: 100,  // 升級所需的資金 (100萬)
+  ip: 100, // 升級所需的技術點數 (100點)
+};
+
 export const ROLE_DATA: {
   key: RoleType;
   name: string;
@@ -28,7 +33,7 @@ export const ROLE_DATA: {
       },
       {
         type: '主動',
-        desc: '隻手遮天：砸下總資產 20%（至少 100 萬）+ 5 IP，讓對方乖乖撤案',
+        desc: '隻手遮天：扣除大筆資金(保底100萬) + 5 IP，讓對方強制撤案',
       },
     ],
   },
@@ -51,11 +56,11 @@ export const ROLE_DATA: {
     icon: Calculator,
     color: 'emerald',
     levels: [
-      { type: '被動', desc: '稅務優化：商業類卡片的資金收益，每一份都再多賺 10%' },
-      { type: '被動', desc: '罰單打折：法院開出的罰單不用全買單，敗訴罰金直接砍半' },
+      { type: '被動', desc: '稅務優化：增加商業類卡片獲得資金的金額' },
+      { type: '被動', desc: '罰單打折：有效減少法院罰金的支出' },
       {
         type: '被動',
-        desc: '合法避稅：連續 2 回合保持清白後，悄悄將 10% 資金轉入海外信託(最多1000萬)',
+        desc: '合法避稅：連續 2 回合保持清白後，將部分現金轉入海外信託(最低單位10萬)',
       },
     ],
   },

@@ -3,6 +3,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Coins, TrendingUp, TrendingDown, Users } from 'lucide-react';
 import gsap from 'gsap';
+import { formatValue } from '@/engine/MathEngine';
+import { SystemStrings } from '@/data/SystemStrings';
 
 interface BetResult {
   playerId: string;
@@ -73,7 +75,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
                   <TrendingDown className="w-4 h-4 text-red-400" />
                 )}
                 <span className={`text-lg font-black ${bet.amount >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {bet.amount >= 0 ? '+' : ''}{bet.amount} {bet.type === 'ip' ? 'IP 人脈' : bet.type === 'rp' ? 'RP 名聲' : '萬 G'}
+                  {formatValue(bet.amount, bet.type === 'ip' ? SystemStrings.UNITS.IP : bet.type === 'rp' ? SystemStrings.UNITS.RP : SystemStrings.UNITS.MONEY, true)}
                 </span>
               </div>
             </div>
@@ -89,7 +91,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           onClick={handleClose}
           className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs tracking-[0.3em] rounded-2xl transition-all active:scale-95 shadow-lg shadow-amber-500/20"
         >
-          COLLECT REWARDS
+          {SystemStrings.UI_LABELS.ACKNOWLEDGE}
         </button>
       </div>
     </div>

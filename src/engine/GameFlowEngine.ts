@@ -421,18 +421,19 @@ export class GameFlowEngine {
   /**
    * 處理律師撤案
    */
-  static handleWithdrawCase(state: GameStateData): Partial<GameStateData> {
+  static handleWithdrawCase(state: GameStateData): Partial<GameStateData> & { result: any; resultDiffs: any } {
     const { trial, players, turn } = state;
-    if (!trial) return {};
+    if (!trial) return { result: { success: false, message: '查無案件' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
     const idx = players.findIndex((p) => p.id === trial.defendantId);
-    if (idx === -1) return {};
+    if (idx === -1) return { result: { success: false, message: '查無當事人' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
 
+    const tagText = Array.isArray(trial.lawCase.tag) ? trial.lawCase.tag.join('/') : trial.lawCase.tag;
     const res = CourtEngine.applyWithdrawCase(
       players[idx],
-      trial.lawCase.tag,
+      tagText,
       trial.lawCaseTagId || 0
     );
-    if (!res.success) return {};
+    if (!res.success) return { result: { success: false, message: res.message }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
 
     const final = { ...players[idx], ...res.updates };
     const statusRes = resolveGameStatus(final, turn);
@@ -446,39 +447,41 @@ export class GameFlowEngine {
       phase: statusRes.isGameOver ? statusRes.phase : 'play',
       trial: null,
       endingResult: statusRes.endingResult,
+      result: {
+        success: true,
+        message: res.message,
+      },
+      resultDiffs: res.diffs,
     };
   }
 
   /**
    * 處理非常上訴
    */
-  static handleExtraordinaryAppeal(state: GameStateData): Partial<GameStateData> {
-    const { trial, players, turn } = state;
-    if (!trial || trial.extraAppealUsed) return {};
+  static handleExtraordinaryAppeal(state: GameStateData): Partial<GameStateData> & { result: any; resultDiffs: any } {
+    const { trial, players } = state;
+    if (!trial) return { result: { success: false, message: '查無案件' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
     const idx = players.findIndex((p) => p.id === trial.defendantId);
-    if (idx === -1) return {};
+    if (idx === -1) return { result: { success: false, message: '查無當事人' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
 
     const res = CourtEngine.applyExtraAppeal(players[idx]);
-    if (!res.success) return {};
+    if (!res.success) return { result: { success: false, message: res.message }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
 
-    const updated = [...players];
-    updated[idx] = { ...updated[idx], ...res.updates };
-
-    const sorted = sortTurnOrder(updated, turn);
-    const newIdx = sorted.findIndex((p: Player) => p.id === trial.defendantId);
+    const updatedPlayers = [...players];
+    updatedPlayers[idx] = { ...players[idx], ...res.updates };
 
     return {
-      players: sorted,
-      currentPlayerIndex: newIdx,
+      players: updatedPlayers,
       trial: {
         ...trial,
-        stage: 4, // 跳轉回被告答辯 (6張卡片)
-        extraAppealUsed: true,
-        isAppeal: true,
-        isDefenseSuccess: undefined,
         isReady: false,
         timer: 0,
       },
+      result: {
+        success: true,
+        message: '非常上訴程序啟動！',
+      },
+      resultDiffs: res.diffs,
     };
   }
 }

@@ -22,6 +22,7 @@ import {
 import { AIEngine } from './AIEngine';
 import {
   getWithdrawCaseCost,
+  getExtraAppealCost,
   getLawyerDefenseBonus,
   applyPRDiscount,
   getRoleLevel,
@@ -256,19 +257,46 @@ export class CourtEngine {
    * 律師大絕招：『撤銷控訴』
    * 如果律師等級夠高且錢夠多，可以直接把這條官司「搓掉」。
    */
-  static applyWithdrawCase(player: Player, lawCaseTag: string | string[], lawCaseTagId: number): { success: boolean; updates: Partial<Player> } {
-    const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
+  static applyWithdrawCase(
+    player: Player,
+    tag: string,
+    tagId: number
+  ): { success: boolean; message: string; updates: Partial<Player>; diffs?: NumericalDiffs } {
+    if (getRoleLevel(player, 'lawyer') < 3) {
+      return { success: false, message: '您的律師等級不足以發動「強制撤告」。', updates: {} };
+    }
+
     const cost = getWithdrawCaseCost(player);
-    if (player.g < cost.g || player.ip < cost.ip) return { success: false, updates: {} };
-    const updatedG = player.g - cost.g;
-    const finalG = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
+    const totalRequiredG = cost.g;
+    const canAfford = player.g + (player.trustFund || 0) >= totalRequiredG;
+
+    if (!canAfford) {
+      return { success: false, message: '您的資金不足以支付強制撤告的規費。', updates: {} };
+    }
+
+    // 優先扣除海外信託
+    const ogDeduct = Math.min(player.trustFund || 0, totalRequiredG);
+    const gDeduct = totalRequiredG - ogDeduct;
+
+    const oldBMCount = player.blackMaterialSources?.length || 0;
+    const updatedBM = removeBlackMaterialsByTag(player, tag, tagId);
+    const removedCount = oldBMCount - updatedBM.length;
+
     return {
       success: true,
+      message: `強制撤告成功！清理了 ${removedCount} 件相關黑材料。`,
       updates: {
-        g: finalG,
-        ip: Math.max(0, player.ip - cost.ip),
-        blackMaterialSources: removeBlackMaterialsByTag(player, tagText, lawCaseTagId),
-        tags: player.tags.map((t) => (t.id === lawCaseTagId ? { ...t, isResolved: true } : t)),
+        g: player.g - gDeduct,
+        trustFund: (player.trustFund || 0) - ogDeduct,
+        blackMaterialSources: updatedBM,
+        tags: player.tags.map((t) => (t.id === tagId ? { ...t, isResolved: true } : t)),
+      },
+      diffs: {
+        g: -gDeduct,
+        trust: -ogDeduct,
+        rp: 0,
+        ip: 0,
+        bm: -removedCount,
       },
     };
   }
@@ -277,17 +305,33 @@ export class CourtEngine {
    * 最後希望：『非常上訴』
    * 輸了官司後，還有一次機會可以花大錢重審，但一輩子只能用一次。
    */
-  static applyExtraAppeal(player: Player): { success: boolean; updates: Partial<Player> } {
-    if (player.hasUsedExtraAppeal) return { success: false, updates: {} };
-    const cost = Math.max(100, Math.ceil(player.g * 0.2));
-    const updatedG = player.g - cost;
-    const finalG = player.trustFund > 0 ? Math.max(0, updatedG) : updatedG;
+  static applyExtraAppeal(player: Player): { success: boolean; message: string; updates: Partial<Player>; diffs?: NumericalDiffs } {
+    if (player.hasUsedExtraAppeal) return { success: false, message: '您已使用過非常上訴程序，無法再次申請。', updates: {} };
+    
+    const totalRequiredG = getExtraAppealCost(player);
+    const canAfford = player.g + (player.trustFund || 0) >= totalRequiredG;
+    
+    if (!canAfford) return { success: false, message: '您的資金不足以支付非常上訴的規費。', updates: {} };
+
+    // 優先扣除海外信託
+    const ogDeduct = Math.min(player.trustFund || 0, totalRequiredG);
+    const gDeduct = totalRequiredG - ogDeduct;
+
     return {
       success: true,
+      message: '非常上訴已啟動，案件重回旁聽干預階段。',
       updates: {
-        g: finalG,
+        g: player.g - gDeduct,
+        trustFund: (player.trustFund || 0) - ogDeduct,
         hasUsedExtraAppeal: true,
       },
+      diffs: {
+        g: -gDeduct,
+        trust: -ogDeduct,
+        rp: 0,
+        ip: 0,
+        bm: 0
+      }
     };
   }
 

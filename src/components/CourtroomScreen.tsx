@@ -3,10 +3,17 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { gsap } from 'gsap';
-import { ChevronRight, ChevronLeft, RotateCcw, Scale } from 'lucide-react';
+import { ChevronRight, ChevronLeft, RotateCcw, Scale, ShieldCheck } from 'lucide-react';
 import { LawCase, Player } from '../types/game';
 import { calculateSpectatorInfluence } from '../engine/MechanicsEngine';
-import { getLawyerDefenseBonus, getRoleLevel } from '../engine/RoleEngine';
+import {
+  getLawyerDefenseBonus,
+  getRoleLevel,
+  getExtraAppealCost,
+  getWithdrawCaseCost,
+} from '../engine/RoleEngine';
+import { formatValue } from '../engine/MathEngine';
+import { SystemStrings } from '../data/SystemStrings';
 
 /**
  * CourtroomScreen - 沉浸式法庭介面
@@ -361,8 +368,7 @@ const PaperFlip: React.FC<{
         {/* Layer 1: 當前靜態頁 (Base N) - zIndex 10，往前翻時隱藏 */}
         {(() => {
           const isFlippingForward =
-            (targetPage !== null && targetPage > currentPage) ||
-            (dragOffset > 0);
+            (targetPage !== null && targetPage > currentPage) || dragOffset > 0;
           return !isFlippingForward ? (
             <div className="absolute inset-0 z-[10]">{renderPage(currentPage)}</div>
           ) : null;
@@ -529,7 +535,7 @@ const DefenseCarousel: React.FC<{
     const delta = currentX - startX.current;
     // 累計位移，用於判定是拖曳還是點擊
     dragTotalDist.current = Math.max(dragTotalDist.current, Math.abs(delta));
-    
+
     // 靈敏度下調至 0.3，避免過於輕飄，操作更精準
     const nextRot = startRotation.current + delta * 0.3;
     setRotation(nextRot);
@@ -620,7 +626,6 @@ const DefenseCarousel: React.FC<{
                   </div>
                 </div>
 
-
                 {/* 裝飾線條 */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500/20" />
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-slate-800" />
@@ -680,6 +685,7 @@ export default function CourtroomScreen() {
     submitDefense,
     resolveTrial,
     extraordinaryAppeal,
+    withdrawCase,
   } = useGameStore();
 
   const [mounted, setMounted] = useState(false);
@@ -791,14 +797,15 @@ export default function CourtroomScreen() {
     // 計算當前勝率
     const defendantPlayer = players.find((p) => p.id === trial.defendantId);
     const hasLawyerLv2 = defendantPlayer ? getRoleLevel(defendantPlayer, 'lawyer') >= 2 : false;
-    
+
     const baseRate = trial.lawCase.survival_rate || 0;
     const influence = calculateSpectatorInfluence(trial.interventions, hasLawyerLv2);
     const bonus = defendantPlayer ? getLawyerDefenseBonus(defendantPlayer) : 0;
     const totalRate = Math.max(0, Math.min(1, baseRate + influence + bonus));
 
     // 檢查查看權限：當前旁觀者是否有王牌律師 LV2，或者被告本人具備 LV2 實力開放情報分享
-    const canSeeRate = (actingBystander && getRoleLevel(actingBystander, 'lawyer') >= 2) || hasLawyerLv2;
+    const canSeeRate =
+      (actingBystander && getRoleLevel(actingBystander, 'lawyer') >= 2) || hasLawyerLv2;
 
     return (
       <div className="h-full flex flex-col">
@@ -903,6 +910,30 @@ export default function CourtroomScreen() {
           </div>
         )}
 
+        {/* 王牌律師 LV3：強制撤告特權 */}
+        {getRoleLevel(defendant, 'lawyer') >= 3 && (
+          <div className="absolute top-20 right-5 z-[20] animate-in fade-in zoom-in duration-700">
+            <button
+              onClick={() => {
+                if (window.confirm(`確定要花費 ${formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)} 發動「${SystemStrings.UI_LABELS.WITHDRAW_CASE}」嗎？`)) {
+                  withdrawCase();
+                }
+              }}
+              className="flex flex-col items-end group"
+            >
+              <div className="text-[10px] text-amber-500 font-black tracking-widest uppercase mb-1 group-hover:text-amber-400 transition-colors">
+                律師特權: {SystemStrings.UI_LABELS.WITHDRAW_CASE}
+              </div>
+              <div className="px-4 py-2 bg-amber-600/20 border border-amber-500/50 rounded-lg backdrop-blur-md flex items-center gap-2 group-hover:bg-amber-600/30 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                <ShieldCheck size={16} className="text-amber-400" />
+                <span className="text-sm font-black text-white italic">
+                  支付 {formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)} 結案
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
+
         <div className="flex-grow flex items-center justify-center pt-2">
           <DefenseCarousel
             lawCase={trial.lawCase}
@@ -936,6 +967,7 @@ export default function CourtroomScreen() {
 
     const mainVerdictText = webJudgment || trial.judgment;
     const fullText = `${mainVerdictText}${eduText ? `\n\n【法制教育】\n${eduText}` : ''}${!isWin && trial.punishmentDetail ? `\n\n【裁罰結果】\n${trial.punishmentDetail}` : ''}`;
+    const appealCost = defendant ? getExtraAppealCost(defendant) : 100;
 
     return (
       <div className="h-full flex flex-col">
@@ -994,9 +1026,7 @@ export default function CourtroomScreen() {
               className="w-full py-4 border-2 border-dashed border-red-500/50 text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-3 font-bold uppercase tracking-widest text-sm"
             >
               <RotateCcw size={18} />
-              <span>
-                非常上訴 (扣除 {Math.max(100, Math.ceil(defendant.g * 0.2))} 萬 G)
-              </span>
+              <span>{SystemStrings.UI_LABELS.APPEAL} (扣除 {formatValue(appealCost, SystemStrings.UNITS.MONEY)})</span>
             </button>
           </div>
         )}

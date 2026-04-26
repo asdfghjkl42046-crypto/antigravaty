@@ -16,7 +16,7 @@ import type {
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
-import { sha256, resolveMoneyValue } from './MathEngine';
+import { sha256, resolveMoneyValue, alignToTenCeil } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP, applyPRDiscount } from './RoleEngine';
 import { SystemStrings } from '../data/SystemStrings';
@@ -262,6 +262,9 @@ export async function performAction(
     let costToDeduct = opt.costG || 0;
     // 如果玩家選擇了申報，課徵 50 萬手續費
     if (isDeclaration) costToDeduct += 50;
+    
+    // [防禦性修正] 確保最終成本對齊 10 萬基準
+    costToDeduct = alignToTenCeil(costToDeduct);
 
     // 身家過低拒絕服務
     if (player.g < costToDeduct) {

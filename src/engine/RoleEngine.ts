@@ -4,7 +4,7 @@
  */
 
 import type { Player, RoleType } from '../types/game';
-import { roundUp } from './MathEngine';
+import { roundUp, alignToTenCeil, alignToTenFloor } from './MathEngine';
 import { SYSTEM_MESSAGES } from '../data/system/SystemMessages';
 
 // ============================================================
@@ -45,7 +45,7 @@ export function applyRoleUpgrade(player: Player, role: RoleType, splitOG: number
   const totalCostG = 100;
   const costIP = 100;
 
-  // 根據滑桿分配計算兩邊各需扣除多少
+  // 根據滑桿分配計算兩邊各需扣除多少 (最小單位為 10 萬)
   const deductionOG = Math.max(0, Math.min(player.trustFund, splitOG, totalCostG));
   const deductionG = Math.max(0, totalCostG - deductionOG);
 
@@ -100,11 +100,12 @@ export function getWithdrawCaseCost(player: Player): { g: number; ip: number } {
   if (player.g === undefined || Number.isNaN(player.g)) {
     throwNumericalCheckError(
       'RoleEngine.getWithdrawCaseCost',
-      `玩家資金 (g) 為非法數值: ${player.g}`
+      `彈出視窗資金 (g) 為非法數值: ${player.g}`
     );
   }
+  // 規費計算：20% 資金或保底 100 萬 (取其大者)，尾數不滿 10 萬則進位
   return {
-    g: Math.max(100, roundUp(player.g * 0.2)),
+    g: Math.max(100, alignToTenCeil(player.g * 0.2)),
     ip: 5, // 固定另加消耗 5 點公關人脈進行打點疏通
   };
 }
@@ -121,10 +122,10 @@ export function canWithdrawCase(player: Player): boolean {
 
 /**
  * 計算敗訴後「非常上訴」重啟審判的法庭規費
- * 需扣除總資金的 20%
+ * 需扣除總資金的 20%，並設有 100 萬保底，尾數不滿 10 萬則進位
  */
 export function getExtraAppealCost(player: Player): number {
-  return roundUp(player.g * 0.2);
+  return Math.max(100, alignToTenCeil(player.g * 0.2));
 }
 
 // 公關經理 (PR) - 負責保護名聲與處理媒體輿論
@@ -172,13 +173,14 @@ export function getPRAutoRP(player: Player): number {
 
 /**
  * 資深會計師 LV1：合法作帳
- * 執行 A 或 D 類商業卡牌賺錢時，靠著節稅自動多出 10% 利潤
+ * 執行 A 或 D 類商業卡牌賺錢時，靠著節稅自動增加獲得資金的金額
  */
 export function applyAccountantBonus(player: Player, cardId: string, gGain: number): number {
   if (gGain <= 0) return gGain; // 虧錢的交易不作帳
   const isAD = cardId.startsWith('A-') || cardId.startsWith('D-');
   if (isAD && getRoleLevel(player, 'accountant') >= 1) {
-    return roundUp(gGain * 1.1); // 回傳增值 10% 之後的最終帳面獲益
+    // 增加獲得資金的金額，尾數不滿 10 萬則進位
+    return alignToTenCeil(gGain * 1.1); // 回傳增值後的最終帳面獲益
   }
   return gGain;
 }
@@ -189,14 +191,15 @@ export function applyAccountantBonus(player: Player, cardId: string, gGain: numb
  */
 export function applyAccountantCourtDiscount(player: Player, fine: number): number {
   if (getRoleLevel(player, 'accountant') >= 2) {
-    return roundUp(fine / 2); // 例如原判決沒收 300 萬，經過做帳變成只查到 150 萬
+    // 法院罰款減免，尾數不滿 10 萬則進位
+    return alignToTenCeil(fine / 2); // 例如原判決沒收 300 萬，經過做帳變成只查到 150 萬
   }
   return fine;
 }
 
 /**
  * 資深會計師 LV3：海外信託
- * 只要連續 2 回合安份守己沒有增加黑歷史，每回合會自動把 10% 現金洗進破產法管不到的海外信託裡
+ * 只要連續 2 回合安份守己沒有增加黑歷史，每回合會自動把部分現金洗進破產法管不到的海外信託裡
  */
 export function calculateTrustTransfer(player: Player): number {
   if (getRoleLevel(player, 'accountant') < 3) return 0;
@@ -206,8 +209,9 @@ export function calculateTrustTransfer(player: Player): number {
   const maxTransfer = 1000 - player.trustFund;
   if (maxTransfer <= 0) return 0; // 金庫存滿了就不再搬移以免露餡
 
-  // 比較「身上現金一成」與「剩餘信託額度極限空間」，取其小者作為本次安全轉移金匯出
-  return Math.min(roundUp(player.g * 0.1), maxTransfer);
+  // 確保每次轉的金額都是 10 萬的倍數，若不足 10 萬則捨去為 0 萬 (不執行轉移)
+  const transferAmount = alignToTenFloor(player.g * 0.1);
+  return Math.min(transferAmount, maxTransfer);
 }
 
 // 技術長 (CTO) - 負責自動化產能與黑客收入
