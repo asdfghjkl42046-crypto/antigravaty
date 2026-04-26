@@ -62,6 +62,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
 
   // 初始化所有頁面的 GSAP transform（只跑一次，之後完全由 GSAP 控制）
   useEffect(() => {
+    // 初始化頁面
     pageRefs.current.forEach((el, idx) => {
       if (!el) return;
       gsap.set(el, {
@@ -69,6 +70,10 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         z: (pages.length - idx) * 20,
       });
     });
+    // 初始化封面（關閉狀態）
+    if (coverRef.current) {
+      gsap.set(coverRef.current, { rotationY: -5, z: 120 });
+    }
   }, [pages.length]);
 
   // --- 核心交互邏輯 ---
@@ -81,9 +86,9 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const deltaX = e.clientX - dragStartX.current;
-    if (currentPage === 0 && deltaX > 0) return;
 
     if (!isCoverOpened) {
+      // 封面未開：左滑預覽開封面
       if (deltaX < 0) {
         const rot = Math.max(-180, (deltaX / 300) * 180);
         if (coverRef.current)
@@ -92,19 +97,42 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     } else {
       if (Math.abs(deltaX) > 20) {
         const isForward = deltaX < 0;
-        if (isForward && currentPage >= totalPages) return;
-        const targetIdx = isForward ? currentPage : currentPage - 1;
-        const target = pageRefs.current[targetIdx];
-        if (target) {
-          setFlippingIndex(targetIdx);
-          const startRot = isForward ? -5 : -160;
-          const rot = startRot + (deltaX / 300) * 155;
-          gsap.to(target, {
-            rotationY: Math.min(-5, Math.max(-160, rot)),
-            z: 50,
-            duration: 0.1,
-            overwrite: true,
-          });
+        const cur = currentPageRef.current;
+
+        // 往前翻（左滑）：拖動當前頁
+        if (isForward) {
+          if (cur >= totalPages) return;
+          const target = pageRefs.current[cur];
+          if (target) {
+            setFlippingIndex(cur);
+            const rot = -5 + (deltaX / 300) * 155;
+            gsap.to(target, {
+              rotationY: Math.max(-160, Math.min(-5, rot)),
+              z: 50,
+              duration: 0.1,
+              overwrite: true,
+            });
+          }
+        } else {
+          // 往回翻（右滑）：cur === 0 時拖封面，否則拖上一頁
+          if (cur === 0) {
+            // 從第一頁往右滑 → 預覽關閉封面（封面從 -180 往後）
+            const rot = Math.min(-5, -180 + ((-deltaX) / 300) * 175);
+            if (coverRef.current)
+              gsap.to(coverRef.current, { rotationY: rot, z: 120, duration: 0.1, overwrite: true });
+          } else {
+            const target = pageRefs.current[cur - 1];
+            if (target) {
+              setFlippingIndex(cur - 1);
+              const rot = -160 + ((-deltaX) / 300) * 155;
+              gsap.to(target, {
+                rotationY: Math.min(-5, Math.max(-160, rot)),
+                z: 50,
+                duration: 0.1,
+                overwrite: true,
+              });
+            }
+          }
         }
       }
     }
@@ -128,36 +156,51 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     } else {
       if (Math.abs(deltaX) > 80) {
         const isForward = deltaX < 0;
-        if (isForward && currentPageRef.current < totalPages) {
-          const idx = currentPageRef.current;
-          const target = pageRefs.current[idx];
+        const cur = currentPageRef.current;
+
+        if (isForward && cur < totalPages) {
+          // 往前翻：當前頁翻到已讀側
+          const target = pageRefs.current[cur];
           if (target)
             gsap.to(target, {
               rotationY: -160,
-              z: idx * 20 + 2,
+              z: cur * 20 + 2,
               duration: 0.6,
               ease: 'power2.out',
               onComplete: () => {
-                currentPageRef.current = idx + 1;
-                setCurrentPage(idx + 1);
+                currentPageRef.current = cur + 1;
+                setCurrentPage(cur + 1);
                 setFlippingIndex(-1);
               },
             });
-        } else if (!isForward && currentPageRef.current > 0) {
-          const idx = currentPageRef.current - 1;
-          const target = pageRefs.current[idx];
-          if (target)
-            gsap.to(target, {
+        } else if (!isForward) {
+          if (cur === 0) {
+            // 在第一頁往右滑超過閾值 → 封面翻回關閉
+            gsap.to(coverRef.current, {
               rotationY: -5,
-              z: (totalPages - idx) * 20,
-              duration: 0.6,
+              z: 120,
+              duration: 0.7,
               ease: 'power2.out',
-              onComplete: () => {
-                currentPageRef.current = idx;
-                setCurrentPage(idx);
-                setFlippingIndex(-1);
-              },
+              onComplete: () => setIsCoverOpened(false),
             });
+            setFlippingIndex(-1);
+          } else {
+            // 往回翻：把上一頁翻回未讀側
+            const idx = cur - 1;
+            const target = pageRefs.current[idx];
+            if (target)
+              gsap.to(target, {
+                rotationY: -5,
+                z: (totalPages - idx) * 20,
+                duration: 0.6,
+                ease: 'power2.out',
+                onComplete: () => {
+                  currentPageRef.current = idx;
+                  setCurrentPage(idx);
+                  setFlippingIndex(-1);
+                },
+              });
+          }
         } else {
           resetPages();
         }
@@ -254,9 +297,8 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           style={{
             backgroundColor: theme.coverColor,
             backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
-            transform: `translate3d(0, 0, ${isCoverOpened ? -10 : 120}px) rotateY(${isCoverOpened ? -165 : -5}deg)`,
             backfaceVisibility: 'hidden',
-            zIndex: 200,
+            zIndex: isCoverOpened ? 50 : 200,
             boxShadow: 'inset -20px 0 40px rgba(0,0,0,0.5), 15px 15px 50px rgba(0,0,0,0.8)'
           }}
         >
