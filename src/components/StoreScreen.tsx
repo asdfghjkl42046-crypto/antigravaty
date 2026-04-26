@@ -23,16 +23,32 @@ function TalentCard({
 }: { 
   role: RoleData; 
   player: Player; 
-  upgradeRole: (roleKey: RoleType) => void 
+  upgradeRole: (roleKey: RoleType, splitOG?: number) => void 
 }) {
   const [showDetail, setShowDetail] = React.useState(false);
+  const [splitOG, setSplitOG] = React.useState(0);
+  
   const currentLevel = player.roles?.[role.key] || 0;
   const isMax = currentLevel >= 3;
   const colors = COLOR_MAP[role.color];
-  const canAfford = player.g >= 100 && player.ip >= 100;
 
-  // 取得螢光發光 CSS 變數
-  const glowShadow = `0 0 15px ${colors.badge.replace('bg-', '')}`;
+  // 支付能力動態檢查：總費用 100M G + 100 IP
+  const totalCostG = 100;
+  const costIP = 100;
+  
+  // 計算滑桿限制區間
+  // OG 支付上限 = min(100, 玩家現有 OG)
+  // OG 支付下限 = max(0, 100 - 玩家現有 G) -> 若現金不足 100，則強迫必須使用部分 OG
+  const maxPossibleOG = Math.min(totalCostG, player.trustFund || 0);
+  const minPossibleOG = Math.max(0, totalCostG - (player.g || 0));
+  const canAfford = player.ip >= costIP && (player.g + (player.trustFund || 0)) >= totalCostG;
+
+  // 當開啟詳情時，預設優先使用現金支付 (即盡量靠左，除非現金不足)
+  React.useEffect(() => {
+    if (showDetail) {
+      setSplitOG(minPossibleOG);
+    }
+  }, [showDetail, minPossibleOG]);
 
   return (
     <div
@@ -150,16 +166,46 @@ function TalentCard({
             })}
           </div>
 
-          <div className="pt-2" onClick={(e) => e.stopPropagation()}>
+          <div className="pt-2 px-1" onClick={(e) => e.stopPropagation()}>
             {!isMax ? (
               canAfford ? (
-                /* 有能力購買：顯示專屬螢光色 */
-                <button
-                  onClick={() => upgradeRole(role.key)}
-                  className={`w-full py-2 rounded-xl text-black text-[10px] font-black tracking-widest uppercase transition-all hover:brightness-110 active:scale-95 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${colors.badge}`}
-                >
-                  簽署 LV.${currentLevel + 1} 合約
-                </button>
+                <div className="space-y-4">
+                  {/* 支付比例分配滑桿 (僅在有海外資金時顯示) */}
+                  {player.trustFund > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[8px] font-black uppercase tracking-tighter">
+                        <span className="text-emerald-400">現金: {totalCostG - splitOG}萬</span>
+                        <span className="text-blue-300">信託: {splitOG}萬</span>
+                      </div>
+                      <div className="relative h-6 flex items-center">
+                         <input 
+                           type="range" 
+                           min={minPossibleOG} 
+                           max={maxPossibleOG} 
+                           value={splitOG}
+                           onChange={(e) => setSplitOG(parseInt(e.target.value))}
+                           className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                           aria-label="支付比例分配"
+                           title="調整現金與海外資金的支付比例"
+                         />
+                      </div>
+                      <div className="flex justify-between text-[7px] text-slate-500 font-bold">
+                        <span>100% G</span>
+                        <span>100% OG</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      upgradeRole(role.key, splitOG);
+                      setShowDetail(false);
+                    }}
+                    className={`w-full py-2.5 rounded-xl text-black text-[10px] font-black tracking-widest uppercase transition-all hover:brightness-110 active:scale-95 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${colors.badge}`}
+                  >
+                    簽署 LV.${currentLevel + 1} 合約
+                  </button>
+                </div>
               ) : (
                 /* 無法購買：白色虛線框 (Ghost Style) */
                 <div className="w-full py-2 rounded-xl border-dashed border-2 border-white/60 flex items-center justify-center bg-transparent">

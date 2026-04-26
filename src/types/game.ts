@@ -244,6 +244,13 @@ export interface NumericalDiffs {
   bm: number;
   trust?: number; // 海外信託變動
   bets?: { playerId: string; amount: number }[]; // 旁觀者押注結果
+  breakdown?: {
+    name: string;
+    level: number;
+    g?: number;
+    rp?: number;
+    trust?: number;
+  }[]; // [新增] 詳細來源拆解 (例如：人才收益來源)
 }
 
 export type CardOption = OptionSR | OptionRisk | OptionZ;

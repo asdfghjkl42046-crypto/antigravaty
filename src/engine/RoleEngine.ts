@@ -29,9 +29,12 @@ export interface UpgradeResult {
 
 /**
  * 升級人才
- * 檢查玩家的錢跟影響力（IP）是否足夠，並提升人才等級。
+ * 支援使用「現金 G」與「海外資金 OG」進行支付分配。
+ * @param player 玩家物件
+ * @param role 目標職能
+ * @param splitOG 預計使用海外資金支付的金額 (0~100 萬)
  */
-export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult {
+export function applyRoleUpgrade(player: Player, role: RoleType, splitOG: number = 0): UpgradeResult {
   const currentLevel = getRoleLevel(player, role);
   // 人資天賦上限皆為 3 級，滿等無法再次購買
   if (currentLevel >= 3) {
@@ -39,12 +42,18 @@ export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult 
   }
 
   // 設定統一公定價 (100 人脈 + 100 萬元)
-  const cost = { ip: 100, g: 100 };
+  const totalCostG = 100;
+  const costIP = 100;
+
+  // 根據滑桿分配計算兩邊各需扣除多少
+  const deductionOG = Math.max(0, Math.min(player.trustFund, splitOG, totalCostG));
+  const deductionG = Math.max(0, totalCostG - deductionOG);
+
   // 檢查資源是否充足
-  if (player.ip < cost.ip || player.g < cost.g) {
+  if (player.ip < costIP || player.g < deductionG || player.trustFund < deductionOG) {
     return {
       success: false,
-      message: SYSTEM_MESSAGES.ROLE.UPGRADE_REQUIREMENT(cost.ip, cost.g),
+      message: SYSTEM_MESSAGES.ROLE.UPGRADE_REQUIREMENT(costIP, totalCostG),
     };
   }
 
@@ -53,16 +62,17 @@ export function applyRoleUpgrade(player: Player, role: RoleType): UpgradeResult 
   const nextLevel = (currentRoles[role] || 0) + 1;
   const newRoles = { ...currentRoles, [role]: nextLevel };
 
-  // 更新玩家的剩餘存款與點數
+  // 更新玩家的剩餘存款、點數與海外信託
   const updates: Partial<Player> = {
-    ip: player.ip - cost.ip,
-    g: player.g - cost.g,
+    ip: player.ip - costIP,
+    g: player.g - deductionG,
+    trustFund: player.trustFund - deductionOG,
     roles: newRoles,
   };
 
   return {
     success: true,
-    message: SYSTEM_MESSAGES.ROLE.UPGRADE_SUCCESS_DETAIL(role, nextLevel, cost.ip, cost.g),
+    message: SYSTEM_MESSAGES.ROLE.UPGRADE_SUCCESS_DETAIL(role, nextLevel, costIP, totalCostG),
     updates,
   };
 }

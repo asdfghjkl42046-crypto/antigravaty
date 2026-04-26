@@ -306,13 +306,14 @@ export class GameFlowEngine {
    */
   static handleUpgradeRole(
     state: GameStateData,
-    role: RoleType
+    role: RoleType,
+    splitOG: number = 0
   ): { success: boolean; message: string; updates: Partial<GameStateData> } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
     if (!player) return { success: false, message: SystemStrings.ERRORS.INVALID_PLAYER, updates: {} };
 
-    const res = applyRoleUpgrade(player, role);
+    const res = applyRoleUpgrade(player, role, splitOG);
     if (!res.success) return { success: false, message: res.message, updates: {} };
 
     const updated = [...players];

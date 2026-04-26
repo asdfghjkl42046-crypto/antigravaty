@@ -12,6 +12,7 @@ import {
   getPRAutoRP,
   getCTOAutoIncome,
   calculateTrustTransfer,
+  getRoleLevel,
 } from './RoleEngine';
 import {
   throwDataCorruptionError,
@@ -371,6 +372,17 @@ export function settleEndOfTurn(player: Player, currentTurn: number): {
   updates.rp = finalRP;
   updates.trustFund = finalTrust;
 
+  const breakdown: NonNullable<NumericalDiffs['breakdown']> = [];
+  if (rpPerTurn > 0) {
+    breakdown.push({ name: '公關長 PR', level: getRoleLevel(player, 'pr'), rp: rpPerTurn });
+  }
+  if (gPerTurn > 0) {
+    breakdown.push({ name: '技術長 CTO', level: getRoleLevel(player, 'cto'), g: gPerTurn });
+  }
+  if (trustAmount > 0) {
+    breakdown.push({ name: '會計師 Accountant', level: getRoleLevel(player, 'accountant'), trust: trustAmount });
+  }
+
   return {
     updates,
     diffs: {
@@ -379,6 +391,7 @@ export function settleEndOfTurn(player: Player, currentTurn: number): {
       ip: 0,
       bm: 0,
       trust: trustAmount,
+      breakdown,
     },
   };
 }

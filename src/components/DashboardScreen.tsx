@@ -426,19 +426,43 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
             </div>
 
             {/* 控制器 */}
-            <button
-              onClick={() => {
-                if (tagViewItemIdx < currentViewTags.length - 1) {
-                  setTagViewItemIdx(tagViewItemIdx + 1);
-                } else {
-                  setTagViewPlayerIdx(null);
-                  setTagViewItemIdx(0);
-                }
-              }}
-              className="w-full bg-transparent hover:bg-orange-600/10 border border-orange-600/30 text-orange-500 font-black py-5 transition-all flex items-center justify-center space-x-3 text-sm tracking-[0.4em] uppercase"
-            >
-              <span>{tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}</span>
-            </button>
+            <div className="w-full space-y-6">
+              {/* 快速瀏覽滑桿 (僅在有多筆記錄時顯示) */}
+              {currentViewTags.length > 1 && (
+                <div className="w-full space-y-3">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[9px] font-black text-orange-600/40 uppercase tracking-widest">Quick_Browse</span>
+                    <span className="text-[9px] font-mono text-orange-600/60 font-bold italic">POS: {tagViewItemIdx + 1} / {currentViewTags.length}</span>
+                  </div>
+                  <div className="relative h-6 flex items-center">
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max={currentViewTags.length - 1} 
+                      value={tagViewItemIdx}
+                      onChange={(e) => setTagViewItemIdx(parseInt(e.target.value))}
+                      className="w-full h-1 bg-white/5 rounded-lg appearance-none cursor-pointer accent-orange-600 hover:accent-orange-500 transition-all"
+                      aria-label="快速翻閱紀錄"
+                      title="滑動以快速切換犯罪紀錄"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  if (tagViewItemIdx < currentViewTags.length - 1) {
+                    setTagViewItemIdx(tagViewItemIdx + 1);
+                  } else {
+                    setTagViewPlayerIdx(null);
+                    setTagViewItemIdx(0);
+                  }
+                }}
+                className="w-full bg-transparent hover:bg-orange-600/10 border border-orange-600/30 text-orange-500 font-black py-5 transition-all flex items-center justify-center space-x-3 text-sm tracking-[0.4em] uppercase"
+              >
+                <span>{tagViewItemIdx < currentViewTags.length - 1 ? 'NEXT_RECORD' : 'CLOSE_DOSSIER'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

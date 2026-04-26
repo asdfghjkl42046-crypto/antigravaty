@@ -53,7 +53,7 @@ interface GameStore extends GameStateData {
   ) => Promise<ActionResult>;
   endTurn: () => void;
   redrawCards: () => { success: boolean; message: string };
-  upgradeRole: (role: RoleType) => { success: boolean; message: string };
+  upgradeRole: (role: RoleType, splitOG?: number) => { success: boolean; message: string };
 
   // --- 法庭與判定子系統 ---
   triggerTrial: (
@@ -200,8 +200,8 @@ export const useGameStore = create<GameStore>()(
         return { success: res.success, message: res.message };
       },
 
-      upgradeRole: (role) => {
-        const res = GameFlowEngine.handleUpgradeRole(get(), role);
+      upgradeRole: (role, splitOG = 0) => {
+        const res = GameFlowEngine.handleUpgradeRole(get(), role, splitOG);
         if (res.success) set(res.updates);
         return { success: res.success, message: res.message };
       },

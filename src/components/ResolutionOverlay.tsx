@@ -177,6 +177,32 @@ export default function ResolutionOverlay({
           </div>
         )}
 
+        {/* 人才收益拆解 (Breakdown) */}
+        {diffs.breakdown && diffs.breakdown.length > 0 && (
+          <div className="mb-8 space-y-2">
+            <h4 className="text-[10px] font-black text-blue-400/70 uppercase tracking-[0.2em] mb-3 text-center">人才產出細目</h4>
+            {diffs.breakdown.map((item, i) => (
+              <div key={i} className="flex items-center justify-between px-5 py-3 bg-white/5 border border-white/10 rounded-2xl">
+                <div className="flex flex-col">
+                  <span className="text-sm font-black text-white">{item.name}</span>
+                  <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-widest">Level {item.level} 運作中</span>
+                </div>
+                <div className="flex flex-col items-end">
+                  {item.g !== undefined && item.g !== 0 && (
+                    <span className="text-xs font-black text-emerald-400">+{item.g} 萬 G</span>
+                  )}
+                  {item.rp !== undefined && item.rp !== 0 && (
+                    <span className="text-xs font-black text-yellow-400">+{item.rp} RP</span>
+                  )}
+                  {item.trust !== undefined && item.trust !== 0 && (
+                    <span className="text-xs font-black text-blue-300">-{item.trust} 萬 G (轉移信託)</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* 確認按鈕 */}
         <button
           onClick={handleClose}
