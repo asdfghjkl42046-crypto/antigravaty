@@ -197,24 +197,23 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
 
         if (isForward && cur < totalPages) {
           const target = pageRefs.current[cur];
+          // 立刻確定翻頁，不等動畫結束
+          currentPageRef.current = cur + 1;
+          setCurrentPage(cur + 1);
           if (target)
             gsap.to(target, {
               rotationY: -160,
               z: cur * 20 + 2,
-              duration: 0.6,
+              duration: 0.4,
               ease: 'power2.out',
-              onComplete: () => {
-                currentPageRef.current = cur + 1;
-                setCurrentPage(cur + 1);
-                setFlippingIndexBoth(-1);
-              },
+              onComplete: () => setFlippingIndexBoth(-1),
             });
         } else if (!isForward) {
           if (cur === 0) {
             gsap.to(coverRef.current, {
               rotationY: -5,
               z: 120,
-              duration: 0.7,
+              duration: 0.4,
               ease: 'power2.out',
               onComplete: () => setIsCoverOpenedBoth(false),
             });
@@ -222,17 +221,16 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           } else {
             const idx = cur - 1;
             const target = pageRefs.current[idx];
+            // 立刻確定翻頁，不等動畫結束
+            currentPageRef.current = idx;
+            setCurrentPage(idx);
             if (target)
               gsap.to(target, {
                 rotationY: -5,
                 z: (totalPages - idx) * 20,
-                duration: 0.6,
+                duration: 0.4,
                 ease: 'power2.out',
-                onComplete: () => {
-                  currentPageRef.current = idx;
-                  setCurrentPage(idx);
-                  setFlippingIndexBoth(-1);
-                },
+                onComplete: () => setFlippingIndexBoth(-1),
               });
           }
         } else {
