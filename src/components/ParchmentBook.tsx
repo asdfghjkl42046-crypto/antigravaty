@@ -134,9 +134,11 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               z: 2,
               duration: 0.6,
               ease: 'power2.out',
-              onComplete: () => setFlippingIndex(-1),
+              onComplete: () => {
+                setCurrentPage((prev) => prev - 1);
+                setFlippingIndex(-1);
+              },
             });
-          setCurrentPage((prev) => prev - 1);
         } else {
           resetPages();
         }
