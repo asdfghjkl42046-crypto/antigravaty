@@ -29,8 +29,6 @@ import { SystemStrings } from '../data/SystemStrings';
 // 法庭子組件
 // ----------------------------------------------------------------------
 
-
-
 /**
  * LoopingVideo - 受控影片組件，支援片段循環播放
  */
@@ -146,7 +144,7 @@ const DefenseCarousel: React.FC<{
   );
 
   useEffect(() => {
-    // 拖曳中直接設為 0 实现 1:1 绝对跟手，對齊時用 0.3s 展現俐落感
+    // 拖曳中直接設為 0 实现 1:1 絕對跟手，對齊時用 0.3s 展現俐落感
     updatePositions(rotation, isDragging ? 0 : 0.3);
     rotationRef.current = rotation;
   }, [rotation, isDragging, updatePositions]);
@@ -353,17 +351,17 @@ export default function CourtroomScreen() {
 
   // --- 各階段渲染邏輯 ---
 
-    const renderIndictment = () => {
-      // 將起訴文案拆分為分頁陣列
-      const rawText = `${trial.narrative}\n\n${trial.question}`;
-      const indictmentPages = rawText.split('\n').filter(l => l.trim().length > 0);
-      
-      return (
-        <div className="h-full">
-          <IndictmentBook 
-          caseTitle="刑事起訴書" 
-          pages={indictmentPages} 
-          onClose={() => setTrialStage(2)} 
+  const renderIndictment = () => {
+    // 將起訴文案拆分為分頁陣列
+    const rawText = `${trial.narrative}\n\n${trial.question}`;
+    const indictmentPages = rawText.split('\n').filter((l) => l.trim().length > 0);
+
+    return (
+      <div className="h-full">
+        <IndictmentBook
+          caseTitle="刑事起訴書"
+          pages={indictmentPages}
+          onClose={() => setTrialStage(2)}
         />
       </div>
     );
@@ -568,60 +566,107 @@ export default function CourtroomScreen() {
   const renderVerdict = () => {
     const isWin = trial.isDefenseSuccess;
 
+    // 獲取辯護結果對應的文案
     let webJudgment = '';
     let eduText = '';
-
     if (trial.chosenDefenseLabel === '方案 J') {
       webJudgment = trial.lawCase.web_judgment_j || '';
       eduText = trial.lawCase.edu_j || '';
     } else if (trial.chosenDefenseLabel === '方案 K') {
       webJudgment = trial.lawCase.web_judgment_k || '';
-      eduText = trial.lawCase.edu_k || '';
+      eduText = trial.lawCase.edu_j || '';
     } else if (trial.chosenDefenseLabel === '方案 L') {
       webJudgment = trial.lawCase.web_judgment_l || '';
       eduText = trial.lawCase.edu_l || '';
     }
 
-    const mainVerdictText = webJudgment || trial.judgment;
-    const fullText = `${mainVerdictText}${eduText ? `\n\n【法制教育】\n${eduText}` : ''}${!isWin && trial.punishmentDetail ? `\n\n【裁罰結果】\n${trial.punishmentDetail}` : ''}`;
-    const appealCost = defendant ? getExtraAppealCost(defendant) : 100;
+    const mainText = webJudgment || trial.judgment || '';
+    const fullText = `${mainText}${eduText ? `\n\n【法制教育】\n${eduText}` : ''}${!isWin && trial.punishmentDetail ? `\n\n【裁罰結果】\n${trial.punishmentDetail}` : ''}`;
+
+    const showActionBtn = isWin || showAttorneySkill;
+    const skillCost = defendant ? getWithdrawCaseCost(defendant) : { g: 0, ip: 0 };
 
     return (
-      <div className="h-full flex flex-col">
-        <div
-          className={`mb-6 flex items-center justify-center gap-4 py-8 border-y ${isWin ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}
-        >
-          <h2
-            className={`text-4xl font-black italic tracking-[0.2em] ${isWin ? 'text-green-400' : 'text-red-400'}`}
-          >
-            {isWin ? '無罪' : '有罪'}
-          </h2>
-        </div>
+      <div className="h-full flex flex-col justify-center items-center">
+        <div className="w-full max-w-4xl h-[600px] relative">
+          {showActionBtn ? (
+            /* 核心行動區域：3D 按鈕與代價提示 */
+            <div className="flex flex-col items-center gap-12 animate-in zoom-in duration-500">
+              <div className="relative group">
+                {/* 按鈕旁邊的代價提示 (僅在發動技能時出現) */}
+                {showAttorneySkill && (
+                  <div className="absolute left-[120%] top-1/2 -translate-y-1/2 w-56 p-5 bg-black/80 border border-red-500/50 backdrop-blur-2xl rounded-2xl animate-in slide-in-from-left-10 shadow-[0_0_40px_rgba(239,68,68,0.4)]">
+                    <div className="text-[10px] text-red-400 font-black tracking-widest uppercase mb-3 border-b border-red-500/20 pb-2">
+                      逆轉代價 (Withdrawal Cost)
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-stone-400 text-xs font-bold">資金支付</span>
+                        <span className="text-red-400 font-mono font-bold text-lg">
+                          -{formatValue(skillCost.g, SystemStrings.UNITS.MONEY)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-stone-400 text-xs font-bold">人脈打點</span>
+                        <span className="text-red-400 font-mono font-bold text-lg">
+                          -{skillCost.ip} 點
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-2 text-[10px] text-stone-500 italic leading-tight">
+                      *由王牌律師動用特殊關係銷案
+                    </div>
+                  </div>
+                )}
 
-        <div className="flex-grow flex items-center justify-center">
-          {isWin ? (
-            /* 無罪階段：顯示 3D 紅色離開按鈕 */
-            <div className="flex flex-col items-center gap-12">
-              <button
-                onClick={() => resolveTrial()}
-                className="group relative w-48 h-48 rounded-full transition-all duration-200 active:translate-y-2 select-none"
-              >
-                {/* 按鈕側面深度 */}
-                <div className="absolute inset-x-0 bottom-[-16px] h-48 rounded-full bg-red-900 shadow-[0_15px_40px_rgba(0,0,0,0.6)]" />
+                <button
+                  onClick={() => {
+                    if (showAttorneySkill) {
+                      if (
+                        window.confirm(
+                          `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SystemStrings.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
+                        )
+                      ) {
+                        withdrawCase();
+                        setShowAttorneySkill(false);
+                      }
+                    } else {
+                      resolveTrial();
+                    }
+                  }}
+                  className="group relative w-48 h-48 rounded-full transition-all duration-200 active:translate-y-2 select-none"
+                >
+                  {/* 按鈕深度 */}
+                  <div className="absolute inset-x-0 bottom-[-16px] h-48 rounded-full bg-red-900 shadow-[0_15px_40px_rgba(0,0,0,0.6)]" />
 
-                {/* 按鈕表面 */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-red-500 to-red-700 border-b-[10px] border-red-800 flex items-center justify-center group-hover:from-red-400 group-hover:to-red-600 shadow-inner overflow-hidden">
-                  <span className="text-white font-black text-3xl tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] italic">
-                    EXIT
-                  </span>
-                  {/* 高光效果 */}
-                  <div className="absolute top-2 left-1/4 w-1/2 h-1/4 bg-white/20 rounded-full blur-md" />
-                </div>
-              </button>
+                  {/* 按鈕表面 */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-b from-red-500 to-red-700 border-b-[10px] border-red-800 flex items-center justify-center group-hover:from-red-400 group-hover:to-red-600 shadow-inner overflow-hidden transition-all duration-300">
+                    <span className="text-white font-black text-2xl tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] italic text-center leading-tight whitespace-pre-line group-hover:scale-110 transition-transform">
+                      {showAttorneySkill ? '逆轉裁判' : 'EXIT'}
+                    </span>
+                    <div className="absolute top-2 left-1/4 w-1/2 h-1/4 bg-white/20 rounded-full blur-md" />
+                  </div>
+                </button>
 
-              <div className="flex flex-col items-center gap-3 animate-pulse">
+                {/* 放棄逆轉按鈕 (僅在發動技能時出現) */}
+                {showAttorneySkill && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm('確定要放棄逆轉機會，直接接受法院判決嗎？')) {
+                        resolveTrial();
+                        setShowAttorneySkill(false);
+                      }
+                    }}
+                    className="mt-8 px-6 py-2 border border-slate-700 hover:bg-slate-800 text-slate-500 font-bold uppercase tracking-widest text-xs rounded transition-all active:scale-95"
+                  >
+                    放棄逆轉 / 接受判決
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center gap-3 mt-4 animate-pulse">
                 <div className="text-red-500 font-black tracking-[0.4em] text-xl uppercase italic">
-                  按下，離開法庭
+                  {showAttorneySkill ? '發動逆轉，扭轉乾坤' : '按下，離開法庭'}
                 </div>
                 <div className="flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-red-500/40" />
@@ -633,64 +678,43 @@ export default function CourtroomScreen() {
           ) : (
             /* 有罪階段：顯示判決書 (向上微調位置) */
             <div className="w-full h-full mt-[-80px]">
-              {/* 舊 UI 參考：<PaperFlip title="判決書" text={fullText} onComplete={() => resolveTrial()} /> */}
-              <IndictmentBook 
-                caseTitle="裁決判決書" 
-                pages={(() => {
-                  const pages: string[] = [];
-                  const lines = fullText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                  
-                  let currentPage = '';
-                  lines.forEach((line) => {
-                    if (line.includes('【法制教育】') || line.includes('【裁罰結果】')) {
-                      if (currentPage.length > 0) {
-                        pages.push(currentPage);
-                        currentPage = '';
+              {!showAttorneySkill && (
+                <IndictmentBook
+                  caseTitle="裁決判決書"
+                  pages={(() => {
+                    const pages: string[] = [];
+                    const lines = fullText
+                      .split('\n')
+                      .map((l) => l.trim())
+                      .filter((l) => l.length > 0);
+                    let currentP = '';
+                    lines.forEach((line) => {
+                      if (line.includes('【法制教育】') || line.includes('【裁罰結果】')) {
+                        if (currentP.length > 0) pages.push(currentP);
+                        currentP = line + '\n';
+                      } else {
+                        currentP += line + '\n';
+                        if (currentP.length > 200) {
+                          pages.push(currentP);
+                          currentP = '';
+                        }
                       }
-                      currentPage += line + '\n';
+                    });
+                    if (currentP.length > 0) pages.push(currentP);
+                    return pages;
+                  })()}
+                  onClose={() => resolveTrial()}
+                  onAppeal={() => extraordinaryAppeal()}
+                  onCountdownEnd={() => {
+                    const isAceAttorney = defendant?.roles?.lawyer === 3;
+                    if (isAceAttorney && !isWin) {
+                      setShowAttorneySkill(true);
                     } else {
-                      currentPage += line + '\n';
-                      if (currentPage.length > 200) {
-                        pages.push(currentPage);
-                        currentPage = '';
-                      }
+                      resolveTrial();
                     }
-                  });
-                  if (currentPage.length > 0) pages.push(currentPage);
-                  return pages;
-                })()} 
-                onClose={() => resolveTrial()} 
-                onAppeal={() => extraordinaryAppeal()}
-                onCountdownEnd={() => {
-                  // 根據 RoleLevel 判斷是否為王牌律師 (LV3)
-                  const isAceAttorney = defendant?.roles?.lawyer === 3;
-                  if (isAceAttorney && !isWin) {
-                    setShowAttorneySkill(true);
-                  } else {
-                    resolveTrial();
-                  }
-                }}
-                canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
-              />
-
-              {/* 王牌律師 LV3 技能按鈕 - 倒數結束後才出現 */}
-              {showAttorneySkill && (
-                <div className="fixed inset-x-0 bottom-10 z-[1000] flex justify-center animate-in slide-in-from-bottom-20 duration-500">
-                  <button 
-                    onClick={() => {
-                      if (defendant && window.confirm(`確定要發動王牌律師技能「${SystemStrings.UI_LABELS.WITHDRAW_CASE}」嗎？\n(花費: ${formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)})`)) {
-                        withdrawCase();
-                        setShowAttorneySkill(false);
-                      }
-                    }}
-                    className="group relative px-12 py-6 bg-cyan-600 rounded-full shadow-[0_0_50px_rgba(6,182,212,0.5)] border-t-2 border-cyan-400 overflow-hidden active:scale-95 transition-all"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                    <span className="relative text-white font-black text-2xl tracking-[0.3em] italic drop-shadow-md">
-                      OBJECTION! 逆轉判決
-                    </span>
-                  </button>
-                </div>
+                  }}
+                  canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
+                />
               )}
             </div>
           )}
