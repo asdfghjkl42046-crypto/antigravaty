@@ -176,7 +176,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto">
+    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-[0.8]">
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
