@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
-import { START_PATH_LABELS, START_PATH_NAMES } from '@/data/setup/SetupData';
+import { SystemStrings } from '@/data/SystemStrings';
 import { StartPath } from '@/types/game';
 import { Scale, Feather, Shield, PenTool } from 'lucide-react';
 
@@ -31,7 +31,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   const coverRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const pages = useMemo(() => START_PATH_LABELS[activePath] || [], [activePath]);
+  const pages = useMemo(() => SystemStrings.SETUP.START_PATH_LABELS[activePath] || [], [activePath]);
   const totalPages = pages.length;
 
   const theme = useMemo(() => {

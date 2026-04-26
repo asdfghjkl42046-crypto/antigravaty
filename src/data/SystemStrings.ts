@@ -4,6 +4,21 @@
  * 本檔案為「系統級別回饋」的單一真值來源 (SSOT)。
  * 包含錯誤攔截訊息、引擎邏輯回饋、以及 UI 共用標籤。
  */
+import { CARDS_START } from './cards/CARDS_START';
+import type { StartPath } from '../types/game';
+
+/**
+ * 將長篇描述文本依照段落切割成適合書本分頁的數組
+ */
+const splitDescriptionToPages = (description: string): string[] => {
+  const paragraphs = description.split('\n').filter((p) => p.trim() !== '');
+  const pages: string[] = [];
+  // 每兩段分一頁，確保閱讀氣息感
+  for (let i = 0; i < paragraphs.length; i += 2) {
+    pages.push(paragraphs.slice(i, i + 2).join('\n\n'));
+  }
+  return pages;
+};
 
 export const SystemStrings = {
   // 🏷️ UI 共用標籤 (SSOT 修改點)
@@ -147,5 +162,63 @@ export const SystemStrings = {
     BETTING_TITLE: '場外押注結算',
     BYSTANDER_PL: '旁觀者盈虧',
     NO_BETS: '本場無人進行押注',
+  },
+
+  // 🛠️ 開局設定 (原 SetupData)
+  SETUP: {
+    SETUP_TITLE: '創業之路',
+    SETUP_SUBTITLE: '請選擇參與本局對弈的企業家數量 (1-4人)',
+    MODE_SELECT: {
+      TITLE_MAIN: '創業冒險',
+      TITLE_SUB: '現代法律篇',
+      PROMPT: '請選擇本局遊戲的法官模擬模式',
+      WEBSITE_TITLE: '網站模式',
+      WEBSITE_DESC: '使用固定戲劇性文案模板\n無需等待 AI 生成',
+      WEBSITE_BTN: '開始遊戲',
+      AI_TITLE: 'AI 模式',
+      AI_DESC: '由 LLM 生成無限變化的判決\n支援自由文字陳述',
+      AI_BTN: '開始遊戲',
+    },
+    PLAYER_COUNT_LABEL: 'Players',
+    EXIT_BTN: '返回模式選擇',
+    NEXT_STEP_BTN: '進入各別設定',
+    BACK_TO_COUNT_BTN: '返回人數選擇',
+    BACK_TO_PREP_BTN: '返回',
+    BACK_TO_PREV_PLAYER_BTN: '返回上一位玩家',
+    NEXT_PLAYER_BTN: '確認，下一位玩家',
+    START_GAME_BTN: '開始創業',
+
+    // 開局新聞快報
+    NORMAL_BONUS_MSG: (name: string) =>
+      `恭喜！${name} 總裁選擇了「白手起家」，獲得減少懲罰（-5% 罰金）的開局獎勵！`,
+    BRIBE_BONUS_MSG: (name: string, judge: string, itemName: string) =>
+      `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的開局獎勵！`,
+
+    REGISTRATION_TITLE: '經營權登記',
+    AVOIDANCE_NOTICE: '請其餘閒雜人等迴避',
+    SECRET_SETTING_PROMPT: '準備進行秘密設定',
+    START_SETTING_BTN: '點擊開始設定',
+
+    // 企業登記表
+    NAME_LABEL: '企業名稱',
+    NAME_PLACEHOLDER: (idx: number) => `例如：九龍集團 (預設: 企業 ${idx + 1})`,
+    PATH_LABEL: '選擇開局天賦',
+    PREP_MEANS_LABEL: '初始預備手段',
+    DEFAULT_BRIBE_NAME: '禮物',
+    DEFAULT_CORP_NAME: (idx: number) => `企業 ${idx + 1}`,
+
+    // 路徑名稱對照
+    START_PATH_NAMES: {
+      normal: '白手起家',
+      backdoor: '融資創業',
+      blackbox: '家族企業',
+    } as Record<StartPath, string>,
+
+    // 從 CARDS_START 動態獲取開局路徑內容
+    START_PATH_LABELS: {
+      normal: splitDescriptionToPages(CARDS_START.START_PATHS[1].description || ''),
+      backdoor: splitDescriptionToPages(CARDS_START.START_PATHS[2].description || ''),
+      blackbox: splitDescriptionToPages(CARDS_START.START_PATHS[3].description || ''),
+    } as Record<StartPath, string[]>,
   },
 };

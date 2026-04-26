@@ -1,60 +1,41 @@
-# Antigravity 開發偵錯手冊 (debug.md)
+# Antigravity 事故紀錄簿 (debug.md)
 
-本文件記載專案內部的偵錯工具、測試流程與應急指令。所有開發人員應在進行邏輯修改後，參考本手冊進行基礎驗證。
-
----
-
-## 1. 介面偵錯工具：DebugPanel
-位於遊戲介面右側（開發環境下顯示），提供以下即時操作：
-
-### 核心操作
-- **數值篡改**：可直接修改玩家的 `Money`, `IP`, `RP`, `AP`, `BM`。
-- **強制結局**：
-  - `Saint`: 達成「神格化」結局。
-  - `Bankrupt`: 觸發「破產」結局。
-  - `Dragonhead`: 觸發「龍頭」結局。
-- **回合控制**：
-  - `Turn Skip`: 快速跳過回合。
-  - `Hard Reset`: 清除 `localStorage` 並重新載入。
+本文件僅紀錄專案開發過程中曾經產生過的 Bug、異常狀況及其成因分析。用於避免重蹈覆轍，並作為系統脆弱點的參考。
 
 ---
 
-## 2. 掃描系統模擬指令 (Scan Emulation)
-在 `ScanScreen` 的手動輸入框中輸入以下保留字，可模擬特定掃描結果：
-
-- `WASH`: 強制重抽所有手牌，不消耗 AP。
-- `ROLE_UP_[KEY]`: 模擬掃描人才卡進行升級。
-  - 範例: `ROLE_UP_LAWYER`
-- `[CARD_ID]`: 直接輸入卡片 ID (如 `A011`) 模擬地點掃描。
+## [2026-04-27] 事故 A：註解破碎導致全域編譯失敗
+- **現象**：TypeScript 報錯「找不到名稱 'xxx'」，錯誤點指向中文字，導致全域無法編譯。
+- **原因**：在合併 `SetupData` 至 `SystemStrings` 時，誤刪了檔案頂部的註解起始符 `/**`。
+- **教訓**：搬移大規模文字時，必須檢查檔案頭尾格式。中文字若未被註解包裹會被視為變數，引發連鎖崩潰。
 
 ---
 
-## 3. 系統檢查腳本 (Command Line)
-在終端機運行以下指令進行靜態檢查：
-
-```powershell
-# 檢查 Debug Panel 狀態
-node ./scripts/check-debug.mjs
-
-# 運行代碼檢查與排版
-npm run lint
-npm run format
-```
+## [2026-04-27] 事故 B：iOS 輸入框點擊自動縮放
+- **現象**：手機玩家點擊任何 input 時，畫面會突然放大並位移，導致 UI 跑版且無法手動縮回。
+- **原因**：iOS Safari 規定字體小於 16px 的輸入框在聚焦時會自動觸發 Accessibility Zoom。
+- **解決**：強制所有 input 為 `font-size: 16px` 並搭配 `user-scalable=no` 與 `touch-action: pan-x pan-y`。
 
 ---
 
-## 4. 法庭與判決測試邊界
-進行法庭測試時，請確保追蹤以下路徑：
-
-- **觸發來源**：`MechanicsEngine.resolveLawViolation` -> `gameStore.triggerTrial`。
-- **機率計算**：`MechanicsEngine.calculateSpectatorInfluence`。
-- **法官行為**：`src/data/judges/` 下的各法官 `prompt_injection` 是否正確注入。
+## [2026-04-27] 事故 C：PaperFlip 分頁大字重複
+- **現象**：卷宗翻頁組件（PaperFlip）的「首字放大（Drop Cap）」效果出現在每一頁的開頭。
+- **原因**：`renderPage` 邏輯中未對頁碼 `idx` 進行判斷，僅檢查是否為段落開頭。
+- **解決**：限制大字效果僅在 `idx === 1`（即封面後的第一頁內容）生效。
 
 ---
 
-## 5. 常見問題排查 (QA)
-- **畫面卡死在結算彈窗**：檢查 `gameStore.clearResolution` 是否有正常執行 `checkGlobalVictoryOrContinue`。
-- **AP 扣除異常**：確認 `ActionEngine.execute` 中的 AP 消費邏輯與 `RoleEngine` 的折扣是否有衝突。
+## [2026-04-27] 事故 D：Dashboard 標題拆分邏輯錯誤
+- **現象**：首頁標題顯示為「安全冒險」而非「創業冒險」。
+- **原因**：使用了 `.split('申報')[0]` 這種過於脆弱的字串拆分邏輯，當原始字串變動時導致結果非預期。
+- **解決**：取消字串拆分邏輯，改為在 `SystemStrings.DECORATION.DASHBOARD_TITLE` 預定義 SSOT 標題。
 
 ---
-*最後更新：2026-04-27*
+
+## [2026-04-26] 事故 E：三柱引擎文案殘留
+- **現象**：系統中仍存在已廢棄的「三柱引擎」相關文案，誤導開發方向。
+- **原因**：架構調整後未同步清理 `SetupData` 與 `README`。
+- **解決**：全面刪除舊有架構文件，歸於四層權責金字塔引擎。
+
+---
+*文件更新：2026-04-27*

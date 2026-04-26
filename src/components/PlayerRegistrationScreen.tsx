@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import gsap from 'gsap';
 import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
-import { START_PATH_NAMES } from '@/data/setup/SetupData';
+import { SystemStrings } from '@/data/SystemStrings';
 import ParchmentBook from './ParchmentBook';
 import { MASTERPIECES } from '@/store/gameStore';
 
@@ -154,10 +154,10 @@ export default function PlayerRegistrationScreen({
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-[#020617] overflow-visible text-white font-sans selection:bg-blue-500/30">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-transparent overflow-visible text-white font-sans selection:bg-blue-500/30">
       {/* 桌面背景 */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[#020617]" />
+        <div className="absolute inset-0 bg-transparent" />
         <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')]" />
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-black/80" />
       </div>
@@ -288,7 +288,7 @@ export default function PlayerRegistrationScreen({
                           )}
                         </div>
                         <h4 className="text-xl font-black tracking-[0.2em] text-white/90 uppercase">
-                          {START_PATH_NAMES[path]}
+                          {SystemStrings.SETUP.START_PATH_NAMES[path]}
                         </h4>
                       </div>
                       {isSelected && (

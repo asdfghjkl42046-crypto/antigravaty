@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Network, Sparkles, Settings2, Eye, CircleDashed, Building2 } from 'lucide-react';
 import gsap from 'gsap';
 import AlignmentTool, { AlignmentElement } from './AlignmentTool';
+import { SystemStrings } from '@/data/SystemStrings';
 
 interface ModeSelectScreenProps {
   onStartGame: (mode: 'website' | 'ai') => void;
@@ -71,7 +72,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '使用固定戲劇性文案模板，無需等待 AI 生成',
+      label: SystemStrings.SETUP.MODE_SELECT.WEBSITE_DESC,
     },
     wb_btn: {
       top: 61.6,
@@ -122,7 +123,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '由 LLM 生成無限變化的判決，支援自由文字陳述',
+      label: SystemStrings.SETUP.MODE_SELECT.AI_DESC,
     },
     ai_btn: {
       top: 90.6,
@@ -195,7 +196,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
   `;
 
   return (
-    <div className="w-full h-full flex items-center justify-center overflow-hidden bg-[#020617]">
+    <div className="w-full h-full flex items-center justify-center overflow-hidden bg-transparent">
       {/* 注入動態 CSS 變數 */}
       <style dangerouslySetInnerHTML={{ __html: layoutStyles }} />
 
@@ -291,7 +292,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
             </div>
           )}
           {layout.wb_desc && (
-            <p className="wb_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate">
+            <p className="wb_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate whitespace-pre-line">
               {layout.wb_desc.label}
             </p>
           )}
@@ -324,7 +325,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
             </div>
           )}
           {layout.ai_desc && (
-            <p className="ai_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate">
+            <p className="ai_desc-pos text-slate-400/90 leading-relaxed text-center px-4 ui-animate whitespace-pre-line">
               {layout.ai_desc.label}
             </p>
           )}

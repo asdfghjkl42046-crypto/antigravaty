@@ -289,7 +289,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   const hasMultipleTags = currentViewTags.length > 1;
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#020617] text-white overflow-hidden relative font-sans">
+    <div className="w-full h-full flex flex-col bg-transparent text-white overflow-hidden relative font-sans">
       <DebugPanel />
 
       {/* 1. Header: 狀態列 - 增加 mt-safe 避開行動裝置瀏海 */}

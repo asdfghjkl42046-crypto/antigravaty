@@ -132,13 +132,13 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
 
         {/* 背景：數位網格與強化漸層 */}
         <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[#020617]" />
+          <div className="absolute inset-0 bg-transparent" />
           <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(30,58,138,0.25)_0%,transparent_70%)]" />
         </div>
 
         {/* 頂部導航：左側返回，右側改為天平影片 */}
-        <div className="w-full flex items-center justify-between ui-animate z-30 px-8 pt-6 relative">
+        <div className="w-full flex items-center justify-between ui-animate z-30 px-8 pt-safe mt-4 relative">
           <button
             onClick={onBack}
             className="w-12 h-12 flex items-center justify-center rounded-[18px] bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer backdrop-blur-md shadow-xl"
