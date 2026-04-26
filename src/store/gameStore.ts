@@ -79,8 +79,12 @@ interface GameStore extends GameStateData {
 
   // --- 開發人員偵錯工具 ---
   debugUpdatePlayer: (playerId: string, updates: Partial<Player>) => void;
-  debugTriggerEnding: (type: EndingType, isFake?: boolean) => void;
+  debugTriggerEnding: (type: EndingType, playerId?: string) => void;
   hardReset: () => void;
+  clearBetResolution: () => void;
+  checkBankruptcy: () => void;
+  checkGlobalVictoryOrContinue: () => void;
+  pendingBetResolution: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[] | null;
 }
 
 export const useGameStore = create<GameStore>()(
@@ -100,6 +104,7 @@ export const useGameStore = create<GameStore>()(
       endingResult: null,
       engineError: null,
       pendingResolution: null,
+      pendingBetResolution: null,
 
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
@@ -281,20 +286,32 @@ export const useGameStore = create<GameStore>()(
       resolveTrial: () => {
         const updates = GameFlowEngine.calculateTrialResolution(get()) as import('../types/game').GameStateData;
         
-        // [新增] 法庭判決彈窗
+        // [修正] 拆分彈窗：第一步只顯示「被告判決」
         if (updates.resultDiffs) {
           const isWin = updates.resultDiffs.g >= 0;
+          
+          // 暫存旁觀者結果，稍後顯示
+          const betResults = updates.resultDiffs.bets || [];
+          
           set({
             pendingResolution: {
               title: isWin ? '法庭判決勝訴' : '法庭判決敗訴',
               message: isWin ? '您已成功洗清罪嫌。' : '法庭已正式執行裁罰。',
-              diffs: updates.resultDiffs,
-              type: isWin ? 'success' : 'failure'
-            }
+              diffs: { ...updates.resultDiffs, bets: [] }, // 這裡把 bets 清空，不讓它出現在第一層
+              type: isWin ? 'success' : 'failure',
+              defendantId: get().trial?.defendantId
+            },
+            // [新增] 存入第二層彈窗數據
+            pendingBetResolution: betResults.length > 0 ? betResults : null
           });
         }
 
-        set(updates);
+        set({
+          players: updates.players,
+          phase: updates.phase,
+          trial: null,
+          endingResult: updates.endingResult
+        });
       },
 
       setTrialReady: (r) => set((s) => ({ trial: s.trial ? { ...s.trial, isReady: r } : null })),
@@ -304,8 +321,9 @@ export const useGameStore = create<GameStore>()(
       debugUpdatePlayer: (pid, upd) =>
         set((s) => ({ players: s.players.map((p) => (p.id === pid ? { ...p, ...upd } : p)) })),
       
-      debugTriggerEnding: (type: EndingType) => {
-        const player = get().players[get().currentPlayerIndex];
+      debugTriggerEnding: (type: EndingType, playerId?: string) => {
+        const pId = playerId || get().players[get().currentPlayerIndex]?.id;
+        const player = get().players.find(p => p.id === pId);
         if (!player) return;
 
         // 直接調用權威引擎產生結果，確保文案與邏輯絕對同步
@@ -331,7 +349,62 @@ export const useGameStore = create<GameStore>()(
         }
       },
 
-      clearResolution: () => set({ pendingResolution: null }),
+      clearResolution: () => {
+        const state = get();
+        const pendingRes = state.pendingResolution;
+        set({ pendingResolution: null });
+        
+        let player = state.players[state.currentPlayerIndex];
+        if (pendingRes?.defendantId) {
+          player = state.players.find(p => p.id === pendingRes.defendantId) || player;
+        }
+        
+        // [修正順序] 優先權 1：檢查是否破產。如果有破產，先跳結局。
+        if (player && player.isBankrupt) {
+          get().debugTriggerEnding('bankrupt', player.id);
+        } 
+        // 優先權 2：如果沒破產，檢查是否有押注結果。
+        else if (get().pendingBetResolution && get().pendingBetResolution!.length > 0) {
+          // 保持 pendingBetResolution 為真，UI 會顯示它
+        } else {
+          // 優先權 3：都沒有，檢查勝利條件
+          get().checkGlobalVictoryOrContinue();
+        }
+      },
+
+      clearBetResolution: () => {
+        set({ pendingBetResolution: null });
+        // 檢查勝利條件
+        get().checkGlobalVictoryOrContinue();
+      },
+
+      checkBankruptcy: () => {
+        const state = get();
+        const player = state.players[state.currentPlayerIndex];
+        
+        // 當單一玩家錢變負數時，先跳出破產結局畫面
+        if (player && player.isBankrupt && state.phase !== 'gameover') {
+          get().debugTriggerEnding('bankrupt');
+        } else if (player && !player.isBankrupt) {
+          get().endTurn();
+        }
+      },
+
+
+
+      checkGlobalVictoryOrContinue: () => {
+        const state = get();
+        // 1. 檢查是否有存活玩家達成勝利條件 (這裡跑第四步)
+        const winner = state.players.find(p => !p.isBankrupt && EndingEngine.resolveGameStatus(p, state.turn).isGameOver);
+        
+        if (winner) {
+          const res = EndingEngine.resolveGameStatus(winner, state.turn);
+          set({ phase: 'victory', endingResult: res.endingResult });
+        } else {
+          // 2. 正常回到 Dashboard 準備下一個動作
+          // 不做任何事，玩家會停留在 Dashboard，此時回合已正式輪轉。
+        }
+      },
     }),
     { name: 'antigravity-game-storage', storage: createJSONStorage(() => localStorage) }
   )

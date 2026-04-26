@@ -26,6 +26,7 @@ import type { Player, Tag } from '@/types/game';
 import gsap from 'gsap';
 import DebugPanel from './DebugPanel';
 import ResolutionOverlay from './ResolutionOverlay';
+import BetResolutionOverlay from './BetResolutionOverlay';
 
 interface DashboardScreenProps {
   onEndTurn: () => void;
@@ -122,20 +123,28 @@ export function PlayerCard({
 
   return (
     <div
-      className={`dashboard-animate relative p-4 py-3 rounded-[28px] border-2 backdrop-blur-xl transition-all duration-500 overflow-visible
+      className={`relative p-4 py-3 rounded-[28px] border-2 backdrop-blur-xl transition-all duration-500 overflow-visible
+      ${player.isBankrupt ? 'grayscale opacity-60 pointer-events-none' : ''}
       ${isActive
           ? 'border-amber-400 bg-[#1a1205]/95 shadow-[0_12px_40px_rgba(0,0,0,0.7)]'
           : 'border-white/25 bg-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
       }
     `}
     >
+      {/* 破產提示 */}
+      {player.isBankrupt && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 bg-red-600/90 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-lg ring-1 ring-red-400">
+          已清算 LIQUIDATED
+        </div>
+      )}
+
       {/* 獨立呼吸發光層 */}
-      {isActive && (
+      {isActive && !player.isBankrupt && (
         <div className="absolute inset-0 rounded-[28px] border-[3px] border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.5)] animate-[pulse_1.2s_ease-in-out_infinite] pointer-events-none z-0" />
       )}
 
       {/* 裝飾發光背景層 */}
-      {isActive && (
+      {isActive && !player.isBankrupt && (
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at:50%_-20%,rgba(120,53,15,0.15),transparent)] pointer-events-none rounded-[26px]" />
       )}
 
@@ -144,7 +153,7 @@ export function PlayerCard({
           <div className="relative">
             <div
               className={`w-9 h-9 rounded-full border-2 overflow-hidden shadow-md transition-all duration-700 relative z-10
-              ${isActive ? 'border-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.4)] scale-105' : 'border-white/10'}
+              ${isActive && !player.isBankrupt ? 'border-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.4)] scale-105' : 'border-white/10'}
             `}
             >
               <img
@@ -157,7 +166,7 @@ export function PlayerCard({
           </div>
           <div>
             <h2
-              className={`text-lg font-black tracking-tight transition-colors ${isActive ? 'text-white' : 'text-slate-400'}`}
+              className={`text-lg font-black tracking-tight transition-colors ${isActive && !player.isBankrupt ? 'text-white' : 'text-slate-400'}`}
             >
               {player.name}
             </h2>
@@ -205,12 +214,25 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
     players,
     turn,
     currentPlayerIndex,
+    phase,
     judgePersonality,
     startNotifications,
     clearStartNotifications,
     pendingResolution,
     clearResolution,
+    pendingBetResolution,
+    clearBetResolution,
   } = useGameStore();
+
+  /**
+   * [TODO: 多機模式預留邏輯]
+   * 當切換至多機連線模式時，此處需加入判斷：
+   * 1. 檢查「當前登入者 ID」是否等於 players[currentPlayerIndex].id
+   * 2. 如果該玩家 isBankrupt 為 true，則：
+   *    - 在根容器 (L267) 套用 grayscale 濾鏡
+   *    - 透過一個全域透明層攔截所有 pointer-events
+   *    - 顯示「您的企業已倒閉，目前僅具備觀戰權限」的提示
+   */
 
   const [showBonusModal, setShowBonusModal] = React.useState(startNotifications.length > 0);
   const [currentBonusIdx, setCurrentBonusIdx] = React.useState(0);
@@ -231,12 +253,6 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         }
       });
     }
-
-    gsap.fromTo(
-      '.dashboard-animate',
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
-    );
   }, []);
 
   const judgeInfo = judgePersonality ? JUDGE_LABELS[judgePersonality] : null;
@@ -260,7 +276,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       <DebugPanel />
       
       {/* 1. Header: 狀態列 - 增加 mt-safe 避開行動裝置瀏海 */}
-      <div className="flex items-center justify-between px-6 pt-4 pb-2 dashboard-animate mt-safe">
+      <div className="flex items-center justify-between px-6 pt-4 pb-2 mt-safe duration-500">
         <div className="flex items-center space-x-3">
           <button
             onClick={onReset}
@@ -470,7 +486,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       {/* 2. Main Content: 切換首頁、商店或掃描 */}
       <div className="flex-1 overflow-y-auto px-4 pb-24 custom-scrollbar relative z-10 space-y-4">
         {activeTab === 'home' ? (
-          <div className="space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-2 duration-500">
             {players.map((player, idx) => (
               <PlayerCard 
                 key={player.id} 
@@ -533,6 +549,14 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
           diffs={pendingResolution.diffs}
           type={pendingResolution.type}
           onClose={clearResolution}
+        />
+      )}
+
+      {/* [新增] 場外押注結算彈窗 - 這是結算流程的最後一環 */}
+      {pendingBetResolution && !pendingResolution && phase === 'play' && (
+        <BetResolutionOverlay
+          bets={pendingBetResolution}
+          onClose={clearBetResolution}
         />
       )}
     </div>

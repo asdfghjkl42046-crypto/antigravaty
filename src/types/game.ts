@@ -243,7 +243,7 @@ export interface NumericalDiffs {
   ip: number;
   bm: number;
   trust?: number; // 海外信託變動
-  bets?: { playerId: string; amount: number }[]; // 旁觀者押注結果
+  bets?: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[]; // 旁觀者押注結果
   breakdown?: {
     name: string;
     level: number;
@@ -334,6 +334,7 @@ export interface GameStateData {
     message: string;
     diffs: NumericalDiffs;
     type: 'success' | 'failure' | 'neutral' | 'passive';
+    defendantId?: string;
   } | null; // [新增] 待顯示的結算彈窗數據
   resultDiffs?: NumericalDiffs; // [新增] 用於傳遞計算後的數值差值
 }

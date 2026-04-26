@@ -35,29 +35,36 @@ export class GameFlowEngine {
     const { players, currentPlayerIndex, turn, trial } = state;
     const updatedPlayers = [...players];
     const player = updatedPlayers[currentPlayerIndex];
-
-    // 1. 執行回合末被動結算
-    const endTurnResult = settleEndOfTurn(player, turn);
-    const updates = endTurnResult.updates;
-    const diffs = endTurnResult.diffs;
-    updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
-
     // 局部預先宣告流程變數
     let nextTurn = turn;
     let nextIndex = currentPlayerIndex + 1;
+    let diffs: import('../types/game').NumericalDiffs | undefined = undefined;
 
-    // 2. 局部結局偵測 (是否有人贏了或破產)
-    const currentPlayerRes = resolveGameStatus(updatedPlayers[currentPlayerIndex], turn);
-    if (currentPlayerRes.isGameOver) {
-      if (currentPlayerRes.updatedPlayer) {
-        updatedPlayers[currentPlayerIndex] = currentPlayerRes.updatedPlayer;
+    if (!player.isBankrupt) {
+      // 1. 執行回合末被動結算
+      const endTurnResult = settleEndOfTurn(player, turn);
+      const updates = endTurnResult.updates;
+      diffs = endTurnResult.diffs;
+      updatedPlayers[currentPlayerIndex] = { ...player, ...updates };
+
+      // 2. 局部結局偵測 (是否有人贏了或破產)
+      const currentPlayerRes = resolveGameStatus(updatedPlayers[currentPlayerIndex], turn);
+      
+      // 如果是單人破產 (Eliminated) 但遊戲尚未結束
+      if (currentPlayerRes.isEliminated && !currentPlayerRes.isGameOver) {
+        if (currentPlayerRes.updatedPlayer) {
+          updatedPlayers[currentPlayerIndex] = currentPlayerRes.updatedPlayer;
+        }
+        // 停留在此玩家，顯示結局報表，但 phase 仍設為 gameover 以利 UI 呈現結算
+        return {
+          players: updatedPlayers,
+          phase: 'gameover',
+          endingResult: currentPlayerRes.endingResult,
+          turn: Math.min(nextTurn, 50),
+        };
       }
-      return {
-        players: updatedPlayers,
-        phase: currentPlayerRes.phase,
-        endingResult: currentPlayerRes.endingResult,
-        turn: Math.min(nextTurn, 50),
-      };
+
+      // [修正] 勝利的判斷延後到確認沒有法庭觸發後再進行。這裡只抓破產。
     }
 
     // 3. 尋找下一位活躍玩家
@@ -87,27 +94,49 @@ export class GameFlowEngine {
       const endingRes = resolveGameStatus(endingPlayer, Math.min(nextTurn, 50), { forceTurn: 51 });
       return {
         players: finalPlayers,
-        phase: endingRes.phase || 'gameover',
+        phase: 'gameover',
         endingResult: endingRes.endingResult,
         turn: Math.min(nextTurn, 50),
       };
     }
 
-    // 5. 結束每位玩家回合後的隨機法庭審計 (現在不再綁定一輪結束，而是每個人動完都有機會)
+    // 5. 結束每位玩家回合後的隨機法庭審計
     const trialToTrigger =
       !trial && finalPlayers.some(p => !p.isBankrupt)
         ? CourtEngine.checkAndTriggerIndictment(finalPlayers, nextTurn)
         : null;
 
+    if (trialToTrigger) {
+      return {
+        players: finalPlayers,
+        currentPlayerIndex: nextIndex,
+        turn: nextTurn,
+        pendingTrialId: trialToTrigger,
+        resultDiffs: diffs,
+      };
+    }
+
+    // 6. 法庭若無觸發，才判斷剛剛結束回合的玩家是否達成勝利條件
+    if (!player.isBankrupt) {
+      const currentPlayerRes = resolveGameStatus(updatedPlayers[currentPlayerIndex], turn);
+      if (currentPlayerRes.isGameOver) {
+        if (currentPlayerRes.updatedPlayer) {
+          updatedPlayers[currentPlayerIndex] = currentPlayerRes.updatedPlayer;
+        }
+        return {
+          players: updatedPlayers,
+          phase: currentPlayerRes.phase,
+          endingResult: currentPlayerRes.endingResult,
+          turn: Math.min(nextTurn, 50),
+        };
+      }
+    }
+
     return {
       players: finalPlayers,
       currentPlayerIndex: nextIndex,
       turn: nextTurn,
-      // 注意：triggerTrial 的發動仍需由 Store 捕獲 trialToTrigger 字串後執行，
-      // 或直接在此回傳 phase: 'courtroom' 與 trial 物件。
-      // 為了保持 Store 乾淨，我們可以在這裡執行 prepareTrial。
-      ...(trialToTrigger ? { pendingTrialId: trialToTrigger } : {}),
-      resultDiffs: diffs, // [新增] 回合末被動收益差值
+      resultDiffs: diffs,
     };
   }
 
@@ -232,14 +261,19 @@ export class GameFlowEngine {
     const defendantDiffs = trialRes.diffs;
 
     // 彙整所有旁觀者的押注結果
-    const betDiffs: { playerId: string; amount: number }[] = [];
+    const betDiffs: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[] = [];
     updatedPlayers.forEach((p, pIdx) => {
       if (p.id === trial.defendantId) return;
-      const oldG = players.find(oldP => oldP.id === p.id)?.g || 0;
-      const diff = p.g - oldG;
-      if (diff !== 0) {
-        betDiffs.push({ playerId: p.id, amount: diff });
-      }
+      const oldP = players.find(oldP => oldP.id === p.id);
+      if (!oldP) return;
+
+      const ipDiff = p.ip - oldP.ip;
+      const rpDiff = p.rp - Math.min(100, oldP.rp);
+      const gDiff = p.g - oldP.g;
+
+      if (ipDiff !== 0) betDiffs.push({ playerId: p.name, amount: ipDiff, type: 'ip' });
+      if (rpDiff !== 0) betDiffs.push({ playerId: p.name, amount: rpDiff, type: 'rp' });
+      if (gDiff !== 0) betDiffs.push({ playerId: p.name, amount: gDiff, type: 'g' });
     });
 
     const final = { ...updatedPlayers[idx], ...defendantUpdates };
@@ -249,9 +283,9 @@ export class GameFlowEngine {
 
     return {
       players: updatedPlayers,
-      phase: res.isGameOver ? res.phase : 'play',
+      phase: 'play', // [修正] 強制返回 play，將勝利的檢查權轉交給 gameStore 依序執行
       trial: null,
-      endingResult: res.endingResult,
+      endingResult: null, // [修正] 由於延後檢查，這裡先不傳遞 endingResult
       // [新增] 傳遞給 Store 以便觸發彈窗
       resultDiffs: {
         ...defendantDiffs,

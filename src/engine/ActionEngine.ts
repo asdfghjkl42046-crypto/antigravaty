@@ -497,7 +497,7 @@ export async function performAction(
 
     // 進行購買避免資金負債機制(罰金例外)
     updates.g = Math.max(0, (player.g || 0) + finalGChange);
-    updates.rp = (player.rp || 0) + finalRPChange;
+    updates.rp = Math.max(0, Math.min(100, (player.rp || 0) + finalRPChange));
     updates.ip = (player.ip || 0) + finalIPChange;
 
     // 遊戲生涯的總營收計算

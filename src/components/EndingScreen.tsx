@@ -20,15 +20,19 @@ import {
   Clock,
   PenTool,
   Search,
-  FileText
+  FileText,
+  ChevronRight
 } from 'lucide-react';
 
 export default function EndingScreen() {
-  const { endingResult, resetGame, players, currentPlayerIndex } = useGameStore();
+  const { endingResult, resetGame, endTurn, players, currentPlayerIndex, turn, phase } = useGameStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const dossierRef = useRef<HTMLDivElement>(null);
   
   const player = players[currentPlayerIndex];
+
+  // 判定是否為最終全局結束
+  const isFinalGameOver = phase === 'victory' || players.every(p => p.isBankrupt) || turn >= 50;
 
   useEffect(() => {
     if (!endingResult) return;
@@ -105,6 +109,21 @@ export default function EndingScreen() {
 
   const isLimit = endingResult.type === 'limit';
   const isVictory = ['dragonhead', 'tycoon', 'saint'].includes(endingResult.type);
+
+  const handleContinueGame = () => {
+    // 1. 先把目前這位倒楣鬼標記為破產
+    useGameStore.getState().debugUpdatePlayer(player.id, { isBankrupt: true });
+    
+    // 2. 清除結局狀態，回到 play 階段 (這樣 Dashboard 才會顯示)
+    useGameStore.setState({ phase: 'play', endingResult: null });
+
+    // 3. 檢查是否有押注彈窗待顯示
+    const hasBets = useGameStore.getState().pendingBetResolution;
+    if (!hasBets) {
+      // 如果沒押注，則執行第四步：獲勝(若有)
+      useGameStore.getState().checkGlobalVictoryOrContinue();
+    }
+  };
 
   return (
     <div 
@@ -298,12 +317,21 @@ export default function EndingScreen() {
 
         {/* 按鈕區域 */}
         <button 
-          onClick={resetGame}
+          onClick={isFinalGameOver ? resetGame : handleContinueGame}
           className="ending-btn mt-auto w-full group relative flex items-center justify-center p-4 bg-[#1a1a1a] hover:bg-black text-[#e8dcc4] rounded-xl transition-all active:scale-95 shadow-xl overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-          <RotateCcw className="w-5 h-5 mr-3 group-hover:rotate-[-180deg] transition-transform duration-500" />
-          <span className="font-black tracking-[0.4em] uppercase text-xs">歸檔並重啟人生</span>
+          {isFinalGameOver ? (
+            <>
+              <RotateCcw className="w-5 h-5 mr-3 group-hover:rotate-[-180deg] transition-transform duration-500" />
+              <span className="font-black tracking-[0.4em] uppercase text-xs">歸檔並重啟人生</span>
+            </>
+          ) : (
+            <>
+              <ChevronRight className="w-5 h-5 mr-3 group-hover:translate-x-2 transition-transform duration-500" />
+              <span className="font-black tracking-[0.4em] uppercase text-xs">確認清算並繼續遊戲</span>
+            </>
+          )}
         </button>
       </div>
 

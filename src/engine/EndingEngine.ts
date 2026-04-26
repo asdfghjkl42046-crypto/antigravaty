@@ -8,6 +8,7 @@ import type { Player, VictoryRoute, EndingResult, Tag, GamePhase } from '../type
 // 定義被封裝後的遊戲階段狀態解析介面
 export interface GameStatusResolution {
   isGameOver: boolean;
+  isEliminated?: boolean; // 新增：單人破產出局標籤
   phase: GamePhase;
   endingResult: EndingResult | null;
   updatedPlayer?: Player;
@@ -251,12 +252,19 @@ export function resolveGameStatus(
     return { isGameOver: true, phase: 'victory', endingResult: ending };
   }
 
-  // 2. 常規檢查：只要撞到破產死線，馬上中斷並進入 gameover 結算
+  // 2. 常規檢查：撞到破產死線，標記為出局但「不直接結束遊戲」
   if (checkBankruptcy(player)) {
     const ending = calculateEnding(player, currentTurn);
-    // 強制為玩家掛上不可逆的破產印記
+    // 為玩家掛上不可逆的破產印記
     const updatedPlayer = { ...player, isBankrupt: true };
-    return { isGameOver: true, phase: 'gameover', endingResult: ending, updatedPlayer };
+    // 回報 isEliminated 而非 isGameOver
+    return { 
+      isGameOver: false, 
+      isEliminated: true, 
+      phase: 'gameover', 
+      endingResult: ending, 
+      updatedPlayer 
+    };
   }
 
   // 3. 勝利路徑達成判定 (提早通關)

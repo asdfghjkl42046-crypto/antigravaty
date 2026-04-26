@@ -326,7 +326,7 @@ export function settleEndOfTurn(player: Player, currentTurn: number): {
 
   // 1. 人資天賦檢查 - 公關 (PR) LV3：動用媒體帶風向，每回合免費自動 +5 RP
   const rpPerTurn = getPRAutoRP(player);
-  if (rpPerTurn > 0) finalRP += rpPerTurn;
+  if (rpPerTurn > 0) finalRP = Math.min(100, finalRP + rpPerTurn);
 
   // 2. 人資天賦檢查 - 技術長 (CTO) LV2：靠自動化黑客網路腳本印鈔，每回合免費自動 +100 萬 G
   const gPerTurn = getCTOAutoIncome(player);
