@@ -1056,7 +1056,6 @@ export default function CourtroomScreen() {
                   
                   let currentPage = '';
                   lines.forEach((line) => {
-                    // 如果是重要標題，且目前頁面已經有內容，則考慮分頁或合併
                     if (line.includes('【法制教育】') || line.includes('【裁罰結果】')) {
                       if (currentPage.length > 0) {
                         pages.push(currentPage);
@@ -1064,9 +1063,7 @@ export default function CourtroomScreen() {
                       }
                       currentPage += line + '\n';
                     } else {
-                      // 普通內容直接加入
                       currentPage += line + '\n';
-                      // 如果單頁內容過長 (超過 200 字)，強制分頁
                       if (currentPage.length > 200) {
                         pages.push(currentPage);
                         currentPage = '';
@@ -1077,22 +1074,12 @@ export default function CourtroomScreen() {
                   return pages;
                 })()} 
                 onClose={() => resolveTrial()} 
+                onAppeal={() => extraordinaryAppeal()}
+                canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
               />
             </div>
           )}
         </div>
-
-        {!isWin && defendant && !defendant.hasUsedExtraAppeal && (
-          <div className="mt-4 px-2">
-            <button
-              onClick={() => extraordinaryAppeal()}
-              className="w-full py-4 border-2 border-dashed border-red-500/50 text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center gap-3 font-bold uppercase tracking-widest text-sm"
-            >
-              <RotateCcw size={18} />
-              <span>{SystemStrings.UI_LABELS.APPEAL} (扣除 {formatValue(appealCost, SystemStrings.UNITS.MONEY)})</span>
-            </button>
-          </div>
-        )}
       </div>
     );
   };

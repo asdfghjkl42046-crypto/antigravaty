@@ -68,7 +68,7 @@ const CountdownClock: React.FC<{ onComplete: () => void; onAppeal: () => void }>
 /**
  * IndictmentBook V2.1 - 雙面渲染物理引擎 (手感同步 ParchmentBook)
  */
-export default function IndictmentBook({ caseTitle, pages, onClose }: IndictmentBookProps) {
+export default function IndictmentBook({ caseTitle, pages, onClose, onAppeal, canAppeal }: IndictmentBookProps) {
   // --- 狀態控制 (Sync-Ref Architecture) ---
   const [isCoverOpened, setIsCoverOpened] = useState(false);
   const isCoverOpenedRef = useRef(false);
