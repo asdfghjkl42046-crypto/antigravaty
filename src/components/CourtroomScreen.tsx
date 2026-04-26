@@ -715,6 +715,7 @@ export default function CourtroomScreen() {
     withdrawCase,
   } = useGameStore();
 
+  const [showAttorneySkill, setShowAttorneySkill] = useState(false); // 移動到最頂部，不受 Early Return 影響
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const judgeRef = useRef<HTMLDivElement>(null);
@@ -738,7 +739,6 @@ export default function CourtroomScreen() {
   if (!mounted || !trial) return null;
 
   const defendant = players.find((p) => p.id === trial.defendantId);
-  const [showAttorneySkill, setShowAttorneySkill] = useState(false); // 確保狀態宣告在組件作用域內
   const actingBystander = trial.bystanderIds[trial.actingBystanderIndex]
     ? players.find((p) => p.id === trial.bystanderIds[trial.actingBystanderIndex])
     : null;
