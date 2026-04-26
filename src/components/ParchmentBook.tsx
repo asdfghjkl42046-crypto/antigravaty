@@ -26,6 +26,8 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   const coverRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  const currentPageRef = useRef(0);
+
   const pages = useMemo(
     () => SystemStrings.SETUP.START_PATH_LABELS[activePath] || [],
     [activePath]
@@ -57,6 +59,17 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         };
     }
   }, [activePath]);
+
+  // 初始化所有頁面的 GSAP transform（只跑一次，之後完全由 GSAP 控制）
+  useEffect(() => {
+    pageRefs.current.forEach((el, idx) => {
+      if (!el) return;
+      gsap.set(el, {
+        rotationY: -5,
+        z: (pages.length - idx) * 20,
+      });
+    });
+  }, [pages.length]);
 
   // --- 核心交互邏輯 ---
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -115,27 +128,33 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
     } else {
       if (Math.abs(deltaX) > 80) {
         const isForward = deltaX < 0;
-        if (isForward && currentPage < totalPages) {
-          const target = pageRefs.current[currentPage];
+        if (isForward && currentPageRef.current < totalPages) {
+          const idx = currentPageRef.current;
+          const target = pageRefs.current[idx];
           if (target)
             gsap.to(target, {
               rotationY: -160,
-              z: 2,
-              duration: 0.6,
-              ease: 'power2.out',
-              onComplete: () => setFlippingIndex(-1),
-            });
-          setCurrentPage((prev) => prev + 1);
-        } else if (!isForward && currentPage > 0) {
-          const target = pageRefs.current[currentPage - 1];
-          if (target)
-            gsap.to(target, {
-              rotationY: -5,
-              z: 2,
+              z: idx * 20 + 2,
               duration: 0.6,
               ease: 'power2.out',
               onComplete: () => {
-                setCurrentPage((prev) => prev - 1);
+                currentPageRef.current = idx + 1;
+                setCurrentPage(idx + 1);
+                setFlippingIndex(-1);
+              },
+            });
+        } else if (!isForward && currentPageRef.current > 0) {
+          const idx = currentPageRef.current - 1;
+          const target = pageRefs.current[idx];
+          if (target)
+            gsap.to(target, {
+              rotationY: -5,
+              z: (totalPages - idx) * 20,
+              duration: 0.6,
+              ease: 'power2.out',
+              onComplete: () => {
+                currentPageRef.current = idx;
+                setCurrentPage(idx);
                 setFlippingIndex(-1);
               },
             });
@@ -195,7 +214,6 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
               ref={el => { pageRefs.current[idx] = el; }}
               className="absolute inset-0 origin-left transform-style-3d bg-[#fdfaf2] shadow-xl"
               style={{
-                transform: `translate3d(0, 0, ${idx < currentPage ? idx * 20 : (totalPages - idx) * 20}px) rotateY(${idx < currentPage ? -160 : -5}deg)`,
                 backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
                 backfaceVisibility: 'hidden',
                 zIndex: idx === flippingIndex ? 500 : (idx < currentPage ? 100 + idx : 100 - idx)
