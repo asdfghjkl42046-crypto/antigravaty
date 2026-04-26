@@ -227,6 +227,15 @@ export const SystemStrings = {
       PAGE_INDICATOR: (idx: number) => `卷宗紀錄 - 第 ${idx} 頁`,
       CONFIDENTIAL_ARCHIVE: 'CONFIDENTIAL ARCHIVE',
       PAGE_X_OF_Y: (x: number, y: number) => `頁次 ${x} / ${y}`,
+      COLORS: {
+        PAGE_BG: '#fdfaf2',
+        TEXT_PRIMARY: '#451a03', // amber-950
+        DROP_CAP: '#78350f',    // amber-900
+      },
+      TEXTURES: {
+        PAPER: 'https://www.transparenttextures.com/patterns/natural-paper.png',
+        LEATHER: 'https://www.transparenttextures.com/patterns/leather.png',
+      }
     },
   },
 };

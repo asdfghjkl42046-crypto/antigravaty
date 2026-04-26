@@ -206,15 +206,15 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         <div className="absolute inset-0 transform-style-3d" style={{ zIndex: 10 }}>
           {pages.map((content, idx) => (
             <div
-              key={idx}
+              key={`${activePath}-${idx}`}
               ref={(el) => {
                 pageRefs.current[idx] = el;
               }}
-              className="absolute inset-0 origin-left transform-style-3d bg-[#fdfaf2] shadow-xl"
+              className="absolute inset-0 origin-left transform-style-3d bg-paper-texture shadow-xl"
               style={{
+                backgroundColor: SystemStrings.SETUP.DOSSIER.COLORS.PAGE_BG,
                 transform: `translate3d(0, 0, ${idx < currentPage ? idx * 20 : (totalPages - idx) * 20}px) rotateY(${idx < currentPage ? -160 : -5}deg)`,
-                backgroundImage:
-                  'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                backgroundImage: `url("${SystemStrings.SETUP.DOSSIER.TEXTURES.PAPER}")`,
                 backfaceVisibility: 'hidden',
                 zIndex: idx === flippingIndex ? 500 : idx < currentPage ? 100 + idx : 100 - idx,
               }}
@@ -227,8 +227,17 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
                 </div>
                 <div className="flex-grow overflow-y-auto">
-                  <p className={`text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap ${idx === 0 ? 'first-letter:text-5xl first-letter:font-black first-letter:mr-3 first-letter:float-left first-letter:text-amber-900' : ''}`}>
-                    {content}
+                  <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
+                    {idx === 0 ? (
+                      <>
+                        <span className="text-5xl font-black mr-3 float-left text-amber-900 leading-[0.8] mt-1">
+                          {content.charAt(0)}
+                        </span>
+                        {content.slice(1)}
+                      </>
+                    ) : (
+                      content
+                    )}
                   </p>
                 </div>
                 <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
