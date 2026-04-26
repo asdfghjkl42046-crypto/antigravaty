@@ -346,10 +346,6 @@ export class CourtEngine {
     
     const punishment = res.isSuccess ? undefined : this.calculatePenalty(player, trial.lawCase.tag, currentTurn, trial.lawCaseTagId, trial.isAppeal || false, trial.judgePersonality);
 
-    if (!res.isSuccess && (player.roles?.lawyer || 0) >= 3) {
-      return { isDefenseSuccess: false, finalSurvivalRate: res.rate, defenseText: text, punishment, punishmentDetail: punishment?.detail, stage: 5 };
-    }
-
     const judge = this.generateJudgment(judgeMode, trial.judgePersonality || 'traditionalist', trial, player, res.isSuccess);
     return { isDefenseSuccess: res.isSuccess, finalSurvivalRate: res.rate, defenseText: text, punishment, punishmentDetail: punishment?.detail, judgment: judge.judgment, userPrompt: judge.userPrompt, stage: 6 };
   }

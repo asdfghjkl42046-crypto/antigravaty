@@ -945,30 +945,6 @@ export default function CourtroomScreen() {
           </div>
         )}
 
-        {/* 王牌律師 LV3：強制撤告特權 */}
-        {getRoleLevel(defendant, 'lawyer') >= 3 && (
-          <div className="absolute top-20 right-5 z-[20] animate-in fade-in zoom-in duration-700">
-            <button
-              onClick={() => {
-                if (window.confirm(`確定要花費 ${formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)} 發動「${SystemStrings.UI_LABELS.WITHDRAW_CASE}」嗎？`)) {
-                  withdrawCase();
-                }
-              }}
-              className="flex flex-col items-end group"
-            >
-              <div className="text-[10px] text-amber-500 font-black tracking-widest uppercase mb-1 group-hover:text-amber-400 transition-colors">
-                律師特權: {SystemStrings.UI_LABELS.WITHDRAW_CASE}
-              </div>
-              <div className="px-4 py-2 bg-amber-600/20 border border-amber-500/50 rounded-lg backdrop-blur-md flex items-center gap-2 group-hover:bg-amber-600/30 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-                <ShieldCheck size={16} className="text-amber-400" />
-                <span className="text-sm font-black text-white italic">
-                  支付 {formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)} 結案
-                </span>
-              </div>
-            </button>
-          </div>
-        )}
-
         <div className="flex-grow flex items-center justify-center pt-2">
           <DefenseCarousel
             lawCase={trial.lawCase}
@@ -1096,8 +1072,10 @@ export default function CourtroomScreen() {
                 <div className="fixed inset-x-0 bottom-10 z-[1000] flex justify-center animate-in slide-in-from-bottom-20 duration-500">
                   <button 
                     onClick={() => {
-                      console.log("Ace Attorney Skill Activated!");
-                      // 這裡應連動真正的技能執行邏輯
+                      if (defendant && window.confirm(`確定要發動王牌律師技能「${SystemStrings.UI_LABELS.WITHDRAW_CASE}」嗎？\n(花費: ${formatValue(getWithdrawCaseCost(defendant).g, SystemStrings.UNITS.MONEY)})`)) {
+                        withdrawCase();
+                        setShowAttorneySkill(false);
+                      }
                     }}
                     className="group relative px-12 py-6 bg-cyan-600 rounded-full shadow-[0_0_50px_rgba(6,182,212,0.5)] border-t-2 border-cyan-400 overflow-hidden active:scale-95 transition-all"
                   >
