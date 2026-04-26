@@ -255,36 +255,50 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
             <div
               key={`${activePath}-${idx}`}
               ref={el => { pageRefs.current[idx] = el; }}
-              className="absolute inset-0 origin-left transform-style-3d bg-[#fdfaf2] shadow-xl"
+              className="absolute inset-0 origin-left transform-style-3d shadow-xl"
               style={{
-                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
-                backfaceVisibility: 'hidden',
                 zIndex: idx === flippingIndex ? 500 : (idx < currentPage ? 100 + idx : 100 - idx)
               }}
             >
-              <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
-                 <div className="flex items-center justify-between border-b border-amber-900/10 pb-4 mb-8">
-                   <span className="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.3em]">卷宗紀錄 - 第 {idx+1} 頁</span>
-                   <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
-                 </div>
-                 <div className="flex-grow overflow-y-auto">
-                    <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
-                      {idx === 0 ? (
-                        <>
-                          <span className="text-5xl font-black mr-3 float-left text-amber-900 leading-[0.8] mt-1">
-                            {content.charAt(0)}
-                          </span>
-                          {content.slice(1)}
-                        </>
-                      ) : (
-                        content
-                      )}
-                    </p>
-                 </div>
-                 <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
-                   <span>CONFIDENTIAL ARCHIVE</span>
-                   <span>頁次 {idx+1} / {totalPages}</span>
-                 </div>
+              {/* 正面：內容 */}
+              <div className="absolute inset-0 bg-[#fdfaf2]" style={{
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                backfaceVisibility: 'hidden',
+              }}>
+                <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
+                   <div className="flex items-center justify-between border-b border-amber-900/10 pb-4 mb-8">
+                     <span className="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.3em]">卷宗紀錄 - 第 {idx+1} 頁</span>
+                     <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
+                   </div>
+                   <div className="flex-grow overflow-y-auto">
+                      <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
+                        {idx === 0 ? (
+                          <>
+                            <span className="text-5xl font-black mr-3 float-left text-amber-900 leading-[0.8] mt-1">
+                              {content.charAt(0)}
+                            </span>
+                            {content.slice(1)}
+                          </>
+                        ) : (
+                          content
+                        )}
+                      </p>
+                   </div>
+                   <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
+                     <span>CONFIDENTIAL ARCHIVE</span>
+                     <span>頁次 {idx+1} / {totalPages}</span>
+                   </div>
+                </div>
+              </div>
+              {/* 背面：翻過去後看到的紙張背面 */}
+              <div className="absolute inset-0 bg-[#f0ead8]" style={{
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                backfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+              }}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+                  <span className="text-6xl font-black text-amber-900 rotate-180">{idx + 1}</span>
+                </div>
               </div>
             </div>
           ))}
@@ -295,25 +309,37 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           ref={coverRef}
           className="absolute inset-0 origin-left transform-style-3d cursor-pointer"
           style={{
+            zIndex: isCoverOpened ? 50 : 200,
+          }}
+        >
+          {/* 封面正面 */}
+          <div className="absolute inset-0" style={{
             backgroundColor: theme.coverColor,
             backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
             backfaceVisibility: 'hidden',
-            zIndex: isCoverOpened ? 50 : 200,
             boxShadow: 'inset -20px 0 40px rgba(0,0,0,0.5), 15px 15px 50px rgba(0,0,0,0.8)'
-          }}
-        >
-          <div className="absolute inset-4 border border-white/5 rounded-sm flex flex-col items-center justify-center p-8 gap-12">
-            <div className="w-24 h-24 rounded-[32px] bg-black/20 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-md">
-              {React.cloneElement(theme.icon as React.ReactElement<any>, {
-                className: 'w-12 h-12 text-white/40',
-              })}
-            </div>
-            <div className="text-center">
-              <h2 className="text-4xl font-black tracking-[0.2em] text-white/95 uppercase leading-tight drop-shadow-2xl">
-                {theme.title}
-              </h2>
+          }}>
+            <div className="absolute inset-4 border border-white/5 rounded-sm flex flex-col items-center justify-center p-8 gap-12">
+              <div className="w-24 h-24 rounded-[32px] bg-black/20 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-md">
+                {React.cloneElement(theme.icon as React.ReactElement<any>, {
+                  className: 'w-12 h-12 text-white/40',
+                })}
+              </div>
+              <div className="text-center">
+                <h2 className="text-4xl font-black tracking-[0.2em] text-white/95 uppercase leading-tight drop-shadow-2xl">
+                  {theme.title}
+                </h2>
+              </div>
             </div>
           </div>
+          {/* 封面背面（翻開後左側可見的內側） */}
+          <div className="absolute inset-0" style={{
+            backgroundColor: theme.coverColor,
+            backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            filter: 'brightness(0.6)',
+          }} />
         </div>
       </div>
       <style jsx>{`
