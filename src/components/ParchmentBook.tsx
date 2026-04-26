@@ -117,14 +117,14 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           // 往回翻（右滑）：cur === 0 時拖封面，否則拖上一頁
           if (cur === 0) {
             // 從第一頁往右滑 → 預覽關閉封面（封面從 -180 往後）
-            const rot = Math.min(-5, -180 + ((-deltaX) / 300) * 175);
+            const rot = Math.min(-5, -180 + (-deltaX / 300) * 175);
             if (coverRef.current)
               gsap.to(coverRef.current, { rotationY: rot, z: 120, duration: 0.1, overwrite: true });
           } else {
             const target = pageRefs.current[cur - 1];
             if (target) {
               setFlippingIndex(cur - 1);
-              const rot = -160 + ((-deltaX) / 300) * 155;
+              const rot = -160 + (-deltaX / 300) * 155;
               gsap.to(target, {
                 rotationY: Math.min(-5, Math.max(-160, rot)),
                 z: 50,
@@ -233,7 +233,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   };
 
   return (
-    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto">
+    <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-90">
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
@@ -242,10 +242,16 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
         className="relative w-[420px] h-[540px] perspective-3000 select-none cursor-grab active:cursor-grabbing transform-style-3d touch-none"
       >
         {/* 1. 皮革底盤 */}
-        <div className="absolute inset-0 transform-style-3d" style={{ transform: 'translateZ(-60px)' }}>
-          <div 
+        <div
+          className="absolute inset-0 transform-style-3d"
+          style={{ transform: 'translateZ(-60px)' }}
+        >
+          <div
             className="absolute inset-x-[-10px] inset-y-[-5px] rounded-xl border-r-[12px] border-black/40 shadow-2xl"
-            style={{ backgroundColor: theme.coverColor, backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")' }}
+            style={{
+              backgroundColor: theme.coverColor,
+              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+            }}
           />
         </div>
 
@@ -254,48 +260,62 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           {pages.map((content, idx) => (
             <div
               key={`${activePath}-${idx}`}
-              ref={el => { pageRefs.current[idx] = el; }}
+              ref={(el) => {
+                pageRefs.current[idx] = el;
+              }}
               className="absolute inset-0 origin-left transform-style-3d shadow-xl"
               style={{
-                zIndex: idx === flippingIndex ? 500 : (idx < currentPage ? 100 + idx : 100 - idx)
+                zIndex: idx === flippingIndex ? 500 : idx < currentPage ? 100 + idx : 100 - idx,
               }}
             >
               {/* 正面：內容 */}
-              <div className="absolute inset-0 bg-[#fdfaf2]" style={{
-                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
-                backfaceVisibility: 'hidden',
-              }}>
+              <div
+                className="absolute inset-0 bg-[#fdfaf2]"
+                style={{
+                  backgroundImage:
+                    'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                  backfaceVisibility: 'hidden',
+                }}
+              >
                 <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
-                   <div className="flex items-center justify-between border-b border-amber-900/10 pb-4 mb-8">
-                     <span className="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.3em]">卷宗紀錄 - 第 {idx+1} 頁</span>
-                     <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
-                   </div>
-                   <div className="flex-grow overflow-y-auto">
-                      <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
-                        {idx === 0 ? (
-                          <>
-                            <span className="text-5xl font-black mr-3 float-left text-amber-900 leading-[0.8] mt-1">
-                              {content.charAt(0)}
-                            </span>
-                            {content.slice(1)}
-                          </>
-                        ) : (
-                          content
-                        )}
-                      </p>
-                   </div>
-                   <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
-                     <span>CONFIDENTIAL ARCHIVE</span>
-                     <span>頁次 {idx+1} / {totalPages}</span>
-                   </div>
+                  <div className="flex items-center justify-between border-b border-amber-900/10 pb-4 mb-8">
+                    <span className="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.3em]">
+                      卷宗紀錄 - 第 {idx + 1} 頁
+                    </span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
+                  </div>
+                  <div className="flex-grow overflow-y-auto">
+                    <p className="text-[17px] font-serif italic text-amber-950/80 leading-relaxed indent-8 whitespace-pre-wrap">
+                      {idx === 0 ? (
+                        <>
+                          <span className="text-5xl font-black mr-3 float-left text-amber-900 leading-[0.8] mt-1">
+                            {content.charAt(0)}
+                          </span>
+                          {content.slice(1)}
+                        </>
+                      ) : (
+                        content
+                      )}
+                    </p>
+                  </div>
+                  <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
+                    <span>CONFIDENTIAL ARCHIVE</span>
+                    <span>
+                      頁次 {idx + 1} / {totalPages}
+                    </span>
+                  </div>
                 </div>
               </div>
               {/* 背面：翻過去後看到的紙張背面 */}
-              <div className="absolute inset-0 bg-[#f0ead8]" style={{
-                backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
-                backfaceVisibility: 'hidden',
-                transform: 'rotateY(180deg)',
-              }}>
+              <div
+                className="absolute inset-0 bg-[#f0ead8]"
+                style={{
+                  backgroundImage:
+                    'url("https://www.transparenttextures.com/patterns/natural-paper.png")',
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                }}
+              >
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
                   <span className="text-6xl font-black text-amber-900 rotate-180">{idx + 1}</span>
                 </div>
@@ -313,12 +333,15 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
           }}
         >
           {/* 封面正面 */}
-          <div className="absolute inset-0" style={{
-            backgroundColor: theme.coverColor,
-            backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
-            backfaceVisibility: 'hidden',
-            boxShadow: 'inset -20px 0 40px rgba(0,0,0,0.5), 15px 15px 50px rgba(0,0,0,0.8)'
-          }}>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundColor: theme.coverColor,
+              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+              backfaceVisibility: 'hidden',
+              boxShadow: 'inset -20px 0 40px rgba(0,0,0,0.5), 15px 15px 50px rgba(0,0,0,0.8)',
+            }}
+          >
             <div className="absolute inset-4 border border-white/5 rounded-sm flex flex-col items-center justify-center p-8 gap-12">
               <div className="w-24 h-24 rounded-[32px] bg-black/20 border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-md">
                 {React.cloneElement(theme.icon as React.ReactElement<any>, {
@@ -333,18 +356,25 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
             </div>
           </div>
           {/* 封面背面（翻開後左側可見的內側） */}
-          <div className="absolute inset-0" style={{
-            backgroundColor: theme.coverColor,
-            backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            filter: 'brightness(0.6)',
-          }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundColor: theme.coverColor,
+              backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
+              backfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              filter: 'brightness(0.6)',
+            }}
+          />
         </div>
       </div>
       <style jsx>{`
-        .transform-origin-left { transform-origin: left center; }
-        .transform-style-3d { transform-style: preserve-3d; }
+        .transform-origin-left {
+          transform-origin: left center;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
       `}</style>
     </div>
   );
