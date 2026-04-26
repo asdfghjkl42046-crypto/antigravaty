@@ -154,7 +154,7 @@ export default function PlayerRegistrationScreen({
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-transparent overflow-hidden text-white font-sans selection:bg-blue-500/30">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-transparent overflow-visible text-white font-sans selection:bg-blue-500/30">
       {/* 桌面背景 */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-transparent" />
@@ -324,7 +324,7 @@ export default function PlayerRegistrationScreen({
                 <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
               </button>
             </div>
-            <div className="w-full flex justify-center transition-transform duration-700">
+            <div className="w-full flex justify-center scale-90 transition-transform duration-700">
               <ParchmentBook
                 key={selectedPath}
                 activePath={selectedPath!}
