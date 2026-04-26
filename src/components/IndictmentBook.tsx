@@ -10,6 +10,7 @@ interface IndictmentBookProps {
   pages: string[];
   onClose?: () => void;
   onAppeal?: () => void;
+  onCountdownEnd?: () => void;
   canAppeal?: boolean;
 }
 
@@ -107,6 +108,7 @@ export default function IndictmentBook({
   pages,
   onClose,
   onAppeal,
+  onCountdownEnd,
   canAppeal,
 }: IndictmentBookProps) {
   // --- 狀態控制 (Sync-Ref Architecture) ---
@@ -326,16 +328,15 @@ export default function IndictmentBook({
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
             }}
           >
-            {/* 右側封底內側的倒數系統 */}
-            {canAppeal && (
-              <div className="absolute inset-y-0 right-0 w-1/2 flex flex-col items-center justify-center p-10">
-                <CountdownClock 
-                  onComplete={() => onClose?.()} 
-                  onAppeal={() => onAppeal?.()} 
-                  isActive={currentPage === totalPages}
-                />
-              </div>
-            )}
+                {totalPages > 0 && canAppeal && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
+                    <CountdownClock 
+                      onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
+                      onAppeal={() => onAppeal?.()} 
+                      isActive={currentPage === totalPages}
+                    />
+                  </div>
+                )}
           </div>
         </div>
 

@@ -93,6 +93,9 @@ const PaperFlip: React.FC<{
   }, [text, title]);
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedVerdict, setSelectedVerdict] = useState<number | null>(null);
+  const [showAttorneySkill, setShowAttorneySkill] = useState(false); // 新增：倒數結束後顯示技能
+  const [isBettingComplete, setIsBettingComplete] = useState(false);
   const [targetPage, setTargetPage] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
@@ -1075,8 +1078,36 @@ export default function CourtroomScreen() {
                 })()} 
                 onClose={() => resolveTrial()} 
                 onAppeal={() => extraordinaryAppeal()}
+                onCountdownEnd={() => {
+                  // 如果有律師 LV3 技能，倒數結束不關閉，而是顯示技能
+                  const hasLv3Skill = defendant?.lawyerId === 'lawyer_01'; // 假設 lawyer_01 是王牌律師
+                  if (hasLv3Skill && !isWin) {
+                    setShowAttorneySkill(true);
+                  } else {
+                    resolveTrial();
+                  }
+                }}
                 canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
               />
+
+              {/* 王牌律師 LV3 技能按鈕 - 倒數結束後才出現 */}
+              {showAttorneySkill && (
+                <div className="fixed inset-x-0 bottom-10 z-[1000] flex justify-center animate-in slide-in-from-bottom-20 duration-500">
+                  <button 
+                    onClick={() => {
+                      // 觸發律師逆轉技能邏輯
+                      console.log("Ace Attorney Skill Activated!");
+                      // 此處應調用對應的技能效果
+                    }}
+                    className="group relative px-12 py-6 bg-cyan-600 rounded-full shadow-[0_0_50px_rgba(6,182,212,0.5)] border-t-2 border-cyan-400 overflow-hidden active:scale-95 transition-all"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+                    <span className="relative text-white font-black text-2xl tracking-[0.3em] italic drop-shadow-md">
+                      OBJECTION! 逆轉判決
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
