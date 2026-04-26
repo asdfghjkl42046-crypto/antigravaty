@@ -18,7 +18,7 @@ export const SystemStrings = {
     LEVEL: '等級',
     STATUS_BANKRUPT: '已破產',
     STATUS_ACTIVE: '運作中',
-    
+
     // 按鈕與通用操作
     CONFIRM_RESOLUTION: '確認結算',
     CLOSE_CASE: '關閉卷宗',
@@ -97,7 +97,7 @@ export const SystemStrings = {
     CONFIDENTIAL_DOC: '機密文件',
     CONFIDENTIAL_ADVANTAGE: '內部優勢文件',
     NEXT_PAGE: '下一頁',
-    ACKNOWLEDGE: '朕知道了',
+    ACKNOWLEDGE: '確認',
     RAP_SHEET: '犯罪紀錄編號',
     SUBJECT: '對象',
     CHARGE_PROTOCOL: '起訴協議代碼',
@@ -108,6 +108,7 @@ export const SystemStrings = {
     CURRENT_POS: '當前位置',
     ACTIVE: '生效中',
     IN_PROGRESS: '運作中',
+    DASHBOARD_TITLE: '創業冒險',
   },
 
   // 📸 掃描頁面專用

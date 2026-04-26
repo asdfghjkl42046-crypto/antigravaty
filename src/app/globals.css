@@ -61,11 +61,25 @@ body {
   font-family: 'Geist Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
   margin: 0;
-  touch-action: none;
+  /* 禁止雙擊放大與縮放手勢，保留基本滑動 */
+  touch-action: pan-x pan-y;
   -webkit-user-select: none;
   user-select: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* 🚀 關鍵修正：防止 iOS 點擊輸入框時自動放大畫面 */
+input, 
+textarea, 
+select {
+  font-size: 16px !important; /* iOS 閾值 */
+}
+
+/* 如果 UI 上需要看起來小一點，則使用 transform 縮小，而不是縮小 font-size */
+.input-sm {
+  transform: scale(0.85);
+  transform-origin: left center;
 }
 
 @keyframes shrink {

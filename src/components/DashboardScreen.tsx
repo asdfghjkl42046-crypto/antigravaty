@@ -319,7 +319,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
               第 {String(turn).padStart(2, '0')}/50 輪
             </p>
             <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-transparent filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
-              {SystemStrings.ACTION.DECLARATION_LABEL.split('申報')[0]}冒險
+              {SystemStrings.DECORATION.DASHBOARD_TITLE}
             </h1>
           </div>
         </div>
