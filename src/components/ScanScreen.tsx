@@ -246,7 +246,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
         </div>
 
         <div className="w-full max-w-xs space-y-4">
-          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-5 shadow-inner">
+          <div className="bg-slate-900/60 border border-white/10 rounded-3xl p-5 shadow-inner overflow-hidden">
             <div className="flex items-center space-x-2 mb-3">
               <Keyboard className="w-3.5 h-3.5 text-blue-400" />
               <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
@@ -254,19 +254,19 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
               </span>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex items-center gap-2">
               <input
                 type="text"
                 placeholder={SystemStrings.SCAN.INPUT_PLACEHOLDER}
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
-                className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-2 text-sm font-black tracking-[0.2em] text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-700 uppercase"
+                className="flex-1 min-w-0 bg-black/40 border border-white/5 rounded-xl px-4 py-2.5 text-sm font-black tracking-[0.2em] text-white focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-slate-700 uppercase"
               />
               <button
                 onClick={() => handleCodeSubmit(manualCode)}
                 title={SystemStrings.SCAN.DECODE_SYNC}
                 aria-label="Decode and sync card"
-                className="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-4 rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                className="flex-shrink-0 w-12 h-[42px] bg-blue-600 hover:bg-blue-500 active:scale-95 text-white rounded-xl flex items-center justify-center transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
               >
                 <Cpu size={18} />
               </button>
