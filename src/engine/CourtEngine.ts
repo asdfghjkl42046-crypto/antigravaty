@@ -213,16 +213,15 @@ export class CourtEngine {
     const baseResult = calculateConvictionPenalty(player, netIncome, currentTurn, targetTag.turn === 0, isAppeal);
     const trials = player.totalTrials || 0;
     const recidivismMultiplier = this.getRecidivismMultiplier(trials);
-    let finalFine = Math.ceil(baseResult.fine * recidivismMultiplier);
 
-    if (isAppeal) {
-      finalFine = Math.ceil(finalFine * 2.0);
-    }
+    // [核心修正] 直接選用 baseResult.fine。
+    // 底層 MechanicsEngine.calculateConvictionPenalty 已經處理了「所得 * 累犯 * 上訴 * 折扣」的完整鏈條。
+    // 在此手動乘法會導致倍率重複套用（Double Counting）。
+    const finalFine = baseResult.fine;
 
     const trialLabel = isAppeal ? '[非常上訴失敗]' : `[第 ${trials + 1} 次涉案]`;
-    const reciLabel = recidivismMultiplier > 1 ? ` (累犯倍率 ${recidivismMultiplier}x)` : '';
-    const appealLabel = isAppeal ? ' (上訴懲罰 2.0x)' : '';
-    const detail = `${baseResult.detail}\n- ${trialLabel}${reciLabel}${appealLabel} → 最終總計 ${finalFine}萬G`;
+    const reciLabel = recidivismMultiplier > 1 ? ` (適用累犯加重階段)` : '';
+    const detail = `${baseResult.detail}\n- ${trialLabel}${reciLabel} → 最終結算金額`;
 
     return { fine: finalFine, rpLoss: baseResult.rpLoss, detail: detail };
   }
