@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { Gavel, Scale, FileText, ShieldAlert, RotateCcw } from 'lucide-react';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 interface IndictmentBookProps {
   caseTitle: string;

@@ -19,7 +19,7 @@ import {
 } from './GameEngine';
 import { CourtEngine } from './CourtEngine';
 import { getCTOAntiTheftCount } from './RoleEngine';
-import { SystemStrings } from '../data/SystemStrings';
+import { SYSTEM_STRINGS } from '../data/SystemStrings';
 
 /**
  * 遊戲流程引擎 (Game Flow Engine)
@@ -155,12 +155,12 @@ export class GameFlowEngine {
     // 1. [統一攔截點] 基本效驗：破產者或 AP 不足者禁止發起行動
     if (player.isBankrupt) {
       return {
-        result: { success: false, message: SystemStrings.ERRORS.BANKRUPT_BLOCK, updates: {} } as ActionResult,
+        result: { success: false, message: SYSTEM_STRINGS.ERRORS.BANKRUPT_BLOCK, updates: {} } as ActionResult,
       };
     }
     if (player.ap <= 0) {
       return {
-        result: { success: false, message: SystemStrings.ERRORS.INSUFFICIENT_AP, updates: {} } as ActionResult,
+        result: { success: false, message: SYSTEM_STRINGS.ERRORS.INSUFFICIENT_AP, updates: {} } as ActionResult,
       };
     }
 
@@ -325,7 +325,7 @@ export class GameFlowEngine {
   } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
-    if (!player) return { success: false, message: SystemStrings.ERRORS.INVALID_PLAYER, updates: {} };
+    if (!player) return { success: false, message: SYSTEM_STRINGS.ERRORS.INVALID_PLAYER, updates: {} };
 
     const res = applyRedrawCards(player);
     if (!res.success) return { success: false, message: res.message, updates: {} };
@@ -345,7 +345,7 @@ export class GameFlowEngine {
   ): { success: boolean; message: string; updates: Partial<GameStateData> } {
     const { players, currentPlayerIndex } = state;
     const player = players[currentPlayerIndex];
-    if (!player) return { success: false, message: SystemStrings.ERRORS.INVALID_PLAYER, updates: {} };
+    if (!player) return { success: false, message: SYSTEM_STRINGS.ERRORS.INVALID_PLAYER, updates: {} };
 
     const res = applyRoleUpgrade(player, role, splitOG);
     if (!res.success) return { success: false, message: res.message, updates: {} };

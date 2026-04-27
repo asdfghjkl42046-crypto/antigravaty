@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { Coins, TrendingUp, TrendingDown, Users } from 'lucide-react';
 import gsap from 'gsap';
 import { formatValue } from '@/engine/MathEngine';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 interface BetResult {
   playerId: string;
@@ -52,7 +52,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           <div className="p-3 bg-amber-500/20 rounded-2xl mb-4">
             <Coins className="w-10 h-10 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-wider uppercase">{SystemStrings.RESOLUTION.BETTING_TITLE}</h2>
+          <h2 className="text-2xl font-black text-white tracking-wider uppercase">{SYSTEM_STRINGS.RESOLUTION.BETTING_TITLE}</h2>
           <p className="text-[10px] font-bold text-amber-500/60 tracking-[0.3em] uppercase mt-1">押注收益清單</p>
         </div>
 
@@ -75,14 +75,14 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
                   <TrendingDown className="w-4 h-4 text-red-400" />
                 )}
                 <span className={`text-lg font-black ${bet.amount >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {formatValue(bet.amount, bet.type === 'ip' ? SystemStrings.UNITS.IP : bet.type === 'rp' ? SystemStrings.UNITS.RP : SystemStrings.UNITS.MONEY, true)}
+                  {formatValue(bet.amount, bet.type === 'ip' ? SYSTEM_STRINGS.UNITS.IP : bet.type === 'rp' ? SYSTEM_STRINGS.UNITS.RP : SYSTEM_STRINGS.UNITS.MONEY, true)}
                 </span>
               </div>
             </div>
           ))}
           {bets.length === 0 && (
             <div className="py-10 text-center text-slate-500 italic text-sm">
-              {SystemStrings.RESOLUTION.NO_BETS}
+              {SYSTEM_STRINGS.RESOLUTION.NO_BETS}
             </div>
           )}
         </div>
@@ -91,7 +91,7 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           onClick={handleClose}
           className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs tracking-[0.3em] rounded-2xl transition-all active:scale-95 shadow-lg shadow-amber-500/20"
         >
-          {SystemStrings.DECORATION.ACKNOWLEDGE}
+          {SYSTEM_STRINGS.DECORATION.ACKNOWLEDGE}
         </button>
       </div>
     </div>

@@ -21,7 +21,7 @@ import {
 import { CourtEngine } from '../engine/CourtEngine';
 import { resolveScanCode, resolveTalentCode } from '../engine/MechanicsEngine';
 import * as EndingEngine from '../engine/EndingEngine';
-import { SystemStrings } from '../data/SystemStrings';
+import { SYSTEM_STRINGS } from '../data/SystemStrings';
 
 export const MASTERPIECES = [
   { id: 0, title: '蒙娜麗莎', author: '達文西', url: '/assets/avatars/1.webp' },
@@ -129,7 +129,7 @@ export const useGameStore = create<GameStore>()(
         }
 
         const res = resolveScanCode(codeUpper);
-        if (!res) return { success: false, message: SystemStrings.ERRORS.INVALID_CODE };
+        if (!res) return { success: false, message: SYSTEM_STRINGS.ERRORS.INVALID_CODE };
 
         // [核心修正] 等待行動結算，捕捉真實的成功/失敗狀態
         const actionResult = await get().performAction(res.cardId, res.optionIdx as 1 | 2 | 3, 'normal');
@@ -180,7 +180,7 @@ export const useGameStore = create<GameStore>()(
         if (result.diffs) {
           set({
             pendingResolution: {
-              title: result.success ? SystemStrings.RESOLUTION.SUCCESS_TITLE : SystemStrings.RESOLUTION.FAILURE_TITLE,
+              title: result.success ? SYSTEM_STRINGS.RESOLUTION.SUCCESS_TITLE : SYSTEM_STRINGS.RESOLUTION.FAILURE_TITLE,
               message: result.message,
               diffs: result.diffs,
               type: result.success ? 'success' : 'failure'
@@ -215,8 +215,8 @@ export const useGameStore = create<GameStore>()(
         if (updates.resultDiffs && (updates.resultDiffs.g !== 0 || updates.resultDiffs.rp !== 0 || updates.resultDiffs.trust !== 0)) {
            set({
              pendingResolution: {
-               title: SystemStrings.RESOLUTION.PASSIVE_TITLE,
-               message: SystemStrings.RESOLUTION.PASSIVE_MSG,
+               title: SYSTEM_STRINGS.RESOLUTION.PASSIVE_TITLE,
+               message: SYSTEM_STRINGS.RESOLUTION.PASSIVE_MSG,
                diffs: updates.resultDiffs,
                type: 'passive'
              }
@@ -316,8 +316,8 @@ export const useGameStore = create<GameStore>()(
           
           set({
             pendingResolution: {
-              title: isWin ? SystemStrings.RESOLUTION.DEFENDANT_WIN : SystemStrings.RESOLUTION.DEFENDANT_LOSE,
-              message: isWin ? SystemStrings.RESOLUTION.WIN_MSG : SystemStrings.RESOLUTION.LOSE_MSG,
+              title: isWin ? SYSTEM_STRINGS.RESOLUTION.DEFENDANT_WIN : SYSTEM_STRINGS.RESOLUTION.DEFENDANT_LOSE,
+              message: isWin ? SYSTEM_STRINGS.RESOLUTION.WIN_MSG : SYSTEM_STRINGS.RESOLUTION.LOSE_MSG,
               diffs: { ...updates.resultDiffs, bets: [] }, // 這裡把 bets 清空，不讓它出現在第一層
               type: isWin ? 'success' : 'failure',
               defendantId: get().trial?.defendantId

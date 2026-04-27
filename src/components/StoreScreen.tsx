@@ -3,7 +3,7 @@ import { ROLE_DATA, COLOR_MAP, ROLE_UPGRADE_COST, RoleColor } from '../data/role
 import { useGameStore } from '../store/gameStore';
 import { Users, ChevronDown, Check, ShieldCheck } from 'lucide-react';
 import { formatValue } from '@/engine/MathEngine';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import type { Player, RoleType } from '../types/game';
 
 interface RoleData {
@@ -47,9 +47,9 @@ function PaymentModal({
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
       <div className="relative w-full max-w-xs bg-[#0a0a0f] border border-white/10 rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="text-center space-y-2 mb-8">
-          <h3 className="text-lg font-black text-white uppercase tracking-widest">{SystemStrings.UI_LABELS.PAYMENT_TITLE}</h3>
+          <h3 className="text-lg font-black text-white uppercase tracking-widest">{SYSTEM_STRINGS.UI_LABELS.PAYMENT_TITLE}</h3>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-            {SystemStrings.UI_LABELS.PAYMENT_SOURCE}
+            {SYSTEM_STRINGS.UI_LABELS.PAYMENT_SOURCE}
           </p>
         </div>
 
@@ -57,18 +57,18 @@ function PaymentModal({
           <div className="flex justify-between items-center bg-white/[0.03] p-4 rounded-2xl border border-white/5">
             <div className="space-y-1">
               <span className="text-[9px] font-black text-emerald-400 uppercase tracking-tighter">
-                {SystemStrings.UI_LABELS.CASH_PAY}
+                {SYSTEM_STRINGS.UI_LABELS.CASH_PAY}
               </span>
-              <p className="text-lg font-black text-white leading-none">{formatValue(totalCostG - splitOG, SystemStrings.UNITS.MONEY)}</p>
+              <p className="text-lg font-black text-white leading-none">{formatValue(totalCostG - splitOG, SYSTEM_STRINGS.UNITS.MONEY)}</p>
             </div>
             {player.trustFund > 0 && (
               <>
                 <div className="w-px h-8 bg-white/10" />
                 <div className="space-y-1 text-right">
                   <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">
-                    {SystemStrings.UI_LABELS.TRUST_PAY}
+                    {SYSTEM_STRINGS.UI_LABELS.TRUST_PAY}
                   </span>
-                  <p className="text-lg font-black text-white leading-none">{formatValue(splitOG, SystemStrings.UNITS.MONEY)}</p>
+                  <p className="text-lg font-black text-white leading-none">{formatValue(splitOG, SYSTEM_STRINGS.UNITS.MONEY)}</p>
                 </div>
               </>
             )}
@@ -97,13 +97,13 @@ function PaymentModal({
             onClick={() => onConfirm(splitOG)}
             className={`w-full py-4 rounded-2xl text-black text-[11px] font-black tracking-[0.2em] uppercase shadow-xl ${colors.badge}`}
           >
-            {SystemStrings.UI_LABELS.CONFIRM_HIRE}
+            {SYSTEM_STRINGS.UI_LABELS.CONFIRM_HIRE}
           </button>
           <button
             onClick={onClose}
             className="w-full py-2 text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors"
           >
-            {SystemStrings.UI_LABELS.CANCEL}
+            {SYSTEM_STRINGS.UI_LABELS.CANCEL}
           </button>
         </div>
       </div>
@@ -159,14 +159,14 @@ function RoleUpgradeModal({
               <div className="flex items-center space-x-2 mb-1">
                 <div className={`w-1.5 h-1.5 rounded-full ${colors.badge} animate-pulse`} />
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">
-                  {SystemStrings.STORE.HR_DOSSIER}
+                  {SYSTEM_STRINGS.STORE.HR_DOSSIER}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-tighter uppercase truncate leading-tight">
                 {role.name}
               </h2>
               <p className="text-[9px] font-bold text-slate-500 tracking-widest opacity-60">
-                {SystemStrings.STORE.ID_LABEL}: {role.key.toUpperCase()}_V4
+                {SYSTEM_STRINGS.STORE.ID_LABEL}: {role.key.toUpperCase()}_V4
               </p>
             </div>
           </div>
@@ -198,7 +198,7 @@ function RoleUpgradeModal({
                         <span
                           className={`text-[9px] font-black uppercase tracking-widest ${isUnlocked ? colors.text : 'text-slate-600'}`}
                         >
-                          {SystemStrings.STORE.STAGES} 0{targetLv}
+                          {SYSTEM_STRINGS.STORE.STAGES} 0{targetLv}
                         </span>
                         {isUnlocked && (
                           <span className="text-[8px] font-bold text-emerald-500/50 uppercase">
@@ -225,7 +225,7 @@ function RoleUpgradeModal({
             onClick={onClose}
             className="px-4 py-3 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
           >
-            {SystemStrings.STORE.CANCEL}
+            {SYSTEM_STRINGS.STORE.CANCEL}
           </button>
           {!isMax ? (
             <button
@@ -241,13 +241,13 @@ function RoleUpgradeModal({
                   : 'bg-slate-800 opacity-20 cursor-not-allowed'
               }`}
             >
-              {canAfford ? SystemStrings.STORE.CONFIRM_HIRE_PROMPT : SystemStrings.STORE.INSUFFICIENT_FUNDS}
+              {canAfford ? SYSTEM_STRINGS.STORE.CONFIRM_HIRE_PROMPT : SYSTEM_STRINGS.STORE.INSUFFICIENT_FUNDS}
             </button>
           ) : (
             <div
               className={`flex-1 py-4 rounded-xl bg-white/5 border border-white/10 text-slate-500 text-center text-[10px] font-black uppercase tracking-[0.2em]`}
             >
-              {SystemStrings.STORE.CONTRACT_ACTIVE}
+              {SYSTEM_STRINGS.STORE.CONTRACT_ACTIVE}
             </div>
           )}
         </div>

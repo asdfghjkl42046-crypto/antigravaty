@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import type { NumericalDiffs } from '@/types/game';
 import { formatValue } from '@/engine/MathEngine';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import gsap from 'gsap';
 
 interface ResolutionOverlayProps {
@@ -158,23 +158,23 @@ export default function ResolutionOverlay({
         {/* 數值變動矩陣 */}
         <div className="grid grid-cols-2 gap-3 mb-8 relative z-10">
           <StatItem
-            label={SystemStrings.UI_LABELS.MONEY}
+            label={SYSTEM_STRINGS.UI_LABELS.MONEY}
             value={diffs.g}
             icon={Banknote}
             color="text-emerald-400"
-            unit={SystemStrings.UNITS.MONEY}
+            unit={SYSTEM_STRINGS.UNITS.MONEY}
           />
-          <StatItem label={SystemStrings.UI_LABELS.RP} value={diffs.rp} icon={Star} color="text-yellow-400" unit={SystemStrings.UNITS.RP} />
-          <StatItem label={SystemStrings.UI_LABELS.IP} value={diffs.ip} icon={Cpu} color="text-blue-400" unit={SystemStrings.UNITS.IP} />
-          <StatItem label={SystemStrings.UI_LABELS.BM} value={diffs.bm} icon={AlertTriangle} color="text-orange-500" unit={SystemStrings.UNITS.BM} />
+          <StatItem label={SYSTEM_STRINGS.UI_LABELS.RP} value={diffs.rp} icon={Star} color="text-yellow-400" unit={SYSTEM_STRINGS.UNITS.RP} />
+          <StatItem label={SYSTEM_STRINGS.UI_LABELS.IP} value={diffs.ip} icon={Cpu} color="text-blue-400" unit={SYSTEM_STRINGS.UNITS.IP} />
+          <StatItem label={SYSTEM_STRINGS.UI_LABELS.BM} value={diffs.bm} icon={AlertTriangle} color="text-orange-500" unit={SYSTEM_STRINGS.UNITS.BM} />
           {diffs.trust && diffs.trust > 0 && (
             <div className="col-span-2 mt-1">
               <StatItem
-                label={SystemStrings.UI_LABELS.TRUST_FUND}
+                label={SYSTEM_STRINGS.UI_LABELS.TRUST_FUND}
                 value={diffs.trust}
                 icon={ShieldCheck}
                 color="text-blue-300"
-                unit={SystemStrings.UNITS.MONEY}
+                unit={SYSTEM_STRINGS.UNITS.MONEY}
               />
             </div>
           )}
@@ -191,7 +191,7 @@ export default function ResolutionOverlay({
         {diffs.bets && diffs.bets.length > 0 && (
           <div className="mb-8 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
             <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-3 text-center">
-              {SystemStrings.RESOLUTION.BYSTANDER_PL}
+              {SYSTEM_STRINGS.RESOLUTION.BYSTANDER_PL}
             </h4>
             <div className="flex flex-wrap justify-center gap-2">
               {diffs.bets.map((bet, i) => (
@@ -201,7 +201,7 @@ export default function ResolutionOverlay({
                 >
                   {bet.playerId}:{' '}
                   <span className={bet.amount >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                    {formatValue(bet.amount, SystemStrings.UNITS.MONEY, true)}
+                    {formatValue(bet.amount, SYSTEM_STRINGS.UNITS.MONEY, true)}
                   </span>
                 </div>
               ))}
@@ -213,7 +213,7 @@ export default function ResolutionOverlay({
         {diffs.breakdown && diffs.breakdown.length > 0 && (
           <div className="mb-8 space-y-2">
             <h4 className="text-[10px] font-black text-blue-400/70 uppercase tracking-[0.2em] mb-3 text-center">
-              {SystemStrings.RESOLUTION.BREAKDOWN_TITLE}
+              {SYSTEM_STRINGS.RESOLUTION.BREAKDOWN_TITLE}
             </h4>
             {diffs.breakdown.map((item, i) => (
               <div
@@ -223,19 +223,19 @@ export default function ResolutionOverlay({
                 <div className="flex flex-col">
                   <span className="text-sm font-black text-white">{item.name}</span>
                   <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-widest">
-                    {SystemStrings.UI_LABELS.LEVEL} {item.level} {SystemStrings.DECORATION.IN_PROGRESS}
+                    {SYSTEM_STRINGS.UI_LABELS.LEVEL} {item.level} {SYSTEM_STRINGS.DECORATION.IN_PROGRESS}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
                   {item.g !== undefined && item.g !== 0 && (
-                    <span className="text-xs font-black text-emerald-400">{formatValue(item.g, SystemStrings.UNITS.MONEY, true)}</span>
+                    <span className="text-xs font-black text-emerald-400">{formatValue(item.g, SYSTEM_STRINGS.UNITS.MONEY, true)}</span>
                   )}
                   {item.rp !== undefined && item.rp !== 0 && (
-                    <span className="text-xs font-black text-yellow-400">{formatValue(item.rp, SystemStrings.UNITS.RP, true)}</span>
+                    <span className="text-xs font-black text-yellow-400">{formatValue(item.rp, SYSTEM_STRINGS.UNITS.RP, true)}</span>
                   )}
                   {item.trust !== undefined && item.trust !== 0 && (
                     <span className="text-xs font-black text-blue-300">
-                      {formatValue(-item.trust, SystemStrings.UNITS.MONEY, true)} (轉移海外)
+                      {formatValue(-item.trust, SYSTEM_STRINGS.UNITS.MONEY, true)} (轉移海外)
                     </span>
                   )}
                 </div>
@@ -257,7 +257,7 @@ export default function ResolutionOverlay({
             }
           `}
         >
-          {SystemStrings.UI_LABELS.CONFIRM}
+          {SYSTEM_STRINGS.UI_LABELS.CONFIRM}
         </button>
       </div>
     </div>

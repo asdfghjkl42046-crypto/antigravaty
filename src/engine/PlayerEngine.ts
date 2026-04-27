@@ -13,7 +13,7 @@ import type {
   PlayerConfig,
 } from '../types/game';
 import { sha256, roundUp, resolveMoneyValue } from './MathEngine';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import { BRIBE_LABELS, JUDGE_LABELS } from '../data/judges/JudgeTemplatesDB';
 import { getBribeScore } from './MechanicsEngine';
 import { CARDS_DB } from '../data/cards/CardsDB';
@@ -258,7 +258,7 @@ export async function initializeGameSession(
     // 這裡維持邏輯特判：僅白手起家路徑享有 5% 永久減免
     if (p.startPath === 'normal') {
       p.startBonusFineReduction = 0.05;
-      startNotifications.push(SystemStrings.SETUP.NORMAL_BONUS_MSG(p.ownerName));
+      startNotifications.push(SYSTEM_STRINGS.SETUP.NORMAL_BONUS_MSG(p.ownerName));
     }
 
     // 2. 特權關說玩家：檢查開場攜帶的貢品與這場法官人設的契合度 (滿分為5)
@@ -269,9 +269,11 @@ export async function initializeGameSession(
         // 該玩家終生罰金八折 (-20% 減免)！
         p.startBonusFineReduction = 0.2;
         const judgeName = JUDGE_LABELS[judge].judgeName;
-        const itemName = BRIBE_LABELS[p.bribeItem] || SystemStrings.SETUP.DEFAULT_BRIBE_NAME;
+        const itemName = BRIBE_LABELS[p.bribeItem] || SYSTEM_STRINGS.SETUP.DEFAULT_BRIBE_NAME;
         // 發布開局奖賞的驚喜廣播
-        startNotifications.push(SystemStrings.SETUP.BRIBE_BONUS_MSG(p.ownerName, judgeName, itemName));
+        startNotifications.push(
+          SYSTEM_STRINGS.SETUP.BRIBE_BONUS_MSG(p.ownerName, judgeName, itemName)
+        );
       }
     }
   });

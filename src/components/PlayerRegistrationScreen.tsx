@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import gsap from 'gsap';
 import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import ParchmentBook from './ParchmentBook';
 import { MASTERPIECES } from '@/store/gameStore';
 
@@ -288,7 +288,7 @@ export default function PlayerRegistrationScreen({
                           )}
                         </div>
                         <h4 className="text-xl font-black tracking-[0.2em] text-white/90 uppercase">
-                          {SystemStrings.SETUP.START_PATH_NAMES[path]}
+                          {SYSTEM_STRINGS.SETUP.START_PATH_NAMES[path]}
                         </h4>
                       </div>
                       {isSelected && (

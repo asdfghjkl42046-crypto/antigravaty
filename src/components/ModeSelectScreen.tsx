@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Network, Sparkles, Settings2, Eye, CircleDashed, Building2 } from 'lucide-react';
 import gsap from 'gsap';
 import AlignmentTool, { AlignmentElement } from './AlignmentTool';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 interface ModeSelectScreenProps {
   onStartGame: (mode: 'website' | 'ai') => void;
@@ -72,7 +72,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 6,
       fontSize: 11,
-      label: SystemStrings.SETUP.MODE_SELECT.WEBSITE_DESC,
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.WEBSITE_DESC,
     },
     wb_btn: {
       top: 61.6,
@@ -123,7 +123,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 6,
       fontSize: 11,
-      label: SystemStrings.SETUP.MODE_SELECT.AI_DESC,
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.AI_DESC,
     },
     ai_btn: {
       top: 90.6,

@@ -13,6 +13,8 @@ export const ROLE_UPGRADE_COST = {
   ip: 100, // 升級所需的技術點數 (100點)
 };
 
+import { ROLE_STRINGS } from '../ui/RoleStrings';
+
 export const ROLE_DATA: {
   key: RoleType;
   name: string;
@@ -23,62 +25,38 @@ export const ROLE_DATA: {
 }[] = [
   {
     key: 'lawyer',
-    name: '王牌律師',
+    name: ROLE_STRINGS.LAW_NAME,
     emoji: '🧑‍⚖️',
     icon: Gavel,
     color: 'amber',
-    levels: [
-      { type: '被動', desc: '法律護盾：上陣協助，勝訴機率如有神助，提升 30%' },
-      {
-        type: '被動',
-        desc: '扭轉乾坤：旁觀者的質疑將會轉為支持；同時掌握法庭勝率情報',
-      },
-      {
-        type: '主動',
-        desc: '隻手遮天：扣除大筆資金(保底100萬) + 5 IP，讓對方強制撤案',
-      },
-    ],
+    levels: ROLE_STRINGS.LAW_LEVELS,
   },
   {
     key: 'pr',
-    name: '公關經理',
+    name: ROLE_STRINGS.PR_NAME,
     emoji: '🎤',
     icon: Megaphone,
     color: 'pink',
-    levels: [
-      { type: '被動', desc: '輿論滅火：卡牌行動造成的 RP 扣除自動減半' },
-      { type: '被動', desc: '敗訴公關：法庭上輸了也能硬拗，敗訴帶來的名聲損失直接減半' },
-      { type: '被動', desc: '長期經營：每回合自動 +5 RP；就算押注失敗，名聲也分毫無損' },
-    ],
+    levels: ROLE_STRINGS.PR_LEVELS,
   },
   {
     key: 'accountant',
-    name: '資深會計師',
+    name: ROLE_STRINGS.ACC_NAME,
     emoji: '💼',
     icon: Calculator,
     color: 'emerald',
-    levels: [
-      { type: '被動', desc: '稅務優化：增加商業類卡片獲得資金的金額' },
-      { type: '被動', desc: '罰單打折：有效減少法院罰金的支出' },
-      {
-        type: '被動',
-        desc: '合法避稅：連續 2 回合保持清白後，將部分現金轉入海外信託',
-      },
-    ],
+    levels: ROLE_STRINGS.ACC_LEVELS,
   },
   {
     key: 'cto',
-    name: '技術長',
+    name: ROLE_STRINGS.CTO_NAME,
     emoji: '💻',
     icon: Cpu,
     color: 'blue',
-    levels: [
-      { type: '被動', desc: '算力套利：每次打出商業投資卡，有 30% 機會讓 AP 神奇歸還' },
-      { type: '被動', desc: '駭客腳本：系統每回合自動替你洗出100萬的隱密黑金入帳' },
-      { type: '被動', desc: '反間防火牆：對手惡意挖角時，產生的犯罪標籤及黑料就多一倍' },
-    ],
+    levels: ROLE_STRINGS.CTO_LEVELS,
   },
 ];
+
 
 /**
  * 各人才專屬的代表顏色

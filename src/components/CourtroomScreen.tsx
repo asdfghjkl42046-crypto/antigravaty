@@ -14,7 +14,7 @@ import {
   getWithdrawCaseCost,
 } from '../engine/RoleEngine';
 import { formatValue } from '../engine/MathEngine';
-import { SystemStrings } from '../data/SystemStrings';
+import { SYSTEM_STRINGS } from '../data/SystemStrings';
 
 /**
  * CourtroomScreen - 沉浸式法庭介面
@@ -611,7 +611,7 @@ export default function CourtroomScreen() {
                       if (showAttorneySkill) {
                         if (
                           window.confirm(
-                            `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SystemStrings.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
+                            `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SYSTEM_STRINGS.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
                           )
                         ) {
                           withdrawCase();

@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
-import { SystemStrings } from '@/data/SystemStrings';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
+import { CARDS_START } from '@/data/cards/CARDS_START';
 import { StartPath } from '@/types/game';
 import { Scale, Feather, Shield, PenTool } from 'lucide-react';
 
@@ -31,7 +32,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
   const currentPageRef = useRef(0);
 
   const pages = useMemo(
-    () => SystemStrings.SETUP.START_PATH_LABELS[activePath] || [],
+    () => SYSTEM_STRINGS.START_PATH.getLabels(CARDS_START)[activePath] || [],
     [activePath]
   );
   const totalPages = pages.length;
@@ -41,26 +42,27 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
       case 'backdoor':
         return {
           coverColor: '#162b4d',
-          title: SystemStrings.SETUP.START_PATH_NAMES.backdoor,
+          title: SYSTEM_STRINGS.START_PATH.NAMES.backdoor,
           icon: <Shield className="w-8 h-8 text-cyan-400/40" />,
           accent: 'border-cyan-500/30',
         };
       case 'blackbox':
         return {
           coverColor: '#3d0c0c',
-          title: SystemStrings.SETUP.START_PATH_NAMES.blackbox,
+          title: SYSTEM_STRINGS.START_PATH.NAMES.blackbox,
           icon: <PenTool className="w-8 h-8 text-red-500/30" />,
           accent: 'border-red-900/30',
         };
       default:
         return {
           coverColor: '#7a4225',
-          title: SystemStrings.SETUP.START_PATH_NAMES.normal,
+          title: SYSTEM_STRINGS.START_PATH.NAMES.normal,
           icon: <Scale className="w-8 h-8 text-amber-600/30" />,
           accent: 'border-amber-900/30',
         };
     }
   }, [activePath]);
+
 
   const setFlippingIndexBoth = (idx: number) => {
     flippingIndexRef.current = idx;
@@ -296,7 +298,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
 
         {/* 2. 內頁系統 */}
         <div className="absolute inset-0 transform-style-3d" style={{ zIndex: 10 }}>
-          {pages.map((content, idx) => (
+          {pages.map((content: string, idx: number) => (
             <div
               key={`${activePath}-${idx}`}
               ref={(el) => {
