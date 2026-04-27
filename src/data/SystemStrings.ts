@@ -106,11 +106,35 @@ export const SYSTEM_STRINGS = {
       backdoor: '融資創業',
       blackbox: '家族企業',
     } as Record<string, string>,
-    getLabels: (cards: any) => ({
-      normal: cards.START_PATHS[1].description.split('\n\n') || [],
-      backdoor: cards.START_PATHS[2].description.split('\n\n') || [],
-      blackbox: cards.START_PATHS[3].description.split('\n\n') || [],
-    }),
+    /**
+     * 自動分頁：將長文按段落歸組，每頁不超過 maxChars 個字。
+     * 邏輯與 CourtroomScreen 判決書分頁保持一致。
+     */
+    getLabels: (cards: any) => {
+      const paginate = (text: string, maxChars = 200): string[] => {
+        const paragraphs = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const pages: string[] = [];
+        let current = '';
+
+        for (const para of paragraphs) {
+          // 若加入此段落會超過預算，先推入現有頁面
+          if (current.length > 0 && (current.length + para.length + 1) > maxChars) {
+            pages.push(current);
+            current = para;
+          } else {
+            current = current ? current + '\n' + para : para;
+          }
+        }
+        if (current.length > 0) pages.push(current);
+        return pages.length > 0 ? pages : [''];
+      };
+
+      return {
+        normal: paginate(cards.START_PATHS[1].description),
+        backdoor: paginate(cards.START_PATHS[2].description),
+        blackbox: paginate(cards.START_PATHS[3].description),
+      };
+    },
   },
 
   // 開局設定
