@@ -257,6 +257,7 @@ export type CardOption = OptionSR | OptionRisk | OptionZ;
 
 /** 區域情境卡牌 (1+3 結構) */
 export interface Card {
+  [key: number]: CardOption | undefined; // 支援透過數字索引安全取值 (1, 2, 3)
   title?: string;
   description?: string;
   1: CardOption;
@@ -397,7 +398,14 @@ export interface TrialState {
 export type VictoryRoute = 'tycoon' | 'saint' | 'dragonhead' | null;
 
 /** 結局類型編碼 */
-export type EndingType = 'dragonhead' | 'tycoon' | 'saint' | 'saintFake' | 'bankrupt' | 'arrested' | 'limit';
+export type EndingType =
+  | 'dragonhead'
+  | 'tycoon'
+  | 'saint'
+  | 'saintFake'
+  | 'bankrupt'
+  | 'arrested'
+  | 'limit';
 
 /** 結局結算最終報告：包含財富、聲譽與歷史罪行之綜合評價 */
 export interface EndingResult {

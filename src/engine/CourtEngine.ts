@@ -194,8 +194,7 @@ export class CourtEngine {
     tagText: string | string[],
     currentTurn: number = 999,
     tagId?: number,
-    isAppeal: boolean = false,
-    personality?: JudgePersonality
+    isAppeal: boolean = false
   ): { fine: number; rpLoss: number; detail: string } {
     const searchTag = formatLawTags(tagText);
     const targetTag = player.tags.find((t) => (tagId && t.id === tagId) || t.text === searchTag);
@@ -261,9 +260,14 @@ export class CourtEngine {
     player: Player,
     tag: string,
     tagId: number
-  ): { success: boolean; message: string; updates: Partial<Player>; diffs?: NumericalDiffs } {
+  ): { success: boolean; message: string; updates: Partial<Player>; diffs: import('../types/game').NumericalDiffs } {
     if (getRoleLevel(player, 'lawyer') < 3) {
-      return { success: false, message: '您的律師等級不足以發動「強制撤告」。', updates: {} };
+      return {
+        success: false,
+        message: '您的律師等級不足以發動「強制撤告」。',
+        updates: {},
+        diffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
     }
 
     const cost = getWithdrawCaseCost(player);
@@ -271,7 +275,12 @@ export class CourtEngine {
     const canAfford = player.g + (player.trustFund || 0) >= totalRequiredG;
 
     if (!canAfford) {
-      return { success: false, message: '您的資金不足以支付強制撤告的規費。', updates: {} };
+      return {
+        success: false,
+        message: '您的資金不足以支付強制撤告的規費。',
+        updates: {},
+        diffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
     }
 
     // 優先扣除海外信託
@@ -305,13 +314,27 @@ export class CourtEngine {
    * 最後希望：『非常上訴』
    * 輸了官司後，還有一次機會可以花大錢重審，但一輩子只能用一次。
    */
-  static applyExtraAppeal(player: Player): { success: boolean; message: string; updates: Partial<Player>; diffs?: NumericalDiffs } {
-    if (player.hasUsedExtraAppeal) return { success: false, message: '您已使用過非常上訴程序，無法再次申請。', updates: {} };
-    
+  static applyExtraAppeal(player: Player): { success: boolean; message: string; updates: Partial<Player>; diffs: import('../types/game').NumericalDiffs } {
+    if (player.hasUsedExtraAppeal) {
+      return {
+        success: false,
+        message: '您已使用過非常上訴程序，無法再次申請。',
+        updates: {},
+        diffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
+    }
+
     const totalRequiredG = getExtraAppealCost(player);
     const canAfford = player.g + (player.trustFund || 0) >= totalRequiredG;
-    
-    if (!canAfford) return { success: false, message: '您的資金不足以支付非常上訴的規費。', updates: {} };
+
+    if (!canAfford) {
+      return {
+        success: false,
+        message: '您的資金不足以支付非常上訴的規費。',
+        updates: {},
+        diffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
+    }
 
     // 優先扣除海外信託
     const ogDeduct = Math.min(player.trustFund || 0, totalRequiredG);
@@ -344,7 +367,7 @@ export class CourtEngine {
     const spectatorInfluence = calculateSpectatorInfluence(trial.interventions, getRoleLevel(player, 'lawyer') >= 2);
     const res = this.calculateDefenseResult(judgeMode, player, trial.lawCase, text, spectatorInfluence, optionLabel);
     
-    const punishment = res.isSuccess ? undefined : this.calculatePenalty(player, trial.lawCase.tag, currentTurn, trial.lawCaseTagId, trial.isAppeal || false, trial.judgePersonality);
+    const punishment = res.isSuccess ? undefined : this.calculatePenalty(player, trial.lawCase.tag, currentTurn, trial.lawCaseTagId, trial.isAppeal || false);
 
     const judge = this.generateJudgment(judgeMode, trial.judgePersonality || 'traditionalist', trial, player, res.isSuccess);
     return { isDefenseSuccess: res.isSuccess, finalSurvivalRate: res.rate, defenseText: text, punishment, punishmentDetail: punishment?.detail, judgment: judge.judgment, userPrompt: judge.userPrompt, stage: 6 };
@@ -419,7 +442,7 @@ export class CourtEngine {
   /**
    * 結算法庭結果：不管勝訴或敗訴，事後都要清掉證據、扣除罰款等等。
    */
-  static applyTrialResolution(player: Player, isSuccess: boolean, lawCaseTag: string | string[], lawCaseTagId: number, personality?: JudgePersonality, currentTurn: number = 999, isAppeal: boolean = false): { updates: Partial<Player>; diffs: NumericalDiffs } {
+  static applyTrialResolution(player: Player, isSuccess: boolean, lawCaseTag: string | string[], lawCaseTagId: number, _personality?: JudgePersonality, currentTurn: number = 999, isAppeal: boolean = false): { updates: Partial<Player>; diffs: NumericalDiffs } {
     const updates: Partial<Player> = { ...player };
     const tagText = Array.isArray(lawCaseTag) ? lawCaseTag.join('/') : lawCaseTag;
     if (isSuccess) {
@@ -433,7 +456,7 @@ export class CourtEngine {
         updates.rp = Math.min(100, (updates.rp || player.rp) + restoreRp);
       }
     } else {
-      const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId, isAppeal, personality);
+      const penalty = this.calculatePenalty(player, lawCaseTag, currentTurn, lawCaseTagId, isAppeal);
       updates.totalTrials = (player.totalTrials || 0) + 1;
       
       const updatedG = player.g - penalty.fine;

@@ -262,7 +262,7 @@ export class GameFlowEngine {
 
     // 彙整所有旁觀者的押注結果
     const betDiffs: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[] = [];
-    updatedPlayers.forEach((p, pIdx) => {
+    updatedPlayers.forEach((p) => {
       if (p.id === trial.defendantId) return;
       const oldP = players.find(oldP => oldP.id === p.id);
       if (!oldP) return;
@@ -421,7 +421,10 @@ export class GameFlowEngine {
   /**
    * 處理律師撤案
    */
-  static handleWithdrawCase(state: GameStateData): Partial<GameStateData> & { result: any; resultDiffs: any } {
+  static handleWithdrawCase(state: GameStateData): Partial<GameStateData> & {
+    result: { success: boolean; message: string };
+    resultDiffs: import('../types/game').NumericalDiffs;
+  } {
     const { trial, players, turn } = state;
     if (!trial) return { result: { success: false, message: '查無案件' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
     const idx = players.findIndex((p) => p.id === trial.defendantId);
@@ -433,7 +436,14 @@ export class GameFlowEngine {
       tagText,
       trial.lawCaseTagId || 0
     );
-    if (!res.success) return { result: { success: false, message: res.message }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
+
+    // [修正] 確保所有路徑都有 resultDiffs，防止 UI 渲染失敗
+    if (!res.success) {
+      return {
+        result: { success: false, message: res.message },
+        resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
+    }
 
     const final = { ...players[idx], ...res.updates };
     const statusRes = resolveGameStatus(final, turn);
@@ -458,14 +468,24 @@ export class GameFlowEngine {
   /**
    * 處理非常上訴
    */
-  static handleExtraordinaryAppeal(state: GameStateData): Partial<GameStateData> & { result: any; resultDiffs: any } {
+  static handleExtraordinaryAppeal(state: GameStateData): Partial<GameStateData> & {
+    result: { success: boolean; message: string };
+    resultDiffs: import('../types/game').NumericalDiffs;
+  } {
     const { trial, players } = state;
     if (!trial) return { result: { success: false, message: '查無案件' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
     const idx = players.findIndex((p) => p.id === trial.defendantId);
     if (idx === -1) return { result: { success: false, message: '查無當事人' }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
 
     const res = CourtEngine.applyExtraAppeal(players[idx]);
-    if (!res.success) return { result: { success: false, message: res.message }, resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 } };
+
+    // [修正] 確保所有路徑都有 resultDiffs，防止 UI 渲染失敗
+    if (!res.success) {
+      return {
+        result: { success: false, message: res.message },
+        resultDiffs: { g: 0, rp: 0, ip: 0, bm: 0 },
+      };
+    }
 
     const updatedPlayers = [...players];
     updatedPlayers[idx] = { ...players[idx], ...res.updates };

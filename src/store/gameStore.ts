@@ -145,9 +145,9 @@ export const useGameStore = create<GameStore>()(
         };
       },
 
-      initGame: async (configs) => {
+      initGame: async (configs: PlayerConfig[]) => {
         const updates = await GameFlowEngine.initializeGame(configs);
-        set(updates);
+        set(updates as Partial<GameStore>);
       },
 
       resetGame: () => {
@@ -171,11 +171,8 @@ export const useGameStore = create<GameStore>()(
       clearEngineError: () => set({ engineError: null }),
 
       performAction: async (cardId, optionIdx, declareChoice) => {
-        /**
-         * 執行卡片行動
-         * 玩家點選選項後，來這邊結算金錢、名聲，並看看有沒有觸發法規或留下黑材料。
-         */
         const state = get();
+        // [源頭鎖定] 鎖定來自流程引擎的更新包，避免 any 污染
         const updates = await GameFlowEngine.executeAction(state, cardId, optionIdx, declareChoice);
         const { result, ...stateUpdates } = updates;
         
@@ -212,7 +209,7 @@ export const useGameStore = create<GameStore>()(
       },
 
       endTurn: () => {
-        const updates = GameFlowEngine.proceedNextTurn(get()) as import('../types/game').GameStateData;
+        const updates = GameFlowEngine.proceedNextTurn(get()) as Partial<GameStore>;
         
         // [新增] 回合結束報表
         if (updates.resultDiffs && (updates.resultDiffs.g !== 0 || updates.resultDiffs.rp !== 0 || updates.resultDiffs.trust !== 0)) {
@@ -233,7 +230,7 @@ export const useGameStore = create<GameStore>()(
       },
 
       triggerTrial: (did, tid, inev = false, r = '') => {
-        const updates = GameFlowEngine.handleTriggerTrial(get(), did, tid, inev, r);
+        const updates = GameFlowEngine.handleTriggerTrial(get(), did, tid, inev, r) as Partial<GameStore>;
         set(updates);
       },
 
@@ -308,7 +305,7 @@ export const useGameStore = create<GameStore>()(
       },
 
       resolveTrial: () => {
-        const updates = GameFlowEngine.calculateTrialResolution(get()) as import('../types/game').GameStateData;
+        const updates = GameFlowEngine.calculateTrialResolution(get()) as Partial<GameStore>;
         
         // [修正] 拆分彈窗：第一步只顯示「被告判決」
         if (updates.resultDiffs) {

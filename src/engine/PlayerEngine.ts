@@ -94,9 +94,6 @@ export function clearAllBlackMaterials(): BlackMaterialSource[] {
 // 預設玩家工廠與開局路徑處理器
 // ============================================================
 
-// 預設罰金基礎倍率：統一為 1.0x，使基礎罰金與案件不法所得相等。
-const INITIAL_FINE_MULTIPLIER = 1.0;
-
 /**
  * 創造新玩家檔案
  * 根據玩家選的開局路線，發放對應的起始資金，甚至塞給你天生的犯罪紀錄
@@ -149,8 +146,8 @@ async function createPlayerFromConfig(
   const initialRP = resolveMoneyValue(config.rp) || 100;
   const initialLawCaseIds = config.lawCaseIds || [];
 
-  // 動態解析標籤，確保與法律資料庫同步
-  const initialTagTexts = getResolvedTags(initialLawCaseIds);
+  // 資料一致性斷言：預先強制解析開局標籤，若 ID 於資料庫中缺失則會立即拋錯(Crash)，防止靜默失敗。
+  getResolvedTags(initialLawCaseIds);
 
   // 計算不法所得：資金總額扣除保底 100 萬後，即為該路徑之原罪代價
   const initialBooty = Math.max(0, initialG - 100);

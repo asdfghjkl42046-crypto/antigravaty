@@ -54,12 +54,7 @@ export function getResolvedTags(lawCaseIds?: string[]): string[] {
     const normalizedId = normalizeLawCaseId(id);
     const law = LAW_CASES_DB[normalizedId];
     if (law && law.tag) {
-      if (Array.isArray(law.tag)) {
-        law.tag.forEach((t) => tagSet.add(t));
-      } else {
-        // 相容舊版單一字串格式 (若仍存在)
-        tagSet.add(law.tag as unknown as string);
-      }
+      law.tag.forEach((t) => tagSet.add(t));
     } else {
       throwDataDefinitionError(
         'LawCasesDB.getResolvedTags',

@@ -64,7 +64,7 @@ ${judge.prompt_injection}
    * 建立【辯護選項生成】說明
    * 要求 AI 根據案情寫出 J、K、L 三種不同強度的辯護文案。
    */
-  static assembleOptionsPrompt(lawCase: LawCase, defendant: Player): string {
+  static assembleOptionsPrompt(lawCase: LawCase, _defendant: Player): string {
     return `請根據以下起訴案情，為被告企業生成三種不同策略強度的辯護文案（JKL 選項）：
 
 【起訴事實】：${lawCase.indictment || '（未提供詳細起訴狀）'}

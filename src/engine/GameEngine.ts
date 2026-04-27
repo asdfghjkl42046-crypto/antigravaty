@@ -19,4 +19,4 @@ export * from './ActionEngine';
 export { CourtEngine } from './CourtEngine';
 
 // 為相容舊版預設的型別匯出，確保外部元件不報錯
-export type { AnyCardOption } from './ActionEngine';
+export type { CardOption as AnyCardOption } from '../types/game';

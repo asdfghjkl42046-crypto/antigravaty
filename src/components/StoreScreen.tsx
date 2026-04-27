@@ -1,5 +1,5 @@
 import React from 'react';
-import { ROLE_DATA, COLOR_MAP, ROLE_UPGRADE_COST } from '../data/roles/RoleData';
+import { ROLE_DATA, COLOR_MAP, ROLE_UPGRADE_COST, RoleColor } from '../data/roles/RoleData';
 import { useGameStore } from '../store/gameStore';
 import { Users, ChevronDown, Check, ShieldCheck } from 'lucide-react';
 import { formatValue } from '@/engine/MathEngine';
@@ -11,7 +11,7 @@ interface RoleData {
   name: string;
   emoji: string;
   icon: React.ElementType;
-  color: string;
+  color: RoleColor;
   levels: { type: string; desc: string }[];
 }
 

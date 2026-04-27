@@ -6,13 +6,9 @@
 import type {
   Player,
   ActionResult,
-  BaseOption,
-  OptionType,
+  AppliedTag,
   BlackMaterialSource,
   Tag,
-  Card,
-  SpecialTag,
-  MoneyValue,
 } from '../types/game';
 import { CARDS_DB } from '../data/cards/CardsDB';
 import { getResolvedTags, formatLawTags } from '../data/laws/LawCasesDB';
@@ -20,35 +16,13 @@ import { sha256, resolveMoneyValue, alignToTenCeil } from './MathEngine';
 import { calculateActualRPGain } from './MechanicsEngine';
 import { applyAccountantBonus, shouldRefundAP, applyPRDiscount } from './RoleEngine';
 import { SystemStrings } from '../data/SystemStrings';
-import {
-  throwNumericalCheckError,
-} from './errors/EngineErrors';
+import { throwNumericalCheckError } from './errors/EngineErrors';
 
 /**
- * 定義卡片選項的結果（賺點錢、扣名聲、或犯了哪條法）
- * 這個型別整合了所有類型的選項欄位。
+ * 核心行動引擎邏輯
+ * 
+ * 負責處理卡牌決策、隨機機率判定、黑材料生成與雜湊鏈稽核。
  */
-export type AnyCardOption = BaseOption & {
-  type?: OptionType;
-  succRate?: number; // 0~1 的成功機率 (如 0.8 代表 80% 成功率)
-  succ?: {
-    // 鑑定成功的獎勵
-    g?: MoneyValue;
-    rp?: number;
-    ip?: number;
-    bm?: number | 'all'; // 若為 all 則可以消除掉身上所有的黑材料
-    lawCaseIds?: string[];
-  };
-  fail?: {
-    // 鑑定失敗的懲罰
-    g?: MoneyValue;
-    rp?: number;
-    ip?: number;
-    loss?: number;
-    special?: SpecialTag; // 特殊狀態如 'sue' 會強制觸發起訴
-    lawCaseIds?: string[];
-  };
-};
 
 /**
  * 決定這回合誰先動
@@ -171,7 +145,8 @@ export async function performAction(
     }
 
     // 取出被選中的卡片選項詳細結構參數
-    const opt = card[optionIdx as unknown as keyof Card] as AnyCardOption;
+    // [源頭治理] 透過 Card 索引簽章，現在可以安全地透過動態 Index 取值
+    const opt = card[optionIdx];
 
     // [修正] 防禦性守門員：檢核選項是否存在，防止 TypeError
     if (!opt) {
@@ -195,11 +170,11 @@ export async function performAction(
       };
     }
 
-    const updates: Partial<Player> = {};
-    const snapshots: ActionResult['appliedTags'] = [];
+    const updates: Partial<Player> = { ...player };
+    const snapshots: AppliedTag[] = [];
 
     // [核心邏輯修正] 現在根據文案判定的 'poachtalent' 標籤來觸發 CTO 反制，不再依賴視覺上的等級 (SR/SSR/UR)
-    const isBTypeRisky = cardId.startsWith('B-') && (opt?.special === 'poachtalent');
+    const isBTypeRisky = cardId.startsWith('B-') && opt?.special === 'poachtalent';
     const tagMultiplier = isBTypeRisky ? 1 + counterCTOCount : 1;
 
     const isAPRefundedBySkill = shouldRefundAP(player, cardId);
@@ -214,7 +189,14 @@ export async function performAction(
         finalHash: lastHash,
         apRefunded: true,
         actionId,
-        log: { playerId: player.id, turn, cardId, optionIndex: optionIdx, tags: 'INTERCEPTED', timestamp },
+        log: {
+          playerId: player.id,
+          turn,
+          cardId,
+          optionIndex: optionIdx,
+          tags: 'INTERCEPTED',
+          timestamp,
+        },
       };
     }
 
@@ -262,7 +244,7 @@ export async function performAction(
     let costToDeduct = opt.costG || 0;
     // 如果玩家選擇了申報，課徵 50 萬手續費
     if (isDeclaration) costToDeduct += 50;
-    
+
     // [防禦性修正] 確保最終成本對齊 10 萬基準
     costToDeduct = alignToTenCeil(costToDeduct);
 
@@ -303,7 +285,7 @@ export async function performAction(
     // [核心機制重構] 標籤生成與記錄過濾器
     // 規定：僅針對 SSR、SSSR、UR 且具備明確法律 ID 的行動進行犯罪記錄。SR 級別絕對不紀錄。
     const isRiskyRank = ['SSR', 'SSSR', 'UR'].includes(opt.type || '');
-    
+
     // 3. 系統報表敘事生成與標籤處理
     if (isDeclaration) {
       message = `【${SystemStrings.ACTION.DECLARATION_LABEL || '安全申報'}】已依照法規完成金流紀錄，扣除相關成本 ${costToDeduct} 萬。`;
@@ -378,14 +360,20 @@ export async function performAction(
           // 成功洗白所有黑材料
           updates.blackMaterialSources = [];
         } else if (opt.succ?.bm !== undefined) {
-          const sources = JSON.parse(JSON.stringify(player.blackMaterialSources || []));
+          // [修正] 顯式標註型別，避免 JSON 拷貝導致的 any 污染
+          const sources: BlackMaterialSource[] = JSON.parse(
+            JSON.stringify(player.blackMaterialSources || [])
+          );
           let pointsToRemove = 0;
 
           if (typeof opt.succ.bm === 'number') {
             pointsToRemove = opt.succ.bm;
           } else if (typeof opt.succ.bm === 'string' && (opt.succ.bm as string).includes('%')) {
             // [新增] 百分比扣除邏輯：計算總量並採無條件進位
-            const totalBM = sources.reduce((sum: number, s: BlackMaterialSource) => sum + s.count, 0);
+            const totalBM = sources.reduce(
+              (sum: number, s: BlackMaterialSource) => sum + s.count,
+              0
+            );
             const ratio = parseInt(opt.succ.bm) / 100;
             pointsToRemove = Math.ceil(totalBM * ratio);
           }
@@ -394,7 +382,7 @@ export async function performAction(
             const valid = sources
               .map((s: BlackMaterialSource, idx: number) => (s.count > 0 ? idx : -1))
               .filter((idx: number) => idx !== -1);
-            if (valid.length === 0) break; 
+            if (valid.length === 0) break;
             const target = valid[Math.floor(Math.random() * valid.length)];
             sources[target].count -= 1;
             pointsToRemove -= 1;
@@ -445,7 +433,7 @@ export async function performAction(
       finalIPChange = failIP;
 
       // 失敗所帶出來的標籤：僅在有明確定義失敗標籤，且與頂層標籤不重複時才增加
-      const failLawCaseIds = (opt.fail?.lawCaseIds || []).filter(
+      const failLawCaseIds = (opt.fail && 'lawCaseIds' in opt.fail && opt.fail.lawCaseIds ? opt.fail.lawCaseIds : []).filter(
         (id) => !baseLawCaseIds.includes(id)
       );
       const resolvedFailTags = getResolvedTags(failLawCaseIds);
@@ -550,7 +538,7 @@ export async function performAction(
     // 計算黑材料淨變動
     let netBMChange = 0;
     if (hashedTags.length > 0) {
-      const extraBMTotals = (choice === 'skip' && isCTypeZOption) ? 2 : 0;
+      const extraBMTotals = choice === 'skip' && isCTypeZOption ? 2 : 0;
       netBMChange = hashedTags.length + extraBMTotals;
     } else if (updates.blackMaterialSources !== undefined) {
       // 若有 BM 減少邏輯 (如 E 卡成功)

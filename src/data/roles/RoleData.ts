@@ -6,6 +6,8 @@ import type { RoleType } from '../../types/game';
  * 角色能力資料庫
  * 定義了律師、公關、會計、技術長各等級的能力與顏色。
  */
+export type RoleColor = 'amber' | 'pink' | 'emerald' | 'blue';
+
 export const ROLE_UPGRADE_COST = {
   g: 100, // 升級所需的資金 (100萬)
   ip: 100, // 升級所需的技術點數 (100點)
@@ -16,7 +18,7 @@ export const ROLE_DATA: {
   name: string;
   emoji: string;
   icon: React.ElementType; // 綁定 Lucide icon 元件
-  color: string; // 綁定 COLOR_MAP 內的顏色 key
+  color: RoleColor; // 綁定 COLOR_MAP 內的顏色 key
   levels: { type: string; desc: string }[];
 }[] = [
   {
@@ -82,7 +84,7 @@ export const ROLE_DATA: {
  * 各人才專屬的代表顏色
  */
 export const COLOR_MAP: Record<
-  string,
+  RoleColor,
   { bg: string; border: string; text: string; glow: string; badge: string }
 > = {
   amber: {
