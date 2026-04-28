@@ -59,7 +59,11 @@ export default function ResolutionOverlay({
         duration: 1,
         ease: 'power2.out',
         onUpdate: () => {
-          counter.textContent = formatValue(Math.round(obj.val), counter.getAttribute('data-unit') || '', true);
+          counter.textContent = formatValue(
+            Math.round(obj.val),
+            counter.getAttribute('data-unit') || '',
+            true
+          );
         },
       });
     });
@@ -156,9 +160,9 @@ export default function ResolutionOverlay({
           <div className="h-1 w-12 bg-current opacity-30 rounded-full" />
         </div>
 
-        {/* 數值變動矩陣 */}
-        <div className="grid grid-cols-2 gap-3 mb-8 relative z-10">
-          {(diffs.g !== 0) && (
+        {/* 數值變動矩陣 - 開局選擇時直接隱藏 */}
+        {!title.includes('開局') && (
+          <div className="grid grid-cols-2 gap-3 mb-8 relative z-10">
             <StatItem
               label={SYSTEM_STRINGS.UI_LABELS.MONEY}
               value={diffs.g}
@@ -166,55 +170,49 @@ export default function ResolutionOverlay({
               color="text-emerald-400"
               unit={SYSTEM_STRINGS.UNITS.MONEY}
             />
-          )}
-          {(diffs.rp !== 0) && (
-            <StatItem 
-              label={SYSTEM_STRINGS.UI_LABELS.RP} 
-              value={diffs.rp} 
-              icon={Star} 
-              color="text-yellow-400" 
-              unit={SYSTEM_STRINGS.UNITS.RP} 
+            <StatItem
+              label={SYSTEM_STRINGS.UI_LABELS.RP}
+              value={diffs.rp}
+              icon={Star}
+              color="text-yellow-400"
+              unit={SYSTEM_STRINGS.UNITS.RP}
             />
-          )}
-          {(diffs.ip !== 0) && (
-            <StatItem 
-              label={SYSTEM_STRINGS.UI_LABELS.IP} 
-              value={diffs.ip} 
-              icon={Cpu} 
-              color="text-blue-400" 
-              unit={SYSTEM_STRINGS.UI_LABELS.IP} 
+            <StatItem
+              label={SYSTEM_STRINGS.UI_LABELS.IP}
+              value={diffs.ip}
+              icon={Cpu}
+              color="text-blue-400"
+              unit={SYSTEM_STRINGS.UNITS.IP}
             />
-          )}
-          {(diffs.bm !== 0) && (
-            <StatItem 
-              label={SYSTEM_STRINGS.UI_LABELS.BM} 
-              value={diffs.bm} 
-              icon={AlertTriangle} 
-              color="text-orange-500" 
-              unit={SYSTEM_STRINGS.UNITS.BM} 
+            <StatItem
+              label={SYSTEM_STRINGS.UI_LABELS.BM}
+              value={diffs.bm}
+              icon={AlertTriangle}
+              color="text-orange-500"
+              unit={SYSTEM_STRINGS.UNITS.BM}
             />
-          )}
-          {(diffs.ap ?? 0) > 0 && (
-            <StatItem 
-              label={SYSTEM_STRINGS.UI_LABELS.AP} 
-              value={diffs.ap} 
-              icon={Zap} 
-              color="text-amber-400" 
-              unit="" 
-            />
-          )}
-          {diffs.trust && diffs.trust > 0 && (
-            <div className="col-span-2 mt-1">
+            {(diffs.ap ?? 0) > 0 && (
               <StatItem
-                label={SYSTEM_STRINGS.UI_LABELS.TRUST_FUND}
-                value={diffs.trust}
-                icon={ShieldCheck}
-                color="text-blue-300"
-                unit={SYSTEM_STRINGS.UNITS.MONEY}
+                label={SYSTEM_STRINGS.UI_LABELS.AP}
+                value={diffs.ap}
+                icon={Zap}
+                color="text-amber-400"
+                unit=""
               />
-            </div>
-          )}
-        </div>
+            )}
+            {diffs.trust && diffs.trust > 0 && (
+              <div className="col-span-2 mt-1">
+                <StatItem
+                  label={SYSTEM_STRINGS.UI_LABELS.TRUST_FUND}
+                  value={diffs.trust}
+                  icon={ShieldCheck}
+                  color="text-blue-300"
+                  unit={SYSTEM_STRINGS.UNITS.MONEY}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 文案敘述 */}
         <div className="bg-black/40 rounded-3xl p-6 border border-white/5 relative z-10 mb-8">
@@ -259,15 +257,20 @@ export default function ResolutionOverlay({
                 <div className="flex flex-col">
                   <span className="text-sm font-black text-white">{item.name}</span>
                   <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-widest">
-                    {SYSTEM_STRINGS.UI_LABELS.LEVEL} {item.level} {SYSTEM_STRINGS.DECORATION.IN_PROGRESS}
+                    {SYSTEM_STRINGS.UI_LABELS.LEVEL} {item.level}{' '}
+                    {SYSTEM_STRINGS.DECORATION.IN_PROGRESS}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">
                   {item.g !== undefined && item.g !== 0 && (
-                    <span className="text-xs font-black text-emerald-400">{formatValue(item.g, SYSTEM_STRINGS.UNITS.MONEY, true)}</span>
+                    <span className="text-xs font-black text-emerald-400">
+                      {formatValue(item.g, SYSTEM_STRINGS.UNITS.MONEY, true)}
+                    </span>
                   )}
                   {item.rp !== undefined && item.rp !== 0 && (
-                    <span className="text-xs font-black text-yellow-400">{formatValue(item.rp, SYSTEM_STRINGS.UNITS.RP, true)}</span>
+                    <span className="text-xs font-black text-yellow-400">
+                      {formatValue(item.rp, SYSTEM_STRINGS.UNITS.RP, true)}
+                    </span>
                   )}
                   {item.trust !== undefined && item.trust !== 0 && (
                     <span className="text-xs font-black text-blue-300">
