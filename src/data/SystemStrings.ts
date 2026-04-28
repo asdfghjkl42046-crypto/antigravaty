@@ -142,9 +142,9 @@ export const SYSTEM_STRINGS = {
   // 開局設定
   SETUP: {
     NORMAL_BONUS_MSG: (name: string) =>
-      `恭喜！${name} 總裁選擇了「白手起家」，獲得減少懲罰（-5% 罰金）的開局獎勵！`,
+      `恭喜！${name} 總裁選擇了「白手起家」，獲得（-5% 罰金）開局獎勵！`,
     BRIBE_BONUS_MSG: (name: string, judge: string, itemName: string) =>
-      `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的開局獎勵！`,
+      `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得（-20% 罰金）開局獎勵！`,
     DEFAULT_BRIBE_NAME: '禮物',
     START_PATH_NAMES: {
       normal: '白手起家',
