@@ -12,6 +12,7 @@ interface IndictmentBookProps {
   onAppeal?: () => void;
   onCountdownEnd?: () => void;
   canAppeal?: boolean;
+  isAceAttorney?: boolean;
   countdownSeconds?: number;
 }
 
@@ -23,11 +24,13 @@ const CountdownClock: React.FC<{
   onAppeal: () => void; 
   isActive: boolean;
   seconds?: number;
+  showButton?: boolean;
 }> = ({
   onComplete,
   onAppeal,
   isActive,
   seconds = 5.0,
+  showButton = true,
 }) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [isBright, setIsBright] = useState(false);
@@ -94,13 +97,18 @@ const CountdownClock: React.FC<{
           {timeLeft.toFixed(1)}s
         </span>
       </div>
-      <button
-        onClick={onAppeal}
-        className="group relative px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-2xl transition-all active:scale-95 flex items-center gap-3 overflow-hidden border border-white/20"
-      >
-        <RotateCcw size={20} className="animate-spin-slow" />
-        <span className="font-black tracking-[0.2em] text-lg italic">非常上訴</span>
-      </button>
+      {showButton && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onAppeal();
+          }}
+          className="group relative px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-2xl transition-all active:scale-95 flex items-center gap-3 overflow-hidden border border-white/20"
+        >
+          <RotateCcw size={20} className="animate-spin-slow" />
+          <span className="font-black tracking-[0.2em] text-lg italic">非常上訴</span>
+        </button>
+      )}
       <p className="text-[10px] text-red-600/40 font-bold tracking-widest uppercase animate-pulse">
         最後決斷時間
       </p>
@@ -118,6 +126,7 @@ export default function IndictmentBook({
   onAppeal,
   onCountdownEnd,
   canAppeal,
+  isAceAttorney,
   countdownSeconds = 5.0,
 }: IndictmentBookProps) {
   // --- 狀態控制 (Sync-Ref Architecture) ---
@@ -159,6 +168,9 @@ export default function IndictmentBook({
   }, [pages, totalPages]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    // 防止攔截按鈕點擊
+    if ((e.target as HTMLElement).closest('button')) return;
+
     isDragging.current = true;
     dragStartX.current = e.clientX;
     if (containerRef.current) containerRef.current.setPointerCapture(e.pointerId);
@@ -257,8 +269,10 @@ export default function IndictmentBook({
               ease: 'power2.out',
               onComplete: () => {
                 setFlippingIndexBoth(-1);
-                if (cur === totalPages - 1 && !canAppeal) {
-                  setTimeout(() => onClose?.(), 500);
+                // [核心優化] 只有在「不能上訴」且「不具備逆轉技能」時，翻完最後一頁才立即結案
+                const hasFollowUp = canAppeal || isAceAttorney;
+                if (cur === totalPages - 1 && !hasFollowUp) {
+                  onClose?.(); 
                 }
               },
             });
@@ -315,6 +329,22 @@ export default function IndictmentBook({
 
   return (
     <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-90">
+      {/* 判決倒數 Overlay：採用平面佈局，徹底解決 3D 遮擋與點擊失效問題 */}
+      {totalPages > 0 && (canAppeal || isAceAttorney) && (
+        <div 
+          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px] z-[9999]"
+          onPointerDown={(e) => e.stopPropagation()} 
+        >
+          <CountdownClock 
+            onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
+            onAppeal={() => onAppeal?.()} 
+            isActive={currentPage === totalPages}
+            seconds={countdownSeconds}
+            showButton={canAppeal}
+          />
+        </div>
+      )}
+
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
@@ -333,16 +363,7 @@ export default function IndictmentBook({
               backgroundImage: 'url("https://www.transparenttextures.com/patterns/leather.png")',
             }}
           >
-            {totalPages > 0 && canAppeal && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px]">
-                <CountdownClock 
-                  onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
-                  onAppeal={() => onAppeal?.()} 
-                  isActive={currentPage === totalPages}
-                  seconds={countdownSeconds}
-                />
-              </div>
-            )}
+            {/* 倒數區域已移至 Overlay */}
           </div>
         </div>
 

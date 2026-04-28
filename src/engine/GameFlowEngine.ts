@@ -494,8 +494,16 @@ export class GameFlowEngine {
       players: updatedPlayers,
       trial: {
         ...trial,
-        isReady: false,
+        stage: 4, // 撥回「階段 4：被告答辯」
+        isAppeal: true, // 標記為上訴回合（若再失敗，罰金將根據 MechanicsEngine 進行加重）
+        isReady: true, // 確保回到答辯介面時是可操作狀態
         timer: 0,
+        // 清理上一次的辯護與判決數據，以便重新開始
+        defenseText: '',
+        chosenDefenseLabel: '',
+        judgment: '',
+        punishment: undefined,
+        // 【注意】此處不重置 bets，實現旁觀者決定之沿用
       },
       result: {
         success: true,
