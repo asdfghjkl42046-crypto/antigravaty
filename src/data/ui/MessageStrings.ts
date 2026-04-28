@@ -1,5 +1,8 @@
+import { SYSTEM_STRINGS } from '../SystemStrings';
+
 /**
  * 系統通知與警告訊息 (對齊舊代碼 Key 名稱)
+ * 使用 Getter 確保在 SystemStrings 初始化後才讀取值，防止循環引用。
  */
 export const SYSTEM_MESSAGES = {
   READY: '系統就緒。請掃描 QR Code 以進行行動。',
@@ -13,7 +16,9 @@ export const SYSTEM_MESSAGES = {
   CANCEL_ACTION: '已取消操作。',
   
   // 對齊舊代碼使用的 Key
-  INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
+  get INSUFFICIENT_AP() {
+    return `🚫 體力不足：\n您的 ${SYSTEM_STRINGS.UI_LABELS.AP} 已歸零，請結束回合。`;
+  },
   BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
   SECURE_CONTEXT_REQUIRED: '🚨 安全性限制：\n瀏覽器禁止在非加密連線 (HTTP) 下開啟相機。',
   CAMERA_START_FAIL: '啟動失敗：\n請檢查權限設定。',
@@ -33,9 +38,10 @@ export const SYSTEM_MESSAGES = {
 
   ROLE: {
     MAX_LEVEL: (role: string) => `${role} 已達最高等級 LV3。`,
-    UPGRADE_REQUIREMENT: (ip: number, g: number) => `需要 ${ip} IP + ${g} 萬 G 才能升級。`,
+    UPGRADE_REQUIREMENT: (ip: number, g: number) =>
+      `需要 ${ip} ${SYSTEM_STRINGS.UI_LABELS.IP} + ${g} 萬 G 才能升級。`,
     UPGRADE_SUCCESS_DETAIL: (role: string, lv: number, ip: number, g: number) =>
-      `成功升級 ${role} 至 LV${lv}！已扣除 ${ip} IP + ${g} 萬 G。`,
+      `成功升級 ${role} 至 LV${lv}！已扣除 ${ip} ${SYSTEM_STRINGS.UI_LABELS.IP} + ${g} 萬 G。`,
   },
 
   ACTION: {
@@ -60,5 +66,7 @@ export const SYSTEM_MESSAGES = {
     NO_BETS: '本場無人進行押注',
   },
 
-  RP_WARNING: '警告：企業聲譽瀕危！若降至 20 將遭強制淘汰！',
+  get RP_WARNING() {
+    return `警告：企業${SYSTEM_STRINGS.UI_LABELS.RP}瀕危！若降至 20 將遭強制淘汰！`;
+  },
 };
