@@ -10,7 +10,7 @@ import DashboardScreen from '@/components/DashboardScreen';
 import CourtroomScreen from '@/components/CourtroomScreen';
 import EndingScreen from '@/components/EndingScreen';
 import { EntryScreen } from '@/components/EntryScreen';
-import LobbyScreen from '@/components/multiplayer/LobbyScreen';
+import LobbyScreen from '@/components/PVP/LobbyScreen';
 import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {

@@ -22,7 +22,8 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
   const generateChaoticKey = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`";
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
     const array = new Uint8Array(20);
     window.crypto.getRandomValues(array);
     return Array.from(array)
@@ -122,17 +123,21 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             <div className="mb-8 text-center">
               <div className="inline-flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-                <span className="text-[10px] font-black text-blue-400 tracking-[0.5em] uppercase">加密房間已開啟</span>
+                <span className="text-[10px] font-black text-blue-400 tracking-[0.5em] uppercase">
+                  加密房間已開啟
+                </span>
               </div>
-              <h2 className="text-2xl font-black text-white tracking-widest uppercase">等待玩家加入</h2>
+              <h2 className="text-2xl font-black text-white tracking-widest uppercase">
+                等待玩家加入
+              </h2>
             </div>
 
             {/* QR Code 顯示區 */}
             <div className="relative mb-10 p-4 bg-white rounded-3xl shadow-[0_0_80px_rgba(255,255,255,0.1)] border-8 border-slate-900 group">
-              <QRCodeSVG 
-                value={roomKey} 
-                size={220} 
-                level="H" 
+              <QRCodeSVG
+                value={roomKey}
+                size={220}
+                level="H"
                 includeMargin={true}
                 fgColor="#020617"
               />
@@ -144,7 +149,9 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
             {/* 亂碼金鑰顯示 */}
             <div className="mb-10 p-4 bg-black/40 border border-white/5 rounded-2xl w-full max-w-sm">
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">加密房間密鑰 (Room Key)</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">
+                加密房間密鑰 (Room Key)
+              </p>
               <div className="text-xs font-mono text-blue-400 break-all text-center tracking-widest bg-blue-500/5 p-3 rounded-lg border border-blue-500/10">
                 {roomKey}
               </div>
@@ -152,9 +159,14 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
             {/* 玩家列表 */}
             <div className="w-full max-w-xs space-y-3 mb-12">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">目前玩家 ({participants.length} / 4)</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">
+                目前玩家 ({participants.length} / 4)
+              </h4>
               {participants.map((p, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-2xl">
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-2xl"
+                >
                   <span className="text-xs font-bold text-slate-300">{p.name}</span>
                   <div className="w-2 h-2 rounded-full bg-emerald-500" />
                 </div>
@@ -191,8 +203,12 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             className="relative z-10 flex flex-col items-center w-full px-6"
           >
             <div className="mb-12 text-center">
-              <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">加入加密房間</h2>
-              <p className="text-slate-500 text-[10px] tracking-widest">請掃描房長手機螢幕上的 QR CODE</p>
+              <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
+                加入加密房間
+              </h2>
+              <p className="text-slate-500 text-[10px] tracking-widest">
+                請掃描房長手機螢幕上的 QR CODE
+              </p>
             </div>
 
             <div className="w-64 h-64 border-2 border-dashed border-emerald-500/30 rounded-3xl flex items-center justify-center bg-emerald-500/5 mb-12 relative overflow-hidden">
@@ -214,8 +230,12 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
       <style jsx global>{`
         @keyframes scan {
-          0% { top: 0%; }
-          100% { top: 100%; }
+          0% {
+            top: 0%;
+          }
+          100% {
+            top: 100%;
+          }
         }
         .text-glow {
           text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);

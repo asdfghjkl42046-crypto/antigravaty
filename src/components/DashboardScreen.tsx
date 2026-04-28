@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import StoreScreen from './StoreScreen';
-import ScanScreen from './ScanScreen';
+import ScanScreen from './PVP/ScanScreen';
 import {
   Home,
   ShoppingBag,
