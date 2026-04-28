@@ -296,6 +296,7 @@ export class CourtEngine {
       message: `強制撤告成功！清理了 ${removedCount} 件相關黑材料。`,
       updates: {
         g: player.g - gDeduct,
+        ip: player.ip - cost.ip, // [新增] 扣除 5 點 IP
         trustFund: (player.trustFund || 0) - ogDeduct,
         blackMaterialSources: updatedBM,
         tags: player.tags.map((t) => (t.id === tagId ? { ...t, isResolved: true } : t)),
@@ -304,7 +305,7 @@ export class CourtEngine {
         g: -gDeduct,
         trust: -ogDeduct,
         rp: 0,
-        ip: 0,
+        ip: -cost.ip, // [修正] 顯示 IP 扣除
         bm: -removedCount,
       },
     };
