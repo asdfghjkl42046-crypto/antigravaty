@@ -54,12 +54,34 @@ export const SYSTEM_STRINGS = {
     LEVEL: ' 級',
   },
 
-  // 快捷訪問
-  ERRORS: SYSTEM_MESSAGES,
-  ACTION: SYSTEM_MESSAGES.ACTION,
-  RESOLUTION: SYSTEM_MESSAGES.RESOLUTION,
+  // 結算與行動文案
+  ACTION: {
+    DECLARATION_LABEL: '安全申報',
+    SKIP_DECLARATION_LABEL: '已略過申報',
+    SUCCESS_PREFIX: '【成功】',
+    DEFAULT_SUCCESS_LABEL: '計畫執行成功',
+  },
+  RESOLUTION: {
+    SUCCESS_TITLE: '計畫執行成功',
+    FAILURE_TITLE: '計畫受阻',
+    PASSIVE_TITLE: '回合結算報表',
+    PASSIVE_MSG: '您的人才已完成本回合的自動化作業。',
+    DEFENDANT_WIN: '法庭判決勝訴',
+    DEFENDANT_LOSE: '法庭判決敗訴',
+    WIN_MSG: '您已成功洗清罪嫌。',
+    LOSE_MSG: '法庭已正式執行裁罰。',
+    BREAKDOWN_TITLE: '人才產出細目',
+    BYSTANDER_PL: '旁觀者盈虧',
+    BETTING_TITLE: '場外押注結算',
+    NO_BETS: '本場無人進行押注',
+  },
   STORE: {
     ...ROLE_STRINGS.HR_UI,
+  },
+  ERRORS: {
+    INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
+    BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
+  },
     HR_DOSSIER: '機密任命檔案',
     ID_LABEL: '識別編號',
     STAGES: '階段',
