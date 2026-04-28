@@ -160,58 +160,58 @@ export default function ResolutionOverlay({
           <div className="h-1 w-12 bg-current opacity-30 rounded-full" />
         </div>
 
-        {/* 數值變動矩陣 - 開局選擇時直接隱藏 */}
-        {!title.includes('開局') && (
+        {/* 數值變動矩陣 - 當所有數值皆為 0 時隱藏 (例如開局選擇後的自動結算) */}
+        {Object.values(diffs).some(v => v !== 0) && (
           <div className="grid grid-cols-2 gap-3 mb-8 relative z-10">
+          <StatItem
+            label={SYSTEM_STRINGS.UI_LABELS.MONEY}
+            value={diffs.g}
+            icon={Banknote}
+            color="text-emerald-400"
+            unit={SYSTEM_STRINGS.UNITS.MONEY}
+          />
+          <StatItem
+            label={SYSTEM_STRINGS.UI_LABELS.RP}
+            value={diffs.rp}
+            icon={Star}
+            color="text-yellow-400"
+            unit={SYSTEM_STRINGS.UNITS.RP}
+          />
+          <StatItem
+            label={SYSTEM_STRINGS.UI_LABELS.IP}
+            value={diffs.ip}
+            icon={Cpu}
+            color="text-blue-400"
+            unit={SYSTEM_STRINGS.UNITS.IP}
+          />
+          <StatItem
+            label={SYSTEM_STRINGS.UI_LABELS.BM}
+            value={diffs.bm}
+            icon={AlertTriangle}
+            color="text-orange-500"
+            unit={SYSTEM_STRINGS.UNITS.BM}
+          />
+          {(diffs.ap ?? 0) > 0 && (
             <StatItem
-              label={SYSTEM_STRINGS.UI_LABELS.MONEY}
-              value={diffs.g}
-              icon={Banknote}
-              color="text-emerald-400"
-              unit={SYSTEM_STRINGS.UNITS.MONEY}
+              label={SYSTEM_STRINGS.UI_LABELS.AP}
+              value={diffs.ap}
+              icon={Zap}
+              color="text-amber-400"
+              unit=""
             />
-            <StatItem
-              label={SYSTEM_STRINGS.UI_LABELS.RP}
-              value={diffs.rp}
-              icon={Star}
-              color="text-yellow-400"
-              unit={SYSTEM_STRINGS.UNITS.RP}
-            />
-            <StatItem
-              label={SYSTEM_STRINGS.UI_LABELS.IP}
-              value={diffs.ip}
-              icon={Cpu}
-              color="text-blue-400"
-              unit={SYSTEM_STRINGS.UNITS.IP}
-            />
-            <StatItem
-              label={SYSTEM_STRINGS.UI_LABELS.BM}
-              value={diffs.bm}
-              icon={AlertTriangle}
-              color="text-orange-500"
-              unit={SYSTEM_STRINGS.UNITS.BM}
-            />
-            {(diffs.ap ?? 0) > 0 && (
+          )}
+          {diffs.trust && diffs.trust > 0 && (
+            <div className="col-span-2 mt-1">
               <StatItem
-                label={SYSTEM_STRINGS.UI_LABELS.AP}
-                value={diffs.ap}
-                icon={Zap}
-                color="text-amber-400"
-                unit=""
+                label={SYSTEM_STRINGS.UI_LABELS.TRUST_FUND}
+                value={diffs.trust}
+                icon={ShieldCheck}
+                color="text-blue-300"
+                unit={SYSTEM_STRINGS.UNITS.MONEY}
               />
-            )}
-            {diffs.trust && diffs.trust > 0 && (
-              <div className="col-span-2 mt-1">
-                <StatItem
-                  label={SYSTEM_STRINGS.UI_LABELS.TRUST_FUND}
-                  value={diffs.trust}
-                  icon={ShieldCheck}
-                  color="text-blue-300"
-                  unit={SYSTEM_STRINGS.UNITS.MONEY}
-                />
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
         )}
 
         {/* 文案敘述 */}
