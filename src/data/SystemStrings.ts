@@ -16,10 +16,10 @@ export const SYSTEM_STRINGS = {
   UI_LABELS: {
     MONEY: '資金',
     TRUST_FUND: '海外信託',
-    IP: 'IP 人脈',
-    RP: 'RP 名聲',
-    AP: 'AP 行動點數',
-    BM: '犯罪證據',
+    IP: 'IP',
+    RP: 'RP',
+    AP: 'AP',
+    BM: 'BM',
     CONVICTION: '前科',
     LEVEL: '等級',
     STATUS_BANKRUPT: '已破產',
@@ -45,7 +45,6 @@ export const SYSTEM_STRINGS = {
     MANUAL_READ: '手動破解',
     OPEN_CAMERA: '開啟相機掃描',
   },
-
 
   UNITS: {
     MONEY: '萬',
@@ -112,13 +111,16 @@ export const SYSTEM_STRINGS = {
      */
     getLabels: (cards: any) => {
       const paginate = (text: string, maxChars = 200): string[] => {
-        const paragraphs = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const paragraphs = text
+          .split('\n')
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
         const pages: string[] = [];
         let current = '';
 
         for (const para of paragraphs) {
           // 若加入此段落會超過預算，先推入現有頁面
-          if (current.length > 0 && (current.length + para.length + 1) > maxChars) {
+          if (current.length > 0 && current.length + para.length + 1 > maxChars) {
             pages.push(current);
             current = para;
           } else {
@@ -139,8 +141,10 @@ export const SYSTEM_STRINGS = {
 
   // 開局設定
   SETUP: {
-    NORMAL_BONUS_MSG: (name: string) => `恭喜！${name} 總裁選擇了「白手起家」，獲得減少懲罰（-5% 罰金）的開局獎勵！`,
-    BRIBE_BONUS_MSG: (name: string, judge: string, itemName: string) => `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的開局獎勵！`,
+    NORMAL_BONUS_MSG: (name: string) =>
+      `恭喜！${name} 總裁選擇了「白手起家」，獲得減少懲罰（-5% 罰金）的開局獎勵！`,
+    BRIBE_BONUS_MSG: (name: string, judge: string, itemName: string) =>
+      `恭喜！${name} 總裁準備的 ${itemName} 深受 ${judge} 喜愛，獲得減少懲罰（-20% 罰金）的開局獎勵！`,
     DEFAULT_BRIBE_NAME: '禮物',
     START_PATH_NAMES: {
       normal: '白手起家',
@@ -150,7 +154,7 @@ export const SYSTEM_STRINGS = {
     MODE_SELECT: {
       WEBSITE_DESC: '使用固定戲劇性文案模板\n無需等待 AI 生成',
       AI_DESC: '由 LLM 生成無限變化的判決\n支援自由文字陳述',
-    }
+    },
   },
 
   // --- 全域通用文字 (原 GlobalUI.ts) ---
@@ -260,7 +264,7 @@ export const SYSTEM_STRINGS = {
       FINE: '罰金',
       RP_LOSS: '名聲損失',
     },
-  }
+  },
 };
 
 // 最終兼容性出口

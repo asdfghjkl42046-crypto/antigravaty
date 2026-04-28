@@ -577,7 +577,7 @@ export async function performAction(
         rp: finalRPChange,
         ip: finalIPChange,
         bm: netBMChange,
-        ap: apRefunded ? 0 : -1,
+        ap: apRefunded ? 1 : 0, // [修正] 僅在技術長觸發退還時傳回 1 (UI 會顯示 +1)，其餘消耗傳 0 (UI 會隱藏)
       },
       log: {
         playerId: player.id,
