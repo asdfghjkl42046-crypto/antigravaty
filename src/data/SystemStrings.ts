@@ -1,4 +1,4 @@
-import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
+// import { PLAYER_UI_STRINGS } from './ui/PlayerStrings'; // [移除] 避免循環引用
 import { ROLE_STRINGS } from './ui/RoleStrings';
 import { SYSTEM_MESSAGES } from './ui/MessageStrings';
 
@@ -7,8 +7,8 @@ import { SYSTEM_MESSAGES } from './ui/MessageStrings';
  * 策劃者請注意：此檔案為 SSOT，向下相容舊代碼結構。
  */
 export const SYSTEM_STRINGS = {
-  // --- 分類模組 ---
-  PLAYER: PLAYER_UI_STRINGS,
+  // --- 分類模組 (將在下方動態掛載或導出) ---
+  PLAYER: {} as any, 
   ROLES: ROLE_STRINGS,
   MESSAGES: SYSTEM_MESSAGES,
 
@@ -281,7 +281,11 @@ export const SYSTEM_STRINGS = {
   },
 };
 
+import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
+SYSTEM_STRINGS.PLAYER = PLAYER_UI_STRINGS;
+
 // 最終兼容性出口
 export const SystemStrings = SYSTEM_STRINGS;
 export const GLOBAL_UI_TEXT = SYSTEM_STRINGS.GLOBAL;
 export const COURT_TEXT = SYSTEM_STRINGS.COURT;
+export const PLAYER_UI_TEXT = SYSTEM_STRINGS.PLAYER; // 新增方便外部引用
