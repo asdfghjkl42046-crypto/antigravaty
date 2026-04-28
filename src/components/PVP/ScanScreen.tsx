@@ -10,10 +10,10 @@ import {
   ChevronRight,
   AlertTriangle,
 } from 'lucide-react';
-import { useGameStore } from '../store/gameStore';
-import { PlayerCard } from './DashboardScreen';
-import { SYSTEM_STRINGS } from '../data/SystemStrings';
-import type { Player, Tag } from '../types/game';
+import { useGameStore } from '@/store/gameStore';
+import { PlayerCard } from '@/components/DashboardScreen';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
+import type { Player, Tag } from '@/types/game';
 
 interface ScanScreenProps {
   onBack: () => void;
@@ -294,7 +294,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes scan-line {
           0% {
             top: 0%;
@@ -340,7 +340,7 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
           top: 0 !important;
           left: 0 !important;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
