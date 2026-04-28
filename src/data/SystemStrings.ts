@@ -1,17 +1,6 @@
 import { ROLE_STRINGS } from './ui/RoleStrings';
 import { SYSTEM_MESSAGES } from './ui/MessageStrings';
 
-// --- 基礎核心術語 (SSOT) ---
-const CORE_LABELS = {
-  MONEY: '資金',
-  TRUST_FUND: '海外信託',
-  IP: 'IP',
-  RP: 'RP',
-  AP: 'AP',
-  BM: 'BM',
-  CONVICTION: '前科',
-};
-
 /**
  * 系統全域文案定義 (System Strings)
  * 策劃者請注意：此檔案為 SSOT，向下相容舊代碼結構。
@@ -24,13 +13,13 @@ export const SYSTEM_STRINGS = {
 
   // --- 扁平化結構 (向下相容組件大量使用的路徑) ---
   UI_LABELS: {
-    MONEY: CORE_LABELS.MONEY,
-    TRUST_FUND: CORE_LABELS.TRUST_FUND,
-    IP: CORE_LABELS.IP,
-    RP: CORE_LABELS.RP,
-    AP: CORE_LABELS.AP,
-    BM: CORE_LABELS.BM,
-    CONVICTION: CORE_LABELS.CONVICTION,
+    MONEY: '資金',
+    TRUST_FUND: '海外信託',
+    IP: 'IP',
+    RP: 'RP',
+    AP: 'AP',
+    BM: 'BM',
+    CONVICTION: '前科',
     LEVEL: '等級',
     STATUS_BANKRUPT: '已破產',
     STATUS_ACTIVE: '運作中',
@@ -54,12 +43,14 @@ export const SYSTEM_STRINGS = {
     OPEN_CAMERA: '開啟相機掃描',
   },
 
-  UNITS: {
-    MONEY: '萬',
-    IP: ` ${CORE_LABELS.IP}`,
-    RP: ` ${CORE_LABELS.RP}`,
-    BM: ' 件',
-    LEVEL: ' 級',
+  get UNITS() {
+    return {
+      MONEY: '萬',
+      IP: ` ${SYSTEM_STRINGS.UI_LABELS.IP}`,
+      RP: ` ${SYSTEM_STRINGS.UI_LABELS.RP}`,
+      BM: ' 件',
+      LEVEL: ' 級',
+    };
   },
 
   // 結算與行動文案
