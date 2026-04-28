@@ -700,7 +700,7 @@ export default function CourtroomScreen() {
                   }}
                   canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
                   isAceAttorney={!isWin && defendant?.roles?.lawyer === 3}
-                  countdownSeconds={(!isWin && defendant?.hasUsedExtraAppeal) ? 0.5 : 3}
+                  countdownSeconds={(!isWin && !defendant?.hasUsedExtraAppeal) ? 3 : 0.5}
                 />
               )}
             </div>
