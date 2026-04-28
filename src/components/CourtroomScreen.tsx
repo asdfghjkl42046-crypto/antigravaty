@@ -699,7 +699,7 @@ export default function CourtroomScreen() {
                     }
                   }}
                   canAppeal={!isWin && defendant !== undefined && !defendant.hasUsedExtraAppeal}
-                  isAceAttorney={defendant?.roles?.lawyer === 3}
+                  isAceAttorney={!isWin && defendant?.roles?.lawyer === 3}
                   countdownSeconds={3}
                 />
               )}
