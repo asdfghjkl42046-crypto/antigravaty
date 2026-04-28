@@ -10,6 +10,7 @@ import DashboardScreen from '@/components/DashboardScreen';
 import CourtroomScreen from '@/components/CourtroomScreen';
 import EndingScreen from '@/components/EndingScreen';
 import { EntryScreen } from '@/components/EntryScreen';
+import LobbyScreen from '@/components/multiplayer/LobbyScreen';
 import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {
@@ -106,15 +107,14 @@ export default function Home() {
       )}
 
       {isMultiplayerMode === true && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black">
-          <p className="text-white text-xl font-bold">多機模式開發中，敬請期待...</p>
-          <button 
-            onClick={() => setIsMultiplayerMode(null)}
-            className="absolute top-10 left-10 text-slate-500 hover:text-white"
-          >
-            ← 返回入口
-          </button>
-        </div>
+        <LobbyScreen 
+          onBack={() => setIsMultiplayerMode(null)} 
+          onStartGame={(key) => {
+            console.log('Room Start with Key:', key);
+            // 未來在此處初始化 Supabase 房間狀態
+            setIsMultiplayerMode(null); 
+          }} 
+        />
       )}
     </GameCanvas>
   );
