@@ -16,7 +16,7 @@ interface LobbyScreenProps {
  * 負責創房、進房、顯示極限亂碼 QR Code。
  */
 export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
-  const [view, setView] = useState<'selection' | 'host' | 'guest'>('selection');
+  const [view, setView] = useState<'selection' | 'host' | 'guest' | 'guest_waiting'>('selection');
   const [roomKey, setRoomKey] = useState('');
   const [participants, setParticipants] = useState<{ id: string; name: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -87,9 +87,14 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const handleJoinSuccess = async (key: string) => {
     setScanStatus('success');
     await stopScanning();
-    // 模擬加入成功
+    setRoomKey(key);
+    // 模擬加入後的房間狀態
+    setParticipants([
+      { id: 'host', name: '(他人)' },
+      { id: 'me', name: '(自己)' },
+    ]);
     setTimeout(() => {
-      onStartGame(key);
+      setView('guest_waiting');
     }, 1000);
   };
 
@@ -205,8 +210,6 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               </div>
             </div>
 
-
-
             {/* 玩家列表 */}
             <div className="w-full max-w-xs space-y-3 mb-12">
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">
@@ -315,6 +318,64 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             >
               <ArrowLeft size={16} />
               取消返回
+            </button>
+          </motion.div>
+        )}
+
+        {/* 4. 房員就緒介面 (等待房長開始) */}
+        {view === 'guest_waiting' && (
+          <motion.div
+            key="guest_waiting"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10 flex flex-col items-center w-full px-6"
+          >
+            <div className="mb-12 text-center">
+              <div className="inline-flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="text-[10px] font-black text-emerald-400 tracking-[0.5em] uppercase">
+                  連線已建立
+                </span>
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-widest uppercase">
+                等待遊戲開始
+              </h2>
+            </div>
+
+            {/* 裝飾性圖示 (取代 QR Code) */}
+            <div className="relative mb-16 p-12 bg-white/[0.03] rounded-full border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)]">
+              <Users className="w-20 h-20 text-slate-500 opacity-50" />
+              <div className="absolute inset-0 rounded-full border border-white/5 animate-pulse" />
+            </div>
+
+            {/* 玩家列表 */}
+            <div className="w-full max-w-xs space-y-3 mb-16">
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">
+                目前玩家 ({participants.length} / 4)
+              </h4>
+              {participants.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 rounded-2xl transition-all"
+                >
+                  <span
+                    className={`text-xs font-bold ${p.id === 'me' ? 'text-emerald-400' : 'text-slate-300'}`}
+                  >
+                    {p.name}
+                  </span>
+                  {/* 統一使用綠點 */}
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                </div>
+              ))}
+            </div>
+
+            {/* 操作按鈕 (房員只能離開) */}
+            <button
+              onClick={() => setView('selection')}
+              className="flex items-center gap-3 px-10 py-4 rounded-full border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.3em]"
+            >
+              <LogOut size={16} />
+              退出房間
             </button>
           </motion.div>
         )}
