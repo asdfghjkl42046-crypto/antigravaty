@@ -147,15 +147,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               </div>
             </div>
 
-            {/* 亂碼金鑰顯示 */}
-            <div className="mb-10 p-4 bg-black/40 border border-white/5 rounded-2xl w-full max-w-sm">
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">
-                加密房間密鑰 (Room Key)
-              </p>
-              <div className="text-xs font-mono text-blue-400 break-all text-center tracking-widest bg-blue-500/5 p-3 rounded-lg border border-blue-500/10">
-                {roomKey}
-              </div>
-            </div>
+
 
             {/* 玩家列表 */}
             <div className="w-full max-w-xs space-y-3 mb-12">
