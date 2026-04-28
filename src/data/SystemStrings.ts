@@ -1,7 +1,5 @@
-import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
 import { ROLE_STRINGS } from './ui/RoleStrings';
 import { SYSTEM_MESSAGES } from './ui/MessageStrings';
-import { CORE_LABELS } from './constants/Labels';
 
 /**
  * 系統全域文案定義 (System Strings)
@@ -9,19 +7,19 @@ import { CORE_LABELS } from './constants/Labels';
  */
 export const SYSTEM_STRINGS = {
   // --- 分類模組 ---
-  PLAYER: PLAYER_UI_STRINGS,
+  PLAYER: {} as any, // 延後掛載
   ROLES: ROLE_STRINGS,
   MESSAGES: SYSTEM_MESSAGES,
 
   // --- 扁平化結構 (向下相容組件大量使用的路徑) ---
   UI_LABELS: {
-    MONEY: CORE_LABELS.MONEY,
-    TRUST_FUND: CORE_LABELS.TRUST_FUND,
-    IP: CORE_LABELS.IP,
-    RP: CORE_LABELS.RP,
-    AP: CORE_LABELS.AP,
-    BM: CORE_LABELS.BM,
-    CONVICTION: CORE_LABELS.CONVICTION,
+    MONEY: '資金',
+    TRUST_FUND: '海外信託',
+    IP: 'IP',
+    RP: 'RP',
+    AP: 'AP',
+    BM: 'BM',
+    CONVICTION: '前科',
     LEVEL: '等級',
     STATUS_BANKRUPT: '已破產',
     STATUS_ACTIVE: '運作中',
@@ -281,6 +279,9 @@ export const SYSTEM_STRINGS = {
     },
   },
 };
+
+import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
+SYSTEM_STRINGS.PLAYER = PLAYER_UI_STRINGS;
 
 // 最終兼容性出口
 export const SystemStrings = SYSTEM_STRINGS;
