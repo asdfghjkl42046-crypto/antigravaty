@@ -158,16 +158,42 @@ export default function ResolutionOverlay({
 
         {/* 數值變動矩陣 */}
         <div className="grid grid-cols-2 gap-3 mb-8 relative z-10">
-          <StatItem
-            label={SYSTEM_STRINGS.UI_LABELS.MONEY}
-            value={diffs.g}
-            icon={Banknote}
-            color="text-emerald-400"
-            unit={SYSTEM_STRINGS.UNITS.MONEY}
-          />
-          <StatItem label={SYSTEM_STRINGS.UI_LABELS.RP} value={diffs.rp} icon={Star} color="text-yellow-400" unit={SYSTEM_STRINGS.UNITS.RP} />
-          <StatItem label={SYSTEM_STRINGS.UI_LABELS.IP} value={diffs.ip} icon={Cpu} color="text-blue-400" unit={SYSTEM_STRINGS.UNITS.IP} />
-          <StatItem label={SYSTEM_STRINGS.UI_LABELS.BM} value={diffs.bm} icon={AlertTriangle} color="text-orange-500" unit={SYSTEM_STRINGS.UNITS.BM} />
+          {(diffs.g !== 0) && (
+            <StatItem
+              label={SYSTEM_STRINGS.UI_LABELS.MONEY}
+              value={diffs.g}
+              icon={Banknote}
+              color="text-emerald-400"
+              unit={SYSTEM_STRINGS.UNITS.MONEY}
+            />
+          )}
+          {(diffs.rp !== 0) && (
+            <StatItem 
+              label={SYSTEM_STRINGS.UI_LABELS.RP} 
+              value={diffs.rp} 
+              icon={Star} 
+              color="text-yellow-400" 
+              unit={SYSTEM_STRINGS.UNITS.RP} 
+            />
+          )}
+          {(diffs.ip !== 0) && (
+            <StatItem 
+              label={SYSTEM_STRINGS.UI_LABELS.IP} 
+              value={diffs.ip} 
+              icon={Cpu} 
+              color="text-blue-400" 
+              unit={SYSTEM_STRINGS.UI_LABELS.IP} 
+            />
+          )}
+          {(diffs.bm !== 0) && (
+            <StatItem 
+              label={SYSTEM_STRINGS.UI_LABELS.BM} 
+              value={diffs.bm} 
+              icon={AlertTriangle} 
+              color="text-orange-500" 
+              unit={SYSTEM_STRINGS.UNITS.BM} 
+            />
+          )}
           {(diffs.ap ?? 0) > 0 && (
             <StatItem 
               label={SYSTEM_STRINGS.UI_LABELS.AP} 
