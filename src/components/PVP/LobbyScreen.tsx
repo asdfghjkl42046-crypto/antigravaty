@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { Html5Qrcode } from 'html5-qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, ShieldCheck, ArrowLeft, RefreshCw, LogOut, Play, QrCode } from 'lucide-react';
+import { Users, ShieldCheck, ArrowLeft, RefreshCw, LogOut, Play, QrCode, ShieldAlert } from 'lucide-react';
 
 interface LobbyScreenProps {
   onBack: () => void;
@@ -19,6 +20,9 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const [roomKey, setRoomKey] = useState('');
   const [participants, setParticipants] = useState<{ id: string; name: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
+  const scannerRef = useRef<Html5Qrcode | null>(null);
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
   const generateChaoticKey = () => {
@@ -45,8 +49,62 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
   const handleJoinRoom = () => {
     setView('guest');
-    // 未來這裡會啟動相機掃描器
+    setScanStatus('idle');
   };
+
+  // 掃描邏輯實作
+  const startScanning = async () => {
+    if (!scannerRef.current) {
+      const html5QrCode = new Html5Qrcode('reader-lobby');
+      scannerRef.current = html5QrCode;
+    }
+
+    try {
+      setIsCameraActive(true);
+      setScanStatus('scanning');
+      await scannerRef.current.start(
+        { facingMode: 'environment' },
+        { fps: 10, aspectRatio: 1.0 },
+        (decodedText) => {
+          handleJoinSuccess(decodedText);
+        },
+        () => {}
+      );
+    } catch (err) {
+      console.error('Lobby scan failed:', err);
+      setIsCameraActive(false);
+      setScanStatus('error');
+    }
+  };
+
+  const stopScanning = async () => {
+    if (scannerRef.current?.isScanning) {
+      await scannerRef.current.stop();
+      setIsCameraActive(false);
+    }
+  };
+
+  const handleJoinSuccess = async (key: string) => {
+    setScanStatus('success');
+    await stopScanning();
+    // 模擬加入成功
+    setTimeout(() => {
+      onStartGame(key);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (view === 'guest') {
+      startScanning();
+    } else {
+      stopScanning();
+    }
+    return () => {
+      if (scannerRef.current?.isScanning) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
+  }, [view]);
 
   return (
     <div className="fixed inset-0 z-[150] flex flex-col items-center justify-center bg-[#020617] text-white overflow-hidden font-mono">
@@ -186,7 +244,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
           </motion.div>
         )}
 
-        {/* 3. 房員介面 (等待掃描 - 未來實作) */}
+        {/* 3. 房員介面 (相機掃描) */}
         {view === 'guest' && (
           <motion.div
             key="guest"
@@ -194,24 +252,66 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             animate={{ opacity: 1, y: 0 }}
             className="relative z-10 flex flex-col items-center w-full px-6"
           >
-            <div className="mb-12 text-center">
+            <div className="mb-8 text-center">
               <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
                 加入加密房間
               </h2>
-              <p className="text-slate-500 text-[10px] tracking-widest">
-                請掃描房長手機螢幕上的 QR CODE
+              <p className="text-slate-500 text-[10px] tracking-widest uppercase font-bold">
+                請掃描房長手機螢幕上的 QR Code
               </p>
             </div>
 
-            <div className="w-64 h-64 border-2 border-dashed border-emerald-500/30 rounded-3xl flex items-center justify-center bg-emerald-500/5 mb-12 relative overflow-hidden">
-              <QrCode className="w-16 h-16 text-emerald-500/20" />
-              <div className="absolute inset-4 border-2 border-emerald-500 rounded-2xl opacity-20" />
-              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent animate-pulse" />
+            {/* 掃描器容器 */}
+            <div className="relative w-72 h-72 border-4 border-slate-900 rounded-[40px] overflow-hidden bg-black/40 shadow-[0_0_80px_rgba(0,0,0,0.5)] mb-12">
+              <div id="reader-lobby" className="w-full h-full object-cover" />
+
+              {!isCameraActive && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-slate-900/90 backdrop-blur-md">
+                  <ShieldAlert className="w-12 h-12 text-slate-600 mb-4 opacity-50" />
+                  <p className="text-[10px] font-black text-slate-500 mb-6 tracking-widest uppercase">
+                    需要相機權限以進行掃描
+                  </p>
+                  <button
+                    onClick={startScanning}
+                    className="px-8 py-3 bg-emerald-500 text-black font-black text-xs rounded-full shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
+                  >
+                    重新啟動相機
+                  </button>
+                </div>
+              )}
+
+              {/* 掃描線動畫 (Framer Motion 版) */}
+              {isCameraActive && (
+                <div className="absolute inset-0 pointer-events-none z-20">
+                  <motion.div
+                    animate={{ top: ['0%', '100%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
+                    className="w-full h-[2px] bg-emerald-400 shadow-[0_0_15px_#10b981] absolute left-0"
+                  />
+                  {/* 角隅裝飾 */}
+                  <div className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-emerald-500/50 rounded-tl-xl" />
+                  <div className="absolute top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-emerald-500/50 rounded-tr-xl" />
+                  <div className="absolute bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-emerald-500/50 rounded-bl-xl" />
+                  <div className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-emerald-500/50 rounded-br-xl" />
+                </div>
+              )}
+
+              {/* 掃描成功遮罩 */}
+              {scanStatus === 'success' && (
+                <div className="absolute inset-0 bg-emerald-500/90 flex flex-col items-center justify-center z-30 animate-in fade-in duration-300">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-xl">
+                    <ShieldCheck className="text-emerald-600 w-10 h-10" />
+                  </div>
+                  <span className="text-black font-black text-xs tracking-[0.3em] uppercase">
+                    識別成功
+                  </span>
+                </div>
+              )}
             </div>
 
             <button
               onClick={() => setView('selection')}
-              className="flex items-center gap-2 px-8 py-4 rounded-full border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-widest"
+              className="flex items-center gap-3 px-10 py-4 rounded-full border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.3em]"
             >
               <ArrowLeft size={16} />
               取消返回
@@ -220,19 +320,26 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
         )}
       </AnimatePresence>
 
-      <style jsx global>{`
-        @keyframes scan {
-          0% {
-            top: 0%;
-          }
-          100% {
-            top: 100%;
-          }
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* 覆蓋 html5-qrcode 函式庫內部樣式 */
+        #reader-lobby {
+          position: relative !important;
+          overflow: hidden !important;
+          border: none !important;
+          background: #000 !important;
         }
-        .text-glow {
-          text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        #reader-lobby video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
         }
-      `}</style>
+        #reader-lobby__scan_region > br,
+        #reader-lobby__dashboard,
+        #reader-lobby__header_message,
+        #qr-shaded-region {
+          display: none !important;
+        }
+      ` }} />
     </div>
   );
 }
