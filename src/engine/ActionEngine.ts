@@ -577,6 +577,7 @@ export async function performAction(
         rp: finalRPChange,
         ip: finalIPChange,
         bm: netBMChange,
+        ap: apRefunded ? 0 : -1,
       },
       log: {
         playerId: player.id,

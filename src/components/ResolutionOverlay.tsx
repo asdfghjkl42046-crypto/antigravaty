@@ -167,6 +167,13 @@ export default function ResolutionOverlay({
           <StatItem label={SYSTEM_STRINGS.UI_LABELS.RP} value={diffs.rp} icon={Star} color="text-yellow-400" unit={SYSTEM_STRINGS.UNITS.RP} />
           <StatItem label={SYSTEM_STRINGS.UI_LABELS.IP} value={diffs.ip} icon={Cpu} color="text-blue-400" unit={SYSTEM_STRINGS.UNITS.IP} />
           <StatItem label={SYSTEM_STRINGS.UI_LABELS.BM} value={diffs.bm} icon={AlertTriangle} color="text-orange-500" unit={SYSTEM_STRINGS.UNITS.BM} />
+          <StatItem 
+            label="行動力 (AP)" 
+            value={diffs.ap} 
+            icon={Zap} 
+            color="text-amber-400" 
+            unit="AP" 
+          />
           {diffs.trust && diffs.trust > 0 && (
             <div className="col-span-2 mt-1">
               <StatItem

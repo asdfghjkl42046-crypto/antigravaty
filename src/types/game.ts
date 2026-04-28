@@ -242,6 +242,7 @@ export interface NumericalDiffs {
   rp: number;
   ip: number;
   bm: number;
+  ap?: number; // [新增] 行動力變動
   trust?: number; // 海外信託變動
   bets?: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[]; // 旁觀者押注結果
   breakdown?: {
