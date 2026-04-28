@@ -34,13 +34,11 @@ export const SYSTEM_STRINGS = {
     TRUST_PAY: '信託支付',
     CONFIRM_HIRE: '確認扣款並簽約',
     END_TURN: '結束回合',
-    // 補強分頁文字
     TABS: {
       SCAN: '行動掃描',
       HR: '採購人才',
       LOG: '歷史日誌',
     },
-    // 補強掃描標題
     SCAN_TITLE: '掃描行動卡',
     MANUAL_READ: '手動破解',
     OPEN_CAMERA: '開啟相機掃描',
@@ -77,11 +75,6 @@ export const SYSTEM_STRINGS = {
   },
   STORE: {
     ...ROLE_STRINGS.HR_UI,
-  },
-  ERRORS: {
-    INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
-    BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
-  },
     HR_DOSSIER: '機密任命檔案',
     ID_LABEL: '識別編號',
     STAGES: '階段',
@@ -89,6 +82,11 @@ export const SYSTEM_STRINGS = {
     CONFIRM_HIRE_PROMPT: '確認能力並準備簽約',
     INSUFFICIENT_FUNDS: '資金或人脈不足',
     CONTRACT_ACTIVE: '合約已生效',
+  },
+  ERRORS: {
+    INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
+    BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
+    INVALID_PLAYER: '無效玩家',
   },
 
   DECORATION: {
@@ -127,21 +125,16 @@ export const SYSTEM_STRINGS = {
       backdoor: '融資創業',
       blackbox: '家族企業',
     } as Record<string, string>,
-    /**
-     * 自動分頁：將長文按段落歸組，每頁不超過 maxChars 個字。
-     * 邏輯與 CourtroomScreen 判決書分頁保持一致。
-     */
     getLabels: (cards: any) => {
       const paginate = (text: string, maxChars = 200): string[] => {
         const paragraphs = text
           .split('\n')
-          .map((l) => l.trim())
-          .filter((l) => l.length > 0);
+          .map((l: string) => l.trim())
+          .filter((l: string) => l.length > 0);
         const pages: string[] = [];
         let current = '';
 
         for (const para of paragraphs) {
-          // 若加入此段落會超過預算，先推入現有頁面
           if (current.length > 0 && current.length + para.length + 1 > maxChars) {
             pages.push(current);
             current = para;
@@ -179,7 +172,6 @@ export const SYSTEM_STRINGS = {
     },
   },
 
-  // --- 全域通用文字 (原 GlobalUI.ts) ---
   GLOBAL: {
     TABS: {
       SCAN: '行動掃描',
@@ -209,7 +201,6 @@ export const SYSTEM_STRINGS = {
     },
   },
 
-  // --- 法庭攻防文字 (原 CourtData.ts) ---
   COURT: {
     COURT_NAME: 'Antigravity 最高法院',
     JUDGE_PREFIX: '主審：',
@@ -266,7 +257,6 @@ export const SYSTEM_STRINGS = {
     },
     PHASE_5: {
       TITLE: '王牌律師發動',
-      SUB: 'ACE ATTORNEY LV3 — WITHDRAW CASE',
       DESC: '你的王牌律師（LV3）已介入本案，提出撤告申請：',
       FEE_LABEL: '撤告費用 (總資金 20%，最低 100 萬)',
       IP_LABEL: '人脈 (IP)',
