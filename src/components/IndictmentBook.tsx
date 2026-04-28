@@ -326,16 +326,20 @@ export default function IndictmentBook({
       {/* 判決倒數 Overlay：只有翻到最後一頁且具備上訴權或律師技能時才顯示 */}
       {totalPages > 0 && currentPage === totalPages && (canAppeal || isAceAttorney) && (
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px] z-[9999]"
+          className={`absolute inset-0 flex flex-col items-center justify-center pointer-events-auto z-[9999] ${
+            canAppeal ? 'bg-red-950/5 backdrop-blur-[2px]' : 'bg-transparent'
+          }`}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <CountdownClock
-            onComplete={() => (onCountdownEnd ? onCountdownEnd() : onClose?.())}
-            onAppeal={() => onAppeal?.()}
-            isActive={currentPage === totalPages}
-            seconds={countdownSeconds}
-            showButton={canAppeal}
-          />
+          <div className={canAppeal ? 'opacity-100' : 'opacity-0 pointer-events-none'}>
+            <CountdownClock
+              onComplete={() => (onCountdownEnd ? onCountdownEnd() : onClose?.())}
+              onAppeal={() => onAppeal?.()}
+              isActive={currentPage === totalPages}
+              seconds={countdownSeconds}
+              showButton={canAppeal}
+            />
+          </div>
         </div>
       )}
 
