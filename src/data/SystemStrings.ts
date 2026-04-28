@@ -76,15 +76,17 @@ export const SYSTEM_STRINGS = {
     BETTING_TITLE: '場外押注結算',
     NO_BETS: '本場無人進行押注',
   },
-  STORE: {
-    ...ROLE_STRINGS.HR_UI,
-    HR_DOSSIER: '機密任命檔案',
-    ID_LABEL: '識別編號',
-    STAGES: '階段',
-    CANCEL: '取消',
-    CONFIRM_HIRE_PROMPT: '確認能力並準備簽約',
-    INSUFFICIENT_FUNDS: '資金或人脈不足',
-    CONTRACT_ACTIVE: '合約已生效',
+  get STORE() {
+    return {
+      ...ROLE_STRINGS.HR_UI,
+      HR_DOSSIER: '機密任命檔案',
+      ID_LABEL: '識別編號',
+      STAGES: '階段',
+      CANCEL: '取消',
+      CONFIRM_HIRE_PROMPT: '確認能力並準備簽約',
+      INSUFFICIENT_FUNDS: '資金或人脈不足',
+      CONTRACT_ACTIVE: '合約已生效',
+    };
   },
   ERRORS: {
     INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',

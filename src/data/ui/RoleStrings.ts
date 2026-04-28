@@ -1,40 +1,50 @@
 import { SYSTEM_STRINGS } from '../SystemStrings';
 
 /**
- * 企業人才 (Roles) 相關文案
+ * 人才角色相關文案 (SSOT 版本)
  * 使用 Getter 確保在 SystemStrings 初始化後才讀取值，防止循環引用。
  */
 export const ROLE_STRINGS = {
-  HR_UI: {
-    TITLE: '人脈與發展',
-    SUBTITLE: '招募關鍵人才，強化企業運營。',
-    LEVEL_PREFIX: '等級',
-    HIRE_BTN: '確認招募',
-    UPGRADE_BTN: '晉勝人才',
+  LAW_NAME: '王牌律師',
+  PR_NAME: '公關經理',
+  ACC_NAME: '資深會計師',
+  CTO_NAME: '技術長',
+
+  get LAW_LEVELS() {
+    return [
+      { type: '被動', desc: '法律護盾：上陣協助，勝訴機率如有神助，提升 30%' },
+      { type: '被動', desc: '扭轉乾坤：旁觀者的質疑將會轉為支持；同時掌握法庭勝率情報' },
+      { type: '主動', desc: `隻手遮天：扣除大筆資金(保底100萬) + 5 ${SYSTEM_STRINGS.UI_LABELS.IP}，讓對方強制撤案` },
+    ];
   },
-  
-  get DESCRIPTIONS() {
-    return {
-      LAWYER: [
-        { type: '主動', desc: `法庭救濟：花費 資金 + 5 ${SYSTEM_STRINGS.UI_LABELS.IP}，強制撤銷本次起訴。` },
-        { type: '被動', desc: `風險管控：降低行動產生的 ${SYSTEM_STRINGS.UI_LABELS.RP} 損失風險。` }
-      ],
-      CFO: [
-        { type: '被動', desc: `資金倍增：所有掃描行動產生的資金收益提升 10%。` },
-        { type: '主動', desc: `資金洗白：將 ${SYSTEM_STRINGS.UI_LABELS.RP} 轉換為海外信託資金。` }
-      ],
-      CTO: [
-        { type: '被動', desc: `研發回饋：每次掃描行動有 30% 機率退還 ${SYSTEM_STRINGS.UI_LABELS.AP}。` },
-        { type: '主動', desc: '技術壟斷：產生額外的黑材料，增加競爭對手的罰金風險。' }
-      ],
-      COO: [
-        { type: '被動', desc: `運營優化：每回合自動產生 +2 ${SYSTEM_STRINGS.UI_LABELS.IP}。` },
-        { type: '主動', desc: `產能全開：消耗所有 ${SYSTEM_STRINGS.UI_LABELS.AP}，換取三倍的資金收益。` }
-      ],
-    };
+  get PR_LEVELS() {
+    return [
+      { type: '被動', desc: `輿論滅火：卡牌行動造成的 ${SYSTEM_STRINGS.UI_LABELS.RP} 扣除自動減半` },
+      { type: '被動', desc: `敗訴公關：法庭上輸了也能硬拗，敗訴帶來的名聲損失直接減半` },
+      { type: '被動', desc: `長期經營：每回合自動 +5 ${SYSTEM_STRINGS.UI_LABELS.RP}；就算押注失敗，名聲也分毫無損` },
+    ];
+  },
+  get ACC_LEVELS() {
+    return [
+      { type: '被動', desc: '稅務優化：增加商業類卡片獲得資金的金額' },
+      { type: '被動', desc: '罰單打折：有效減少法院罰金的支出' },
+      { type: '被動', desc: '合法避稅：連續 2 回合保持清白後，將部分現金轉入海外信託' },
+    ];
+  },
+  get CTO_LEVELS() {
+    return [
+      { type: '被動', desc: `算力套利：每次打出商業投資卡，有 30% 機會讓 ${SYSTEM_STRINGS.UI_LABELS.AP} 神奇歸還` },
+      { type: '被動', desc: '駭客腳本：系統每回合自動替你洗出100萬的隱密黑金入帳' },
+      { type: '被動', desc: '反間防火牆：對手惡意挖角時，產生的犯罪標籤及黑料就多一倍' },
+    ];
   },
 
-  get COST_DESC() {
-    return `晉升費用：100 ${SYSTEM_STRINGS.UI_LABELS.IP} + 100 萬 G`;
-  }
+  get HR_UI() {
+    return {
+      TITLE: '人力銀行',
+      COST_DESC: `每次升級需 100 ${SYSTEM_STRINGS.UI_LABELS.IP} + 100 萬 G`,
+      MAX_LEVEL: 'MAX',
+      UNLOCKED: '已啟用',
+    };
+  },
 };
