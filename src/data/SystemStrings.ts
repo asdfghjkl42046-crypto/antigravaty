@@ -58,6 +58,8 @@ export const SYSTEM_STRINGS = {
     SKIP_DECLARATION_LABEL: '已略過申報',
     SUCCESS_PREFIX: '【成功】',
     DEFAULT_SUCCESS_LABEL: '計畫執行成功',
+    SUCCESS_MSG: (owner: string, company: string, summary: string) =>
+      `因 ${owner} 的選擇，${company}${summary}`,
   },
   RESOLUTION: {
     SUCCESS_TITLE: '計畫執行成功',

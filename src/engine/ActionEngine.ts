@@ -548,8 +548,12 @@ export async function performAction(
     }
 
     const statsSummary = formatStatsBundle(finalGChange, finalIPChange, finalRPChange, netBMChange);
-    // [格式更新] 因 [業主名] 的選擇，[企業名] [摘要]
-    const finalAnnouncement = `因 ${player.ownerName} 的選擇，${player.name}${statsSummary}`;
+    // [格式更新] 使用 SystemStrings 統一範本
+    const finalAnnouncement = SYSTEM_STRINGS.ACTION.SUCCESS_MSG(
+      player.ownerName,
+      player.name,
+      statsSummary
+    );
 
     // [修正] 最終數值安全性檢查：確保 updates 中不包含 NaN，防止數據污染傳播到 Store
     if (Number.isNaN(updates.g) || Number.isNaN(updates.rp) || Number.isNaN(updates.ip)) {
