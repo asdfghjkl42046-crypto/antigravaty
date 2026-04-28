@@ -9,6 +9,7 @@ import PlayerRegistrationScreen from '@/components/PlayerRegistrationScreen';
 import DashboardScreen from '@/components/DashboardScreen';
 import CourtroomScreen from '@/components/CourtroomScreen';
 import EndingScreen from '@/components/EndingScreen';
+import { EntryScreen } from '@/components/EntryScreen';
 import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [plannedPlayerCount, setPlannedPlayerCount] = useState<number | null>(null);
   const [currentRegIndex, setCurrentRegIndex] = useState(0);
   const [registrationList, setRegistrationList] = useState<PlayerConfig[]>([]);
+  const [isMultiplayerMode, setIsMultiplayerMode] = useState<boolean | null>(null);
 
   useEffect(() => {
     resetGame(); // 開發階段：每次重整強制清除暫存，必定回到封面
@@ -70,25 +72,48 @@ export default function Home() {
 
   return (
     <GameCanvas>
-      {isModeSelect && <ModeSelectScreen key="mode-select" onStartGame={handleModeSelect} />}
-
-      {isSetup && <SetupScreen key="game-setup" onBack={handleBackToMode} onConfirm={handleStartSetup} />}
-
-      {isRegistration && plannedPlayerCount && (
-        <PlayerRegistrationScreen
-          key="registration-screen"
-          playerIndex={currentRegIndex + 1}
-          totalPlayers={plannedPlayerCount}
-          onBack={handleBackToSetup}
-          onConfirm={handleRegistrationConfirm}
+      {isMultiplayerMode === null && (
+        <EntryScreen 
+          onSelectSingle={() => setIsMultiplayerMode(false)} 
+          onSelectMulti={() => setIsMultiplayerMode(true)} 
         />
       )}
 
-      {isDashboard && (
-        <div key="game-dashboard" className="relative w-full h-full">
-          <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
-          {phase === 'courtroom' && <CourtroomScreen key="court" />}
-          {(phase === 'victory' || phase === 'gameover') && <EndingScreen key="ending" />}
+      {isMultiplayerMode === false && (
+        <>
+          {isModeSelect && <ModeSelectScreen key="mode-select" onStartGame={handleModeSelect} />}
+
+          {isSetup && <SetupScreen key="game-setup" onBack={handleBackToMode} onConfirm={handleStartSetup} />}
+
+          {isRegistration && plannedPlayerCount && (
+            <PlayerRegistrationScreen
+              key="registration-screen"
+              playerIndex={currentRegIndex + 1}
+              totalPlayers={plannedPlayerCount}
+              onBack={handleBackToSetup}
+              onConfirm={handleRegistrationConfirm}
+            />
+          )}
+
+          {isDashboard && (
+            <div key="game-dashboard" className="relative w-full h-full">
+              <DashboardScreen onEndTurn={endTurn} onReset={resetGame} />
+              {phase === 'courtroom' && <CourtroomScreen key="court" />}
+              {(phase === 'victory' || phase === 'gameover') && <EndingScreen key="ending" />}
+            </div>
+          )}
+        </>
+      )}
+
+      {isMultiplayerMode === true && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black">
+          <p className="text-white text-xl font-bold">多機模式開發中，敬請期待...</p>
+          <button 
+            onClick={() => setIsMultiplayerMode(null)}
+            className="absolute top-10 left-10 text-slate-500 hover:text-white"
+          >
+            ← 返回入口
+          </button>
         </div>
       )}
     </GameCanvas>
