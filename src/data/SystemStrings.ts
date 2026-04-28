@@ -92,6 +92,8 @@ export const SYSTEM_STRINGS = {
     INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
     BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
     INVALID_PLAYER: '無效玩家',
+    SECURE_CONTEXT_REQUIRED: '此環境不支援加密連線，無法開啟相機',
+    CAMERA_START_FAIL: '無法啟動相機，請檢查權限設定',
   },
 
   DECORATION: {
