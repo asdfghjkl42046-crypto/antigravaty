@@ -19,19 +19,13 @@ interface IndictmentBookProps {
 /**
  * CountdownClock 組件 - 處理動態倒數、圓形進度條與顏色閃爍
  */
-const CountdownClock: React.FC<{ 
-  onComplete: () => void; 
-  onAppeal: () => void; 
+const CountdownClock: React.FC<{
+  onComplete: () => void;
+  onAppeal: () => void;
   isActive: boolean;
   seconds?: number;
   showButton?: boolean;
-}> = ({
-  onComplete,
-  onAppeal,
-  isActive,
-  seconds = 5.0,
-  showButton = true,
-}) => {
+}> = ({ onComplete, onAppeal, isActive, seconds = 5.0, showButton = true }) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [isBright, setIsBright] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -272,7 +266,7 @@ export default function IndictmentBook({
                 // [核心優化] 只有在「不能上訴」且「不具備逆轉技能」時，翻完最後一頁才立即結案
                 const hasFollowUp = canAppeal || isAceAttorney;
                 if (cur === totalPages - 1 && !hasFollowUp) {
-                  onClose?.(); 
+                  onClose?.();
                 }
               },
             });
@@ -329,15 +323,15 @@ export default function IndictmentBook({
 
   return (
     <div className="relative w-full h-[600px] flex items-center justify-center pointer-events-auto scale-90">
-      {/* 判決倒數 Overlay：採用平面佈局，徹底解決 3D 遮擋與點擊失效問題 */}
-      {totalPages > 0 && (canAppeal || isAceAttorney) && (
-        <div 
+      {/* 判決倒數 Overlay：只有翻到最後一頁且具備上訴權或律師技能時才顯示 */}
+      {totalPages > 0 && currentPage === totalPages && (canAppeal || isAceAttorney) && (
+        <div
           className="absolute inset-0 flex flex-col items-center justify-center pointer-events-auto bg-red-950/5 backdrop-blur-[2px] z-[9999]"
-          onPointerDown={(e) => e.stopPropagation()} 
+          onPointerDown={(e) => e.stopPropagation()}
         >
-          <CountdownClock 
-            onComplete={() => onCountdownEnd ? onCountdownEnd() : onClose?.()} 
-            onAppeal={() => onAppeal?.()} 
+          <CountdownClock
+            onComplete={() => (onCountdownEnd ? onCountdownEnd() : onClose?.())}
+            onAppeal={() => onAppeal?.()}
             isActive={currentPage === totalPages}
             seconds={countdownSeconds}
             showButton={canAppeal}
