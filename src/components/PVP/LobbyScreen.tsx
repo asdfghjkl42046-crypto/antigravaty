@@ -12,6 +12,15 @@ interface LobbyScreenProps {
   onStartGame: (roomKey: string) => void;
 }
 
+interface PlayerRecord {
+  id: string;
+  room_id: string;
+  role: 'host' | 'guest';
+  display_name: string;
+  is_ready: boolean;
+  created_at: string;
+}
+
 /**
  * 多機連線大廳 (Lobby)
  * 負責創房、進房、顯示極限亂碼 QR Code。
@@ -168,7 +177,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
           
           if (data) {
             // 根據身份格式化名字 (房員看到 (自己)/(他人)，房長看到原始名稱)
-            const formatted = data.map(p => {
+            const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
               if (view === 'guest_waiting' || view === 'guest') {
                 return { id: p.id, name: p.role === 'host' ? '(他人)' : '(自己)' };
               }
@@ -185,7 +194,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       .channel(`room-${dbRoomId}`)
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
-        (payload) => {
+        (payload: { new: { status: string } }) => {
           if (payload.new.status === 'playing') {
             onStartGame(roomKey);
           }
@@ -200,7 +209,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
         .select('*')
         .eq('room_id', dbRoomId);
       if (data) {
-        const formatted = data.map(p => ({ id: p.id, name: p.display_name }));
+        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => ({ id: p.id, name: p.display_name }));
         setParticipants(formatted);
       }
     };
