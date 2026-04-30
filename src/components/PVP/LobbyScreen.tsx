@@ -41,6 +41,12 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     setIsGenerating(true);
     const key = generateChaoticKey();
     
+    if (!supabase) {
+      alert('系統錯誤：尚未配置 Supabase 環境變數。請在 Vercel 設定中新增金鑰。');
+      setIsGenerating(false);
+      return;
+    }
+
     try {
       // 1. 在 Supabase 建立房間
       const { data: room, error: roomError } = await supabase
@@ -111,6 +117,12 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     await stopScanning();
     setRoomKey(key);
 
+    if (!supabase) {
+      alert('系統錯誤：環境變數遺失，無法連線至雲端主機。');
+      setView('selection');
+      return;
+    }
+
     try {
       // 1. 查找房間
       const { data: room, error: roomError } = await supabase
@@ -139,7 +151,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
   // 實時監聽邏輯
   useEffect(() => {
-    if (!dbRoomId) return;
+    if (!dbRoomId || !supabase) return;
 
     // 1. 監聽玩家列表變動
     const playerSubscription = supabase
@@ -202,7 +214,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
   // 房長啟動遊戲的聯網處理
   const handleHostStartGame = async () => {
-    if (!dbRoomId) return;
+    if (!dbRoomId || !supabase) return;
     const { error } = await supabase
       .from('pvp_rooms')
       .update({ status: 'playing' })
