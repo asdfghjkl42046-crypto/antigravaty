@@ -167,25 +167,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       .channel(`players-${dbRoomId}`)
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` }, 
-        async () => {
-          // 重新抓取完整玩家列表
-          const { data } = await supabase
-            .from('pvp_players')
-            .select('*')
-            .eq('room_id', dbRoomId)
-            .order('created_at', { ascending: true });
-          
-          if (data) {
-            // 根據身份格式化名字 (房員看到 (自己)/(他人)，房長看到原始名稱)
-            const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
-              if (view === 'guest_waiting' || view === 'guest') {
-                return { id: p.id, name: p.role === 'host' ? '(他人)' : '(自己)' };
-              }
-              return { id: p.id, name: p.display_name || '玩家' };
-            });
-            setParticipants(formatted);
-          }
-        }
+        () => fetchPlayers()
       )
       .subscribe();
 
@@ -202,22 +184,35 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       )
       .subscribe();
 
-    // 初始化抓取一次
-    const fetchInitial = async () => {
+    // 封裝抓取邏輯
+    const fetchPlayers = async () => {
       const { data } = await supabase
         .from('pvp_players')
         .select('*')
-        .eq('room_id', dbRoomId);
+        .eq('room_id', dbRoomId)
+        .order('created_at', { ascending: true });
+      
       if (data) {
-        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => ({ id: p.id, name: p.display_name }));
+        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
+          if (view === 'guest_waiting' || view === 'guest') {
+            return { id: p.id, name: p.role === 'host' ? '(他人)' : '(自己)' };
+          }
+          return { id: p.id, name: p.display_name || '玩家' };
+        });
         setParticipants(formatted);
       }
     };
-    fetchInitial();
+
+    // 初始化抓取
+    fetchPlayers();
+
+    // 雙重保障：每 3 秒自動輪詢一次 (防止 Realtime 斷線)
+    const pollInterval = setInterval(fetchPlayers, 3000);
 
     return () => {
       supabase.removeChannel(playerSubscription);
       supabase.removeChannel(roomSubscription);
+      clearInterval(pollInterval);
     };
   }, [dbRoomId, view]);
 
