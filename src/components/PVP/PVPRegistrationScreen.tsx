@@ -7,7 +7,6 @@ import {
   Briefcase,
   ChevronRight,
   Wallet,
-  Coins,
   Gem,
   Award,
   Feather,
@@ -16,7 +15,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import gsap from 'gsap';
-import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
+import { StartPath, BribeItem } from '@/types/game';
 import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import ParchmentBook from '../ParchmentBook';
 import { MASTERPIECES } from '@/store/gameStore';
@@ -40,7 +39,6 @@ export default function PVPRegistrationScreen({
   onFinalStart,
   onBack,
 }: PVPRegistrationScreenProps) {
-  // --- 狀態定義 (100% 照抄單機版) ---
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentName, setCurrentName] = useState('安提格拉維提 財團');
   const [currentOwnerName, setCurrentOwnerName] = useState('Arch Architect');
@@ -51,7 +49,7 @@ export default function PVPRegistrationScreen({
   const [selectedAvatarId, setSelectedAvatarId] = useState<number>(0);
   const [isReadyLocal, setIsReadyLocal] = useState(false);
 
-  // --- PVP 專用狀態 ---
+  // PVP 專用狀態
   const [dbRoomId, setDbRoomId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [participants, setParticipants] = useState<PlayerRecord[]>([]);
@@ -72,7 +70,7 @@ export default function PVPRegistrationScreen({
 
   const transactionId = useMemo(() => 'TR-REG-7742', []);
 
-  // 初始化玩家與房間
+  // 1. 初始化與入板動畫
   useEffect(() => {
     const savedId = sessionStorage.getItem('antigravaty_player_id');
     setMyPlayerId(savedId);
@@ -83,11 +81,10 @@ export default function PVPRegistrationScreen({
     };
     init();
 
-    // 單機版進場動畫
     gsap.fromTo('.ui-fade-in', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' });
   }, [roomKey]);
 
-  // 實時監聽與自動啟動
+  // 2. 實時監聽與自動發車
   useEffect(() => {
     if (!dbRoomId || !myPlayerId) return;
 
@@ -98,7 +95,7 @@ export default function PVPRegistrationScreen({
         const me = data.find((p: PlayerRecord) => p.id === myPlayerId);
         if (me) setIsReadyLocal(me.is_ready);
 
-        // 房長自動啟動遊戲
+        // 房長偵測全員準備 -> 啟動
         const readyCount = data.filter((p: PlayerRecord) => p.is_ready).length;
         if (me?.role === 'host' && data.length > 0 && readyCount === data.length) {
           await supabase.from('pvp_rooms').update({ status: 'playing' }).eq('id', dbRoomId);
@@ -118,12 +115,12 @@ export default function PVPRegistrationScreen({
     return () => { supabase.removeChannel(channel); };
   }, [dbRoomId, myPlayerId]);
 
-  // 聯網提交邏輯
+  // 3. 聯網資料提交
   const submitToSupabase = async (bribe?: BribeItem) => {
     if (!myPlayerId) return;
     await supabase.from('pvp_players').update({
-      name: currentName.trim() || '未命名企業',
       owner_name: currentOwnerName.trim() || '未命名業主',
+      company_name: currentName.trim() || '未命名企業',
       avatar_id: selectedAvatarId.toString(),
       background_card: selectedPath,
       bribe_item: bribe || selectedBribe || null,
@@ -148,21 +145,24 @@ export default function PVPRegistrationScreen({
     submitToSupabase(selectedBribe);
   };
 
+  const handlePathSelect = (path: StartPath) => {
+    if (!isReadyLocal) setSelectedPath(path);
+  };
+
   const readyCount = participants.filter(p => p.is_ready).length;
   const totalCount = participants.length;
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-transparent overflow-visible text-white font-sans selection:bg-blue-500/30">
-      {/* 桌面背景 (100% 照抄) */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-transparent" />
         <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')]" />
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-black/80" />
       </div>
 
-      {/* 玩家標記 - 加入聯網人數 (100% 照抄樣式) */}
+      {/* 聯網人數標記 */}
       <div className="absolute top-6 right-6 mt-safe px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold tracking-[0.2em] z-50 text-[10px] ui-fade-in shadow-xl backdrop-blur-md">
-        準備人數 {readyCount} / {totalCount}
+        玩家 {readyCount} / {totalCount}
       </div>
 
       <div className={`relative z-10 w-full max-w-7xl h-full flex flex-col items-center ${isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16 mt-safe'} pb-10 transition-all duration-700`}>
@@ -229,7 +229,7 @@ export default function PVPRegistrationScreen({
                 const rotations = [-18, 0, 18];
                 const offsets = [-95, 0, 95];
                 return (
-                  <div key={path} onClick={() => !isReadyLocal && setSelectedPath(path)} className={`absolute cursor-pointer transition-all duration-500 ease-out transform-style-3d ${isSelected ? 'z-30' : 'z-10 brightness-60 hover:brightness-100 scale-95'}`} style={{ transform: `translate3d(${offsets[idx]}px, ${isSelected ? -60 : 0}px, ${isSelected ? 120 : 0}px) rotateZ(${rotations[idx]}deg) scale(${isSelected ? 1.1 : 1})` }}>
+                  <div key={path} onClick={() => handlePathSelect(path)} className={`absolute cursor-pointer transition-all duration-500 ease-out transform-style-3d ${isSelected ? 'z-30' : 'z-10 brightness-60 hover:brightness-100 scale-95'}`} style={{ transform: `translate3d(${offsets[idx]}px, ${isSelected ? -60 : 0}px, ${isSelected ? 120 : 0}px) rotateZ(${rotations[idx]}deg) scale(${isSelected ? 1.1 : 1})` }}>
                     <div className="w-[145px] h-[200px] rounded-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-r-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-4" style={{ backgroundColor: path === 'normal' ? '#7a4225' : path === 'backdoor' ? '#162b4d' : '#3d0c0c', backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("https://www.transparenttextures.com/patterns/leather.png")' }}>
                       <div className="relative z-10 flex flex-col items-center gap-6">
                         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-md shadow-inner">
@@ -246,12 +246,12 @@ export default function PVPRegistrationScreen({
 
             <div className={`flex flex-col items-center gap-6 transition-all duration-700 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}>
               {isReadyLocal ? (
-                 <div className="px-14 py-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full font-black tracking-[0.2em] animate-pulse shadow-2xl">等待其他對手中...</div>
+                <div className="px-14 py-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full font-black tracking-[0.2em] animate-pulse shadow-2xl backdrop-blur-xl">等待對手完成...</div>
               ) : (
-                 <button onClick={() => setIsBookFocused(true)} className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
-                   <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                   翻閱卷宗檔案
-                 </button>
+                <button onClick={() => setIsBookFocused(true)} className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
+                  <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                  翻閱卷宗檔案
+                </button>
               )}
             </div>
           </div>
@@ -267,8 +267,8 @@ export default function PVPRegistrationScreen({
               <ParchmentBook key={selectedPath} activePath={selectedPath!} onPathChange={() => {}} />
             </div>
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-              <button onClick={handleConfirmRegistration} className="bg-blue-600 text-white font-black px-24 py-5 rounded-2xl tracking-[1em] shadow-[0_0_50px_rgba(37,99,235,0.4)] flex items-center gap-2 transition-all active:scale-95">
-                確認 <ChevronRight className="w-5 h-5" />
+              <button onClick={handleConfirmRegistration} className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-black px-12 py-4 rounded-xl tracking-[0.8em] border border-blue-500/30 shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-all active:scale-95 flex items-center gap-2 group backdrop-blur-md">
+                確認 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
@@ -277,24 +277,27 @@ export default function PVPRegistrationScreen({
 
       {showBribeModal && (
         <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 p-4">
-          <div className="relative w-full max-w-[420px] bg-[#0a0a0b] border border-white/5 rounded-sm p-8 shadow-2xl flex flex-col items-start overflow-hidden">
+          <div className="relative w-full max-w-[420px] max-h-[90%] bg-[#0a0a0b] border border-white/5 rounded-sm p-8 shadow-2xl overflow-hidden flex flex-col items-start px-8">
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-cyan-500/60 via-transparent to-transparent" />
             <div className="flex flex-col mb-6 z-10 w-full">
               <span className="text-[10px] font-black text-cyan-500/60 uppercase tracking-[0.4em] mb-2">CONFIDENTIAL_REGISTER_V4</span>
               <h3 className="text-2xl font-black tracking-widest text-white uppercase">機密賄賂清單</h3>
             </div>
-            <div className="w-full flex flex-col gap-3 mb-6 z-10">
+            <div className="flex-1 w-full flex flex-col gap-3 mb-6 overflow-y-auto pr-2 z-10 custom-scrollbar min-h-0">
               {BRIBE_OPTIONS.map((opt) => (
-                <div key={opt.id} onClick={() => handleBribeSelect(opt.id)} className={`relative flex items-center gap-4 p-4 transition-all cursor-pointer border-l-2 ${selectedBribe === opt.id ? 'border-cyan-500 bg-cyan-500/5' : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'}`}>
+                <div key={opt.id} onClick={() => !isReadyLocal && handleBribeSelect(opt.id)} className={`relative flex items-center gap-4 p-4 transition-all cursor-pointer border-l-2 ${selectedBribe === opt.id ? 'border-cyan-500 bg-cyan-500/5' : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'}`}>
                   <div className={`p-3 rounded-sm ${opt.color} bg-white/5`}><opt.icon className="w-5 h-5" /></div>
-                  <div className="flex flex-col"><span className="font-black tracking-[0.2em] text-[15px] uppercase">{opt.name}</span></div>
+                  <div className="flex flex-col text-left"><span className="font-black tracking-[0.2em] text-[15px] text-white/90 uppercase">{opt.name}</span></div>
+                  {selectedBribe === opt.id && <div className="absolute right-6 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping" />}
                 </div>
               ))}
             </div>
-            <button onClick={handleFinalConfirm} className="w-full py-5 bg-cyan-600 text-white font-black rounded-sm tracking-[0.6em] disabled:opacity-20" disabled={!selectedBribe}>確認開始博弈</button>
+            <button onClick={handleFinalConfirm} className="w-full py-5 bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black rounded-sm tracking-[0.6em] disabled:opacity-20" disabled={!selectedBribe || isReadyLocal}>確認開始博弈</button>
           </div>
         </div>
       )}
     </div>
   );
+
+  function handleBribeSelect(bribe: BribeItem) { setSelectedBribe(bribe); }
 }
