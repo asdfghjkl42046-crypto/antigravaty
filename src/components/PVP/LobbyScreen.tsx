@@ -33,6 +33,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
   const [dbRoomId, setDbRoomId] = useState<string | null>(null);
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
@@ -68,12 +69,15 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setDbRoomId(room.id);
       setRoomKey(key);
 
-      // 2. 將自己加入玩家列表
-      const { error: playerError } = await supabase
+      // 2. 將自己加入玩家列表 (不寫死名稱，靠 ID 判斷)
+      const { data: player, error: playerError } = await supabase
         .from('pvp_players')
-        .insert([{ room_id: room.id, role: 'host', display_name: '房長 (你)' }]);
+        .insert([{ room_id: room.id, role: 'host', display_name: 'Host' }])
+        .select()
+        .single();
 
       if (playerError) throw playerError;
+      setMyPlayerId(player.id);
 
       setView('host');
     } catch (err) {
@@ -144,11 +148,14 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setDbRoomId(room.id);
 
       // 2. 加入房間
-      const { error: playerError } = await supabase
+      const { data: player, error: playerError } = await supabase
         .from('pvp_players')
-        .insert([{ room_id: room.id, role: 'guest', display_name: '玩家' }]);
+        .insert([{ room_id: room.id, role: 'guest', display_name: 'Player' }])
+        .select()
+        .single();
 
       if (playerError) throw playerError;
+      setMyPlayerId(player.id);
 
       setView('guest_waiting');
     } catch (err) {
@@ -186,6 +193,8 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
 
     // 封裝抓取邏輯
     const fetchPlayers = async () => {
+      if (!dbRoomId || !supabase) return;
+      
       const { data } = await supabase
         .from('pvp_players')
         .select('*')
@@ -194,10 +203,11 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       
       if (data) {
         const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
-          if (view === 'guest_waiting' || view === 'guest') {
-            return { id: p.id, name: p.role === 'host' ? '(他人)' : '(自己)' };
-          }
-          return { id: p.id, name: p.display_name || '玩家' };
+          const isMe = p.id === myPlayerId;
+          return { 
+            id: p.id, 
+            name: isMe ? '(自己)' : '(他人)' 
+          };
         });
         setParticipants(formatted);
       }
@@ -206,8 +216,8 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     // 初始化抓取
     fetchPlayers();
 
-    // 雙重保障：每 3 秒自動輪詢一次 (防止 Realtime 斷線)
-    const pollInterval = setInterval(fetchPlayers, 3000);
+    // 雙重保障：每 1 秒自動輪詢一次 (達成 5V5 即時感)
+    const pollInterval = setInterval(fetchPlayers, 1000);
 
     return () => {
       supabase.removeChannel(playerSubscription);
