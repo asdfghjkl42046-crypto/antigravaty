@@ -20,20 +20,21 @@ const createSafeSupabase = () => {
   console.warn('Supabase is running in MOCK mode (missing env vars)');
   
   // 返回一個代理物件，攔截所有調用
+  const mockChain = () => ({
+    select: () => mockChain(),
+    eq: () => mockChain(),
+    single: () => Promise.resolve({ data: null, error: null }),
+    order: () => mockChain(),
+    insert: () => Promise.resolve({ data: null, error: null }),
+    update: () => mockChain(),
+  });
+
   return new Proxy({} as any, {
     get: (_, prop) => {
       if (prop === 'auth') return { onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }) };
-      return () => ({
-        select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }), order: () => Promise.resolve({ data: [], error: null }) }) }),
-        from: () => ({ 
-          insert: () => Promise.resolve({ data: null, error: null }),
-          update: () => Promise.resolve({ data: null, error: null }),
-          select: () => ({ 
-            eq: () => ({ single: () => Promise.resolve({ data: null, error: null }), order: () => Promise.resolve({ data: [], error: null }) }) 
-          })
-        }),
-        channel: () => ({ on: () => ({ subscribe: () => ({}) }), subscribe: () => ({}) }),
-      });
+      if (prop === 'channel') return () => ({ on: () => ({ subscribe: () => ({}) }), subscribe: () => ({}) });
+      if (prop === 'from') return () => mockChain();
+      return () => mockChain();
     }
   });
 };
