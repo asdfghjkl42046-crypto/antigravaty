@@ -137,6 +137,26 @@ export default function PVPRegistrationScreen({
     return () => { supabase.removeChannel(channel); };
   }, [dbRoomId, myPlayerId]);
 
+  useEffect(() => {
+    // ⚠️ 照抄單機版： GSAP 進場動畫與初始化
+    requestAnimationFrame(() => {
+      setIsBookFocused(false);
+      setIsReady(false);
+    });
+
+    gsap.fromTo(
+      '.ui-fade-in',
+      { opacity: 0, y: 10 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+      }
+    );
+  }, []);
+
   const readyCount = participants.filter((p: PlayerRecord) => p.is_ready).length;
   const totalCount = participants.length;
   const allReady = readyCount === totalCount && totalCount > 0;
@@ -215,7 +235,7 @@ export default function PVPRegistrationScreen({
         {!isBookFocused && (
           <div className="w-full flex flex-col items-center">
             {/* 表單區 */}
-            <div className="w-full max-w-[360px] px-6 mb-4 flex flex-col gap-4">
+            <div className="w-full max-w-[360px] px-6 mb-4 flex flex-col gap-4 ui-fade-in">
               <div className="relative group">
                 <input
                   type="text"
@@ -241,7 +261,7 @@ export default function PVPRegistrationScreen({
             </div>
 
             {/* 頭像選取 */}
-            <div className="grid grid-cols-5 gap-3 mb-6">
+            <div className="grid grid-cols-5 gap-3 mb-6 ui-fade-in">
               {MASTERPIECES.map((m) => {
                 const isSelected = selectedAvatarId === m.id;
                 return (
