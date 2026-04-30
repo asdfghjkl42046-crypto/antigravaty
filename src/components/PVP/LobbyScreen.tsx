@@ -70,14 +70,18 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setRoomKey(key);
 
       // 2. 將自己加入玩家列表 (不寫死名稱，靠 ID 判斷)
-      const { data: player, error: playerError } = await supabase
+      const { data: players, error: playerError } = await supabase
         .from('pvp_players')
         .insert([{ room_id: room.id, role: 'host', display_name: 'Host' }])
-        .select()
-        .single();
+        .select('*');
 
-      if (playerError) throw playerError;
-      setMyPlayerId(player.id);
+      if (playerError || !players || players.length === 0) {
+        console.error('Player insertion failed:', playerError);
+        throw playerError || new Error('無法把自己加入房間');
+      }
+
+      setMyPlayerId(players[0].id);
+      console.log('Host created successfully, ID:', players[0].id);
 
       setView('host');
     } catch (err) {
@@ -148,14 +152,18 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setDbRoomId(room.id);
 
       // 2. 加入房間
-      const { data: player, error: playerError } = await supabase
+      const { data: players, error: playerError } = await supabase
         .from('pvp_players')
         .insert([{ room_id: room.id, role: 'guest', display_name: 'Player' }])
-        .select()
-        .single();
+        .select('*');
 
-      if (playerError) throw playerError;
-      setMyPlayerId(player.id);
+      if (playerError || !players || players.length === 0) {
+        console.error('Guest join failed:', playerError);
+        throw playerError || new Error('加入玩家列表失敗');
+      }
+
+      setMyPlayerId(players[0].id);
+      console.log('Guest joined successfully, ID:', players[0].id);
 
       setView('guest_waiting');
     } catch (err) {
