@@ -308,9 +308,35 @@ export default function PVPRegistrationScreen({
             </div>
           </div>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center">
-             <ParchmentBook activePath={selectedPath!} onPathChange={() => {}} />
-             <button onClick={() => setIsBookFocused(false)} className="mt-8 px-8 py-3 bg-white/10 rounded-xl">返回設定</button>
+          /* 讀書模式 - 精準還原單機版視覺 */
+          <div className="w-full h-full flex items-center justify-center relative animate-in zoom-in-95 duration-700 ease-out">
+            <div className="absolute top-10 left-10 z-[100]">
+              <button
+                onClick={() => setIsBookFocused(false)}
+                className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900/60 border border-white/10 text-white/70 hover:text-white hover:bg-slate-800 transition-all active:scale-95 group backdrop-blur-xl shadow-2xl"
+              >
+                <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
+              </button>
+            </div>
+            
+            <div className="w-full flex justify-center scale-90 transition-transform duration-700">
+              <ParchmentBook
+                key={selectedPath}
+                activePath={selectedPath!}
+                onPathChange={() => {}}
+              />
+            </div>
+
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
+              <button
+                onClick={handleConfirmRegistration}
+                className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-black px-12 py-4 rounded-xl tracking-[0.8em] border border-blue-500/30 shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-all active:scale-95 flex items-center gap-2 group backdrop-blur-md"
+              >
+                確認
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
         )}
       </div>
