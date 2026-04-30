@@ -20,12 +20,12 @@ const createSafeSupabase = () => {
   console.warn('Supabase is running in MOCK mode (missing env vars)');
   
   // 返回一個代理物件，攔截所有調用
-  const mockChain = () => ({
+  const mockChain: any = () => ({
     select: () => mockChain(),
     eq: () => mockChain(),
-    single: () => Promise.resolve({ data: null, error: null }),
+    single: () => Promise.resolve({ data: {} as any, error: null }),
     order: () => mockChain(),
-    insert: () => Promise.resolve({ data: null, error: null }),
+    insert: () => mockChain(),
     update: () => mockChain(),
   });
 
