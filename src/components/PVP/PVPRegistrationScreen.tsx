@@ -180,42 +180,67 @@ export default function PVPRegistrationScreen({
              </div>
           </div>
 
-          {/* 卡片區域 */}
-          <div className="relative w-full max-w-[500px] h-[240px] flex items-center justify-center [perspective:1200px]">
+          {/* 卡片區域 (100% 複製單機版精準參數) */}
+          <div className="relative w-full max-w-[500px] h-[300px] flex items-center justify-center transform-style-3d">
             {(['normal', 'backdoor', 'blackbox'] as StartPath[]).map((path, idx) => {
                const isSelected = selectedPath === path;
-               const rotations = [-15, 0, 15];
+               const rotations = [-18, 0, 18];
+               const offsets = [-95, 0, 95];
+
                return (
                  <div
                    key={path}
                    onClick={() => setSelectedPath(path)}
-                   className={`absolute cursor-pointer transition-all duration-500 ${isSelected ? 'z-30 -translate-y-6 scale-110' : 'z-10 brightness-50 opacity-40 scale-90'}`}
-                   style={{ transform: `translateX(${(idx - 1) * 110}px) rotate(${rotations[idx]}deg)` }}
+                   className={`absolute cursor-pointer transition-all duration-500 ease-out transform-style-3d
+                      ${isSelected ? 'z-30' : 'z-10 brightness-60 hover:brightness-100 scale-95'}
+                   `}
+                   style={{
+                     transform: `translate3d(${offsets[idx]}px, ${isSelected ? -60 : 0}px, ${isSelected ? 120 : 0}px) rotateZ(${rotations[idx]}deg) scale(${isSelected ? 1.1 : 1})`,
+                   }}
                  >
-                   <div className="w-[140px] h-[200px] rounded-2xl border-2 border-white/10 shadow-2xl flex flex-col items-center justify-center gap-4"
-                        style={{ backgroundColor: path === 'normal' ? '#7a4225' : path === 'backdoor' ? '#162b4d' : '#3d0c0c' }}>
-                      {path === 'normal' ? <Scale /> : path === 'backdoor' ? <Shield /> : <Feather />}
-                      <span className="text-xs font-black tracking-[0.3em] uppercase">{SYSTEM_STRINGS.SETUP.START_PATH_NAMES[path]}</span>
+                   <div
+                     className="w-[145px] h-[200px] rounded-xl shadow-[0_40px_80px_rgba(0,0,0,1)] border-r-8 border-black/60 relative overflow-hidden flex flex-col items-center justify-center p-4"
+                     style={{
+                       backgroundColor: path === 'normal' ? '#7a4225' : path === 'backdoor' ? '#162b4d' : '#3d0c0c',
+                       backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("https://www.transparenttextures.com/patterns/leather.png")',
+                     }}
+                   >
+                     <div className="relative z-10 flex flex-col items-center gap-6">
+                       <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 backdrop-blur-md shadow-inner">
+                         {path === 'normal' ? (
+                           <Scale className="w-7 h-7 text-white/50" />
+                         ) : path === 'backdoor' ? (
+                           <Shield className="w-7 h-7 text-white/50" />
+                         ) : (
+                           <Feather className="w-7 h-7 text-white/50" />
+                         )}
+                       </div>
+                       <h4 className="text-xl font-black tracking-[0.2em] text-white/90 uppercase">
+                         {SYSTEM_STRINGS.SETUP.START_PATH_NAMES[path]}
+                       </h4>
+                     </div>
+                     {isSelected && (
+                       <div className="absolute inset-0 border-2 border-blue-500/40 rounded-xl animate-pulse" />
+                     )}
                    </div>
                  </div>
                );
             })}
           </div>
 
-          {/* 底部翻閱按鈕 (照抄截圖樣式) */}
-          <div className="mt-auto mb-10">
+          {/* 底部按鈕 */}
+          <div className={`flex flex-col items-center gap-6 transition-all duration-700 mt-8 ${selectedPath ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'}`}>
             {isReady ? (
-              <div className="px-12 py-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-3xl font-black tracking-[0.2em] animate-pulse">
+              <div className="px-14 py-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full font-black tracking-[0.2em] animate-pulse shadow-2xl backdrop-blur-xl">
                 等待對手完成...
               </div>
             ) : (
               <button
                 onClick={() => selectedPath && setIsBookFocused(true)}
-                disabled={!selectedPath}
-                className="w-[320px] bg-white text-black font-black py-6 rounded-[40px] flex items-center justify-center gap-4 hover:bg-slate-200 transition-all shadow-2xl disabled:opacity-20"
+                className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
               >
-                <BookOpen size={24} />
-                <span className="text-lg tracking-[0.4em]">翻閱卷宗檔案</span>
+                <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                翻閱卷宗檔案
               </button>
             )}
           </div>
