@@ -177,6 +177,33 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   useEffect(() => {
     if (!dbRoomId || !supabase) return;
 
+    // 封裝抓取邏輯 (先定義，後呼叫)
+    const fetchPlayers = async () => {
+      console.log('Fetching players for room:', dbRoomId);
+      const { data, error } = await supabase
+        .from('pvp_players')
+        .select('*')
+        .eq('room_id', dbRoomId)
+        .order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('Fetch players error:', error);
+        return;
+      }
+
+      if (data) {
+        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
+          const isMe = p.id === myPlayerId;
+          return { 
+            id: p.id, 
+            name: isMe ? '(自己)' : '(他人)' 
+          };
+        });
+        console.log('Players updated:', formatted.length);
+        setParticipants(formatted);
+      }
+    };
+
     // 1. 監聽玩家列表變動
     const playerSubscription = supabase
       .channel(`players-${dbRoomId}`)
@@ -199,28 +226,6 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       )
       .subscribe();
 
-    // 封裝抓取邏輯
-    const fetchPlayers = async () => {
-      if (!dbRoomId || !supabase) return;
-      
-      const { data } = await supabase
-        .from('pvp_players')
-        .select('*')
-        .eq('room_id', dbRoomId)
-        .order('created_at', { ascending: true });
-      
-      if (data) {
-        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
-          const isMe = p.id === myPlayerId;
-          return { 
-            id: p.id, 
-            name: isMe ? '(自己)' : '(他人)' 
-          };
-        });
-        setParticipants(formatted);
-      }
-    };
-
     // 初始化抓取
     fetchPlayers();
 
@@ -232,7 +237,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       supabase.removeChannel(roomSubscription);
       clearInterval(pollInterval);
     };
-  }, [dbRoomId, view]);
+  }, [dbRoomId, view, myPlayerId]);
 
   // 房長啟動遊戲的聯網處理
   const handleHostStartGame = async () => {
