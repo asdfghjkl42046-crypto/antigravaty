@@ -184,8 +184,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       const { data, error } = await supabase
         .from('pvp_players')
         .select('*')
-        .eq('room_id', dbRoomId)
-        .order('created_at', { ascending: true });
+        .eq('room_id', dbRoomId);
 
       if (error) {
         console.error('Fetch players error:', error);
