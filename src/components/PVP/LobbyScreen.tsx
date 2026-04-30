@@ -202,21 +202,11 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
         .order('created_at', { ascending: true });
       
       if (data) {
-        let guestCount = 0;
         const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
           const isMe = p.id === myPlayerId;
-          let label = '';
-          
-          if (p.role === 'host') {
-            label = '房長';
-          } else {
-            guestCount++;
-            label = `玩家 ${guestCount}`;
-          }
-
           return { 
             id: p.id, 
-            name: isMe ? `${label} (你)` : label 
+            name: isMe ? '(自己)' : '(他人)' 
           };
         });
         setParticipants(formatted);
