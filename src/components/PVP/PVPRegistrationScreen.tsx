@@ -84,7 +84,7 @@ export default function PVPRegistrationScreen({
           // 但為了簡化，我們先拿第一個 matching 的當作自己 (實際上應該由 Lobby 傳入 myPlayerId)
           // ⚠️ 修正：為了準確，我們從本地存儲或 State 獲取 (這裡先由 participants 判斷)
           setParticipants(players);
-          const host = players.find(p => p.role === 'host');
+          const host = players.find((p: PlayerRecord) => p.role === 'host');
           // 這裡需要改進，應該由父組件傳入 myPlayerId
         }
       }
@@ -110,7 +110,7 @@ export default function PVPRegistrationScreen({
         .eq('room_id', dbRoomId);
       if (data) {
         setParticipants(data);
-        const me = data.find(p => p.id === myPlayerId);
+        const me = data.find((p: PlayerRecord) => p.id === myPlayerId);
         if (me) {
           setIsHost(me.role === 'host');
           setIsReady(me.is_ready);
@@ -137,7 +137,7 @@ export default function PVPRegistrationScreen({
     return () => { supabase.removeChannel(channel); };
   }, [dbRoomId, myPlayerId]);
 
-  const readyCount = participants.filter(p => p.is_ready).length;
+  const readyCount = participants.filter((p: PlayerRecord) => p.is_ready).length;
   const totalCount = participants.length;
   const allReady = readyCount === totalCount && totalCount > 0;
 
@@ -250,7 +250,7 @@ export default function PVPRegistrationScreen({
                     onClick={() => !isReady && setSelectedAvatarId(m.id)}
                     className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${isSelected ? 'border-amber-400 scale-110 shadow-lg' : 'border-white/10 grayscale opacity-40'}`}
                   >
-                    <img src={m.url} className="w-full h-full object-cover" />
+                    <img src={m.url} alt={m.title} className="w-full h-full object-cover" />
                   </div>
                 );
               })}
