@@ -81,6 +81,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       }
 
       setMyPlayerId(players[0].id);
+      sessionStorage.setItem('antigravaty_player_id', players[0].id);
       console.log('Host created successfully, ID:', players[0].id);
 
       setView('host');
@@ -163,6 +164,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       }
 
       setMyPlayerId(players[0].id);
+      sessionStorage.setItem('antigravaty_player_id', players[0].id);
       console.log('Guest joined successfully, ID:', players[0].id);
 
       setView('guest_waiting');
@@ -223,7 +225,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
         (payload: { new: { status: string } }) => {
-          if (payload.new.status === 'playing') onStartGame(roomKey);
+          if (payload.new.status === 'preparing') onStartGame(roomKey);
         }
       )
       .subscribe();
@@ -243,7 +245,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     if (!dbRoomId || !supabase) return;
     const { error } = await supabase
       .from('pvp_rooms')
-      .update({ status: 'playing' })
+      .update({ status: 'preparing' })
       .eq('id', dbRoomId);
     
     if (error) {

@@ -11,6 +11,7 @@ import CourtroomScreen from '@/components/CourtroomScreen';
 import EndingScreen from '@/components/EndingScreen';
 import { EntryScreen } from '@/components/EntryScreen';
 import LobbyScreen from '@/components/PVP/LobbyScreen';
+import PVPRegistrationScreen from '@/components/PVP/PVPRegistrationScreen';
 import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
   const [currentRegIndex, setCurrentRegIndex] = useState(0);
   const [registrationList, setRegistrationList] = useState<PlayerConfig[]>([]);
   const [isMultiplayerMode, setIsMultiplayerMode] = useState<boolean | null>(null);
+  const [pvpRoomKey, setPvpRoomKey] = useState<string | null>(null);
 
   useEffect(() => {
     resetGame(); // 開發階段：每次重整強制清除暫存，必定回到封面
@@ -107,14 +109,24 @@ export default function Home() {
       )}
 
       {isMultiplayerMode === true && (
-        <LobbyScreen 
-          onBack={() => setIsMultiplayerMode(null)} 
-          onStartGame={(key) => {
-            console.log('Room Start with Key:', key);
-            // 未來在此處初始化 Supabase 房間狀態
-            setIsMultiplayerMode(null); 
-          }} 
-        />
+        <>
+          {!pvpRoomKey ? (
+            <LobbyScreen 
+              onBack={() => setIsMultiplayerMode(null)} 
+              onStartGame={(key) => setPvpRoomKey(key)} 
+            />
+          ) : (
+            <PVPRegistrationScreen
+              roomKey={pvpRoomKey}
+              onBack={() => setPvpRoomKey(null)}
+              onFinalStart={() => {
+                // 正式開始後，先清空 key 並回歸主流程 (未來可對接 initGame)
+                console.log('PVP Game Officially Started!');
+                // setIsMultiplayerMode(false); // 暫時切回單機模式渲染 Dash (待 PVP Dash 完成後改)
+              }}
+            />
+          )}
+        </>
       )}
     </GameCanvas>
   );
