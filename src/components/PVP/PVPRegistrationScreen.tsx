@@ -92,7 +92,7 @@ export default function PVPRegistrationScreen({
 
     const channel = supabase.channel(`pvp-reg-${dbRoomId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` }, () => fetchPlayers())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` }, (p) => {
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` }, (p: any) => {
         if (p.new.status === 'playing') onFinalStart();
       })
       .subscribe();
@@ -167,11 +167,6 @@ export default function PVPRegistrationScreen({
                 className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${selectedAvatarId === m.id ? 'border-amber-400 scale-110 shadow-lg' : 'border-white/5 grayscale opacity-40'}`}
               >
                 <img src={m.url} alt={m.title} className="w-full h-full object-cover" />
-                {m.premium && selectedAvatarId === m.id && (
-                  <div className="absolute bottom-0 right-0 bg-amber-400 p-0.5 rounded-tl-md">
-                    <div className="w-2 h-2 bg-black rotate-45 transform translate-x-1 translate-y-1" />
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -181,7 +176,7 @@ export default function PVPRegistrationScreen({
                 {MASTERPIECES[selectedAvatarId].title}
              </div>
              <div className="text-[10px] text-slate-500 font-bold tracking-widest mt-1">
-                {MASTERPIECES[selectedAvatarId].artist}
+                {MASTERPIECES[selectedAvatarId].author}
              </div>
           </div>
 
