@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShieldCheck, ArrowLeft, RefreshCw, LogOut, Play, QrCode, ShieldAlert } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface LobbyScreenProps {
   onBack: () => void;
@@ -22,6 +23,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
+  const [dbRoomId, setDbRoomId] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
@@ -35,16 +37,36 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       .join('');
   };
 
-  const handleHostRoom = () => {
+  const handleHostRoom = async () => {
     setIsGenerating(true);
-    // 模擬網路延遲與數位合成感
-    setTimeout(() => {
-      const key = generateChaoticKey();
+    const key = generateChaoticKey();
+    
+    try {
+      // 1. 在 Supabase 建立房間
+      const { data: room, error: roomError } = await supabase
+        .from('pvp_rooms')
+        .insert([{ room_key: key, status: 'waiting' }])
+        .select()
+        .single();
+
+      if (roomError) throw roomError;
+      setDbRoomId(room.id);
       setRoomKey(key);
-      setParticipants([{ id: 'host', name: '房長 (你)' }]);
+
+      // 2. 將自己加入玩家列表
+      const { error: playerError } = await supabase
+        .from('pvp_players')
+        .insert([{ room_id: room.id, role: 'host', display_name: '房長 (你)' }]);
+
+      if (playerError) throw playerError;
+
       setView('host');
+    } catch (err) {
+      console.error('Failed to create room:', err);
+      alert('無法建立房間，請檢查網路或金鑰設定');
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
   };
 
   const handleJoinRoom = () => {
@@ -88,14 +110,108 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     setScanStatus('success');
     await stopScanning();
     setRoomKey(key);
-    // 模擬加入後的房間狀態
-    setParticipants([
-      { id: 'host', name: '(他人)' },
-      { id: 'me', name: '(自己)' },
-    ]);
-    setTimeout(() => {
+
+    try {
+      // 1. 查找房間
+      const { data: room, error: roomError } = await supabase
+        .from('pvp_rooms')
+        .select('id')
+        .eq('room_key', key)
+        .single();
+
+      if (roomError || !room) throw new Error('找不到房間');
+      setDbRoomId(room.id);
+
+      // 2. 加入房間
+      const { error: playerError } = await supabase
+        .from('pvp_players')
+        .insert([{ room_id: room.id, role: 'guest', display_name: '玩家' }]);
+
+      if (playerError) throw playerError;
+
       setView('guest_waiting');
-    }, 1000);
+    } catch (err) {
+      console.error('Join failed:', err);
+      alert('加入失敗：無效的房間密鑰');
+      setView('selection');
+    }
+  };
+
+  // 實時監聽邏輯
+  useEffect(() => {
+    if (!dbRoomId) return;
+
+    // 1. 監聽玩家列表變動
+    const playerSubscription = supabase
+      .channel(`players-${dbRoomId}`)
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` }, 
+        async () => {
+          // 重新抓取完整玩家列表
+          const { data } = await supabase
+            .from('pvp_players')
+            .select('*')
+            .eq('room_id', dbRoomId)
+            .order('created_at', { ascending: true });
+          
+          if (data) {
+            // 根據身份格式化名字 (房員看到 (自己)/(他人)，房長看到原始名稱)
+            const formatted = data.map(p => {
+              if (view === 'guest_waiting' || view === 'guest') {
+                return { id: p.id, name: p.role === 'host' ? '(他人)' : '(自己)' };
+              }
+              return { id: p.id, name: p.display_name || '玩家' };
+            });
+            setParticipants(formatted);
+          }
+        }
+      )
+      .subscribe();
+
+    // 2. 監聽房間狀態 (用於房員同步開始遊戲)
+    const roomSubscription = supabase
+      .channel(`room-${dbRoomId}`)
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
+        (payload) => {
+          if (payload.new.status === 'playing') {
+            onStartGame(roomKey);
+          }
+        }
+      )
+      .subscribe();
+
+    // 初始化抓取一次
+    const fetchInitial = async () => {
+      const { data } = await supabase
+        .from('pvp_players')
+        .select('*')
+        .eq('room_id', dbRoomId);
+      if (data) {
+        const formatted = data.map(p => ({ id: p.id, name: p.display_name }));
+        setParticipants(formatted);
+      }
+    };
+    fetchInitial();
+
+    return () => {
+      supabase.removeChannel(playerSubscription);
+      supabase.removeChannel(roomSubscription);
+    };
+  }, [dbRoomId, view]);
+
+  // 房長啟動遊戲的聯網處理
+  const handleHostStartGame = async () => {
+    if (!dbRoomId) return;
+    const { error } = await supabase
+      .from('pvp_rooms')
+      .update({ status: 'playing' })
+      .eq('id', dbRoomId);
+    
+    if (error) {
+      console.error('Start game failed:', error);
+      alert('啟動失敗');
+    }
   };
 
   useEffect(() => {
@@ -236,8 +352,8 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                 關閉房間
               </button>
               <button
-                onClick={() => onStartGame(roomKey)}
-                disabled={participants.length < 1}
+                onClick={handleHostStartGame}
+                disabled={participants.length < 2}
                 className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all active:scale-95 text-xs font-black uppercase tracking-widest disabled:opacity-30 disabled:pointer-events-none"
               >
                 <Play size={16} />
