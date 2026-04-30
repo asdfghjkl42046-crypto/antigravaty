@@ -400,7 +400,6 @@ export default function PVPRegistrationScreen({
       </div>
 
       {/* ⚠️ 賄賂選擇彈窗 - V25.2 星際卷宗重構版 */}
-      {/* ⚠️ 賄賂選擇彈窗 - V25.2 星際卷宗重構版 */}
       {showBribeModal && (
         <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 p-4">
           <div className="relative w-full max-w-[420px] max-h-[90%] bg-[#0a0a0b] border-l border-t border-white/5 rounded-sm p-8 shadow-[0_60px_120px_rgba(0,0,0,1)] overflow-hidden flex flex-col items-start px-8">
