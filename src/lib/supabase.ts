@@ -23,9 +23,9 @@ const createSafeSupabase = () => {
   const mockChain: any = () => ({
     select: () => mockChain(),
     eq: () => mockChain(),
-    single: () => Promise.resolve({ data: {} as any, error: null }),
+    single: () => Promise.resolve({ data: null, error: { message: 'Supabase 尚未連線，請檢查 VITE_ 環境變數設定' } }),
     order: () => mockChain(),
-    insert: () => mockChain(),
+    insert: () => Promise.resolve({ data: null, error: { message: '無法寫入：環境變數缺失' } }),
     update: () => mockChain(),
   });
 
