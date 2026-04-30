@@ -177,67 +177,67 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   useEffect(() => {
     if (!dbRoomId || !supabase) return;
 
-    // 封裝抓取邏輯 (先定義，後呼叫)
+    // 用 ref 存最新的 myPlayerId，避免 closure 問題
+    const currentMyPlayerId = myPlayerId;
+
     const fetchPlayers = async () => {
-      console.log('Fetching players for room:', dbRoomId);
       const { data, error } = await supabase
         .from('pvp_players')
         .select('*')
         .eq('room_id', dbRoomId)
         .order('created_at', { ascending: true });
-      
+
       if (error) {
         console.error('Fetch players error:', error);
         return;
       }
 
       if (data) {
-        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => {
-          const isMe = p.id === myPlayerId;
-          return { 
-            id: p.id, 
-            name: isMe ? '(自己)' : '(他人)' 
-          };
-        });
-        console.log('Players updated:', formatted.length);
+        const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => ({
+          id: p.id,
+          name: p.id === currentMyPlayerId ? '(自己)' : '(他人)',
+        }));
         setParticipants(formatted);
       }
     };
 
-    // 1. 監聽玩家列表變動
-    const playerSubscription = supabase
-      .channel(`players-${dbRoomId}`)
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` }, 
+    // 立即抓一次
+    fetchPlayers();
+
+    // Supabase Realtime：任何玩家進出都即時更新
+    const playerChannel = supabase
+      .channel(`lobby-players-${dbRoomId}-${Date.now()}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` },
         () => fetchPlayers()
       )
-      .subscribe();
+      .subscribe((status: string) => {
+        // 訂閱成功後再抓一次，確保加入瞬間就看到最新人數
+        if (status === 'SUBSCRIBED') fetchPlayers();
+      });
 
-    // 2. 監聽房間狀態 (用於房員同步開始遊戲)
-    const roomSubscription = supabase
-      .channel(`room-${dbRoomId}`)
-      .on('postgres_changes',
+    // 監聽房間狀態（房長按開始）
+    const roomChannel = supabase
+      .channel(`lobby-room-${dbRoomId}-${Date.now()}`)
+      .on(
+        'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
         (payload: { new: { status: string } }) => {
-          if (payload.new.status === 'playing') {
-            onStartGame(roomKey);
-          }
+          if (payload.new.status === 'playing') onStartGame(roomKey);
         }
       )
       .subscribe();
 
-    // 初始化抓取
-    fetchPlayers();
-
-    // 雙重保障：每 1 秒自動輪詢一次 (達成 5V5 即時感)
-    const pollInterval = setInterval(fetchPlayers, 1000);
+    // 保底輪詢：每 2 秒補一次（應對 WebSocket 偶發延遲）
+    const pollInterval = setInterval(fetchPlayers, 2000);
 
     return () => {
-      supabase.removeChannel(playerSubscription);
-      supabase.removeChannel(roomSubscription);
+      supabase.removeChannel(playerChannel);
+      supabase.removeChannel(roomChannel);
       clearInterval(pollInterval);
     };
-  }, [dbRoomId, view, myPlayerId]);
+  }, [dbRoomId, myPlayerId]);
 
   // 房長啟動遊戲的聯網處理
   const handleHostStartGame = async () => {
