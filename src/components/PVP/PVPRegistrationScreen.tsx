@@ -106,7 +106,12 @@ export default function PVPRegistrationScreen({
     },
   ];
 
-  // 1. 初始化與動畫 [對齊單機]
+  const handleBack = () => {
+    sessionStorage.removeItem('antigravaty_player_id');
+    onBack();
+  };
+
+  // 1. 初始化與同步 ID
   useEffect(() => {
     const savedId = sessionStorage.getItem('antigravaty_player_id');
     setMyPlayerId(savedId);

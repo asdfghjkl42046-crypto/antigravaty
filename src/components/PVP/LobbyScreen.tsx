@@ -52,6 +52,15 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       .join('');
   };
 
+  useEffect(() => {
+    // 進入大廳時，自動清除舊的 Session，確保「滑掉重開」能規零啟動
+    if (view === 'selection') {
+      sessionStorage.removeItem('antigravaty_player_id');
+      setDbRoomId(null);
+      setMyPlayerId(null);
+    }
+  }, [view]);
+
   const handleHostRoom = async () => {
     setIsGenerating(true);
     const key = generateChaoticKey();
