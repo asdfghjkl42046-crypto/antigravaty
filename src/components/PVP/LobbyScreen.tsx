@@ -276,12 +276,19 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   };
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (view === 'guest') {
-      startScanning();
+      // ⚠️ 修正：給予 DOM 一點時間渲染容器，再啟動掃描
+      timer = setTimeout(() => {
+        if (document.getElementById('reader-lobby')) {
+          startScanning();
+        }
+      }, 100);
     } else {
       stopScanning();
     }
     return () => {
+      clearTimeout(timer);
       if (scannerRef.current?.isScanning) {
         scannerRef.current.stop().catch(() => {});
       }
