@@ -158,6 +158,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
                   loop
                   muted
                   playsInline
+                  preload="metadata"
                   className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-all duration-700"
                 />
               </div>

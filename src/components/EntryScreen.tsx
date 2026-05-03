@@ -219,7 +219,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 to-transparent pointer-events-none" />

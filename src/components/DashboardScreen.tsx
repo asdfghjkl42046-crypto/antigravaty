@@ -341,9 +341,11 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
             <video
               ref={logoVideoRef}
               src="/assets/logo_anim.mp4"
+              autoPlay
               loop
               muted
               playsInline
+              preload="metadata"
               className="w-full h-full object-cover opacity-90 scale-125"
             />
           </div>
