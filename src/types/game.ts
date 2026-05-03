@@ -339,6 +339,9 @@ export interface GameStateData {
     defendantId?: string;
   } | null; // [新增] 待顯示的結算彈窗數據
   resultDiffs?: NumericalDiffs; // [新增] 用於傳遞計算後的數值差值
+  isSyncing: boolean;
+  syncMessage: string;
+  syncSubMessage: string;
 }
 
 export type BetChoice = 'win' | 'lose' | 'none';
@@ -349,10 +352,16 @@ export interface Bet {
 
 /**
  * 法庭對局階段管理 (§6)
- * 1: 起訴敘事 | 2: 旁觀者干預 | 3: 場外賭局 | 4: 被告答辯
- * 5: 律師介入 (撤告/撤案) | 6: 庭審裁決 | 7: 非常上訴
  */
-export type TrialStage = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export enum TrialStage {
+  INDICTMENT = 1,
+  BYSTANDER_INTERVENE = 2,
+  BYSTANDER_BET = 3,
+  DEFENSE = 4,
+  LAWYER_INTERVENE = 5,
+  VERDICT = 6,
+  APPEAL = 7
+}
 
 /** 法庭對局實例狀態 */
 export interface TrialState {

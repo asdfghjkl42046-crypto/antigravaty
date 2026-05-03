@@ -118,10 +118,9 @@ export class CourtEngine {
     mode: JudgeMode,
     personality: JudgePersonality,
     lawCase: LawCase
-  ): { narrative: string; question: string } {
+  ): { narrative: string } {
     const narrative = lawCase.indictment || `【起訴事實：${formatLawTags(lawCase.tag)}】`;
-    const question = ''; 
-    return { narrative, question };
+    return { narrative };
   }
 
   /**
@@ -425,7 +424,7 @@ export class CourtEngine {
     const narrative = this.generateTrialNarrative(judgeMode, personality, lawCase);
     return {
       defendantId, lawCase, lawCaseTagId: tagId, stage: 1, bystanderIds, actingBystanderIndex: 0,
-      interventions: [], bets: [], question: narrative.question, narrative: narrative.narrative,
+      interventions: [], bets: [], narrative: narrative.narrative,
       isReady: true, timer: 30, isInevitable, forcedReason: reason, judgePersonality: personality
     };
   }
@@ -436,8 +435,18 @@ export class CourtEngine {
   static determineNextTrialStage(trial: TrialState, targetStage: TrialStage | number): Partial<TrialState> {
     const s = targetStage as TrialStage;
     const skip = trial.bystanderIds.length === 0;
-    const resolvedStage = skip && (s === 2 || s === 3) ? 4 : s;
-    return { stage: resolvedStage, actingBystanderIndex: (resolvedStage === 2 || resolvedStage === 3 ? 0 : trial.actingBystanderIndex), isReady: (resolvedStage === 2 || resolvedStage === 3), timer: 0 };
+    
+    // 使用 Enum 進行判定，取代硬編碼數字
+    const resolvedStage = skip && (s === TrialStage.BYSTANDER_INTERVENE || s === TrialStage.BYSTANDER_BET) 
+      ? TrialStage.DEFENSE 
+      : s;
+      
+    return { 
+      stage: resolvedStage, 
+      actingBystanderIndex: (resolvedStage === TrialStage.BYSTANDER_INTERVENE || resolvedStage === TrialStage.BYSTANDER_BET ? 0 : trial.actingBystanderIndex), 
+      isReady: (resolvedStage === TrialStage.BYSTANDER_INTERVENE || resolvedStage === TrialStage.BYSTANDER_BET), 
+      timer: 0 
+    };
   }
 
   /**

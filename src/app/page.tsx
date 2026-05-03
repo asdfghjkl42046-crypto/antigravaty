@@ -12,10 +12,16 @@ import EndingScreen from '@/components/EndingScreen';
 import { EntryScreen } from '@/components/EntryScreen';
 import LobbyScreen from '@/components/PVP/LobbyScreen';
 import PVPRegistrationScreen from '@/components/PVP/PVPRegistrationScreen';
+import LoadingScreen from '@/components/LoadingScreen';
+import PVPSyncOverlay from '@/components/PVP/PVPSyncOverlay';
 import type { PlayerConfig } from '@/types/game';
 
 export default function Home() {
-  const { players, judgeMode, setJudgeMode, initGame, endTurn, resetGame, phase } = useGameStore();
+  const { 
+    players, judgeMode, setJudgeMode, initGame, endTurn, resetGame, phase,
+    isLoading, loadingProgress, loadingVariant,
+    isSyncing, syncMessage, syncSubMessage
+  } = useGameStore();
   const [mounted, setMounted] = useState(false);
   const [plannedPlayerCount, setPlannedPlayerCount] = useState<number | null>(null);
   const [currentRegIndex, setCurrentRegIndex] = useState(0);
@@ -128,6 +134,20 @@ export default function Home() {
           )}
         </>
       )}
+
+      {/* 全域加載動畫層 (虛擬進度) */}
+      <LoadingScreen 
+        isLoading={isLoading} 
+        progress={loadingProgress} 
+        variant={loadingVariant} 
+      />
+
+      {/* 全域同步遮罩 (真實網路等待) */}
+      <PVPSyncOverlay
+        isVisible={isSyncing}
+        message={syncMessage}
+        subMessage={syncSubMessage}
+      />
     </GameCanvas>
   );
 }

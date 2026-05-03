@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShieldCheck, ArrowLeft, RefreshCw, LogOut, Play, QrCode, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SYSTEM_STRINGS } from '@/data/SystemStrings';
+import { useGameStore } from '@/store/gameStore';
 
 interface LobbyScreenProps {
   onBack: () => void;
@@ -36,6 +37,9 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const [dbRoomId, setDbRoomId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  
+  // 引入同步控制
+  const setSyncing = useGameStore(s => (s as any).setSyncing);
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
   const generateChaoticKey = () => {
@@ -225,8 +229,14 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
-        (payload: { new: { status: string } }) => {
-          if (payload.new.status === 'preparing') onStartGame(roomKey);
+        async (payload: { new: { status: string } }) => {
+          if (payload.new.status === 'preparing') {
+            // [客機啟動同步]
+            setSyncing(true, "收到開戰訊號", "正在連接至主機節點...");
+            await new Promise(r => setTimeout(r, 1000));
+            onStartGame(roomKey);
+            setSyncing(false);
+          }
         }
       )
       .subscribe();
@@ -239,11 +249,15 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       supabase.removeChannel(roomChannel);
       clearInterval(pollInterval);
     };
-  }, [dbRoomId, myPlayerId]);
+  }, [dbRoomId, myPlayerId, roomKey, onStartGame, setSyncing]);
 
   // 房長啟動遊戲的聯網處理
   const handleHostStartGame = async () => {
     if (!dbRoomId || !supabase) return;
+    
+    // [房長啟動同步]
+    setSyncing(true, "建立宇宙中", "正在廣播同步訊號至所有節點...");
+
     const { error } = await supabase
       .from('pvp_rooms')
       .update({ status: 'preparing' })
@@ -252,7 +266,13 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     if (error) {
       console.error('Start game failed:', error);
       alert('啟動失敗');
+      setSyncing(false);
+      return;
     }
+
+    await new Promise(r => setTimeout(r, 1000));
+    onStartGame(roomKey);
+    setSyncing(false);
   };
 
   useEffect(() => {
@@ -299,7 +319,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               <Users className="w-16 h-16 text-blue-400" />
             </div>
             <h2 className="text-4xl font-black mb-4 tracking-tighter uppercase italic">
-              Multiplayer <span className="text-blue-500 text-glow">Lobby</span>
+              {SYSTEM_STRINGS.LOBBY.TITLE}
             </h2>
             <p className="text-slate-500 text-center mb-12 text-sm leading-relaxed tracking-wider">
               {SYSTEM_STRINGS.LOBBY.DESC}

@@ -85,6 +85,13 @@ interface GameStore extends GameStateData {
   checkBankruptcy: () => void;
   checkGlobalVictoryOrContinue: () => void;
   pendingBetResolution: { playerId: string; amount: number; type: 'ip' | 'rp' | 'g' }[] | null;
+
+  // --- 加載系統 ---
+  isLoading: boolean;
+  loadingProgress: number;
+  loadingVariant: 'default' | 'court' | 'defense';
+  startLoading: (variant?: 'default' | 'court' | 'defense') => Promise<void>;
+  completeLoading: () => Promise<void>;
 }
 
 export const useGameStore = create<GameStore>()(
@@ -104,7 +111,13 @@ export const useGameStore = create<GameStore>()(
       endingResult: null,
       engineError: null,
       pendingResolution: null,
+      isSyncing: false,
+      syncMessage: '',
+      syncSubMessage: '',
       pendingBetResolution: null,
+      isLoading: false,
+      loadingProgress: 0,
+      loadingVariant: 'default',
 
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
@@ -159,8 +172,47 @@ export const useGameStore = create<GameStore>()(
       },
 
       initGame: async (configs: PlayerConfig[]) => {
+        // [三段式加載啟動]
+        get().startLoading();
+        
+        // 1. 第一階段：0 -> 50
+        // [修正] 初始化時重置所有會話數據，防止二週目漏洞
+        set({ 
+          usedCodes: [], 
+          startNotifications: [],
+          loadingProgress: 50 
+        });
+        
+        await new Promise(r => setTimeout(r, 600));
+        
         const updates = await GameFlowEngine.initializeGame(configs);
+        
+        // 2. 第二階段：50 -> 75
+        await new Promise(r => setTimeout(r, 400));
+        set({ loadingProgress: 75 });
+        
+        // 3. 第三階段：75 -> 90
+        await new Promise(r => setTimeout(r, 300));
+        set({ loadingProgress: 90 });
+        
+        // 確保邏輯更新
         set(updates as Partial<GameStore>);
+        
+        // 4. 最終衝刺：90 -> 100 並關閉
+        await get().completeLoading();
+      },
+
+      // --- 加載控制邏輯 ---
+      startLoading: async (variant = 'default') => {
+        set({ isLoading: true, loadingProgress: 0, loadingVariant: variant as any });
+      },
+
+      completeLoading: async () => {
+        // 衝刺到 100
+        set({ loadingProgress: 100 });
+        // 留一點時間讓玩家看清楚 100%
+        await new Promise(r => setTimeout(r, 400));
+        set({ isLoading: false, loadingProgress: 0 });
       },
 
       resetGame: () => {
@@ -170,6 +222,7 @@ export const useGameStore = create<GameStore>()(
           currentPlayerIndex: 0,
           phase: 'play',
           actionLogs: [],
+          usedCodes: [], // [修正] 確保重置時清空代碼紀錄
           trial: null,
           judgePersonality: null,
           judgeMode: null,
@@ -182,6 +235,10 @@ export const useGameStore = create<GameStore>()(
 
       clearStartNotifications: () => set({ startNotifications: [] }),
       clearEngineError: () => set({ engineError: null }),
+
+      // [新增] 同步控制
+      setSyncing: (visible: boolean, msg?: string, subMsg?: string) => 
+        set({ isSyncing: visible, syncMessage: msg || '', syncSubMessage: subMsg || '' }),
 
       performAction: async (cardId, optionIdx, declareChoice) => {
         const state = get();
@@ -203,7 +260,8 @@ export const useGameStore = create<GameStore>()(
 
         set(stateUpdates);
         if (stateUpdates.pendingTrialId) {
-          get().triggerTrial(stateUpdates.pendingTrialId as string);
+          // [修正] 必須 await，否則 UI 會在加載前閃爍
+          await get().triggerTrial(stateUpdates.pendingTrialId as string);
         }
 
         return result;
@@ -221,7 +279,7 @@ export const useGameStore = create<GameStore>()(
         return { success: res.success, message: res.message };
       },
 
-      endTurn: () => {
+      endTurn: async () => {
         const updates = GameFlowEngine.proceedNextTurn(get()) as Partial<GameStore>;
         
         // [新增] 回合結束報表
@@ -238,20 +296,51 @@ export const useGameStore = create<GameStore>()(
 
         set(updates);
         if (updates.pendingTrialId) {
-          get().triggerTrial(updates.pendingTrialId as string);
+          // [修正] 必須 await，防止競爭風險
+          await get().triggerTrial(updates.pendingTrialId as string);
         }
       },
 
-      triggerTrial: (did, tid, inev = false, r = '') => {
+      triggerTrial: async (did, tid, inev = false, r = '') => {
+        // [三段式紫色加載啟動]
+        get().startLoading('court');
+        
+        await new Promise(r => setTimeout(r, 600));
+        set({ loadingProgress: 50 });
+        
         const updates = GameFlowEngine.handleTriggerTrial(get(), did, tid, inev, r) as Partial<GameStore>;
+        
+        await new Promise(r => setTimeout(r, 400));
+        set({ loadingProgress: 75 });
+        
+        await new Promise(r => setTimeout(r, 300));
+        set({ loadingProgress: 90 });
+        
         set(updates);
+        
+        await get().completeLoading();
       },
 
-      setTrialStage: (stage) => {
+      setTrialStage: async (stage) => {
         const t = get().trial;
         if (!t) return;
-        const updates = CourtEngine.determineNextTrialStage(t, stage);
-        set({ trial: { ...t, ...updates } });
+        
+        // 如果是進入答辯階段，觸發淡藍色加載
+        if (stage === TrialStage.DEFENSE) {
+           get().startLoading('defense');
+           await new Promise(r => setTimeout(r, 500));
+           set({ loadingProgress: 50 });
+           await new Promise(r => setTimeout(r, 400));
+           set({ loadingProgress: 90 });
+           
+           const updates = CourtEngine.determineNextTrialStage(t, stage);
+           set({ trial: { ...t, ...updates } });
+           
+           await get().completeLoading();
+        } else {
+           const updates = CourtEngine.determineNextTrialStage(t, stage);
+           set({ trial: { ...t, ...updates } });
+        }
       },
 
       nextBystander: () =>

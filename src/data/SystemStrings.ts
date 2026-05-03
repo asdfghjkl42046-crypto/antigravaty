@@ -258,6 +258,8 @@ export const SYSTEM_STRINGS = {
     GUILTY_TITLE: '法庭有罪裁決',
     STATUS_CLEARED: '起訴撤銷',
     STATUS_TERMINATED: '行動終止',
+    LABEL_STATUS: '狀態',
+    LABEL_CERTIFIED_DOSSIER: '認證卷宗',
     STATS: {
       TOTAL_PROFIT: '總資產結算',
       FINAL_RP: '最終信用',
@@ -332,6 +334,7 @@ export const SYSTEM_STRINGS = {
   LOBBY: {
     WAITING_JOIN: '等待其他企業加入...',
     YOUR_ID: '你的識別代碼',
+    TITLE: '多機連線大廳',
     CLICK_COPY: '點擊複製',
     START_PVP: '開始連線博弈',
     READY_STATUS: '已就緒',
@@ -465,12 +468,12 @@ export const SYSTEM_STRINGS = {
     ACTIONS: {
       SUPPORT: '🛡 支持被告',
       OPPOSE: '⚔ 質疑被告',
-      ABSTAIN: 'ABSTAIN',
+      ABSTAIN: '棄權',
       WIN: '勝訴',
       LOSE: '敗訴',
       SKIP: '跳過',
       REVERSE: '逆轉裁判', // 律師發動逆轉
-      EXIT: 'EXIT',
+      EXIT: '離開',
       GIVE_UP_REVERSE: '放棄逆轉 / 接受判決',
       EXTRA_APPEAL: '非常上訴 (啟動審判救濟)',
       COUNTDOWN_PREFIX: '自動裁決倒數...',
@@ -552,6 +555,37 @@ export const SYSTEM_STRINGS = {
       FINE: '罰金',
       RP_LOSS: '名聲損失',
     },
+  },
+
+  /**
+   * 等待畫面文案
+   */
+  LOADING: {
+    DEFAULT: '系統數據加載中',
+    TIPS: [
+      '正在封存案卷...',
+      '掃描非法資產...',
+      '校準法官人格...',
+      '加密通訊連線...',
+      '同步雲端資料...',
+      '準備法庭判決...',
+    ],
+    COURT_TIPS: [
+      '正在掃描違規代碼...',
+      '準備公訴證言...',
+      '法官人格已加載...',
+      '正在計算勝訴率...',
+      '律師函件發送中...',
+      '法庭現場封鎖中...',
+    ],
+    DEFENSE_TIPS: [
+      '正在檢索判例資料庫...',
+      '分析公訴方邏輯漏洞...',
+      '選定最佳辯護策略...',
+      '準備被告陳述草案...',
+      '法律術語自動轉譯中...',
+      '同步辯方證據文件...',
+    ],
   },
 
   /**

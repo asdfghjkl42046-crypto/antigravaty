@@ -636,7 +636,9 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         )}
       </AnimatePresence>
 
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/dust.png')]" />
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none mix-blend-overlay" 
+        style={{ backgroundImage: 'url("/assets/textures/leather.png")' }} 
+      />
     </div>
   );
 }

@@ -170,12 +170,12 @@ export function calculateEnding(player: Player, turn: number): EndingResult {
     };
   }
 
-  // 2. 驗證企業巨頭結局 (黑心財閥的寫照)
-  if (totalAssets >= 2500 && rp >= 20) {
-    const config = ENDING_CONFIGS['tycoon'];
+  // 2. 驗證優良龍頭結局 (標準通關 - 名聲門檻較高)
+  if (totalAssets >= 2200 && rp > 50) {
+    const config = ENDING_CONFIGS['dragonhead'];
     return {
       playerId: player.id,
-      type: 'tycoon',
+      type: 'dragonhead',
       title: config.title,
       evaluation: generateEvaluation(tags),
       description: config.description,
@@ -183,12 +183,12 @@ export function calculateEnding(player: Player, turn: number): EndingResult {
     };
   }
 
-  // 3. 驗證優良龍頭結局 (標準通關)
-  if (totalAssets >= 2200 && rp > 50) {
-    const config = ENDING_CONFIGS['dragonhead'];
+  // 3. 驗證企業巨頭結局 (黑心財閥的寫照 - 錢多但名聲門檻低)
+  if (totalAssets >= 2500 && rp >= 20) {
+    const config = ENDING_CONFIGS['tycoon'];
     return {
       playerId: player.id,
-      type: 'dragonhead',
+      type: 'tycoon',
       title: config.title,
       evaluation: generateEvaluation(tags),
       description: config.description,
@@ -252,7 +252,7 @@ export function resolveGameStatus(
     return { isGameOver: true, phase: 'victory', endingResult: ending };
   }
 
-  // 2. 常規檢查：撞到破產死線，標記為出局但「不直接結束遊戲」
+  // 2. 破產判定：撞到破產死線則直接出局
   if (checkBankruptcy(player)) {
     const ending = calculateEnding(player, currentTurn);
     // 為玩家掛上不可逆的破產印記

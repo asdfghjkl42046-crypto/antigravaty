@@ -158,7 +158,7 @@ export default function EndingScreen() {
         <div className="w-full flex justify-between items-start mb-8 border-b-2 border-black/10 pb-4">
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.4em]">
-              CERTIFIED DOSSIER
+              {SYSTEM_STRINGS.ENDING.LABEL_CERTIFIED_DOSSIER}
             </span>
             <span className="text-[10px] font-bold text-black/60 italic mt-1 font-serif">
               {SYSTEM_STRINGS.ENDING.DOSSIER_ID}: {endingResult.playerId.slice(0, 8).toUpperCase()}
@@ -205,7 +205,7 @@ export default function EndingScreen() {
           </h2>
           <div className="flex items-center gap-1.5 mb-6">
             <span className="text-[10px] font-black text-black/60 tracking-widest uppercase">
-              STATUS: {isVictory ? SYSTEM_STRINGS.ENDING.STATUS_CLEARED : SYSTEM_STRINGS.ENDING.STATUS_TERMINATED}
+              {SYSTEM_STRINGS.ENDING.LABEL_STATUS}: {isVictory ? SYSTEM_STRINGS.ENDING.STATUS_CLEARED : SYSTEM_STRINGS.ENDING.STATUS_TERMINATED}
             </span>
           </div>
 
