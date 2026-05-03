@@ -167,10 +167,10 @@ export default function PVPRegistrationScreen({
     try {
       const { error } = await supabase.from('pvp_players').update({
         display_name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME,
-        // ⚠️ 這些欄位在資料庫中尚未建立，暫時註解以避開 400 錯誤
-        // avatar_id: selectedAvatarId.toString(),
-        // background_card: selectedPath,
-        // bribe_item: bribe || selectedBribe || null,
+        owner_name: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME,
+        avatar_id: selectedAvatarId.toString(),
+        background_card: selectedPath,
+        bribe_item: bribe || selectedBribe || null,
         is_ready: true
       }).eq('id', myPlayerId);
 
