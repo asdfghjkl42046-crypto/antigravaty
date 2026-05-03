@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useGameStore, MASTERPIECES } from '@/store/gameStore';
-import { EndingType } from '@/types/game';
+import { EndingType, Player } from '@/types/game';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 import gsap from 'gsap';
 import { 
   History, 
@@ -32,7 +33,7 @@ export default function EndingScreen() {
   const player = players[currentPlayerIndex];
 
   // 判定是否為最終全局結束
-  const isFinalGameOver = phase === 'victory' || players.every(p => p.isBankrupt) || turn >= 50;
+  const isFinalGameOver = phase === 'victory' || players.every((p: Player) => p.isBankrupt) || turn >= 50;
 
   useEffect(() => {
     if (!endingResult) return;
@@ -160,7 +161,7 @@ export default function EndingScreen() {
               CERTIFIED DOSSIER
             </span>
             <span className="text-[10px] font-bold text-black/60 italic mt-1 font-serif">
-              案件編號: {endingResult.playerId.slice(0, 8).toUpperCase()}
+              {SYSTEM_STRINGS.ENDING.DOSSIER_ID}: {endingResult.playerId.slice(0, 8).toUpperCase()}
             </span>
           </div>
           <FileText className="w-5 h-5 text-black/30" />
@@ -171,7 +172,7 @@ export default function EndingScreen() {
           {isLimit ? (
             /* 集體頭像 (創業夢碎) */
             <div className="flex -space-x-4 mb-6 ending-text">
-              {players.map((p, i) => (
+              {players.map((p: Player, i: number) => (
                 <div 
                   key={p.id}
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-[#e8dcc4] overflow-hidden shadow-xl hover:scale-110 transition-all duration-500 relative"
@@ -200,11 +201,11 @@ export default function EndingScreen() {
           )}
           
           <h2 className="ending-text text-3xl font-black text-[#1a1a1a] tracking-tight mb-2 text-center drop-shadow-sm">
-            {isVictory ? 'INDIVIDUAL VICTORY' : 'GUILTY VERDICT'}
+            {isVictory ? SYSTEM_STRINGS.ENDING.VICTORY_TITLE : SYSTEM_STRINGS.ENDING.GUILTY_TITLE}
           </h2>
           <div className="flex items-center gap-1.5 mb-6">
             <span className="text-[10px] font-black text-black/60 tracking-widest uppercase">
-              STATUS: {isVictory ? 'CLEARED' : 'TERMINATED'}
+              STATUS: {isVictory ? SYSTEM_STRINGS.ENDING.STATUS_CLEARED : SYSTEM_STRINGS.ENDING.STATUS_TERMINATED}
             </span>
           </div>
 
@@ -218,17 +219,17 @@ export default function EndingScreen() {
         <div className="ending-text w-full grid grid-cols-2 gap-4 mb-10">
           <div className="flex flex-col items-center p-3 bg-black/5 rounded-xl border border-black/10">
             <Banknote className="w-4 h-4 text-emerald-700 mb-1" />
-            <span className="text-[8px] font-black text-black/40 uppercase">總資產結算</span>
-            <span className="text-sm font-black text-black">{endingResult.stats.totalProfit} 萬</span>
+            <span className="text-[8px] font-black text-black/40 uppercase">{SYSTEM_STRINGS.ENDING.STATS.TOTAL_PROFIT}</span>
+            <span className="text-sm font-black text-black">{endingResult.stats.totalProfit} {SYSTEM_STRINGS.ENDING.STATS.UNIT_WAN}</span>
           </div>
           <div className="flex flex-col items-center p-3 bg-black/5 rounded-xl border border-black/10">
             <Star className="text-amber-700 w-4 h-4 mb-1" />
-            <span className="text-[8px] font-black text-black/40 uppercase">最終信用</span>
+            <span className="text-[8px] font-black text-black/40 uppercase">{SYSTEM_STRINGS.ENDING.STATS.FINAL_RP}</span>
             <span className="text-sm font-black text-black">{endingResult.stats.finalRp} RP</span>
           </div>
           <div className="col-span-2 flex flex-col items-center p-2 bg-black/5 rounded-xl border border-black/10">
-            <span className="text-[8px] font-black text-black/40 uppercase">法治代價累計 (罰金)</span>
-            <span className="text-sm font-black text-red-800">{endingResult.stats.totalFines} 萬</span>
+            <span className="text-[8px] font-black text-black/40 uppercase">{SYSTEM_STRINGS.ENDING.STATS.TOTAL_FINES}</span>
+            <span className="text-sm font-black text-red-800">{endingResult.stats.totalFines} {SYSTEM_STRINGS.ENDING.STATS.UNIT_WAN}</span>
           </div>
         </div>
 
@@ -247,37 +248,37 @@ export default function EndingScreen() {
                 baseColor: isFake ? '#5c4d37' : '#d4af37', 
                 innerColor: isFake ? '#3a3124' : '#fcf6ba',
                 icon: isFake ? ShieldAlert : Crown, 
-                label: isFake ? '偽善者' : '神格化' 
+                label: isFake ? SYSTEM_STRINGS.ENDING.STAMPS.SAINT_FAKE : SYSTEM_STRINGS.ENDING.STAMPS.SAINT 
               },
               tycoon: { 
                 baseColor: '#0f172a', 
                 innerColor: '#475569', 
                 icon: Pyramid, 
-                label: '絕對支配' 
+                label: SYSTEM_STRINGS.ENDING.STAMPS.TYCOON 
               },
               dragonhead: { 
                 baseColor: '#1e3a8a', 
                 innerColor: '#60a5fa', 
                 icon: Star, 
-                label: '正式核准' 
+                label: SYSTEM_STRINGS.ENDING.STAMPS.DRAGONHEAD 
               },
               arrested: { 
                 baseColor: '#4c0519', 
                 innerColor: '#be123c', 
                 icon: Gavel, 
-                label: '有罪判定' 
+                label: SYSTEM_STRINGS.ENDING.STAMPS.ARRESTED 
               },
               bankrupt: { 
                 baseColor: '#444', 
                 innerColor: '#888', 
                 icon: CircleSlash, 
-                label: '全盤否決' 
+                label: SYSTEM_STRINGS.ENDING.STAMPS.BANKRUPT 
               },
               limit: { 
                 baseColor: '#2d2d2d', 
                 innerColor: '#555', 
                 icon: Clock, 
-                label: '時效終止' 
+                label: SYSTEM_STRINGS.ENDING.STAMPS.LIMIT 
               }
             };
  
@@ -324,12 +325,12 @@ export default function EndingScreen() {
           {isFinalGameOver ? (
             <>
               <RotateCcw className="w-5 h-5 mr-3 group-hover:rotate-[-180deg] transition-transform duration-500" />
-              <span className="font-black tracking-[0.4em] uppercase text-xs">歸檔並重啟人生</span>
+              <span className="font-black tracking-[0.4em] uppercase text-xs">{SYSTEM_STRINGS.ENDING.BUTTONS.RESTART}</span>
             </>
           ) : (
             <>
               <ChevronRight className="w-5 h-5 mr-3 group-hover:translate-x-2 transition-transform duration-500" />
-              <span className="font-black tracking-[0.4em] uppercase text-xs">確認清算並繼續遊戲</span>
+              <span className="font-black tracking-[0.4em] uppercase text-xs">{SYSTEM_STRINGS.ENDING.BUTTONS.CONTINUE}</span>
             </>
           )}
         </button>
@@ -373,7 +374,7 @@ export default function EndingScreen() {
 
       {/* 底部裝飾 */}
       <div className="absolute bottom-8 text-[10px] font-serif text-white/10 uppercase tracking-[1em] pointer-events-none">
-        反重力數據系統 // 程序已終止 // 繼承人選拔結束
+        {SYSTEM_STRINGS.ENDING.FOOTER}
       </div>
     </div>
   );

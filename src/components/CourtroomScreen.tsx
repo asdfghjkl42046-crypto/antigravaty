@@ -359,7 +359,7 @@ export default function CourtroomScreen() {
     return (
       <div className="h-full">
         <IndictmentBook
-          caseTitle="刑事起訴書"
+          caseTitle={SYSTEM_STRINGS.COURT.DOCUMENTS.INDICTMENT}
           pages={indictmentPages}
           onClose={() => setTrialStage(2)}
         />
@@ -374,7 +374,7 @@ export default function CourtroomScreen() {
       <div className="h-full flex flex-col">
         <div className="mb-6 flex items-center gap-3">
           <h2 className="text-xl font-black text-blue-400 uppercase tracking-widest italic">
-            旁聽干預: {actingBystander.name}
+            {SYSTEM_STRINGS.COURT.LABELS.INTERVENTION_BY}{actingBystander.name}
           </h2>
         </div>
 
@@ -391,7 +391,7 @@ export default function CourtroomScreen() {
               }}
               className="group relative overflow-hidden p-6 border border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/20 active:scale-95 transition-all flex justify-between items-center"
             >
-              <span className="text-2xl font-black text-blue-400">🛡 支持被告</span>
+              <span className="text-2xl font-black text-blue-400">{SYSTEM_STRINGS.COURT.ACTIONS.SUPPORT}</span>
               <span className="text-xl font-mono text-blue-400 opacity-50">+10%</span>
             </button>
 
@@ -406,7 +406,7 @@ export default function CourtroomScreen() {
               }}
               className="group relative overflow-hidden p-6 border border-red-500/30 bg-red-500/5 hover:bg-red-500/20 active:scale-95 transition-all flex justify-between items-center"
             >
-              <span className="text-2xl font-black text-red-400">⚔ 質疑被告</span>
+              <span className="text-2xl font-black text-red-400">{SYSTEM_STRINGS.COURT.ACTIONS.OPPOSE}</span>
               <span className="text-xl font-mono text-red-400 opacity-50">-10%</span>
             </button>
 
@@ -421,7 +421,7 @@ export default function CourtroomScreen() {
               }}
               className="py-6 border border-slate-700 hover:bg-slate-800 active:scale-95 transition-all text-slate-500 font-bold uppercase tracking-widest text-sm"
             >
-              ABSTAIN
+              {SYSTEM_STRINGS.COURT.ACTIONS.ABSTAIN}
             </button>
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function CourtroomScreen() {
       <div className="h-full flex flex-col">
         <div className="mb-6 flex items-center gap-3">
           <h2 className="text-xl font-black text-green-400 font-mono tracking-widest italic">
-            場外賭局: {actingBystander.name}
+            {SYSTEM_STRINGS.COURT.LABELS.BETTING_BY}{actingBystander.name}
           </h2>
         </div>
 
@@ -464,7 +464,7 @@ export default function CourtroomScreen() {
             {!canSeeRate && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 border border-slate-700 rounded text-xs text-slate-400 font-bold tracking-widest uppercase">
-                  需王牌律師 LV2 洞察
+                  {SYSTEM_STRINGS.COURT.LABELS.NEED_ACE_LAWYER}
                 </div>
               </div>
             )}
@@ -482,7 +482,7 @@ export default function CourtroomScreen() {
               }}
               className="flex flex-col items-center justify-center gap-3 p-8 border border-green-500/40 bg-green-500/10 hover:bg-green-500/20 active:scale-95 transition-all"
             >
-              <span className="font-black text-xl text-green-400">勝訴</span>
+              <span className="font-black text-xl text-green-400">{SYSTEM_STRINGS.COURT.ACTIONS.WIN}</span>
             </button>
 
             <button
@@ -496,7 +496,7 @@ export default function CourtroomScreen() {
               }}
               className="flex flex-col items-center justify-center gap-3 p-8 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 active:scale-95 transition-all"
             >
-              <span className="font-black text-xl text-red-400">敗訴</span>
+              <span className="font-black text-xl text-red-400">{SYSTEM_STRINGS.COURT.ACTIONS.LOSE}</span>
             </button>
 
             <button
@@ -510,7 +510,7 @@ export default function CourtroomScreen() {
               }}
               className="col-span-2 py-4 border border-slate-700 hover:bg-slate-800 active:scale-95 transition-all text-slate-500 font-bold uppercase tracking-widest text-xs"
             >
-              跳過
+              {SYSTEM_STRINGS.COURT.ACTIONS.SKIP}
             </button>
           </div>
         </div>
@@ -533,7 +533,7 @@ export default function CourtroomScreen() {
       <div className="h-full flex flex-col relative pt-4">
         <div className="absolute top-[-30] left-5 border-l-4 border-cyan-500 pl-4 z-[20]">
           <h2 className="text-2xl font-black text-white uppercase tracking-[0.15em] italic text-noir-glow">
-            被告答辯: {defendant.name}
+            {SYSTEM_STRINGS.COURT.LABELS.DEFENSE_BY}{defendant.name}
           </h2>
         </div>
 
@@ -541,7 +541,7 @@ export default function CourtroomScreen() {
         {hasLawyerLv2 && (
           <div className="absolute top-0 right-5 flex flex-col items-end z-[20] animate-in fade-in slide-in-from-right duration-1000">
             <div className="text-[10px] text-cyan-500 font-bold tracking-widest uppercase mb-1 opacity-70">
-              勝訴情報
+              {SYSTEM_STRINGS.COURT.LABELS.WIN_RATE_INFO}
             </div>
             <div className="text-3xl font-black text-white font-mono drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]">
               {(totalRate * 100).toFixed(0)}%
@@ -569,19 +569,19 @@ export default function CourtroomScreen() {
     // 獲取辯護結果對應的文案
     let webJudgment = '';
     let eduText = '';
-    if (trial.chosenDefenseLabel === '方案 J') {
+    if (trial.chosenDefenseLabel === `${SYSTEM_STRINGS.COURT.LABELS.SCHEME_PREFIX}J`) {
       webJudgment = trial.lawCase.web_judgment_j || '';
       eduText = trial.lawCase.edu_j || '';
-    } else if (trial.chosenDefenseLabel === '方案 K') {
+    } else if (trial.chosenDefenseLabel === `${SYSTEM_STRINGS.COURT.LABELS.SCHEME_PREFIX}K`) {
       webJudgment = trial.lawCase.web_judgment_k || '';
-      eduText = trial.lawCase.edu_j || '';
-    } else if (trial.chosenDefenseLabel === '方案 L') {
+      eduText = trial.lawCase.edu_k || '';
+    } else if (trial.chosenDefenseLabel === `${SYSTEM_STRINGS.COURT.LABELS.SCHEME_PREFIX}L`) {
       webJudgment = trial.lawCase.web_judgment_l || '';
       eduText = trial.lawCase.edu_l || '';
     }
 
     const mainText = webJudgment || trial.judgment || '';
-    const fullText = `${mainText}${eduText ? `\n\n【法制教育】\n${eduText}` : ''}${!isWin && trial.punishmentDetail ? `\n\n【裁罰結果】\n${trial.punishmentDetail}` : ''}`;
+    const fullText = `${mainText}${eduText ? `\n\n${SYSTEM_STRINGS.COURT.DOCUMENTS.EDU_TITLE}\n${eduText}` : ''}${!isWin && trial.punishmentDetail ? `\n\n${SYSTEM_STRINGS.COURT.DOCUMENTS.PUNISH_TITLE}\n${trial.punishmentDetail}` : ''}`;
 
     const showActionBtn = isWin || showAttorneySkill;
     const skillCost = defendant ? getWithdrawCaseCost(defendant) : { g: 0, ip: 0 };
@@ -595,7 +595,7 @@ export default function CourtroomScreen() {
           <h2
             className={`text-5xl font-black italic tracking-[0.3em] ${isWin ? 'text-green-400' : 'text-red-400'}`}
           >
-            {isWin ? '無罪' : '有罪'}
+            {isWin ? SYSTEM_STRINGS.COURT.VERDICT.WIN : SYSTEM_STRINGS.COURT.VERDICT.LOSE}
           </h2>
         </div>
 
@@ -611,7 +611,10 @@ export default function CourtroomScreen() {
                       if (showAttorneySkill) {
                         if (
                           window.confirm(
-                            `確定要發動王牌律師技能嗎？\n將支付 ${formatValue(skillCost.g, SYSTEM_STRINGS.UNITS.MONEY)} 並消耗 ${skillCost.ip} 點 IP。`
+                            SYSTEM_STRINGS.COURT.ALERTS.ACE_SKILL_PROMPT(
+                              formatValue(skillCost.g, SYSTEM_STRINGS.UNITS.MONEY),
+                              skillCost.ip
+                            )
                           )
                         ) {
                           withdrawCase();
@@ -626,7 +629,7 @@ export default function CourtroomScreen() {
                     <div className="absolute inset-x-0 bottom-[-16px] h-48 rounded-full bg-red-900 shadow-[0_15px_40px_rgba(0,0,0,0.6)]" />
                     <div className="absolute inset-0 rounded-full bg-gradient-to-b from-red-500 to-red-700 border-b-[10px] border-red-800 flex items-center justify-center group-hover:from-red-400 group-hover:to-red-600 shadow-inner overflow-hidden transition-all duration-300">
                       <span className="text-white font-black text-2xl tracking-tighter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] italic text-center leading-tight whitespace-pre-line group-hover:scale-110 transition-transform">
-                        {showAttorneySkill ? '逆轉裁判' : 'EXIT'}
+                        {showAttorneySkill ? SYSTEM_STRINGS.COURT.ACTIONS.REVERSE : SYSTEM_STRINGS.COURT.ACTIONS.EXIT}
                       </span>
                       <div className="absolute top-2 left-1/4 w-1/2 h-1/4 bg-white/20 rounded-full blur-md" />
                     </div>
@@ -637,21 +640,21 @@ export default function CourtroomScreen() {
                 {showAttorneySkill && (
                   <button
                     onClick={() => {
-                      if (window.confirm('確定要放棄逆轉機會，直接接受法院判決嗎？')) {
+                      if (window.confirm(SYSTEM_STRINGS.COURT.ALERTS.GIVE_UP_PROMPT)) {
                         resolveTrial();
                         setShowAttorneySkill(false);
                       }
                     }}
                     className="mt-12 px-6 py-2 border border-slate-700 hover:bg-slate-800 text-slate-500 font-bold uppercase tracking-widest text-xs rounded transition-all active:scale-95"
                   >
-                    放棄逆轉 / 接受判決
+                    {SYSTEM_STRINGS.COURT.ACTIONS.GIVE_UP_REVERSE}
                   </button>
                 )}
               </div>
 
               <div className="flex flex-col items-center gap-3 mt-4 animate-pulse">
                 <div className="text-red-500 font-black tracking-[0.4em] text-xl uppercase italic">
-                  {showAttorneySkill ? '發動逆轉，扭轉乾坤' : '按下，離開法庭'}
+                  {showAttorneySkill ? SYSTEM_STRINGS.COURT.ALERTS.REVERSE_HINT : SYSTEM_STRINGS.COURT.ALERTS.EXIT_HINT}
                 </div>
                 <div className="flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-red-500/40" />
@@ -665,7 +668,7 @@ export default function CourtroomScreen() {
             <div className="w-full h-full mt-[-80px]">
               {!showAttorneySkill && (
                 <IndictmentBook
-                  caseTitle="裁決判決書"
+                  caseTitle={SYSTEM_STRINGS.COURT.DOCUMENTS.VERDICT}
                   pages={(() => {
                     const pages: string[] = [];
                     const lines = fullText
@@ -674,7 +677,7 @@ export default function CourtroomScreen() {
                       .filter((l) => l.length > 0);
                     let currentP = '';
                     lines.forEach((line) => {
-                      if (line.includes('【法制教育】') || line.includes('【裁罰結果】')) {
+                      if (line.includes(SYSTEM_STRINGS.COURT.DOCUMENTS.EDU_TITLE) || line.includes(SYSTEM_STRINGS.COURT.DOCUMENTS.PUNISH_TITLE)) {
                         if (currentP.length > 0) pages.push(currentP);
                         currentP = line + '\n';
                       } else {

@@ -30,7 +30,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 80,
       height: 6,
       fontSize: 36,
-      label: '創業冒險',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.TITLE,
     },
     header_subtitle: {
       top: 33,
@@ -38,7 +38,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 80,
       height: 4,
       fontSize: 28,
-      label: '現代法律篇',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.SUBTITLE,
     },
 
     // Website Mode 原子
@@ -56,7 +56,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 5,
       fontSize: 24,
-      label: '網站模式',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.WEBSITE_TITLE,
     },
     wb_sub: {
       top: 50.8,
@@ -81,7 +81,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       height: 4.4,
       radius: 999,
       fontSize: 12,
-      label: '開始遊戲',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.START_BTN,
     },
     wb_icon: {
       top: 45,
@@ -107,7 +107,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       width: 60,
       height: 5,
       fontSize: 24,
-      label: 'AI 模式',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.AI_TITLE,
     },
     ai_sub: {
       top: 79.7,
@@ -132,7 +132,7 @@ export default function ModeSelectScreen({ onStartGame }: ModeSelectScreenProps)
       height: 4,
       radius: 999,
       fontSize: 12,
-      label: '開始遊戲',
+      label: SYSTEM_STRINGS.SETUP.MODE_SELECT.START_BTN,
     },
     ai_icon: {
       top: 74,

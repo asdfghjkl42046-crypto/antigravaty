@@ -52,8 +52,8 @@ export default function BetResolutionOverlay({ bets, onClose }: BetResolutionOve
           <div className="p-3 bg-amber-500/20 rounded-2xl mb-4">
             <Coins className="w-10 h-10 text-amber-500" />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-wider uppercase">{SYSTEM_STRINGS.RESOLUTION.BETTING_TITLE}</h2>
-          <p className="text-[10px] font-bold text-amber-500/60 tracking-[0.3em] uppercase mt-1">押注收益清單</p>
+          <h2 className="text-2xl font-black text-white tracking-wider uppercase">{SYSTEM_STRINGS.RESOLUTION.BET_TITLE}</h2>
+          <p className="text-[10px] font-bold text-amber-500/60 tracking-[0.3em] uppercase mt-1">{SYSTEM_STRINGS.RESOLUTION.BET_RESULT_SUBTITLE}</p>
         </div>
 
         <div className="space-y-3 mb-8">

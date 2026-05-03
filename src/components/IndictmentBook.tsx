@@ -100,11 +100,11 @@ const CountdownClock: React.FC<{
           className="group relative px-8 py-4 bg-red-600 hover:bg-red-500 text-white rounded-lg shadow-2xl transition-all active:scale-95 flex items-center gap-3 overflow-hidden border border-white/20"
         >
           <RotateCcw size={20} className="animate-spin-slow" />
-          <span className="font-black tracking-[0.2em] text-lg italic">非常上訴</span>
+          <span className="font-black tracking-[0.2em] text-lg italic">{SYSTEM_STRINGS.COURT.ACTIONS.EXTRA_APPEAL}</span>
         </button>
       )}
       <p className="text-[10px] text-red-600/40 font-bold tracking-widest uppercase animate-pulse">
-        最後決斷時間
+        {SYSTEM_STRINGS.COURT.ACTIONS.COUNTDOWN_PREFIX}
       </p>
     </div>
   );
@@ -388,7 +388,7 @@ export default function IndictmentBook({
                 <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
                   <div className="flex items-center justify-between border-b border-slate-900/10 pb-4 mb-8">
                     <span className="text-[10px] font-black text-slate-900/30 uppercase tracking-[0.3em]">
-                      起訴紀錄 - 卷次 {idx + 1}
+                      {SYSTEM_STRINGS.DECORATION.CONFIDENTIAL_DOC} - {SYSTEM_STRINGS.DECORATION.SCAN_ID} {idx + 1}
                     </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-slate-900/20" />
                   </div>
@@ -409,7 +409,7 @@ export default function IndictmentBook({
                   <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-slate-900/20 italic tracking-widest">
                     <span>LEGAL AUTHORITY ARCHIVE</span>
                     <span>
-                      分頁 {idx + 1} / {totalPages}
+                      {SYSTEM_STRINGS.DECORATION.NEXT_PAGE.split('下')[0]} {idx + 1} / {totalPages}
                     </span>
                   </div>
                 </div>
@@ -454,7 +454,7 @@ export default function IndictmentBook({
                 </h2>
                 <div className="mt-4 h-px w-12 bg-white/10 mx-auto" />
                 <p className="text-[10px] font-bold text-white/30 tracking-[0.5em] uppercase mt-4">
-                  起訴卷宗內容
+                  {SYSTEM_STRINGS.DECORATION.CONFIDENTIAL_DOC}內容
                 </p>
               </div>
             </div>

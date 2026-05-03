@@ -35,8 +35,8 @@ export default function PlayerRegistrationScreen({
   onBack,
 }: PlayerRegistrationScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentName, setCurrentName] = useState('安提格拉維提 財團');
-  const [currentOwnerName, setCurrentOwnerName] = useState('Arch Architect');
+  const [currentName, setCurrentName] = useState(SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME);
+  const [currentOwnerName, setCurrentOwnerName] = useState(SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME);
   const [selectedPath, setSelectedPath] = useState<StartPath | null>(null);
   const [isBookFocused, setIsBookFocused] = useState(false); // 決定書是否放大可翻動
   const [showBribeModal, setShowBribeModal] = useState(false);
@@ -53,35 +53,35 @@ export default function PlayerRegistrationScreen({
   }[] = [
     {
       id: 'antique',
-      name: '傳世古董',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.antique,
       icon: Shield,
       color: 'text-amber-400',
       glow: 'rgba(251, 191, 36, 0.4)',
     },
     {
       id: 'crypto',
-      name: '虛擬貨幣',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.crypto,
       icon: Wallet,
       color: 'text-cyan-400',
       glow: 'rgba(34, 211, 238, 0.4)',
     },
     {
       id: 'art',
-      name: '名家油畫',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.art,
       icon: Gem,
       color: 'text-fuchsia-400',
       glow: 'rgba(217, 70, 239, 0.4)',
     },
     {
       id: 'wine',
-      name: '特供紅酒',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.wine,
       icon: Wine,
       color: 'text-rose-400',
       glow: 'rgba(244, 63, 94, 0.4)',
     },
     {
       id: 'intel',
-      name: '機密情報',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.intel,
       icon: Award,
       color: 'text-emerald-400',
       glow: 'rgba(16, 185, 129, 0.4)',
@@ -126,8 +126,8 @@ export default function PlayerRegistrationScreen({
     }
 
     onConfirm({
-      name: currentName.trim() || `企業 ${playerIndex}`,
-      ownerName: currentOwnerName.trim() || `業主 ${playerIndex}`,
+      name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP(playerIndex),
+      ownerName: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER(playerIndex),
       path: selectedPath,
       bribeItem: selectedBribe || undefined,
       avatarId: selectedAvatarId,
@@ -144,8 +144,8 @@ export default function PlayerRegistrationScreen({
     if (!selectedBribe) return;
 
     onConfirm({
-      name: currentName.trim() || `企業 ${playerIndex}`,
-      ownerName: currentOwnerName.trim() || `業主 ${playerIndex}`,
+      name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP(playerIndex),
+      ownerName: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER(playerIndex),
       path: selectedPath!,
       bribeItem: selectedBribe,
       avatarId: selectedAvatarId,
@@ -164,7 +164,7 @@ export default function PlayerRegistrationScreen({
 
       {/* 玩家標記 - 增加 mt-safe 避開 iOS 瀏海 */}
       <div className="absolute top-6 right-6 mt-safe px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold tracking-[0.2em] z-50 text-[10px] ui-fade-in shadow-xl backdrop-blur-md">
-        玩家 {playerIndex} / {totalPlayers}
+        {SYSTEM_STRINGS.REGISTRATION.PLAYER_MARK(playerIndex, totalPlayers)}
       </div>
 
       <div
@@ -182,7 +182,7 @@ export default function PlayerRegistrationScreen({
                   type="text"
                   value={currentOwnerName}
                   onChange={(e) => setCurrentOwnerName(e.target.value)}
-                  placeholder="請輸入業主姓名"
+                  placeholder={SYSTEM_STRINGS.REGISTRATION.OWNER_PLACEHOLDER}
                   className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl"
                 />
                 <Feather className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-blue-500/50 transition-colors" />
@@ -192,7 +192,7 @@ export default function PlayerRegistrationScreen({
                   type="text"
                   value={currentName}
                   onChange={(e) => setCurrentName(e.target.value)}
-                  placeholder="請輸入企業名稱"
+                  placeholder={SYSTEM_STRINGS.REGISTRATION.CORP_PLACEHOLDER}
                   className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl"
                 />
                 <Briefcase className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-700 group-focus-within:text-blue-500/50 transition-colors" />
@@ -308,7 +308,7 @@ export default function PlayerRegistrationScreen({
                 className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
               >
                 <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                翻閱卷宗檔案
+                {SYSTEM_STRINGS.REGISTRATION.OPEN_BOOK_BTN}
               </button>
             </div>
           </div>
@@ -321,7 +321,7 @@ export default function PlayerRegistrationScreen({
                 className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900/60 border border-white/10 text-white/70 hover:text-white hover:bg-slate-800 transition-all active:scale-95 group backdrop-blur-xl shadow-2xl"
               >
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
+                <span className="text-xs font-black tracking-[0.3em] uppercase">{SYSTEM_STRINGS.REGISTRATION.BACK_TO_SELECT}</span>
               </button>
             </div>
             <div className="w-full flex justify-center scale-90 transition-transform duration-700">
@@ -336,7 +336,7 @@ export default function PlayerRegistrationScreen({
                 onClick={handleConfirmRegistration}
                 className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-black px-12 py-4 rounded-xl tracking-[0.8em] border border-blue-500/30 shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-all active:scale-95 flex items-center gap-2 group backdrop-blur-md"
               >
-                確認
+                {SYSTEM_STRINGS.REGISTRATION.CONFIRM_BTN}
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -366,11 +366,11 @@ export default function PlayerRegistrationScreen({
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1.5 h-1.5 bg-cyan-500 animate-pulse" />
                 <span className="text-[10px] font-black text-cyan-500/60 uppercase tracking-[0.4em]">
-                  CONFIDENTIAL_REGISTER_V4
+                  {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.VERSION}
                 </span>
               </div>
               <h3 className="text-2xl font-black tracking-widest text-white uppercase mb-2">
-                機密賄賂清單
+                {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.TITLE}
               </h3>
               <div className="w-12 h-[1px] bg-white/10" />
             </div>
@@ -398,7 +398,7 @@ export default function PlayerRegistrationScreen({
                     </span>
                     <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
                       <span className="w-1 h-1 rounded-full bg-slate-700" />
-                      VALUATION: CLASSIFIED
+                      {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.VALUATION}
                     </span>
                   </div>
 
@@ -416,7 +416,7 @@ export default function PlayerRegistrationScreen({
                 onClick={handleFinalConfirm}
                 className="w-full py-5 bg-cyan-600/10 hover:bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black rounded-sm tracking-[0.6em] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-all text-xs uppercase flex items-center justify-center gap-2"
               >
-                <span>確認開始博弈</span>
+                <span>{SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.START_GAME}</span>
                 <ChevronRight size={16} />
               </button>
             </div>

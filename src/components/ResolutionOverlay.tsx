@@ -274,7 +274,7 @@ export default function ResolutionOverlay({
                   )}
                   {item.trust !== undefined && item.trust !== 0 && (
                     <span className="text-xs font-black text-blue-300">
-                      {formatValue(-item.trust, SYSTEM_STRINGS.UNITS.MONEY, true)} (轉移海外)
+                      {formatValue(-item.trust, SYSTEM_STRINGS.UNITS.MONEY, true)} {SYSTEM_STRINGS.RESOLUTION.OVERSEAS_TRANSFER}
                     </span>
                   )}
                 </div>

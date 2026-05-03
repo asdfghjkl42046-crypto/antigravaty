@@ -6,6 +6,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ShieldCheck, ArrowLeft, RefreshCw, LogOut, Play, QrCode, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 interface LobbyScreenProps {
   onBack: () => void;
@@ -52,7 +53,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     const key = generateChaoticKey();
     
     if (!supabase) {
-      alert('系統錯誤：尚未配置 Supabase 環境變數。請在 Vercel 設定中新增金鑰。');
+      alert(SYSTEM_STRINGS.LOBBY.ERRORS.SUPABASE_MISSING);
       setIsGenerating(false);
       return;
     }
@@ -87,7 +88,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setView('host');
     } catch (err) {
       console.error('Failed to create room:', err);
-      alert('無法建立房間，請檢查網路或金鑰設定');
+      alert(SYSTEM_STRINGS.LOBBY.ERRORS.INSERT_FAIL);
     } finally {
       setIsGenerating(false);
     }
@@ -136,7 +137,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     setRoomKey(key);
 
     if (!supabase) {
-      alert('系統錯誤：環境變數遺失，無法連線至雲端主機。');
+      alert(SYSTEM_STRINGS.LOBBY.ERRORS.SUPABASE_MISSING);
       setView('selection');
       return;
     }
@@ -170,7 +171,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       setView('guest_waiting');
     } catch (err) {
       console.error('Join failed:', err);
-      alert('加入失敗：無效的房間密鑰');
+      alert(SYSTEM_STRINGS.LOBBY.ERRORS.ROOM_NOT_FOUND);
       setView('selection');
     }
   };
@@ -196,7 +197,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
       if (data) {
         const formatted = (data as PlayerRecord[]).map((p: PlayerRecord) => ({
           id: p.id,
-          name: p.id === currentMyPlayerId ? '(自己)' : '(他人)',
+          name: p.id === currentMyPlayerId ? SYSTEM_STRINGS.LOBBY.SELF_MARK : SYSTEM_STRINGS.LOBBY.OTHER_MARK,
         }));
         setParticipants(formatted);
       }
@@ -301,7 +302,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               Multiplayer <span className="text-blue-500 text-glow">Lobby</span>
             </h2>
             <p className="text-slate-500 text-center mb-12 text-sm leading-relaxed tracking-wider">
-              建立全球唯一的加密房間，與好友展開實時數據同步對局。
+              {SYSTEM_STRINGS.LOBBY.DESC}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
@@ -315,7 +316,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                 ) : (
                   <ShieldCheck className="w-8 h-8 text-blue-400 group-hover:scale-110 transition-transform" />
                 )}
-                <span className="mt-4 font-black tracking-widest text-sm uppercase">建立房間</span>
+                <span className="mt-4 font-black tracking-widest text-sm uppercase">{SYSTEM_STRINGS.LOBBY.CREATE_ROOM}</span>
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </button>
 
@@ -324,7 +325,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                 className="group relative p-8 rounded-3xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all flex flex-col items-center overflow-hidden"
               >
                 <QrCode className="w-8 h-8 text-emerald-400 group-hover:scale-110 transition-transform" />
-                <span className="mt-4 font-black tracking-widest text-sm uppercase">加入房間</span>
+                <span className="mt-4 font-black tracking-widest text-sm uppercase">{SYSTEM_STRINGS.LOBBY.JOIN_ROOM}</span>
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-emerald-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </button>
             </div>
@@ -343,11 +344,11 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               <div className="inline-flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
                 <span className="text-[10px] font-black text-blue-400 tracking-[0.5em] uppercase">
-                  加密房間已開啟
+                  {SYSTEM_STRINGS.LOBBY.ROOM_OPENED}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-widest uppercase">
-                等待玩家加入
+                {SYSTEM_STRINGS.LOBBY.WAITING_JOIN.split('...')[0]}
               </h2>
             </div>
 
@@ -369,7 +370,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             {/* 玩家列表 */}
             <div className="w-full max-w-xs space-y-3 mb-12">
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">
-                目前玩家 ({participants.length} / 4)
+                {SYSTEM_STRINGS.LOBBY.CURRENT_PLAYERS(participants.length)}
               </h4>
               {participants.map((p, i) => (
                 <div
@@ -389,7 +390,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                 className="flex items-center gap-2 px-8 py-4 rounded-full border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs font-black uppercase tracking-widest"
               >
                 <LogOut size={16} />
-                關閉房間
+                {SYSTEM_STRINGS.LOBBY.CLOSE_ROOM}
               </button>
               <button
                 onClick={handleHostStartGame}
@@ -397,7 +398,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                 className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all active:scale-95 text-xs font-black uppercase tracking-widest disabled:opacity-30 disabled:pointer-events-none"
               >
                 <Play size={16} />
-                開始遊戲
+                {SYSTEM_STRINGS.SETUP.MODE_SELECT.START_BTN}
               </button>
             </div>
           </motion.div>
@@ -413,10 +414,10 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
           >
             <div className="mb-8 text-center">
               <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
-                加入加密房間
+                {SYSTEM_STRINGS.LOBBY.JOIN_ROOM}
               </h2>
               <p className="text-slate-500 text-[10px] tracking-widest uppercase font-bold">
-                請掃描房長手機螢幕上的 QR Code
+                {SYSTEM_STRINGS.LOBBY.GUEST_GUIDE}
               </p>
             </div>
 
@@ -462,7 +463,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
                     <ShieldCheck className="text-emerald-600 w-10 h-10" />
                   </div>
                   <span className="text-black font-black text-xs tracking-[0.3em] uppercase">
-                    識別成功
+                    {SYSTEM_STRINGS.LOBBY.SUCCESS_JOIN}
                   </span>
                 </div>
               )}
@@ -490,11 +491,11 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               <div className="inline-flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                 <span className="text-[10px] font-black text-emerald-400 tracking-[0.5em] uppercase">
-                  連線已建立
+                  {SYSTEM_STRINGS.LOBBY.CONNECTED}
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-widest uppercase">
-                等待遊戲開始
+                {SYSTEM_STRINGS.LOBBY.GUEST_WAITING_MSG}
               </h2>
             </div>
 
@@ -507,7 +508,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
             {/* 玩家列表 */}
             <div className="w-full max-w-xs space-y-3 mb-16">
               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">
-                目前玩家 ({participants.length} / 4)
+                {SYSTEM_STRINGS.LOBBY.CURRENT_PLAYERS(participants.length)}
               </h4>
               {participants.map((p, i) => (
                 <div
@@ -531,7 +532,7 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
               className="flex items-center gap-3 px-10 py-4 rounded-full border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-[10px] font-black uppercase tracking-[0.3em]"
             >
               <LogOut size={16} />
-              退出房間
+              {SYSTEM_STRINGS.LOBBY.EXIT_ROOM}
             </button>
           </motion.div>
         )}

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, User, Users, Settings2, Eye } from 'lucide-react';
 import gsap from 'gsap';
 import AlignmentTool, { AlignmentElement } from './AlignmentTool';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 interface SetupScreenProps {
   onBack: () => void;
@@ -23,7 +24,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
       width: 80,
       height: 6,
       fontSize: 32,
-      label: '選擇參與人數',
+      label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.TITLE,
     },
     header_subtitle: {
       top: 21,
@@ -31,31 +32,31 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
       width: 80,
       height: 4,
       fontSize: 14,
-      label: '這是一場關於法律、權力與金錢的較量\n請選擇參與這場博弈的人數。',
+      label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.SUBTITLE,
     },
 
     // P1
     p1_box: { top: 30, left: 20, width: 30, height: 19, radius: 30, label: 'P1 容器' },
     p1_num: { top: 35, left: 32.5, width: 5, height: 4, fontSize: 32, label: '1' },
-    p1_label: { top: 43, left: 30, width: 10, height: 2, fontSize: 9, label: 'PLAYER' },
+    p1_label: { top: 43, left: 30, width: 10, height: 2, fontSize: 9, label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.UNIT_SINGLE },
     p1_icon: { top: 40, left: 33, width: 4, height: 3, fontSize: 16, label: '小人' },
 
     // P2
     p2_box: { top: 30, left: 53, width: 30, height: 19, radius: 30, label: 'P2 容器' },
     p2_num: { top: 35, left: 65.5, width: 5, height: 4, fontSize: 32, label: '2' },
-    p2_label: { top: 43, left: 63, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p2_label: { top: 43, left: 63, width: 10, height: 2, fontSize: 9, label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.UNIT_MULTI },
     p2_icon: { top: 40, left: 66, width: 4, height: 3, fontSize: 16, label: '小人' },
 
     // P3
     p3_box: { top: 50, left: 20, width: 30, height: 19, radius: 30, label: 'P3 容器' },
     p3_num: { top: 55, left: 32.5, width: 5, height: 4, fontSize: 32, label: '3' },
-    p3_label: { top: 63, left: 30, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p3_label: { top: 63, left: 30, width: 10, height: 2, fontSize: 9, label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.UNIT_MULTI },
     p3_icon: { top: 60, left: 33, width: 4, height: 3, fontSize: 16, label: '小人' },
 
     // P4
     p4_box: { top: 50, left: 53, width: 30, height: 19, radius: 30, label: 'P4 容器' },
     p4_num: { top: 55, left: 65.5, width: 5, height: 4, fontSize: 32, label: '4' },
-    p4_label: { top: 63, left: 63, width: 10, height: 2, fontSize: 9, label: 'PLAYERS' },
+    p4_label: { top: 63, left: 63, width: 10, height: 2, fontSize: 9, label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.UNIT_MULTI },
     p4_icon: { top: 60, left: 66, width: 4, height: 3, fontSize: 16, label: '小人' },
 
     confirm: {
@@ -65,7 +66,7 @@ export default function SetupScreen({ onBack, onConfirm }: SetupScreenProps) {
       height: 8,
       radius: 999,
       fontSize: 16,
-      label: '確認人數並開始冒險',
+      label: SYSTEM_STRINGS.SETUP.PLAYER_COUNT.CONFIRM_BTN,
     },
   });
 

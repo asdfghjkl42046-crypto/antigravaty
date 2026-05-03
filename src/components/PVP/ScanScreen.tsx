@@ -21,12 +21,17 @@ interface ScanScreenProps {
   onNavigate?: (tab: 'home' | 'shop') => void;
 }
 
-export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreenProps): React.ReactElement {
+export default function ScanScreen({
+  onBack,
+  onEndTurn,
+  onNavigate,
+}: ScanScreenProps): React.ReactElement {
   const { processScan, players, currentPlayerIndex } = useGameStore();
 
-  const randomLogId = React.useMemo(() => 
-    Math.random().toString(36).substring(7).toUpperCase(), 
-  []);
+  const randomLogId = React.useMemo(
+    () => Math.random().toString(36).substring(7).toUpperCase(),
+    []
+  );
 
   const currentPlayer = players[currentPlayerIndex];
   const nextPlayerIndex = (currentPlayerIndex + 1) % Math.max(1, players.length);
@@ -48,10 +53,13 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
   const getAggregatedTags = (playerIdx: number | null) => {
     if (playerIdx === null || !players[playerIdx]) return [];
     const player = players[playerIdx];
-    const tagCounts = player.tags.reduce((acc: Record<string, number>, t: Tag) => {
-      acc[t.text] = (acc[t.text] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const tagCounts = player.tags.reduce(
+      (acc: Record<string, number>, t: Tag) => {
+        acc[t.text] = (acc[t.text] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
     return Object.entries(tagCounts).map(([text, count]) => ({ text, count }));
   };
 
@@ -145,6 +153,8 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
     const result = await processScan(normalizedCode);
     if (result.success) {
       setManualCode('');
+      setStatus({ type: 'success', msg: SYSTEM_STRINGS.SCAN.SUCCESS });
+      setTimeout(() => setStatus({ type: 'idle', msg: '' }), 2000);
       if (result.type === 'talent') onNavigate?.('shop');
     } else {
       setStatus({ type: 'error', msg: result.message });
@@ -158,10 +168,16 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
 
       {/* 企業資源與數據看板 (原裝 UI 重用) */}
       <div className="w-full flex-shrink-0 z-[100] relative mb-1 mt-4">
-        {currentPlayer && <PlayerCard player={currentPlayer} isActive={true} onShowTags={() => {
-          setTagViewPlayerIdx(currentPlayerIndex);
-          setTagViewItemIdx(0);
-        }} />}
+        {currentPlayer && (
+          <PlayerCard
+            player={currentPlayer}
+            isActive={true}
+            onShowTags={() => {
+              setTagViewPlayerIdx(currentPlayerIndex);
+              setTagViewItemIdx(0);
+            }}
+          />
+        )}
       </div>
 
       {/* ⚠️ 前科記錄彈窗 (Sequential View) */}
@@ -178,25 +194,33 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
               <AlertTriangle className="w-10 h-10 text-black" strokeWidth={2.5} />
             </div>
 
-            <h2 className="text-xl font-black text-white mb-2 tracking-widest uppercase">犯罪前科紀錄</h2>
+            <h2 className="text-xl font-black text-white mb-2 tracking-widest uppercase">
+              {SYSTEM_STRINGS.DASHBOARD.TAG_RECORD_TITLE}
+            </h2>
             <p className="text-[10px] font-bold text-orange-500/70 mb-8 tracking-[0.2em] uppercase">
-              {players[tagViewPlayerIdx]?.name} 的檔案庫
+              {players[tagViewPlayerIdx]?.name} {SYSTEM_STRINGS.DECORATION.RAP_SHEET}
             </p>
 
             <div className="w-full mb-10 min-h-[120px] flex items-center justify-center">
               {currentViewTags.length > 0 ? (
-                <div key={tagViewItemIdx} className="w-full bg-orange-950/20 border border-orange-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all animate-in zoom-in-95 duration-300">
+                <div
+                  key={tagViewItemIdx}
+                  className="w-full bg-orange-950/20 border border-orange-500/30 rounded-2xl p-6 flex flex-col items-center text-center transition-all animate-in zoom-in-95 duration-300"
+                >
                   <span className="text-2xl font-black text-white tracking-widest mb-2 uppercase">
                     {currentViewTags[tagViewItemIdx].text}
                   </span>
                   {currentViewTags[tagViewItemIdx].count > 1 && (
                     <span className="bg-orange-500 text-black px-3 py-0.5 rounded-full text-[10px] font-black animate-pulse">
-                      {SYSTEM_STRINGS.DECORATION.RECIDIVISM_MARK} x{currentViewTags[tagViewItemIdx].count}
+                      {SYSTEM_STRINGS.DECORATION.RECIDIVISM_MARK} x
+                      {currentViewTags[tagViewItemIdx].count}
                     </span>
                   )}
                 </div>
               ) : (
-                <div className="text-slate-500 font-bold italic text-sm">{SYSTEM_STRINGS.SCAN.NO_RECORDS}</div>
+                <div className="text-slate-500 font-bold italic text-sm">
+                  {SYSTEM_STRINGS.SCAN.NO_RECORDS}
+                </div>
               )}
             </div>
 
@@ -211,7 +235,11 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
               }}
               className="w-full bg-orange-600 hover:bg-orange-500 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-[0_4px_15px_rgba(154,52,18,0.3)] flex items-center justify-center space-x-2 text-lg"
             >
-              <span>{tagViewItemIdx < currentViewTags.length - 1 ? SYSTEM_STRINGS.DECORATION.NEXT_RECORD : SYSTEM_STRINGS.DECORATION.CLOSE_DOSSIER}</span>
+              <span>
+                {tagViewItemIdx < currentViewTags.length - 1
+                  ? SYSTEM_STRINGS.DECORATION.NEXT_RECORD
+                  : SYSTEM_STRINGS.DECORATION.CLOSE_DOSSIER}
+              </span>
               <ChevronRight size={20} className="opacity-50" />
             </button>
           </div>
@@ -222,10 +250,20 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
         <div className="relative w-64 h-64 border-2 border-slate-800 rounded-[32px] overflow-hidden bg-black/40 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           <div id="reader" className="w-full h-full object-cover" />
 
+          {status.type === 'success' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/10 backdrop-blur-sm z-50">
+              <span className="text-emerald-400 font-black tracking-widest animate-pulse">
+                {SYSTEM_STRINGS.SCAN.SUCCESS}
+              </span>
+            </div>
+          )}
+
           {!isCameraActive && (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/80 backdrop-blur-sm">
               <ShieldAlert className="w-12 h-12 text-slate-600 mb-4 opacity-50" />
-              <p className="text-xs font-bold text-slate-400 mb-6">{SYSTEM_STRINGS.SCAN.CAMERA_PROMPT}</p>
+              <p className="text-xs font-bold text-slate-400 mb-6">
+                {SYSTEM_STRINGS.SCAN.CAMERA_PROMPT}
+              </p>
               <button
                 onClick={startScanning}
                 className="px-6 py-2.5 bg-amber-500 text-black font-black text-xs rounded-full shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:scale-105 active:scale-95 transition-all"
@@ -283,7 +321,10 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
             >
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-xs font-black text-red-100 uppercase tracking-widest whitespace-nowrap">
-                {SYSTEM_STRINGS.SCAN.END_TURN_PROMPT(currentPlayer?.name || '', nextPlayer?.name || '')}
+                {SYSTEM_STRINGS.SCAN.END_TURN_PROMPT(
+                  currentPlayer?.name || '',
+                  nextPlayer?.name || ''
+                )}
               </span>
               <ChevronRight
                 size={16}
@@ -294,7 +335,9 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes scan-line {
           0% {
             top: 0%;
@@ -340,7 +383,9 @@ export default function ScanScreen({ onBack, onEndTurn, onNavigate }: ScanScreen
           top: 0 !important;
           left: 0 !important;
         }
-      ` }} />
+      `,
+        }}
+      />
     </div>
   );
 }

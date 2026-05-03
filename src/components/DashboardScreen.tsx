@@ -316,7 +316,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
           </div>
           <div>
             <p className="text-[8px] font-bold text-slate-400 tracking-widest leading-none mb-1">
-              第 {String(turn).padStart(2, '0')}/50 輪
+              {SYSTEM_STRINGS.DASHBOARD.TURN_INFO(turn)}
             </p>
             <h1 className="text-lg font-black tracking-tight bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-transparent filter drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">
               {SYSTEM_STRINGS.DECORATION.DASHBOARD_TITLE}
@@ -327,7 +327,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
         {judgeInfo && (
           <div className="text-right">
             <p className="text-[8px] font-bold text-amber-500/80 uppercase tracking-tighter leading-none mb-1.5">
-              當前法官
+              {SYSTEM_STRINGS.DASHBOARD.CURRENT_JUDGE}
             </p>
             <p className="text-sm font-black text-amber-400 tracking-tight filter drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]">
               {judgeInfo.judgeName}
@@ -354,7 +354,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 </span>
               </div>
               <h2 className="text-3xl font-serif font-black text-[#2a1b11] leading-none tracking-tighter">
-                獲得開局加成
+                {SYSTEM_STRINGS.DASHBOARD.BONUS_TITLE}
               </h2>
             </div>
 
@@ -420,7 +420,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
                 </span>
               </div>
               <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-2">
-                犯罪前科紀錄
+                {SYSTEM_STRINGS.DASHBOARD.TAG_RECORD_TITLE}
               </h2>
               <p className="text-[11px] font-bold text-slate-500 tracking-wider">
                 {SYSTEM_STRINGS.DECORATION.SUBJECT}: {players[tagViewPlayerIdx]?.name.toUpperCase()}
@@ -543,16 +543,16 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[400px] h-16 bg-slate-950/80 backdrop-blur-2xl border border-white/10 rounded-full flex items-center justify-around px-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[90]">
         <button
           onClick={() => setActiveTab('home')}
-          title="企業總部"
+          title={SYSTEM_STRINGS.DASHBOARD.TABS.HOME}
           className={`flex flex-col items-center justify-center space-y-1 transition-all ${activeTab === 'home' ? 'text-amber-400 scale-110' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <Home size={20} />
-          <span className="text-[9px] font-black uppercase tracking-tighter">企業總部</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter">{SYSTEM_STRINGS.DASHBOARD.TABS.HOME}</span>
         </button>
 
         <button
           onClick={() => setActiveTab('scan')}
-          title="掃描卡片"
+          title={SYSTEM_STRINGS.DASHBOARD.TABS.SCAN}
           className="relative -top-4 w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center text-black shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95 transition-all"
         >
           <Scan size={28} />
@@ -560,11 +560,11 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
 
         <button
           onClick={() => setActiveTab('shop')}
-          title="黑市商店"
+          title={SYSTEM_STRINGS.DASHBOARD.TABS.SHOP}
           className={`flex flex-col items-center justify-center space-y-1 transition-all ${activeTab === 'shop' ? 'text-amber-400 scale-110' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <ShoppingBag size={20} />
-          <span className="text-[9px] font-black uppercase tracking-tighter">黑市</span>
+          <span className="text-[9px] font-black uppercase tracking-tighter">{SYSTEM_STRINGS.DASHBOARD.TABS.SHOP}</span>
         </button>
       </div>
 

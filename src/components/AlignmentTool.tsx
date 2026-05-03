@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Save, Move, Maximize, CircleDashed, Type, Undo2, Trash2 } from 'lucide-react';
+import { SYSTEM_STRINGS } from '@/data/SystemStrings';
 
 export interface AlignmentElement {
   top: number;
@@ -354,7 +355,7 @@ export default function AlignmentTool({
               {/* 文字內容修改 */}
               <div className="pt-2 border-t border-white/5">
                 <label className="text-[7px] text-blue-400 font-bold mb-1 block">
-                  文字內容 (LABEL)
+                  {SYSTEM_STRINGS.ALIGNMENT.LABEL_HINT}
                 </label>
                 <input
                   type="text"
@@ -363,7 +364,7 @@ export default function AlignmentTool({
                   onBlur={() => setIsTyping(false)}
                   onChange={(e) => updateElement(selectedId!, { label: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-blue-500/50 outline-none"
-                  placeholder="輸入新文字..."
+                  placeholder={SYSTEM_STRINGS.ALIGNMENT.INPUT_PLACEHOLDER}
                 />
               </div>
 
@@ -484,7 +485,7 @@ export default function AlignmentTool({
               className="w-full bg-[#22D3EE] text-black font-black py-3 rounded-xl text-xs flex items-center justify-center space-x-2 active:scale-95 transition-all shadow-lg"
             >
               <Save className="w-4 h-4" />
-              <span>匯出佈局 JSON</span>
+              <span>{SYSTEM_STRINGS.ALIGNMENT.EXPORT}</span>
             </button>
 
             {jsonOutput && (
@@ -500,16 +501,16 @@ export default function AlignmentTool({
                   onClick={() => setJsonOutput(null)}
                   className="w-full border border-white/10 text-slate-400 text-[10px] py-2 rounded-lg hover:bg-white/5"
                 >
-                  隱藏代碼
+                  {SYSTEM_STRINGS.ALIGNMENT.HIDE}
                 </button>
               </div>
             )}
 
             <div className="grid grid-cols-1 gap-1">
               <p className="text-[8px] text-slate-500 text-center">
-                Ctrl+Z: 撤銷 • Backspace: 刪除元件
+                {SYSTEM_STRINGS.ALIGNMENT.UNDO_HINT}
               </p>
-              <p className="text-[8px] text-slate-500 text-center">Alt+方向鍵: 微調大小</p>
+              <p className="text-[8px] text-slate-500 text-center">{SYSTEM_STRINGS.ALIGNMENT.RESIZE_HINT}</p>
             </div>
           </div>
         </div>

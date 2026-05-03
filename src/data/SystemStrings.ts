@@ -46,14 +46,13 @@ export const SYSTEM_STRINGS = {
   get UNITS() {
     return {
       MONEY: '萬',
-      IP: ` ${SYSTEM_STRINGS.UI_LABELS.IP}`,
-      RP: ` ${SYSTEM_STRINGS.UI_LABELS.RP}`,
+      IP: ` ${this.UI_LABELS.IP}`,
+      RP: ` ${this.UI_LABELS.RP}`,
       BM: ' 件',
       LEVEL: ' 級',
     };
   },
 
-  // 結算與行動文案
   ACTION: {
     DECLARATION_LABEL: '安全申報',
     SKIP_DECLARATION_LABEL: '已略過申報',
@@ -62,20 +61,7 @@ export const SYSTEM_STRINGS = {
     SUCCESS_MSG: (owner: string, company: string, summary: string) =>
       `因 ${owner} 的選擇，${company}${summary}`,
   },
-  RESOLUTION: {
-    SUCCESS_TITLE: '計畫執行成功',
-    FAILURE_TITLE: '計畫受阻',
-    PASSIVE_TITLE: '回合結算報表',
-    PASSIVE_MSG: '您的人才已完成本回合的自動化作業。',
-    DEFENDANT_WIN: '法庭判決勝訴',
-    DEFENDANT_LOSE: '法庭判決敗訴',
-    WIN_MSG: '您已成功洗清罪嫌。',
-    LOSE_MSG: '法庭已正式執行裁罰。',
-    BREAKDOWN_TITLE: '人才產出細目',
-    BYSTANDER_PL: '旁觀者盈虧',
-    BETTING_TITLE: '場外押注結算',
-    NO_BETS: '本場無人進行押注',
-  },
+
   get STORE() {
     return {
       ...ROLE_STRINGS.HR_UI,
@@ -88,12 +74,14 @@ export const SYSTEM_STRINGS = {
       CONTRACT_ACTIVE: '合約已生效',
     };
   },
+
   ERRORS: {
     INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
     BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
     INVALID_PLAYER: '無效玩家',
     SECURE_CONTEXT_REQUIRED: '此環境不支援加密連線，無法開啟相機',
     CAMERA_START_FAIL: '無法啟動相機，請檢查權限設定',
+    INVALID_CODE: '無效的行動編碼或 QR Code',
   },
 
   DECORATION: {
@@ -113,16 +101,6 @@ export const SYSTEM_STRINGS = {
     ACTIVE: '生效中',
     IN_PROGRESS: '運作中',
     DASHBOARD_TITLE: '創業冒險',
-  },
-
-  SCAN: {
-    CAMERA_PROMPT: '點擊按鈕啟動光學掃描器',
-    START_CAMERA: '啟動相機',
-    INPUT_PLACEHOLDER: '例如: A011',
-    MANUAL_INPUT_LABEL: '備援編碼輸入',
-    END_TURN_PROMPT: (current: string, next: string) => `${current} 結束回合，換 ${next}`,
-    DECODE_SYNC: '解析並同步卡片',
-    NO_RECORDS: '檔案庫無任何犯罪紀錄',
   },
 
   START_PATH: {
@@ -161,7 +139,172 @@ export const SYSTEM_STRINGS = {
     },
   },
 
-  // 開局設定
+  ENTRY: {
+    HEADER_TITLE: '創業冒險',
+    SUBTITLE: '選擇設備使用模式',
+    SINGLE: {
+      TITLE: '單機遊玩',
+      SUB: 'Local Multiplayer',
+      DESC: '單設備進行遊戲，展開法庭博弈。',
+      BTN: '確認選擇',
+    },
+    MULTI: {
+      TITLE: '多機連線',
+      SUB: 'Online Multiplayer',
+      DESC: '多設備同步，展開法庭博弈。',
+      BTN: '確認選擇',
+    },
+  },
+
+  REGISTRATION: {
+    PLAYER_MARK: (idx: number, total: number) => `玩家 ${idx} / ${total}`,
+    OWNER_PLACEHOLDER: '請輸入業主姓名',
+    CORP_PLACEHOLDER: '請輸入企業名稱',
+    DEFAULT_CORP_NAME: '安提格拉維提 財團',
+    DEFAULT_OWNER_NAME: 'Arch Architect',
+    DEFAULT_CORP: (idx: number) => `企業 ${idx}`,
+    DEFAULT_OWNER: (idx: number) => `業主 ${idx}`,
+    OPEN_BOOK_BTN: '翻閱卷宗檔案',
+    BACK_TO_SELECT: '返回選擇',
+    CONFIRM_BTN: '確認',
+    LABELS: {
+      OWNER: '業主姓名',
+      CORP: '企業名稱',
+      BRIBE: '初始賄賂資產',
+      SELECT_PATH: '選擇開局路徑',
+    },
+    BRIBE_MODAL: {
+      TITLE: '機密賄賂清單',
+      VERSION: 'CONFIDENTIAL_REGISTER_V4',
+      VALUATION: 'VALUATION: CLASSIFIED',
+      START_GAME: '確認開始博弈',
+      DESC: '選擇一項資產作為開局賄賂，這將影響特定法官的初步好感度。',
+    },
+    BRIBES: {
+      antique: '傳世古董',
+      crypto: '虛擬貨幣',
+      art: '名家油畫',
+      wine: '特供紅酒',
+      intel: '機密情報',
+    } as Record<string, string>,
+  },
+
+  DASHBOARD: {
+    TURN_INFO: (turn: number) => `第 ${String(turn).padStart(2, '0')}/50 輪`,
+    CURRENT_JUDGE: '當前法官',
+    BONUS_TITLE: '獲得開局加成',
+    TAG_RECORD_TITLE: '犯罪前科紀錄',
+    TABS: {
+      HOME: '企業總部',
+      SCAN: '掃描卡片',
+      SHOP: '黑市',
+    },
+    MODAL: {
+      WITHDRAW_SETTLEMENT: '強制撤告結算',
+      EXTRA_APPEAL: '啟動非常上訴',
+    },
+  },
+
+  ENDING: {
+    DOSSIER_ID: '案件編號',
+    VICTORY_TITLE: 'INDIVIDUAL VICTORY',
+    GUILTY_TITLE: 'GUILTY VERDICT',
+    STATUS_CLEARED: 'CLEARED',
+    STATUS_TERMINATED: 'TERMINATED',
+    STATS: {
+      TOTAL_PROFIT: '總資產結算',
+      FINAL_RP: '最終信用',
+      TOTAL_FINES: '法治代價累計 (罰金)',
+      UNIT_WAN: '萬',
+    },
+    STAMPS: {
+      SAINT: '神格化',
+      SAINT_FAKE: '偽善者',
+      TYCOON: '絕對支配',
+      DRAGONHEAD: '正式核准',
+      ARRESTED: '有罪判定',
+      BANKRUPT: '全盤否決',
+      LIMIT: '時效終止',
+    },
+    BUTTONS: {
+      RESTART: '歸檔並重啟人生',
+      CONTINUE: '確認清算並繼續遊戲',
+    },
+    FOOTER: '反重力數據系統 // 程序已終止 // 繼承人選拔結束',
+  },
+
+  SCAN: {
+    TITLE: '掃描行動編碼',
+    GUIDE: '將 QR Code 置於方框中心',
+    STARTING: '正在啟動相機...',
+    SUCCESS: '掃描成功！',
+    ERROR: '無效的行動編碼',
+    NO_RECORDS: '查無犯罪紀錄',
+    CAMERA_PROMPT: '掃描功能需要使用相機權限，請點擊下方按鈕啟動',
+    START_CAMERA: '啟動掃描鏡頭',
+    MANUAL_INPUT_LABEL: '手動輸入行動編碼',
+    INPUT_PLACEHOLDER: '輸入編碼，例如：LOC-77-1',
+    DECODE_SYNC: '解碼並同步數據',
+    END_TURN_PROMPT: (current: string, next: string) => `結束 ${current} 的回合，輪到 ${next}`,
+  },
+
+  RESOLUTION: {
+    ACTION_TITLE: '行動結果結算',
+    BET_TITLE: '場外押注結算',
+    CONFIRM_BTN: '確認並繼續',
+    CONFIRM_SIMPLE: '確認',
+    SUCCESS_TITLE: '行動成功',
+    FAILURE_TITLE: '行動失敗',
+    PASSIVE_TITLE: '回合結算報告',
+    PASSIVE_MSG: '根據您的資產與地位，本回合產生以下變動',
+    DEFENDANT_WIN: '法庭判決：無罪',
+    DEFENDANT_LOSE: '法庭判決：有罪',
+    WIN_MSG: '恭喜！法官採納了您的辯詞，正義得到伸張（或者錢給到位了）。',
+    LOSE_MSG: '判決結果對您不利，請準備好承擔法律後果。',
+    BREAKDOWN_TITLE: '人才產出細目',
+    BYSTANDER_PL: '旁觀者盈虧',
+    NO_BETS: '本場無人進行押注',
+    OVERSEAS_TRANSFER: '(轉移海外)',
+    BET_RESULT_SUBTITLE: '押注收益清單',
+  },
+
+  LOBBY: {
+    WAITING_JOIN: '等待其他企業加入...',
+    YOUR_ID: '你的識別代碼',
+    CLICK_COPY: '點擊複製',
+    START_PVP: '開始連線博弈',
+    READY_STATUS: '已就緒',
+    WAITING_STATUS: '連線中...',
+    CREATE_ROOM: '建立房間',
+    JOIN_ROOM: '加入房間',
+    CLOSE_ROOM: '關閉房間',
+    EXIT_ROOM: '退出房間',
+    DESC: '建立全球唯一的加密房間，與好友展開實時數據同步對局。',
+    ROOM_OPENED: '加密房間已開啟',
+    HOST_WAITING: '等待玩家加入',
+    GUEST_WAITING: '加入加密房間',
+    GUEST_WAITING_MSG: '等待遊戲開始',
+    GUEST_GUIDE: '請掃描房長手機螢幕上的 QR Code',
+    CONNECTED: '連線已建立',
+    SUCCESS_JOIN: '識別成功',
+    CURRENT_PLAYERS: (count: number) => `目前玩家 (${count} / 4)`,
+    SELF_MARK: '(自己)',
+    OTHER_MARK: '(他人)',
+    ERRORS: {
+      SUPABASE_MISSING: '系統錯誤：尚未配置 Supabase 環境變數。',
+      INSERT_FAIL: '無法建立或加入房間，請檢查網路。',
+      ROOM_NOT_FOUND: '加入失敗：找不到該房間密鑰。',
+    },
+  },
+
+  VICTORY: {
+    WINNER_TITLE: '🏆 最終勝出者',
+    SCORE_LABEL: '統治力評分',
+    ASSET_LABEL: '總資產',
+    RP_LABEL: '最終聲望',
+    BACK_MAIN: '返回主選單',
+  },
+
   SETUP: {
     NORMAL_BONUS_MSG: (name: string) =>
       `恭喜！${name} 總裁選擇了「白手起家」，獲得（-5% 罰金）開局獎勵！`,
@@ -173,9 +316,21 @@ export const SYSTEM_STRINGS = {
       backdoor: '融資創業',
       blackbox: '家族企業',
     } as Record<string, string>,
+    PLAYER_COUNT: {
+      TITLE: '選擇參與人數',
+      SUBTITLE: '這是一場關於法律、權力與金錢的較量\n請選擇參與這場博弈的人數。',
+      CONFIRM_BTN: '確認人數並開始冒險',
+      UNIT_SINGLE: 'PLAYER',
+      UNIT_MULTI: 'PLAYERS',
+    },
     MODE_SELECT: {
+      TITLE: '創業冒險',
+      SUBTITLE: '現代法律篇',
+      WEBSITE_TITLE: '網站模式',
       WEBSITE_DESC: '使用固定戲劇性文案模板\n無需等待 AI 生成',
+      AI_TITLE: 'AI 模式',
       AI_DESC: '由 LLM 生成無限變化的判決\n支援自由文字陳述',
+      START_BTN: '開始遊戲',
     },
   },
 
@@ -196,12 +351,6 @@ export const SYSTEM_STRINGS = {
       MANUAL_READ: '手動破解',
       OPEN_CAMERA: '開啟相機掃描',
     },
-    SCAN: {
-      TITLE: '掃描行動卡',
-      CONFIRM_TITLE: '確認執行行動',
-      CONFIRM_BTN: '確認執行',
-      WAITING: 'Waiting for interaction',
-    },
     GAME_HUD: {
       SYSTEM_PREPARING: '系統準備中',
       TURN_PREFIX: '回合',
@@ -209,14 +358,6 @@ export const SYSTEM_STRINGS = {
   },
 
   COURT: {
-    COURT_NAME: 'Antigravity 最高法院',
-    JUDGE_PREFIX: '主審：',
-    JUDGE_TITLE: '主審法官',
-    DEFENDANT_LABEL: '被告人',
-    SYSTEM_LOCK: {
-      TITLE: 'System Lock: 裝置交接中',
-      SUBTITLE: '我準備好了，解鎖發言',
-    },
     STAGES: {
       1: '階段 1：開庭敘事',
       2: '階段 2：旁觀者干預',
@@ -226,6 +367,44 @@ export const SYSTEM_STRINGS = {
       6: '階段 6：最終判決',
       DEFAULT: '法庭程序進行中',
     } as Record<number | string, string>,
+    DOCUMENTS: {
+      INDICTMENT: '刑事起訴書',
+      VERDICT: '裁決判決書',
+      EDU_TITLE: '【法制教育】',
+      PUNISH_TITLE: '【裁罰結果】',
+    },
+    LABELS: {
+      INTERVENTION_BY: '旁聽干預: ',
+      BETTING_BY: '場外賭局: ',
+      DEFENSE_BY: '被告答辯: ',
+      WIN_RATE_INFO: '勝訴情報',
+      NEED_ACE_LAWYER: '需王牌律師 LV2 洞察',
+      SCHEME_PREFIX: '方案 ',
+    },
+    ACTIONS: {
+      SUPPORT: '🛡 支持被告',
+      OPPOSE: '⚔ 質疑被告',
+      ABSTAIN: 'ABSTAIN',
+      WIN: '勝訴',
+      LOSE: '敗訴',
+      SKIP: '跳過',
+      REVERSE: '逆轉裁判',
+      EXIT: 'EXIT',
+      GIVE_UP_REVERSE: '放棄逆轉 / 接受判決',
+      EXTRA_APPEAL: '非常上訴 (啟動審判救濟)',
+      COUNTDOWN_PREFIX: '自動裁決倒數...',
+    },
+    ALERTS: {
+      ACE_SKILL_PROMPT: (g: string, ip: number) =>
+        `確定要發動王牌律師技能嗎？\n將支付 ${g} 並消耗 ${ip} 點 IP。`,
+      GIVE_UP_PROMPT: '確定要放棄逆轉機會，直接接受法院判決嗎？',
+      REVERSE_HINT: '發動逆轉，扭轉乾坤',
+      EXIT_HINT: '按下，離開法庭',
+    },
+    VERDICT: {
+      WIN: '無罪',
+      LOSE: '有罪',
+    },
     PHASE_1: {
       CHARGE_LABEL: '行為指控：',
       AI_TITLE: '【AI 最高法院提審】',
@@ -284,6 +463,23 @@ export const SYSTEM_STRINGS = {
       RP_LOSS: '名聲損失',
     },
   },
+
+  STORE_EXTRA: {
+    RP_TOO_LOW: '🚨 安全警告：您的名聲 (RP) 過低，黑市人才拒絕與您接洽。',
+  },
+
+  ALIGNMENT: {
+    TITLE: 'UI 校準工具',
+    GUIDE: '拖動滑桿調整元素位移',
+    SAVE: '儲存配置',
+    RESET: '重置預設',
+    EXPORT: '匯出佈局 JSON',
+    HIDE: '隱藏代碼',
+    LABEL_HINT: '文字內容 (LABEL)',
+    INPUT_PLACEHOLDER: '輸入新文字...',
+    UNDO_HINT: 'Ctrl+Z: 撤銷 • Backspace: 刪除元件',
+    RESIZE_HINT: 'Alt+方向鍵: 微調大小',
+  },
 };
 
 import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
@@ -293,4 +489,4 @@ SYSTEM_STRINGS.PLAYER = PLAYER_UI_STRINGS;
 export const SystemStrings = SYSTEM_STRINGS;
 export const GLOBAL_UI_TEXT = SYSTEM_STRINGS.GLOBAL;
 export const COURT_TEXT = SYSTEM_STRINGS.COURT;
-export const PLAYER_UI_TEXT = SYSTEM_STRINGS.PLAYER; // 新增方便外部引用
+export const PLAYER_UI_TEXT = SYSTEM_STRINGS.PLAYER;

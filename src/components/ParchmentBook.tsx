@@ -321,7 +321,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                 <div className="absolute inset-0 p-10 flex flex-col pointer-events-none">
                   <div className="flex items-center justify-between border-b border-amber-900/10 pb-4 mb-8">
                     <span className="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.3em]">
-                      卷宗紀錄 - 第 {idx + 1} 頁
+                      {SYSTEM_STRINGS.DECORATION.CONFIDENTIAL_DOC} - {SYSTEM_STRINGS.DECORATION.SCAN_ID} {idx + 1}
                     </span>
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20" />
                   </div>
@@ -342,7 +342,7 @@ export default function ParchmentBook({ activePath }: ParchmentBookProps) {
                   <div className="mt-4 flex justify-between items-center text-[9px] font-bold text-amber-900/20 italic tracking-widest">
                     <span>CONFIDENTIAL ARCHIVE</span>
                     <span>
-                      頁次 {idx + 1} / {totalPages}
+                      {SYSTEM_STRINGS.DECORATION.NEXT_PAGE.split('下')[0]} {idx + 1} / {totalPages}
                     </span>
                   </div>
                 </div>

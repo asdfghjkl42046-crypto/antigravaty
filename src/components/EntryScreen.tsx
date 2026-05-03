@@ -15,7 +15,6 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
   const [isDesignMode, setIsDesignMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 初始原子佈局數據 (直接複製 ModeSelectScreen 的佈局，確保 1:1)
   const [layout, setLayout] = useState<Record<string, AlignmentElement>>({
     logo: {
       top: 8,
@@ -31,7 +30,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 80,
       height: 6,
       fontSize: 36,
-      label: '創業冒險',
+      label: SYSTEM_STRINGS.ENTRY.HEADER_TITLE,
     },
     header_subtitle: {
       top: 33,
@@ -39,10 +38,10 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 80,
       height: 4,
       fontSize: 28,
-      label: '選擇設備使用模式',
+      label: SYSTEM_STRINGS.ENTRY.SUBTITLE,
     },
 
-    // Single Player (對應原 WB)
+    // Single Player
     wb_box: {
       top: 42,
       left: 15,
@@ -57,7 +56,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 5,
       fontSize: 24,
-      label: '單機遊玩',
+      label: SYSTEM_STRINGS.ENTRY.SINGLE.TITLE,
     },
     wb_sub: {
       top: 50.8,
@@ -65,7 +64,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 2,
       fontSize: 10,
-      label: 'Local Multiplayer',
+      label: SYSTEM_STRINGS.ENTRY.SINGLE.SUB,
     },
     wb_desc: {
       top: 55,
@@ -73,7 +72,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '單設備進行遊戲，展開法庭博弈。',
+      label: SYSTEM_STRINGS.ENTRY.SINGLE.DESC,
     },
     wb_btn: {
       top: 61.6,
@@ -82,7 +81,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       height: 4.4,
       radius: 999,
       fontSize: 12,
-      label: '確認選擇',
+      label: SYSTEM_STRINGS.ENTRY.SINGLE.BTN,
     },
     wb_icon: {
       top: 45,
@@ -93,7 +92,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       label: '單機圖示',
     },
 
-    // Multiplayer (對應原 AI)
+    // Multiplayer
     ai_box: {
       top: 71,
       left: 15,
@@ -108,7 +107,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 5,
       fontSize: 24,
-      label: '多機連線',
+      label: SYSTEM_STRINGS.ENTRY.MULTI.TITLE,
     },
     ai_sub: {
       top: 79.7,
@@ -116,7 +115,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 2,
       fontSize: 10,
-      label: 'Online Multiplayer',
+      label: SYSTEM_STRINGS.ENTRY.MULTI.SUB,
     },
     ai_desc: {
       top: 84,
@@ -124,7 +123,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '多設備同步，展開法庭博弈。',
+      label: SYSTEM_STRINGS.ENTRY.MULTI.DESC,
     },
     ai_btn: {
       top: 90.6,
@@ -133,7 +132,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       height: 4,
       radius: 999,
       fontSize: 12,
-      label: '確認選擇',
+      label: SYSTEM_STRINGS.ENTRY.MULTI.BTN,
     },
     ai_icon: {
       top: 74,
