@@ -2,23 +2,28 @@ import { ROLE_STRINGS } from './ui/RoleStrings';
 import { SYSTEM_MESSAGES } from './ui/MessageStrings';
 
 /**
- * 系統全域文案定義 (System Strings)
- * 策劃者請注意：此檔案為 SSOT，向下相容舊代碼結構。
+ * 核心文案數據中心 (SystemStrings SSOT)
+ * --------------------------------------------------
+ * 這裡是整個遊戲所有 UI 文字的唯一來源。
+ * 調整文案前請參考各區塊的中文註解，以了解其在頁面上的具體位置。
  */
 export const SYSTEM_STRINGS = {
-  // --- 分類模組 ---
-  PLAYER: {} as any, // 延後掛載
-  ROLES: ROLE_STRINGS,
-  MESSAGES: SYSTEM_MESSAGES,
+  // --- 基礎數據掛載 ---
+  PLAYER: {} as any, // 玩家相關動態文案 (由 PlayerStrings.ts 提供)
+  ROLES: ROLE_STRINGS, // 人才/職業相關描述
+  MESSAGES: SYSTEM_MESSAGES, // 系統通知與警告訊息
 
-  // --- 扁平化結構 (向下相容組件大量使用的路徑) ---
+  /**
+   * 【全局通用標籤】
+   * 用於全遊戲各處的基礎按鈕、數值單位與狀態顯示。
+   */
   UI_LABELS: {
     MONEY: '資金',
     TRUST_FUND: '海外信託',
-    IP: 'IP',
-    RP: 'RP',
-    AP: 'AP',
-    BM: 'BM',
+    IP: 'IP', // 人脈點數 (Influence Points)
+    RP: 'RP', // 聲望點數 (Reputation Points)
+    AP: 'AP', // 行動力 (Action Points)
+    BM: 'BM', // 黑材料 (Black Material)
     CONVICTION: '前科',
     LEVEL: '等級',
     STATUS_BANKRUPT: '已破產',
@@ -27,11 +32,11 @@ export const SYSTEM_STRINGS = {
     CANCEL: '取消返回',
     BACK: '返回',
     CLOSE: '關閉',
-    PAYMENT_TITLE: '支付結算',
+    PAYMENT_TITLE: '支付結算', // 支付彈窗的標題
     PAYMENT_SOURCE: '選擇支付來源',
     CASH_PAY: '現金支付',
     TRUST_PAY: '信託支付',
-    CONFIRM_HIRE: '確認扣款並簽約',
+    CONFIRM_HIRE: '確認扣款並簽約', // 人才市場簽約按鈕
     END_TURN: '結束回合',
     TABS: {
       SCAN: '行動掃描',
@@ -43,6 +48,10 @@ export const SYSTEM_STRINGS = {
     OPEN_CAMERA: '開啟相機掃描',
   },
 
+  /**
+   * 【數值單位】
+   * 渲染數值時自動附加的後綴。
+   */
   get UNITS() {
     return {
       MONEY: '萬',
@@ -53,19 +62,28 @@ export const SYSTEM_STRINGS = {
     };
   },
 
+  /**
+   * 【行動執行反饋】
+   * 當玩家掃描並執行行動卡後的結果顯示。
+   */
   ACTION: {
     DECLARATION_LABEL: '安全申報',
     SKIP_DECLARATION_LABEL: '已略過申報',
     SUCCESS_PREFIX: '【成功】',
     DEFAULT_SUCCESS_LABEL: '計畫執行成功',
+    // 參數：業主名, 企業名, 執行摘要
     SUCCESS_MSG: (owner: string, company: string, summary: string) =>
       `因 ${owner} 的選擇，${company}${summary}`,
   },
 
+  /**
+   * 【商店與人才市場】
+   * 對應 StoreScreen.tsx，處理人才招聘與道具購買。
+   */
   get STORE() {
     return {
       ...ROLE_STRINGS.HR_UI,
-      HR_DOSSIER: '機密任命檔案',
+      HR_DOSSIER: '機密任命檔案', // 商店標題
       ID_LABEL: '識別編號',
       STAGES: '階段',
       CANCEL: '取消',
@@ -75,6 +93,10 @@ export const SYSTEM_STRINGS = {
     };
   },
 
+  /**
+   * 【錯誤與阻擋訊息】
+   * 用於全域 Alert 或阻擋玩家不合規操作的訊息。
+   */
   ERRORS: {
     INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
     BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
@@ -84,13 +106,17 @@ export const SYSTEM_STRINGS = {
     INVALID_CODE: '無效的行動編碼或 QR Code',
   },
 
+  /**
+   * 【UI 裝飾與細節標籤】
+   * 用於增強沉浸感的各式卷宗、檔案編號標籤。
+   */
   DECORATION: {
     SCAN_ID: '掃描編號',
     CONFIDENTIAL_DOC: '機密文件',
     CONFIDENTIAL_ADVANTAGE: '內部優勢文件',
     NEXT_PAGE: '下一頁',
     ACKNOWLEDGE: '確認',
-    RAP_SHEET: '犯罪紀錄編號',
+    RAP_SHEET: '犯罪紀錄編號', // 前科彈窗
     SUBJECT: '對象',
     CHARGE_PROTOCOL: '起訴協議代碼',
     RECIDIVISM_MARK: '累犯標記',
@@ -103,6 +129,10 @@ export const SYSTEM_STRINGS = {
     DASHBOARD_TITLE: '創業冒險',
   },
 
+  /**
+   * 【開局路徑選擇】
+   * 對應 ParchmentBook.tsx，玩家剛進遊戲選擇創業背景的 3D 書本。
+   */
   START_PATH: {
     TITLE: '選擇你的創業開局',
     NAMES: {
@@ -110,6 +140,7 @@ export const SYSTEM_STRINGS = {
       backdoor: '融資創業',
       blackbox: '家族企業',
     } as Record<string, string>,
+    // 根據遊戲卡牌數據動態分頁顯示
     getLabels: (cards: any) => {
       const paginate = (text: string, maxChars = 200): string[] => {
         const paragraphs = text
@@ -139,6 +170,10 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【設備模式選擇頁】
+   * 對應 EntryScreen.tsx，遊戲啟動後第一個畫面。
+   */
   ENTRY: {
     HEADER_TITLE: '創業冒險',
     SUBTITLE: '選擇設備使用模式',
@@ -156,6 +191,10 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【玩家註冊頁面】
+   * 對應 PlayerRegistrationScreen.tsx，填寫企業名稱、選擇頭像與路徑。
+   */
   REGISTRATION: {
     PLAYER_MARK: (idx: number, total: number) => `玩家 ${idx} / ${total}`,
     OWNER_PLACEHOLDER: '請輸入業主姓名',
@@ -164,7 +203,7 @@ export const SYSTEM_STRINGS = {
     DEFAULT_OWNER_NAME: 'Arch Architect',
     DEFAULT_CORP: (idx: number) => `企業 ${idx}`,
     DEFAULT_OWNER: (idx: number) => `業主 ${idx}`,
-    OPEN_BOOK_BTN: '翻閱卷宗檔案',
+    OPEN_BOOK_BTN: '翻閱卷宗檔案', // 選擇開局路徑後的確認按鈕
     BACK_TO_SELECT: '返回選擇',
     CONFIRM_BTN: '確認',
     LABELS: {
@@ -189,6 +228,10 @@ export const SYSTEM_STRINGS = {
     } as Record<string, string>,
   },
 
+  /**
+   * 【遊戲主看板】
+   * 對應 DashboardScreen.tsx，遊戲進行中的核心 HUD 介面。
+   */
   DASHBOARD: {
     TURN_INFO: (turn: number) => `第 ${String(turn).padStart(2, '0')}/50 輪`,
     CURRENT_JUDGE: '當前法官',
@@ -205,6 +248,10 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【遊戲結算與勝利頁】
+   * 對應 EndingScreen.tsx 與 VictoryScreen.tsx，遊戲結束時的數據統計。
+   */
   ENDING: {
     DOSSIER_ID: '案件編號',
     VICTORY_TITLE: 'INDIVIDUAL VICTORY',
@@ -217,6 +264,7 @@ export const SYSTEM_STRINGS = {
       TOTAL_FINES: '法治代價累計 (罰金)',
       UNIT_WAN: '萬',
     },
+    // 印章標籤
     STAMPS: {
       SAINT: '神格化',
       SAINT_FAKE: '偽善者',
@@ -233,6 +281,10 @@ export const SYSTEM_STRINGS = {
     FOOTER: '反重力數據系統 // 程序已終止 // 繼承人選拔結束',
   },
 
+  /**
+   * 【掃描行動介面】
+   * 對應 ScanScreen.tsx，處理 QR Code 掃描與手動輸入。
+   */
   SCAN: {
     TITLE: '掃描行動編碼',
     GUIDE: '將 QR Code 置於方框中心',
@@ -245,9 +297,14 @@ export const SYSTEM_STRINGS = {
     MANUAL_INPUT_LABEL: '手動輸入行動編碼',
     INPUT_PLACEHOLDER: '輸入編碼，例如：LOC-77-1',
     DECODE_SYNC: '解碼並同步數據',
+    // 參數：當前玩家, 下一玩家
     END_TURN_PROMPT: (current: string, next: string) => `結束 ${current} 的回合，輪到 ${next}`,
   },
 
+  /**
+   * 【行動結算彈窗】
+   * 對應 ResolutionOverlay.tsx，顯示行動後的盈虧報告。
+   */
   RESOLUTION: {
     ACTION_TITLE: '行動結果結算',
     BET_TITLE: '場外押注結算',
@@ -255,7 +312,7 @@ export const SYSTEM_STRINGS = {
     CONFIRM_SIMPLE: '確認',
     SUCCESS_TITLE: '行動成功',
     FAILURE_TITLE: '行動失敗',
-    PASSIVE_TITLE: '回合結算報告',
+    PASSIVE_TITLE: '回合結算報告', // 回合開始時的自動收支報告
     PASSIVE_MSG: '根據您的資產與地位，本回合產生以下變動',
     DEFENDANT_WIN: '法庭判決：無罪',
     DEFENDANT_LOSE: '法庭判決：有罪',
@@ -268,6 +325,10 @@ export const SYSTEM_STRINGS = {
     BET_RESULT_SUBTITLE: '押注收益清單',
   },
 
+  /**
+   * 【PVP 連線大廳】
+   * 對應 LobbyScreen.tsx，處理多機連線、創房與掃描進入。
+   */
   LOBBY: {
     WAITING_JOIN: '等待其他企業加入...',
     YOUR_ID: '你的識別代碼',
@@ -297,6 +358,10 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【最終勝利頁】
+   * 遊戲大賽結束後，顯示獲勝者與評分。
+   */
   VICTORY: {
     WINNER_TITLE: '🏆 最終勝出者',
     SCORE_LABEL: '統治力評分',
@@ -305,6 +370,10 @@ export const SYSTEM_STRINGS = {
     BACK_MAIN: '返回主選單',
   },
 
+  /**
+   * 【遊戲設定與預加載】
+   * 處理開局獎勵通知與參與人數選擇。
+   */
   SETUP: {
     NORMAL_BONUS_MSG: (name: string) =>
       `恭喜！${name} 總裁選擇了「白手起家」，獲得（-5% 罰金）開局獎勵！`,
@@ -316,6 +385,7 @@ export const SYSTEM_STRINGS = {
       backdoor: '融資創業',
       blackbox: '家族企業',
     } as Record<string, string>,
+    // 玩家人數選擇頁面
     PLAYER_COUNT: {
       TITLE: '選擇參與人數',
       SUBTITLE: '這是一場關於法律、權力與金錢的較量\n請選擇參與這場博弈的人數。',
@@ -323,6 +393,7 @@ export const SYSTEM_STRINGS = {
       UNIT_SINGLE: 'PLAYER',
       UNIT_MULTI: 'PLAYERS',
     },
+    // 遊戲運行模式選擇 (Website vs AI)
     MODE_SELECT: {
       TITLE: '創業冒險',
       SUBTITLE: '現代法律篇',
@@ -334,6 +405,10 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【全域佈局標籤】
+   * 用於通用的 HUD、導覽欄與系統準備訊息。
+   */
   GLOBAL: {
     TABS: {
       SCAN: '行動掃描',
@@ -357,7 +432,12 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【法庭互動與判決系統】
+   * 對應 CourtroomScreen.tsx 與 IndictmentBook.tsx，遊戲中最核心的法律博弈區。
+   */
   COURT: {
+    // 法庭階段標題
     STAGES: {
       1: '階段 1：開庭敘事',
       2: '階段 2：旁觀者干預',
@@ -379,8 +459,9 @@ export const SYSTEM_STRINGS = {
       DEFENSE_BY: '被告答辯: ',
       WIN_RATE_INFO: '勝訴情報',
       NEED_ACE_LAWYER: '需王牌律師 LV2 洞察',
-      SCHEME_PREFIX: '方案 ',
+      SCHEME_PREFIX: '方案 ', // 方案 J, K, L 的前綴
     },
+    // 法庭內的交互按鈕
     ACTIONS: {
       SUPPORT: '🛡 支持被告',
       OPPOSE: '⚔ 質疑被告',
@@ -388,23 +469,25 @@ export const SYSTEM_STRINGS = {
       WIN: '勝訴',
       LOSE: '敗訴',
       SKIP: '跳過',
-      REVERSE: '逆轉裁判',
+      REVERSE: '逆轉裁判', // 律師發動逆轉
       EXIT: 'EXIT',
       GIVE_UP_REVERSE: '放棄逆轉 / 接受判決',
       EXTRA_APPEAL: '非常上訴 (啟動審判救濟)',
       COUNTDOWN_PREFIX: '自動裁決倒數...',
     },
     ALERTS: {
+      // 參數：金額, 人脈消耗
       ACE_SKILL_PROMPT: (g: string, ip: number) =>
         `確定要發動王牌律師技能嗎？\n將支付 ${g} 並消耗 ${ip} 點 IP。`,
       GIVE_UP_PROMPT: '確定要放棄逆轉機會，直接接受法院判決嗎？',
-      REVERSE_HINT: '發動逆轉，扭轉乾坤',
+      REVERSE_HINT: '發動逆轉，扭轉乾坤', // 按鈕下方的發光提示
       EXIT_HINT: '按下，離開法庭',
     },
     VERDICT: {
       WIN: '無罪',
       LOSE: '有罪',
     },
+    // 階段 1：起訴書內容
     PHASE_1: {
       CHARGE_LABEL: '行為指控：',
       AI_TITLE: '【AI 最高法院提審】',
@@ -412,6 +495,7 @@ export const SYSTEM_STRINGS = {
       SUSPECT: (tag: string) => `被告企業涉嫌 "${tag}" 之情事...`,
       CONTINUE_BTN: '了解指控內容，進入干預階段',
     },
+    // 階段 2：旁觀者干預
     PHASE_2: {
       SUBMITTED: '已提交',
       SELECTED: '干預內容已選取',
@@ -420,6 +504,7 @@ export const SYSTEM_STRINGS = {
       AI_INPUTTED: '已輸入文字',
       CONFIRM_BTN: '確認所有干預內容並進入押注 (Confirm All & Enter Betting)',
     },
+    // 階段 3：場外押注
     PHASE_3: {
       BET_WIN: '押勝訴',
       BET_LOSE: '押敗訴',
@@ -430,6 +515,7 @@ export const SYSTEM_STRINGS = {
       SKIP: '放棄',
       CONFIRM_BTN: '確認所有押注項目，進入質詢答辯',
     },
+    // 階段 4：質詢答辯
     PHASE_4: {
       QUESTION_TITLE: '法官質詢',
       DEFENSE_OPTIONS: [
@@ -441,6 +527,7 @@ export const SYSTEM_STRINGS = {
       SUPPLEMENTARY_PLACEHOLDER: '請輸入您的辯護詞...',
       SUBMIT_BTN: '提交答辯',
     },
+    // 階段 5：律師特別撤告
     PHASE_5: {
       TITLE: '王牌律師發動',
       DESC: '你的王牌律師（LV3）已介入本案，提出撤告申請：',
@@ -450,11 +537,14 @@ export const SYSTEM_STRINGS = {
       GIVE_UP_BTN: '放棄，接受判決',
       EXECUTE_BTN: '執行撤告',
     },
+    // 階段 6：判決結果呈現 (動態判決書)
     PHASE_6: {
       GUILTY: '有罪判決',
       NOT_GUILTY: '無罪撤告',
+      // 有罪敘事模板：參數（罪名, 被告辯詞）
       GUILTY_DESC: (tag: string, escape: string) =>
         `【有罪判決】被告之答辯內容未能推翻「${tag}」之犯罪構成。即便其辯稱為「${escape}」，仍難掩其規避監管之實質惡意。本庭依此裁定公訴成立。`,
+      // 無罪敘事模板：參數（罪名, 被告辯詞, 法律術語）
       NOT_GUILTY_DESC: (tag: string, escape: string, term: string) =>
         `【無罪裁定】本庭採信被告關於「${escape}」之抗辯。判定其執行「${term}」時並無主觀惡意，其行為符合商業慣例與法律阻卻事由，宣告對其「${tag}」行為之起訴不予成立。`,
       ACCEPT_BTN: '接受判決',
@@ -464,10 +554,18 @@ export const SYSTEM_STRINGS = {
     },
   },
 
+  /**
+   * 【商店額外規則】
+   * 處理信用過低等特殊情境。
+   */
   STORE_EXTRA: {
     RP_TOO_LOW: '🚨 安全警告：您的名聲 (RP) 過低，黑市人才拒絕與您接洽。',
   },
 
+  /**
+   * 【UI 校準工具】
+   * 對應 AlignmentTool.tsx，開發者專用的佈局微調工具。
+   */
   ALIGNMENT: {
     TITLE: 'UI 校準工具',
     GUIDE: '拖動滑桿調整元素位移',
@@ -482,10 +580,13 @@ export const SYSTEM_STRINGS = {
   },
 };
 
+// ----------------------------------------------------------------------
+// 底部導出與掛載
+// ----------------------------------------------------------------------
+
 import { PLAYER_UI_STRINGS } from './ui/PlayerStrings';
 SYSTEM_STRINGS.PLAYER = PLAYER_UI_STRINGS;
 
-// 最終兼容性出口
 export const SystemStrings = SYSTEM_STRINGS;
 export const GLOBAL_UI_TEXT = SYSTEM_STRINGS.GLOBAL;
 export const COURT_TEXT = SYSTEM_STRINGS.COURT;
