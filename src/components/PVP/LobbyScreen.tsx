@@ -210,28 +210,19 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     // 立即抓一次
     fetchPlayers();
 
-    // Supabase Realtime：任何玩家進出都即時更新
-    const playerChannel = supabase
-      .channel(`lobby-players-${dbRoomId}-${Date.now()}`)
+    // Supabase Realtime：整合監聽邏輯
+    const lobbyChannel = supabase
+      .channel(`lobby-${dbRoomId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'pvp_players', filter: `room_id=eq.${dbRoomId}` },
         () => fetchPlayers()
       )
-      .subscribe((status: string) => {
-        // 訂閱成功後再抓一次，確保加入瞬間就看到最新人數
-        if (status === 'SUBSCRIBED') fetchPlayers();
-      });
-
-    // 監聽房間狀態（房長按開始）
-    const roomChannel = supabase
-      .channel(`lobby-room-${dbRoomId}-${Date.now()}`)
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
         async (payload: { new: { status: string } }) => {
           if (payload.new.status === 'preparing') {
-            // [客機啟動同步]
             setSyncing(true, "收到開戰訊號", "正在連接至主機節點...");
             await new Promise(r => setTimeout(r, 1000));
             onStartGame(roomKey);
@@ -239,14 +230,21 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
           }
         }
       )
-      .subscribe();
+      .subscribe((status: string, err?: Error) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[Lobby] Realtime connection established.');
+          fetchPlayers();
+        }
+        if (status === 'CHANNEL_ERROR') {
+          console.error('[Lobby] Realtime connection error:', err);
+        }
+      });
 
-    // 保底輪詢：每 2 秒補一次（應對 WebSocket 偶發延遲）
-    const pollInterval = setInterval(fetchPlayers, 2000);
+    // 保底輪詢：每 3 秒補一次（應對 WebSocket 偶發延遲，降低頻率以減輕伺服器負擔）
+    const pollInterval = setInterval(fetchPlayers, 3000);
 
     return () => {
-      supabase.removeChannel(playerChannel);
-      supabase.removeChannel(roomChannel);
+      supabase.removeChannel(lobbyChannel);
       clearInterval(pollInterval);
     };
   }, [dbRoomId, myPlayerId, roomKey, onStartGame, setSyncing]);
