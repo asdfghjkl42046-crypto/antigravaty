@@ -18,9 +18,9 @@ import {
 import gsap from 'gsap';
 import { PlayerConfig, StartPath, BribeItem } from '@/types/game';
 import { SYSTEM_STRINGS } from '@/data/SystemStrings';
-import ParchmentBook from '../ParchmentBook'; // 修正路徑
+import ParchmentBook from '../ParchmentBook'; 
 import { MASTERPIECES } from '@/store/gameStore';
-import { supabase } from '@/lib/supabase'; // 引入聯機核心
+import { supabase } from '@/lib/supabase';
 
 interface PVPRegistrationScreenProps {
   roomKey: string;
@@ -35,26 +35,33 @@ interface PlayerRecord {
   is_ready: boolean;
 }
 
+/**
+ * PVP 版註冊介面 - [核心邏輯複製自 PlayerRegistrationScreen.tsx]
+ * 確保 UI/UX 與單機版 100% 相同，僅增加多機同步機制。
+ */
 export default function PVPRegistrationScreen({
   roomKey,
   onFinalStart,
   onBack,
 }: PVPRegistrationScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [currentName, setCurrentName] = useState('安提格拉維提 財團');
-  const [currentOwnerName, setCurrentOwnerName] = useState('Arch Architect');
+  
+  // --- 狀態全量複製自單機版 ---
+  const [currentName, setCurrentName] = useState(SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME);
+  const [currentOwnerName, setCurrentOwnerName] = useState(SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME);
   const [selectedPath, setSelectedPath] = useState<StartPath | null>(null);
-  const [isBookFocused, setIsBookFocused] = useState(false); // 決定書是否放大可翻動
+  const [isBookFocused, setIsBookFocused] = useState(false);
   const [showBribeModal, setShowBribeModal] = useState(false);
   const [selectedBribe, setSelectedBribe] = useState<BribeItem | null>(null);
   const [selectedAvatarId, setSelectedAvatarId] = useState<number>(0);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(false); // 在 PVP 中這代表「我是否已按下準備」
 
-  // --- PVP 多機專用隱藏狀態 ---
+  // --- PVP 專用狀態 ---
   const [dbRoomId, setDbRoomId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [participants, setParticipants] = useState<PlayerRecord[]>([]);
 
+  // --- 賄賂清單全量複製 ---
   const BRIBE_OPTIONS: {
     id: BribeItem;
     name: string;
@@ -64,42 +71,42 @@ export default function PVPRegistrationScreen({
   }[] = [
     {
       id: 'antique',
-      name: '傳世古董',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.antique,
       icon: Shield,
       color: 'text-amber-400',
       glow: 'rgba(251, 191, 36, 0.4)',
     },
     {
       id: 'crypto',
-      name: '虛擬貨幣',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.crypto,
       icon: Wallet,
       color: 'text-cyan-400',
       glow: 'rgba(34, 211, 238, 0.4)',
     },
     {
       id: 'art',
-      name: '名家油畫',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.art,
       icon: Gem,
       color: 'text-fuchsia-400',
       glow: 'rgba(217, 70, 239, 0.4)',
     },
     {
       id: 'wine',
-      name: '特供紅酒',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.wine,
       icon: Wine,
       color: 'text-rose-400',
       glow: 'rgba(244, 63, 94, 0.4)',
     },
     {
       id: 'intel',
-      name: '機密情報',
+      name: SYSTEM_STRINGS.REGISTRATION.BRIBES.intel,
       icon: Award,
       color: 'text-emerald-400',
       glow: 'rgba(16, 185, 129, 0.4)',
     },
   ];
 
-  // 1. PVP 初始化與實時同步
+  // 1. 初始化與動畫 [對齊單機]
   useEffect(() => {
     const savedId = sessionStorage.getItem('antigravaty_player_id');
     setMyPlayerId(savedId);
@@ -110,7 +117,6 @@ export default function PVPRegistrationScreen({
     };
     init();
 
-    // 保留單機版進場動畫邏輯
     gsap.fromTo(
       '.ui-fade-in',
       { opacity: 0, y: 10 },
@@ -124,6 +130,7 @@ export default function PVPRegistrationScreen({
     );
   }, [roomKey]);
 
+  // 2. PVP 監聽邏輯
   useEffect(() => {
     if (!dbRoomId || !myPlayerId) return;
 
@@ -134,7 +141,6 @@ export default function PVPRegistrationScreen({
         const me = data.find((p: PlayerRecord) => p.id === myPlayerId);
         if (me) setIsReady(me.is_ready);
 
-        // 房長自動偵測滿員啟動
         const readyCount = data.filter((p: PlayerRecord) => p.is_ready).length;
         if (me?.role === 'host' && data.length > 0 && readyCount === data.length) {
           await supabase.from('pvp_rooms').update({ status: 'playing' }).eq('id', dbRoomId);
@@ -152,14 +158,14 @@ export default function PVPRegistrationScreen({
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [dbRoomId, myPlayerId]);
+  }, [dbRoomId, myPlayerId, onFinalStart]);
 
-  // 2. 聯網資料提交函式
+  // 3. 提交邏輯 [將單機的 onConfirm 改為 Supabase 寫入]
   const submitRegistration = async (bribe?: BribeItem) => {
     if (!myPlayerId) return;
     await supabase.from('pvp_players').update({
-      name: currentName.trim() || '安提格拉維提 財團',
-      owner_name: currentOwnerName.trim() || 'Arch Architect',
+      name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME,
+      owner_name: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME,
       avatar_id: selectedAvatarId.toString(),
       background_card: selectedPath,
       bribe_item: bribe || selectedBribe || null,
@@ -183,8 +189,6 @@ export default function PVPRegistrationScreen({
     submitRegistration();
   };
 
-  const transactionId = useMemo(() => 'TR-REG-7742', []);
-
   const handleBribeSelect = (bribe: BribeItem) => {
     if (!isReady) setSelectedBribe(bribe);
   };
@@ -194,24 +198,22 @@ export default function PVPRegistrationScreen({
     submitRegistration(selectedBribe);
   };
 
-  // --- 變數影分身 (Shadowing) ---
-  // 這兩個變數原本是 Props，現在我們在內部計算，JSX 引用時會自動使用這些連線數據
+  const transactionId = useMemo(() => 'TR-REG-7742', []);
   const readyCount = participants.filter(p => p.is_ready).length;
-  const playerIndex = readyCount; // 借用這個位置顯示準備狀態
   const totalPlayers = participants.length;
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-transparent overflow-visible text-white font-sans selection:bg-blue-500/30">
-      {/* 桌面背景 */}
+      {/* 桌面背景 [對齊單機] */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-transparent" />
-        <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')]" />
+        <div className="absolute inset-0 opacity-40 bg-[url('/assets/textures/leather.png')]" />
         <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 via-transparent to-black/80" />
       </div>
 
-      {/* 玩家標記 - 增加 mt-safe 避開 iOS 瀏海 */}
+      {/* PVP 準備標記 [僅有的差異點] */}
       <div className="absolute top-6 right-6 mt-safe px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold tracking-[0.2em] z-50 text-[10px] ui-fade-in shadow-xl backdrop-blur-md">
-        準備人數 {playerIndex} / {totalPlayers}
+        準備人數 {readyCount} / {totalPlayers}
       </div>
 
       <div
@@ -219,17 +221,16 @@ export default function PVPRegistrationScreen({
           isBookFocused ? 'justify-center pt-0' : 'justify-start pt-16 mt-safe'
         } pb-10 transition-all duration-700`}
       >
-        {/* 1. 企業命名 */}
+        {/* 1. 企業命名 [對齊單機] */}
         {!isBookFocused && (
           <div className="w-full flex flex-col items-center">
-            {/* 企業命名與業主姓名 */}
             <div className="w-full max-w-[360px] px-6 mb-4 ui-fade-in transition-all duration-700 ease-out flex flex-col gap-4">
               <div className="relative group">
                 <input
                   type="text"
                   value={currentOwnerName}
                   onChange={(e) => setCurrentOwnerName(e.target.value)}
-                  placeholder="請輸入業主姓名"
+                  placeholder={SYSTEM_STRINGS.REGISTRATION.OWNER_PLACEHOLDER}
                   disabled={isReady}
                   className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl disabled:opacity-50"
                 />
@@ -240,7 +241,7 @@ export default function PVPRegistrationScreen({
                   type="text"
                   value={currentName}
                   onChange={(e) => setCurrentName(e.target.value)}
-                  placeholder="請輸入企業名稱"
+                  placeholder={SYSTEM_STRINGS.REGISTRATION.CORP_PLACEHOLDER}
                   disabled={isReady}
                   className="w-full bg-slate-900/60 border-2 border-white/10 rounded-2xl px-6 py-4 text-lg font-bold placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-slate-900/90 transition-all outline-none backdrop-blur-xl shadow-2xl disabled:opacity-50"
                 />
@@ -248,7 +249,7 @@ export default function PVPRegistrationScreen({
               </div>
             </div>
 
-            {/* 名畫頭像選取 */}
+            {/* 名畫頭像選取 [對齊單機] */}
             <div className="w-full max-w-4xl px-6 mb-2 ui-fade-in">
               <div className="flex flex-col items-center gap-6">
                 <div className="grid grid-cols-5 gap-3 sm:gap-4">
@@ -293,7 +294,7 @@ export default function PVPRegistrationScreen({
           </div>
         )}
 
-        {/* 2. 交互區 */}
+        {/* 2. 交互區 [對齊單機] */}
         {!isBookFocused ? (
           <div className="flex-1 w-full flex flex-col items-center justify-center gap-12 ui-fade-in px-4 mt-12 [perspective:1200px]">
             <div className="relative w-full max-w-[500px] h-[300px] flex items-center justify-center transform-style-3d">
@@ -323,7 +324,7 @@ export default function PVPRegistrationScreen({
                               ? '#162b4d'
                               : '#3d0c0c',
                         backgroundImage:
-                          'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("https://www.transparenttextures.com/patterns/leather.png")',
+                          'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%), url("/assets/textures/leather.png")',
                       }}
                     >
                       <div className="relative z-10 flex flex-col items-center gap-6">
@@ -362,13 +363,13 @@ export default function PVPRegistrationScreen({
                   className="flex items-center gap-4 bg-white text-black font-black px-14 py-5 rounded-full tracking-[0.5em] hover:bg-blue-500 hover:text-white transition-all active:scale-95 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group"
                 >
                   <BookOpen className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                  翻閱卷宗檔案
+                  {SYSTEM_STRINGS.REGISTRATION.OPEN_BOOK_BTN}
                 </button>
               )}
             </div>
           </div>
         ) : (
-          /* 讀書模式 */
+          /* 讀書模式 [對齊單機] */
           <div className="w-full h-full flex items-center justify-center relative animate-in zoom-in-95 duration-700 ease-out">
             <div className="absolute top-10 left-10 z-[100] ui-fade-in">
               <button
@@ -376,7 +377,7 @@ export default function PVPRegistrationScreen({
                 className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900/60 border border-white/10 text-white/70 hover:text-white hover:bg-slate-800 transition-all active:scale-95 group backdrop-blur-xl shadow-2xl"
               >
                 <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                <span className="text-xs font-black tracking-[0.3em] uppercase">返回選擇</span>
+                <span className="text-xs font-black tracking-[0.3em] uppercase">{SYSTEM_STRINGS.REGISTRATION.BACK_TO_SELECT}</span>
               </button>
             </div>
             <div className="w-full flex justify-center scale-90 transition-transform duration-700">
@@ -389,9 +390,9 @@ export default function PVPRegistrationScreen({
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
               <button
                 onClick={handleConfirmRegistration}
-                className="bg-blue-600 text-white font-black px-24 py-5 rounded-2xl tracking-[1em] shadow-[0_0_50px_rgba(37,99,235,0.4)] flex items-center gap-2 transition-all active:scale-95"
+                className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-black px-12 py-4 rounded-xl tracking-[0.8em] border border-blue-500/30 shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-all active:scale-95 flex items-center gap-2 group backdrop-blur-md"
               >
-                確認
+                {SYSTEM_STRINGS.REGISTRATION.CONFIRM_BTN}
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -399,21 +400,18 @@ export default function PVPRegistrationScreen({
         )}
       </div>
 
-      {/* ⚠️ 賄賂選擇彈窗 - V25.2 星際卷宗重構版 */}
+      {/* ⚠️ 賄賂選擇彈窗 [全量對齊單機] */}
       {showBribeModal && (
         <div className="absolute inset-0 z-[3000] flex items-center justify-center bg-black/95 p-4">
           <div className="relative w-full max-w-[420px] max-h-[90%] bg-[#0a0a0b] border-l border-t border-white/5 rounded-sm p-8 shadow-[0_60px_120px_rgba(0,0,0,1)] overflow-hidden flex flex-col items-start px-8">
-            {/* 數位掃描格線層 */}
             <div
               className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none"
               style={{
-                backgroundImage:
-                  'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")',
+                backgroundImage: 'url("/assets/textures/leather.png")',
                 backgroundSize: '40px',
               }}
             />
 
-            {/* 星際終端螢光溢邊 (Astral Cyan) */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-cyan-500/60 via-transparent to-transparent" />
             <div className="absolute top-0 left-0 w-[1px] h-32 bg-gradient-to-b from-cyan-500/40 to-transparent" />
 
@@ -421,11 +419,11 @@ export default function PVPRegistrationScreen({
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1.5 h-1.5 bg-cyan-500 animate-pulse" />
                 <span className="text-[10px] font-black text-cyan-500/60 uppercase tracking-[0.4em]">
-                  CONFIDENTIAL_REGISTER_V4
+                  {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.VERSION}
                 </span>
               </div>
               <h3 className="text-2xl font-black tracking-widest text-white uppercase mb-2">
-                機密賄賂清單
+                {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.TITLE}
               </h3>
               <div className="w-12 h-[1px] bg-white/10" />
             </div>
@@ -441,9 +439,7 @@ export default function PVPRegistrationScreen({
                       : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05]'
                   }`}
                 >
-                  <div
-                    className={`p-3 rounded-sm ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}
-                  >
+                  <div className={`p-3 rounded-sm ${opt.color} bg-white/5 shadow-inner flex-shrink-0 transition-transform group-hover:scale-110`}>
                     <opt.icon className="w-5 h-5" />
                   </div>
 
@@ -453,7 +449,7 @@ export default function PVPRegistrationScreen({
                     </span>
                     <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1 flex items-center gap-2">
                       <span className="w-1 h-1 rounded-full bg-slate-700" />
-                      VALUATION: CLASSIFIED
+                      {SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.VALUATION}
                     </span>
                   </div>
 
@@ -464,27 +460,20 @@ export default function PVPRegistrationScreen({
               ))}
             </div>
 
-            <div
-              className={`w-full transition-all duration-700 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
-            >
+            <div className={`w-full transition-all duration-700 ease-out flex-shrink-0 z-10 ${selectedBribe ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
               <button
                 onClick={handleFinalConfirm}
                 disabled={!selectedBribe || isReady}
                 className="w-full py-5 bg-cyan-600/10 hover:bg-cyan-600/20 border border-cyan-500/40 text-cyan-400 font-black rounded-sm tracking-[0.6em] shadow-[0_20px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-all text-xs uppercase flex items-center justify-center gap-2"
               >
-                <span>確認開始博弈</span>
+                <span>{SYSTEM_STRINGS.REGISTRATION.BRIBE_MODAL.START_GAME}</span>
                 <ChevronRight size={16} />
               </button>
             </div>
 
-            {/* 底部裝飾 */}
             <div className="absolute bottom-4 left-10 right-10 flex justify-between opacity-10 pointer-events-none">
-              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">
-                AUTH_LEVEL_04
-              </span>
-              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">
-                TR_ID_{transactionId}
-              </span>
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">AUTH_LEVEL_04</span>
+              <span className="text-[8px] font-mono font-bold tracking-widest uppercase">TR_ID_{transactionId}</span>
             </div>
           </div>
         </div>
