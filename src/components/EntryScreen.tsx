@@ -39,7 +39,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 80,
       height: 4,
       fontSize: 28,
-      label: '選擇遊玩模式',
+      label: '選擇設備使用模式',
     },
 
     // Single Player (對應原 WB)
@@ -65,7 +65,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 2,
       fontSize: 10,
-      label: 'LOCAL PLAY',
+      label: 'Local Multiplayer',
     },
     wb_desc: {
       top: 55,
@@ -73,7 +73,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '體驗完整的創業故事與 AI 法庭對決。',
+      label: '單設備進行遊戲，展開法庭博弈。',
     },
     wb_btn: {
       top: 61.6,
@@ -82,7 +82,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       height: 4.4,
       radius: 999,
       fontSize: 12,
-      label: '開始探索',
+      label: '確認選擇',
     },
     wb_icon: {
       top: 45,
@@ -116,7 +116,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 2,
       fontSize: 10,
-      label: 'MULTIPLAYER',
+      label: 'Online Multiplayer',
     },
     ai_desc: {
       top: 84,
@@ -124,7 +124,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       width: 60,
       height: 6,
       fontSize: 11,
-      label: '與好友即時同步，展開法庭博弈 (研發中)。',
+      label: '多設備同步，展開法庭博弈。',
     },
     ai_btn: {
       top: 90.6,
@@ -133,7 +133,7 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
       height: 4,
       radius: 999,
       fontSize: 12,
-      label: '進入大廳',
+      label: '確認選擇',
     },
     ai_icon: {
       top: 74,
@@ -151,11 +151,16 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
   useEffect(() => {
     if (containerRef.current && !isDesignMode) {
       requestAnimationFrame(() => setIsReady(false));
-      
+
       gsap.fromTo(
         '.ui-animate',
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power4.out',
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power4.out',
           onComplete: () => setIsReady(true),
         }
       );
@@ -168,7 +173,8 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
 
   const layoutStyles = `
     ${Object.entries(layout)
-      .map(([id, el]) => `
+      .map(
+        ([id, el]) => `
       .${id}-pos { 
         top: ${el.top}%; 
         left: ${el.left}%; 
@@ -181,7 +187,9 @@ export const EntryScreen: React.FC<EntryScreenProps> = ({ onSelectSingle, onSele
         align-items: center !important;
         justify-content: center !important;
       }
-    `).join('\n')}
+    `
+      )
+      .join('\n')}
   `;
 
   return (
