@@ -147,6 +147,9 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
     }
 
     try {
+      // 啟動暖黑過場
+      setSyncing(true, SYSTEM_STRINGS.LOBBY.CONNECTED, "正在初始化同步環境...");
+      
       // 1. 查找房間
       const { data: room, error: roomError } = await supabase
         .from('pvp_rooms')
@@ -223,10 +226,11 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
         { event: 'UPDATE', schema: 'public', table: 'pvp_rooms', filter: `id=eq.${dbRoomId}` },
         async (payload: { new: { status: string } }) => {
           if (payload.new.status === 'preparing') {
-            setSyncing(true, "收到開戰訊號", "正在連接至主機節點...");
-            await new Promise(r => setTimeout(r, 1000));
+            // [客機啟動暖黑同步]
+            setSyncing(true, "收到開戰訊號", "正在建立量子加密連線...");
+            await new Promise(r => setTimeout(r, 1200)); 
             onStartGame(roomKey);
-            setSyncing(false);
+            // 注意：Syncing 會在下一個畫面的加載邏輯中被關閉，這裡保持開啟以覆蓋跳轉
           }
         }
       )
