@@ -36,10 +36,21 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
   const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
   const [dbRoomId, setDbRoomId] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const [debugErrors, setDebugErrors] = useState<string[]>([]);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   
   // 引入同步控制
   const setSyncing = useGameStore(s => (s as any).setSyncing);
+
+  // ⚠️ 手機端 Debug 監聽器
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args) => {
+      setDebugErrors(prev => [...prev, args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')].slice(-5));
+      originalError.apply(console, args);
+    };
+    return () => { console.error = originalError; };
+  }, []);
 
   // 極限亂碼生成器：20 個字元，包含所有特殊符號，鍵盤極難手動輸入
   const generateChaoticKey = () => {
@@ -575,6 +586,22 @@ export default function LobbyScreen({ onBack, onStartGame }: LobbyScreenProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ⚠️ 手機端 Debug 顯示區 */}
+      <div className="fixed bottom-0 left-0 right-0 z-[10000] flex flex-col pointer-events-none">
+        {debugErrors.length > 0 && (
+          <div className="bg-red-950/90 p-3 font-mono text-[9px] text-red-200 border-t border-red-500/50 max-h-24 overflow-y-auto">
+            {debugErrors.map((err, i) => <div key={i} className="mb-1 break-all border-b border-white/5">{err}</div>)}
+          </div>
+        )}
+        {/* 緊急逃生按鈕 */}
+        <button 
+          onClick={() => { sessionStorage.clear(); window.location.reload(); }}
+          className="self-end m-2 px-3 py-1 bg-white/10 hover:bg-white/20 text-[8px] text-white/40 rounded-full border border-white/5 pointer-events-auto backdrop-blur-sm"
+        >
+          FORCE RESET SESSION
+        </button>
+      </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         /* 覆蓋 html5-qrcode 函式庫內部樣式 */

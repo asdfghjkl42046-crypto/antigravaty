@@ -111,6 +111,9 @@ export default function PVPRegistrationScreen({
     onBack();
   };
 
+  // 引入同步控制
+  const setSyncing = useGameStore(s => (s as any).setSyncing);
+
   // 1. 初始化與同步 ID
   useEffect(() => {
     const savedId = sessionStorage.getItem('antigravaty_player_id');
@@ -118,9 +121,16 @@ export default function PVPRegistrationScreen({
 
     const init = async () => {
       const { data: room } = await supabase.from('pvp_rooms').select('id').eq('room_key', roomKey).single();
-      if (room) setDbRoomId(room.id);
+      if (room) {
+        setDbRoomId(room.id);
+        // 🏁 修復：資料抓取完成，關閉大廳傳過來的載入遮罩
+        setSyncing(false);
+      }
     };
     init();
+
+    // 保底：若 init 太慢，2秒後也強制關閉
+    const timer = setTimeout(() => setSyncing(false), 2000);
 
     gsap.fromTo(
       '.ui-fade-in',
@@ -133,6 +143,8 @@ export default function PVPRegistrationScreen({
         ease: 'power2.out',
       }
     );
+
+    return () => clearTimeout(timer);
   }, [roomKey]);
 
   // 2. PVP 監聽邏輯
