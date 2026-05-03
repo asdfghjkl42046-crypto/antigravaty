@@ -100,7 +100,7 @@ export const SYSTEM_STRINGS = {
   ERRORS: {
     INSUFFICIENT_AP: '🚫 體力不足：\n您的 AP 已歸零，請結束回合。',
     BANKRUPT_BLOCK: '🚫 行動終止：\n您的企業已宣告破產。',
-    INVALID_PLAYER: '無效玩家',
+    INVALID_PLAYER: '系統異常：無法識別業主特徵 (錯誤：用戶會話失效)',
     SECURE_CONTEXT_REQUIRED: '此環境不支援加密連線，無法開啟相機',
     CAMERA_START_FAIL: '無法啟動相機，請檢查權限設定',
     INVALID_CODE: '無效的行動編碼或 QR Code',
@@ -254,10 +254,10 @@ export const SYSTEM_STRINGS = {
    */
   ENDING: {
     DOSSIER_ID: '案件編號',
-    VICTORY_TITLE: 'INDIVIDUAL VICTORY',
-    GUILTY_TITLE: 'GUILTY VERDICT',
-    STATUS_CLEARED: 'CLEARED',
-    STATUS_TERMINATED: 'TERMINATED',
+    VICTORY_TITLE: '個人創業勝利',
+    GUILTY_TITLE: '法庭有罪裁決',
+    STATUS_CLEARED: '起訴撤銷',
+    STATUS_TERMINATED: '行動終止',
     STATS: {
       TOTAL_PROFIT: '總資產結算',
       FINAL_RP: '最終信用',
@@ -390,17 +390,17 @@ export const SYSTEM_STRINGS = {
       TITLE: '選擇參與人數',
       SUBTITLE: '這是一場關於法律、權力與金錢的較量\n請選擇參與這場博弈的人數。',
       CONFIRM_BTN: '確認人數並開始冒險',
-      UNIT_SINGLE: 'PLAYER',
-      UNIT_MULTI: 'PLAYERS',
+      UNIT_SINGLE: '人',
+      UNIT_MULTI: '人',
     },
     // 遊戲運行模式選擇 (Website vs AI)
     MODE_SELECT: {
       TITLE: '創業冒險',
       SUBTITLE: '現代法律篇',
       WEBSITE_TITLE: '網站模式',
-      WEBSITE_DESC: '使用固定戲劇性文案模板\n無需等待 AI 生成',
+      WEBSITE_DESC: '使用固定戲劇性文案模板\n無需等待模型生成',
       AI_TITLE: 'AI 模式',
-      AI_DESC: '由 LLM 生成無限變化的判決\n支援自由文字陳述',
+      AI_DESC: '由 AI 生成無限變化的判決\n支援自由文字陳述',
       START_BTN: '開始遊戲',
     },
   },
@@ -502,7 +502,7 @@ export const SYSTEM_STRINGS = {
       WAITING: '尚未選擇',
       AI_PLACEHOLDER: '輸入文字干預法官判斷...',
       AI_INPUTTED: '已輸入文字',
-      CONFIRM_BTN: '確認所有干預內容並進入押注 (Confirm All & Enter Betting)',
+      CONFIRM_BTN: '確認所有干預內容並進入押注',
     },
     // 階段 3：場外押注
     PHASE_3: {

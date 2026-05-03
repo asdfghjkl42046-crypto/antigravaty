@@ -18,7 +18,9 @@ import {
   Check,
   ChevronRight,
   ArrowLeft,
+  ShieldAlert,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore, MASTERPIECES } from '@/store/gameStore';
 import { JUDGE_LABELS } from '@/data/judges/JudgeTemplatesDB';
 import { getTotalBlackMaterials } from '@/engine/PlayerEngine';
@@ -258,6 +260,21 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
   const containerRef = useRef<HTMLDivElement>(null);
   const logoVideoRef = useRef<HTMLVideoElement>(null);
 
+  // RP 瀕危彈窗監聽
+  const [hasShownRpWarning, setHasShownRpWarning] = React.useState(false);
+  const [showRpToast, setShowRpToast] = React.useState(false);
+  const currentPlayer = players[currentPlayerIndex];
+
+  React.useEffect(() => {
+    if (currentPlayer && currentPlayer.rp <= 20 && !hasShownRpWarning) {
+      setShowRpToast(true);
+      setHasShownRpWarning(true);
+      setTimeout(() => setShowRpToast(false), 1000);
+    } else if (currentPlayer && currentPlayer.rp > 20) {
+      setHasShownRpWarning(false);
+    }
+  }, [currentPlayer?.rp, hasShownRpWarning]);
+
   useEffect(() => {
     // 安全地啟動 Logo 影片播放
     if (logoVideoRef.current) {
@@ -292,8 +309,24 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
     <div className="w-full h-full flex flex-col bg-transparent text-white overflow-hidden relative font-sans">
       <DebugPanel />
 
-      {/* 1. Header: 狀態列 - 增加 mt-safe 避開行動裝置瀏海 */}
-      <div className="flex items-center justify-between px-6 pt-4 pb-2 mt-safe duration-500">
+      <div className="flex flex-col w-full">
+        {/* RP 瀕危常駐閃爍警告 (方案 A) */}
+        <AnimatePresence>
+          {currentPlayer && currentPlayer.rp <= 20 && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="bg-red-500/20 border-b border-red-500/50 py-1 flex items-center justify-center overflow-hidden"
+            >
+              <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] animate-pulse">
+                警告：企業聲譽瀕危！若降至 20 將遭強制淘汰！
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center justify-between px-6 pt-4 pb-2 mt-safe duration-500">
         <div className="flex items-center space-x-3">
           <button
             onClick={onReset}
@@ -335,6 +368,7 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
           </div>
         )}
       </div>
+    </div>
 
       {/* 開局加成彈窗 (逐一顯示模式) */}
       {/* 🎰 開局加成彈窗 - 輕量化「實體便條」重構版 */}
@@ -399,7 +433,6 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       {tagViewPlayerIdx !== null && (
         <div className="absolute inset-0 z-[1100] flex items-center justify-center p-6 bg-black/95 animate-in fade-in duration-300">
           <div className="relative w-full max-w-sm bg-[#0a0a0b] border-l border-t border-white/5 p-10 shadow-[0_0_100px_rgba(0,0,0,1)] flex flex-col items-start overflow-hidden">
-            {/* 數位掃描格線層 */}
             <div className="absolute inset-0 opacity-[0.03] z-0 pointer-events-none bg-noir-pinstripe" />
 
             {/* 星際終端螢光溢邊 */}
@@ -583,6 +616,27 @@ export default function DashboardScreen({ onEndTurn, onReset }: DashboardScreenP
       {pendingBetResolution && !pendingResolution && phase === 'play' && (
         <BetResolutionOverlay bets={pendingBetResolution} onClose={clearBetResolution} />
       )}
+
+      {/* 1 秒限時強效彈窗 (RP 瀕危提醒) */}
+      <AnimatePresence>
+        {showRpToast && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.1, y: -20 }}
+            className="fixed inset-0 z-[3000] flex items-center justify-center pointer-events-none p-6"
+          >
+            <div className="bg-red-600 text-white px-8 py-6 rounded-3xl shadow-[0_20px_50px_rgba(220,38,38,0.5)] border-2 border-white/20 flex flex-col items-center gap-4 max-w-sm text-center backdrop-blur-md shadow-red-500/20">
+              <ShieldAlert className="w-12 h-12 text-white animate-bounce" />
+              <div className="font-black text-lg tracking-widest leading-relaxed">
+                警告：企業聲譽瀕危！若降至 20 將遭強制淘汰！
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/dust.png')]" />
     </div>
   );
 }

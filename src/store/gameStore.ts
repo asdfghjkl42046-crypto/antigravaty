@@ -43,7 +43,7 @@ interface GameStore extends GameStateData {
   setJudgeMode: (mode: JudgeMode) => void;
   clearStartNotifications: () => void;
   clearEngineError: () => void;
-  processScan: (code: string) => Promise<{ success: boolean; message: string; type?: 'location' | 'talent' | 'wash' }>;
+  processScan: (code: string, playerId?: string) => Promise<{ success: boolean; message: string; type?: 'location' | 'talent' | 'wash' }>;
 
   // --- 遊戲卡牌核心流程 ---
   performAction: (
@@ -109,11 +109,24 @@ export const useGameStore = create<GameStore>()(
       // --- 基礎系統生命週期動作 ---
       setJudgeMode: (mode) => set({ judgeMode: mode }),
 
-      processScan: async (code: string) => {
+      processScan: async (code: string, playerId?: string) => {
         /**
          * 處理掃描結果
-         * 玩家掃了實體 QR Code 後，看是觸發地點卡、雇用人才還是手牌洗牌。
+         * 加入身分驗證：確保掃描者是當前回合的玩家。
          */
+        const state = get();
+        const currentPlayer = state.players[state.currentPlayerIndex];
+
+        // 1. 系統性報錯：數據流斷裂 (Code Error / Sync Error)
+        if (!currentPlayer) {
+          return { success: false, message: SYSTEM_STRINGS.MESSAGES.INVALID_PLAYER };
+        }
+
+        // 2. 玩家行為錯誤：掃描順序不對 (User Logic Error)
+        if (playerId && playerId !== currentPlayer.id) {
+          return { success: false, message: SYSTEM_STRINGS.MESSAGES.NOT_YOUR_TURN };
+        }
+
         const codeUpper = code.toUpperCase().replace(/-/g, '').trim();
 
         // 處理特殊洗牌指令 (WASH)

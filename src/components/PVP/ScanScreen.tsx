@@ -150,7 +150,10 @@ export default function ScanScreen({
     const normalizedCode = code.trim().toUpperCase();
     if (!normalizedCode) return;
 
-    const result = await processScan(normalizedCode);
+    // 嘗試從本地存儲獲取當前操作者 ID
+    const localPlayerId = typeof window !== 'undefined' ? localStorage.getItem('antigravity_player_id') : null;
+
+    const result = await processScan(normalizedCode, localPlayerId || undefined);
     if (result.success) {
       setManualCode('');
       setStatus({ type: 'success', msg: SYSTEM_STRINGS.SCAN.SUCCESS });
