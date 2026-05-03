@@ -162,18 +162,29 @@ export default function PVPRegistrationScreen({
 
   // 3. 提交邏輯 [將單機的 onConfirm 改為 Supabase 寫入]
   const submitRegistration = async (bribe?: BribeItem) => {
-    if (!myPlayerId) return;
-    await supabase.from('pvp_players').update({
-      name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME,
-      owner_name: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME,
-      avatar_id: selectedAvatarId.toString(),
-      background_card: selectedPath,
-      bribe_item: bribe || selectedBribe || null,
-      is_ready: true
-    }).eq('id', myPlayerId);
+    if (!myPlayerId || !supabase) return;
     
-    setIsBookFocused(false);
-    setShowBribeModal(false);
+    try {
+      const { error } = await supabase.from('pvp_players').update({
+        display_name: currentName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_CORP_NAME,
+        // 如果資料庫沒有 owner_name 欄位，這裡先註解掉或確認名稱
+        // owner_name: currentOwnerName.trim() || SYSTEM_STRINGS.REGISTRATION.DEFAULT_OWNER_NAME,
+        avatar_id: selectedAvatarId.toString(),
+        background_card: selectedPath,
+        bribe_item: bribe || selectedBribe || null,
+        is_ready: true
+      }).eq('id', myPlayerId);
+
+      if (error) {
+        console.error('[PVP] Registration Update Failed:', error);
+        return;
+      }
+      
+      setIsBookFocused(false);
+      setShowBribeModal(false);
+    } catch (err) {
+      console.error('[PVP] Registration Unexpected Error:', err);
+    }
   };
 
   const handlePathSelect = (path: StartPath) => {
